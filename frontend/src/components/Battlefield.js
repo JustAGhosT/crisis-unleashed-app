@@ -3,6 +3,17 @@ import React, { useState } from 'react';
 const Battlefield = ({ selectedCard, onCardPlay }) => {
   const [hoveredZone, setHoveredZone] = useState(null);
   
+  // Mock battlefield units - commanders and deployed units
+  const [battlefieldUnits, setBattlefieldUnits] = useState({
+    // Enemy units (top row)
+    '0-2': { name: 'Enemy Commander', type: 'commander', health: 100, attack: 3, player: 'enemy' },
+    '0-1': { name: 'Cyber Drone', type: 'unit', health: 2, attack: 1, player: 'enemy' },
+    '0-3': { name: 'Assault Bot', type: 'unit', health: 3, attack: 2, player: 'enemy' },
+    
+    // Player units (bottom row)
+    '2-2': { name: 'Your Commander', type: 'commander', health: 100, attack: 3, player: 'player' },
+  });
+  
   // Create a 5x3 battlefield grid
   const createBattlefieldGrid = () => {
     const grid = [];
