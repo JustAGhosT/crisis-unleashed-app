@@ -29,13 +29,19 @@ const Battlefield = ({ selectedCard, onCardPlay }) => {
           <div
             key={position}
             className={`
-              battlefield-zone relative aspect-square border transition-all duration-300 cursor-pointer
+              battlefield-zone relative aspect-square border transition-all duration-300 cursor-pointer transform-gpu
               ${isPlayerZone ? 'border-cyan-400/50 bg-cyan-900/20' : ''}
               ${isEnemyZone ? 'border-red-400/50 bg-red-900/20' : ''}
               ${isNeutralZone ? 'border-purple-400/50 bg-purple-900/10' : ''}
-              ${hoveredZone === position ? 'scale-105 border-opacity-100 shadow-lg' : ''}
+              ${hoveredZone === position ? 'scale-105 border-opacity-100 shadow-lg -translate-y-2' : ''}
               ${selectedCard && hoveredZone === position && !unit ? 'bg-yellow-400/20' : ''}
             `}
+            style={{
+              transform: hoveredZone === position 
+                ? 'translateZ(10px) scale(1.05) translateY(-8px)' 
+                : 'translateZ(0px)',
+              transformStyle: 'preserve-3d'
+            }}
             onMouseEnter={() => setHoveredZone(position)}
             onMouseLeave={() => setHoveredZone(null)}
             onClick={() => {
