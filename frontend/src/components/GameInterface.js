@@ -80,8 +80,8 @@ const GameInterface = () => {
           </div>
         </div>
 
-        {/* Bottom - Player Hand */}
-        <div className="h-64 border-t border-cyan-400/30 bg-black/40 backdrop-blur-sm">
+        {/* Bottom - Player Hand with Expansion */}
+        <div className="card-hand-container h-64 border-t border-cyan-400/30 bg-black/40 backdrop-blur-sm transition-all duration-500 hover:h-80 group">
           <CardHand 
             selectedCard={selectedCard}
             onCardSelect={setSelectedCard}
