@@ -134,42 +134,41 @@ const Battlefield = ({ selectedCard, onCardPlay }) => {
   };
 
   return (
-    <div className="battlefield h-full flex flex-col justify-center items-center p-8 relative perspective-1000">
-      {/* Remove the battlefield header completely */}
-
-      {/* 3D Battlefield Container */}
-      <div className="battlefield-3d-container relative transform-gpu transition-all duration-500 hover:scale-105 hover:-translate-y-4">
-        {/* Main Battlefield Grid with 3D perspective */}
+    <div className="battlefield h-full flex flex-col justify-center items-center p-4 relative perspective-1000">
+      {/* 3D Battlefield Container - Much Larger */}
+      <div className="battlefield-3d-container relative transform-gpu transition-all duration-500 hover:scale-102 hover:-translate-y-2">
+        {/* Main Battlefield Grid with 3D perspective - Expanded Size */}
         <div 
-          className="battlefield-grid grid grid-cols-5 gap-3 max-w-4xl w-full transform-gpu transition-all duration-300"
+          className="battlefield-grid grid grid-cols-5 gap-4 w-full max-w-6xl transform-gpu transition-all duration-300"
           style={{
-            transform: 'perspective(1000px) rotateX(25deg) rotateY(-5deg)',
-            transformStyle: 'preserve-3d'
+            transform: 'perspective(1200px) rotateX(20deg) rotateY(-3deg)',
+            transformStyle: 'preserve-3d',
+            minHeight: '400px'
           }}
         >
           {createBattlefieldGrid()}
         </div>
 
-        {/* 3D Base/Platform */}
+        {/* 3D Base/Platform - Larger */}
         <div 
-          className="absolute inset-0 -z-10 bg-gradient-to-br from-slate-800/50 to-black/50 rounded-lg border border-cyan-400/20"
+          className="absolute inset-0 -z-10 bg-gradient-to-br from-slate-800/60 to-black/60 rounded-xl border border-cyan-400/30 shadow-2xl"
           style={{
-            transform: 'perspective(1000px) rotateX(25deg) rotateY(-5deg) translateZ(-20px)',
-            filter: 'blur(1px)'
+            transform: 'perspective(1200px) rotateX(20deg) rotateY(-3deg) translateZ(-15px)',
+            filter: 'blur(0.5px)'
           }}
         ></div>
       </div>
 
       {/* Data-Link Visualization (placeholder for synergies) */}
-      <div className="mt-8 text-center">
+      <div className="mt-4 text-center">
         <div className="text-xs text-gray-500 font-mono">
           DATA-LINK SYSTEM: Active Synergies will appear here
         </div>
       </div>
 
       {/* Battlefield Status - Repositioned */}
-      <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-sm border border-cyan-400/30 rounded-lg p-3">
-        <div className="text-xs text-cyan-400 font-mono mb-1">BATTLEFIELD STATUS</div>
+      <div className="absolute top-4 right-4 bg-black/70 backdrop-blur-sm border border-cyan-400/30 rounded-lg p-4">
+        <div className="text-xs text-cyan-400 font-mono mb-2">BATTLEFIELD STATUS</div>
         <div className="text-xs text-gray-300">
           Player Units: {Object.values(battlefieldUnits).filter(u => u.player === 'player').length}/8<br/>
           Enemy Units: {Object.values(battlefieldUnits).filter(u => u.player === 'enemy').length}/8
