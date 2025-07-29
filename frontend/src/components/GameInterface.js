@@ -81,7 +81,7 @@ const GameInterface = () => {
         </div>
 
         {/* Bottom - Player Hand */}
-        <div className="h-56 border-t border-cyan-400/30 bg-black/40 backdrop-blur-sm">
+        <div className="h-64 border-t border-cyan-400/30 bg-black/40 backdrop-blur-sm">
           <CardHand 
             selectedCard={selectedCard}
             onCardSelect={setSelectedCard}
