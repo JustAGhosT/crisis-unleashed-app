@@ -15,6 +15,35 @@
   font-family: 'Courier New', monospace;
 }
 
+/* 3D Perspective Utilities */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.transform-gpu {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* 3D Battlefield Effects */
+.battlefield-3d-container {
+  transform-style: preserve-3d;
+}
+
+.battlefield-3d-container:hover {
+  transform: scale(1.02) translateY(-8px);
+}
+
+.battlefield-3d-container:hover .battlefield-grid {
+  transform: perspective(1200px) rotateX(20deg) rotateY(-3deg) translateZ(10px);
+}
+
+/* Individual battlefield zone 3D effects */
+.battlefield-zone {
+  transform-style: preserve-3d;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 /* Holographic Grid Background */
 .grid-background {
   background-image: 
@@ -254,6 +283,24 @@
   pointer-events: none;
 }
 
+/* Energy Bar Animation */
+.energy-crystal {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.energy-crystal.active {
+  animation: energy-pulse 2s ease-in-out infinite;
+}
+
+@keyframes energy-pulse {
+  0%, 100% {
+    box-shadow: 0 0 4px rgba(34, 211, 238, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 8px rgba(34, 211, 238, 0.8), 0 0 12px rgba(34, 211, 238, 0.4);
+  }
+}
+
 /* Responsive Design */
 @media (max-width: 1200px) {
   .battlefield-grid {
@@ -277,6 +324,15 @@
   
   .card-container {
     min-width: 60px;
+  }
+  
+  /* Reduce 3D effects on mobile */
+  .battlefield-3d-container {
+    transform: none !important;
+  }
+  
+  .battlefield-grid {
+    transform: perspective(800px) rotateX(15deg) !important;
   }
 }
 
