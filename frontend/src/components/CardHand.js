@@ -250,53 +250,53 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
 
   return (
     <div className="tactical-hand h-full flex flex-col">
-      {/* Enhanced Hand Header */}
-      <div className="flex justify-between items-center p-4 border-b border-cyan-400/30 bg-gradient-to-r from-black/60 to-black/40">
+      {/* Compact Hand Header */}
+      <div className="flex justify-between items-center px-4 py-2 border-b border-cyan-400/20 bg-gradient-to-r from-black/40 to-black/20">
         <div className="flex items-center space-x-4">
-          <h2 className="text-cyan-400 font-bold font-mono text-lg">
+          <h2 className="text-cyan-400 font-bold font-mono text-sm">
             TACTICAL HAND
           </h2>
-          <div className="text-xs text-gray-400 font-mono">
-            NEURAL LINK: ACTIVE
+          <div className="text-xs text-gray-500 font-mono">
+            NEURAL LINK
           </div>
         </div>
         
-        <div className="flex items-center space-x-6">
+        <div className="flex items-center space-x-4">
           {/* Hand Info */}
-          <div className="text-sm text-gray-400 font-mono">
-            CARDS: <span className="text-cyan-400">{handCards.length}</span>/7
+          <div className="text-xs text-gray-400 font-mono">
+            <span className="text-cyan-400">{handCards.length}</span>/7
           </div>
           
-          {/* Energy Display */}
+          {/* Compact Energy Display */}
           <div className="flex items-center space-x-2">
-            <span className="text-sm text-cyan-400 font-mono">ENERGY:</span>
-            <div className="flex space-x-1">
+            <span className="text-xs text-cyan-400 font-mono">ENERGY:</span>
+            <div className="flex space-x-0.5">
               {[...Array(10)].map((_, i) => (
                 <div
                   key={i}
-                  className={`w-2 h-4 rounded-sm ${
+                  className={`w-1.5 h-3 rounded-sm ${
                     i < availableEnergy 
-                      ? 'bg-cyan-400 shadow-cyan-400/50 shadow-sm' 
-                      : 'bg-gray-700 border border-gray-600'
+                      ? 'bg-cyan-400 shadow-cyan-400/50' 
+                      : 'bg-gray-700'
                   }`}
                 />
               ))}
             </div>
-            <span className="text-cyan-400 font-bold font-mono ml-2">
+            <span className="text-cyan-400 font-bold font-mono text-xs">
               {availableEnergy}
             </span>
           </div>
         </div>
       </div>
 
-      {/* Cards Container */}
-      <div className="flex-1 flex items-center justify-center px-6 py-4 relative">
-        {/* Background Grid */}
-        <div className="absolute inset-0 opacity-5">
+      {/* Cards Container - Expanded */}
+      <div className="flex-1 flex items-center justify-center px-4 py-3 relative overflow-hidden">
+        {/* Background Grid - Subtle */}
+        <div className="absolute inset-0 opacity-3">
           <div className="grid-background"></div>
         </div>
         
-        <div className="flex space-x-4 max-w-full overflow-x-auto pb-4 relative z-10">
+        <div className="flex space-x-3 max-w-full overflow-x-auto relative z-10">
           {handCards.map((card) => (
             <Card
               key={card.id}
@@ -315,42 +315,22 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
         </div>
       </div>
 
-      {/* Action Bar */}
-      <div className="px-4 py-3 bg-gradient-to-r from-black/80 to-black/60 border-t border-cyan-400/30">
-        {selectedCard ? (
+      {/* Minimal Action Feedback */}
+      {selectedCard && (
+        <div className="px-4 py-2 bg-gradient-to-r from-yellow-900/20 to-yellow-800/20 border-t border-yellow-400/20">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="text-yellow-400 text-sm font-bold font-mono">
-                [{selectedCard.name.toUpperCase()}] SELECTED
-              </div>
-              <div className="text-xs text-gray-300 font-mono">
-                Energy Cost: {selectedCard.cost} • Type: {selectedCard.type.toUpperCase()}
-              </div>
+            <div className="text-yellow-400 text-xs font-bold font-mono">
+              [{selectedCard.name.toUpperCase()}] → DEPLOY TO BATTLEFIELD
             </div>
-            
-            <div className="flex space-x-2">
-              <button 
-                onClick={() => onCardSelect(null)}
-                className="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded text-xs font-mono transition-colors"
-              >
-                CANCEL
-              </button>
-              <button className="px-3 py-1 bg-cyan-600 hover:bg-cyan-500 text-white rounded text-xs font-mono transition-colors">
-                DEPLOY TO BATTLEFIELD
-              </button>
-            </div>
+            <button 
+              onClick={() => onCardSelect(null)}
+              className="text-xs text-gray-400 hover:text-gray-200 font-mono transition-colors"
+            >
+              [CANCEL]
+            </button>
           </div>
-        ) : (
-          <div className="text-center">
-            <div className="text-gray-400 text-sm font-mono">
-              SELECT A CARD TO VIEW DEPLOYMENT OPTIONS
-            </div>
-            <div className="text-xs text-gray-500 font-mono mt-1">
-              Click cards to select • Deploy strategically • Dominate the battlefield
-            </div>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
