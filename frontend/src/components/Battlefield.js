@@ -168,8 +168,8 @@ const Battlefield = ({ selectedCard, onCardPlay }) => {
         </div>
       </div>
 
-      {/* Battlefield Status - Repositioned */}
-      <div className="absolute top-4 right-4 bg-black/70 backdrop-blur-sm border border-cyan-400/30 rounded-lg p-4">
+      {/* Battlefield Status - Repositioned to avoid fullscreen button */}
+      <div className="absolute top-4 right-20 bg-black/70 backdrop-blur-sm border border-cyan-400/30 rounded-lg p-4">
         <div className="text-xs text-cyan-400 font-mono mb-2">BATTLEFIELD STATUS</div>
         <div className="text-xs text-gray-300">
           Player Units: {Object.values(battlefieldUnits).filter(u => u.player === 'player').length}/8<br/>
