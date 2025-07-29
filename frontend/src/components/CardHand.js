@@ -90,12 +90,14 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
           ${isCharacter ? 'w-24' : 'w-28'}
           ${isSelected ? 'transform -translate-y-6 scale-105 z-30' : 'hover:-translate-y-3 hover:scale-102 z-10'}
           ${!canAfford ? 'opacity-50 cursor-not-allowed' : ''}
+          group-hover:scale-110 group-hover:w-28 group-hover:h-36
         `}
         onClick={() => canAfford && onClick()}
       >
-        {/* Card Frame - Adjusted Height */}
+        {/* Card Frame - Responsive Height */}
         <div className={`
-          relative h-32 rounded-lg border-2 bg-gradient-to-br backdrop-blur-sm overflow-hidden
+          relative h-32 rounded-lg border-2 bg-gradient-to-br backdrop-blur-sm overflow-hidden transition-all duration-500
+          group-hover:h-40
           ${rarity.bg} ${rarity.border} ${rarity.glow}
           ${isSelected ? 'border-opacity-100 shadow-2xl ring-2 ring-yellow-400/50' : 'border-opacity-70 shadow-lg'}
           ${!canAfford ? 'grayscale' : ''}
@@ -107,22 +109,23 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
           </div>
 
           {/* Compact Card Header */}
-          <div className="relative p-1.5 border-b border-white/20 bg-black/50">
+          <div className="relative p-1.5 border-b border-white/20 bg-black/50 group-hover:p-2 transition-all duration-500">
             <div className="flex justify-between items-start">
               <div className="flex-1 min-w-0">
-                <h3 className="text-white font-bold text-xs truncate font-mono">
+                <h3 className="text-white font-bold text-xs truncate font-mono group-hover:text-sm transition-all duration-500">
                   {card.name}
                 </h3>
-                <div className="text-xs text-gray-400 capitalize font-mono opacity-70">
+                <div className="text-xs text-gray-400 capitalize font-mono opacity-70 group-hover:opacity-100 transition-all duration-500">
                   {card.type}
                 </div>
               </div>
               
-              {/* Energy Cost - Smaller */}
+              {/* Energy Cost - Slightly Larger on Hover */}
               <div className="ml-1 flex-shrink-0">
                 <div className={`
                   w-5 h-5 rounded-full border text-black text-xs font-bold 
-                  flex items-center justify-center font-mono
+                  flex items-center justify-center font-mono transition-all duration-500
+                  group-hover:w-6 group-hover:h-6
                   ${canAfford ? 'bg-cyan-400 border-cyan-300' : 'bg-red-400 border-red-300'}
                   ${isSelected ? 'animate-pulse' : ''}
                 `}>
@@ -133,10 +136,10 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
           </div>
 
           {/* Compact Card Art Area */}
-          <div className="relative flex-1 bg-gradient-to-br from-slate-900 to-black flex items-center justify-center min-h-[40px]">
-            {/* Unit Icon - Smaller */}
+          <div className="relative flex-1 bg-gradient-to-br from-slate-900 to-black flex items-center justify-center min-h-[40px] group-hover:min-h-[60px] transition-all duration-500">
+            {/* Unit Icon - Larger on Hover */}
             <div className={`
-              text-xl z-10 relative
+              text-xl z-10 relative transition-all duration-500 group-hover:text-2xl
               ${isSelected ? 'animate-bounce' : ''}
               ${isCharacter ? 'text-cyan-400' : 'text-purple-400'}
             `}>
@@ -145,7 +148,7 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
             
             {/* Rarity Indicator */}
             <div className={`
-              absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full
+              absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full group-hover:w-2 group-hover:h-2 transition-all duration-500
               ${card.rarity === 'legendary' ? 'bg-yellow-400 animate-ping' : ''}
               ${card.rarity === 'epic' ? 'bg-purple-400' : ''}
               ${card.rarity === 'rare' ? 'bg-blue-400' : ''}
@@ -153,10 +156,10 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
             `}></div>
           </div>
 
-          {/* Card Stats (Character only) - Compact */}
+          {/* Card Stats (Character only) - More Visible on Hover */}
           {isCharacter && (
-            <div className="px-1.5 py-0.5 bg-black/70 border-t border-white/10">
-              <div className="flex justify-between text-xs font-bold font-mono">
+            <div className="px-1.5 py-0.5 bg-black/70 border-t border-white/10 group-hover:py-1 transition-all duration-500">
+              <div className="flex justify-between text-xs font-bold font-mono group-hover:text-sm transition-all duration-500">
                 <div className="flex items-center space-x-0.5">
                   <span className="text-red-400">⚔</span>
                   <span className="text-red-300">{card.attack}</span>
@@ -169,11 +172,11 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
             </div>
           )}
 
-          {/* Compact Card Abilities */}
-          <div className="px-1.5 py-0.5 bg-black/80">
-            <div className="flex flex-wrap gap-0.5">
-              {card.abilities?.slice(0, 1).map((ability, index) => (
-                <span key={index} className="text-xs px-1 py-0.5 bg-yellow-600/30 text-yellow-300 rounded font-mono">
+          {/* Compact Card Abilities - Show More on Hover */}
+          <div className="px-1.5 py-0.5 bg-black/80 group-hover:py-1 transition-all duration-500">
+            <div className="flex flex-wrap gap-0.5 group-hover:gap-1 transition-all duration-500">
+              {card.abilities?.slice(0, isSelected ? 2 : 1).map((ability, index) => (
+                <span key={index} className="text-xs px-1 py-0.5 bg-yellow-600/30 text-yellow-300 rounded font-mono group-hover:px-1.5 transition-all duration-500">
                   {ability}
                 </span>
               ))}
