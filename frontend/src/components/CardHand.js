@@ -231,7 +231,7 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
 
   return (
     <div className="tactical-hand h-full flex flex-col">
-      {/* Compact Hand Header */}
+      {/* Minimal Header */}
       <div className="flex justify-between items-center px-4 py-2 border-b border-cyan-400/20 bg-gradient-to-r from-black/40 to-black/20">
         <div className="flex items-center space-x-4">
           <h2 className="text-cyan-400 font-bold font-mono text-sm">
@@ -246,26 +246,6 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
           {/* Hand Info */}
           <div className="text-xs text-gray-400 font-mono">
             <span className="text-cyan-400">{handCards.length}</span>/7
-          </div>
-          
-          {/* Compact Energy Display */}
-          <div className="flex items-center space-x-2">
-            <span className="text-xs text-cyan-400 font-mono">ENERGY:</span>
-            <div className="flex space-x-0.5">
-              {[...Array(10)].map((_, i) => (
-                <div
-                  key={i}
-                  className={`w-1.5 h-3 rounded-sm ${
-                    i < availableEnergy 
-                      ? 'bg-cyan-400 shadow-cyan-400/50' 
-                      : 'bg-gray-700'
-                  }`}
-                />
-              ))}
-            </div>
-            <span className="text-cyan-400 font-bold font-mono text-xs">
-              {availableEnergy}
-            </span>
           </div>
         </div>
       </div>
@@ -293,6 +273,28 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
               }}
             />
           ))}
+        </div>
+      </div>
+
+      {/* Energy Bar - Moved Below Cards */}
+      <div className="px-4 py-2 bg-gradient-to-r from-black/60 to-black/40 border-t border-cyan-400/20">
+        <div className="flex items-center justify-center space-x-4">
+          <span className="text-sm text-cyan-400 font-mono">ENERGY:</span>
+          <div className="flex space-x-1">
+            {[...Array(10)].map((_, i) => (
+              <div
+                key={i}
+                className={`w-3 h-4 rounded-sm transition-all duration-300 ${
+                  i < availableEnergy 
+                    ? 'bg-cyan-400 shadow-cyan-400/50 shadow-sm scale-110' 
+                    : 'bg-gray-700 border border-gray-600'
+                }`}
+              />
+            ))}
+          </div>
+          <span className="text-cyan-400 font-bold font-mono text-sm">
+            {availableEnergy}/10
+          </span>
         </div>
       </div>
 
