@@ -128,30 +128,40 @@ const Battlefield = ({ selectedCard, onCardPlay }) => {
   };
 
   return (
-    <div className="battlefield h-full flex flex-col justify-center items-center p-8">
-      {/* Battlefield Header */}
-      <div className="mb-6 text-center">
-        <h2 className="text-2xl font-bold text-cyan-400 font-mono tracking-wider mb-2">
-          TACTICAL BATTLEFIELD
-        </h2>
-        <div className="text-sm text-gray-400">
-          Deploy units strategically • Control the battlefield • Victory awaits
-        </div>
-      </div>
+    <div className="battlefield h-full flex flex-col justify-center items-center p-8 relative perspective-1000">
+      {/* Remove the battlefield header completely */}
 
-      {/* Main Battlefield Grid */}
-      <div className="battlefield-grid grid grid-cols-5 gap-2 max-w-4xl w-full">
-        {createBattlefieldGrid()}
+      {/* 3D Battlefield Container */}
+      <div className="battlefield-3d-container relative transform-gpu transition-all duration-500 hover:scale-105 hover:-translate-y-4">
+        {/* Main Battlefield Grid with 3D perspective */}
+        <div 
+          className="battlefield-grid grid grid-cols-5 gap-3 max-w-4xl w-full transform-gpu transition-all duration-300"
+          style={{
+            transform: 'perspective(1000px) rotateX(25deg) rotateY(-5deg)',
+            transformStyle: 'preserve-3d'
+          }}
+        >
+          {createBattlefieldGrid()}
+        </div>
+
+        {/* 3D Base/Platform */}
+        <div 
+          className="absolute inset-0 -z-10 bg-gradient-to-br from-slate-800/50 to-black/50 rounded-lg border border-cyan-400/20"
+          style={{
+            transform: 'perspective(1000px) rotateX(25deg) rotateY(-5deg) translateZ(-20px)',
+            filter: 'blur(1px)'
+          }}
+        ></div>
       </div>
 
       {/* Data-Link Visualization (placeholder for synergies) */}
-      <div className="mt-6 text-center">
+      <div className="mt-8 text-center">
         <div className="text-xs text-gray-500 font-mono">
           DATA-LINK SYSTEM: Active Synergies will appear here
         </div>
       </div>
 
-      {/* Battlefield Status */}
+      {/* Battlefield Status - Repositioned */}
       <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-sm border border-cyan-400/30 rounded-lg p-3">
         <div className="text-xs text-cyan-400 font-mono mb-1">BATTLEFIELD STATUS</div>
         <div className="text-xs text-gray-300">
