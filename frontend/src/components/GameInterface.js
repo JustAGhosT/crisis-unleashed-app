@@ -48,7 +48,7 @@ const GameInterface = () => {
       {/* Fullscreen Button */}
       <button
         onClick={toggleFullscreen}
-        className="absolute top-4 right-4 z-50 w-10 h-10 bg-black/60 border border-cyan-400/50 rounded-lg backdrop-blur-sm hover:bg-cyan-900/40 hover:border-cyan-400 transition-all duration-300 flex items-center justify-center group"
+        className="absolute top-4 right-4 z-50 w-10 h-10 bg-black/70 border border-cyan-400/50 rounded-lg backdrop-blur-sm hover:bg-cyan-900/40 hover:border-cyan-400 transition-all duration-300 flex items-center justify-center group"
         title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
       >
         {isFullscreen ? (
