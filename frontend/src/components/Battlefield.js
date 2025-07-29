@@ -23,6 +23,7 @@ const Battlefield = ({ selectedCard, onCardPlay }) => {
         const isPlayerZone = row === 2;
         const isEnemyZone = row === 0;
         const isNeutralZone = row === 1;
+        const unit = battlefieldUnits[position];
         
         grid.push(
           <div
@@ -33,12 +34,23 @@ const Battlefield = ({ selectedCard, onCardPlay }) => {
               ${isEnemyZone ? 'border-red-400/50 bg-red-900/20' : ''}
               ${isNeutralZone ? 'border-purple-400/50 bg-purple-900/10' : ''}
               ${hoveredZone === position ? 'scale-105 border-opacity-100 shadow-lg' : ''}
-              ${selectedCard && hoveredZone === position ? 'bg-yellow-400/20' : ''}
+              ${selectedCard && hoveredZone === position && !unit ? 'bg-yellow-400/20' : ''}
             `}
             onMouseEnter={() => setHoveredZone(position)}
             onMouseLeave={() => setHoveredZone(null)}
             onClick={() => {
-              if (selectedCard) {
+              if (selectedCard && !unit) {
+                // Deploy card to this position
+                setBattlefieldUnits(prev => ({
+                  ...prev,
+                  [position]: {
+                    name: selectedCard.name,
+                    type: selectedCard.type,
+                    health: selectedCard.health || 1,
+                    attack: selectedCard.attack || 1,
+                    player: 'player'
+                  }
+                }));
                 onCardPlay(position);
               }
             }}
@@ -48,28 +60,62 @@ const Battlefield = ({ selectedCard, onCardPlay }) => {
               {position}
             </div>
             
+            {/* Unit Display */}
+            {unit && (
+              <div className={`
+                absolute inset-1 rounded border-2 flex flex-col items-center justify-center text-center
+                ${unit.player === 'player' 
+                  ? 'border-cyan-400 bg-cyan-900/40 text-cyan-100' 
+                  : 'border-red-400 bg-red-900/40 text-red-100'
+                }
+                ${unit.type === 'commander' ? 'border-4 shadow-lg' : ''}
+              `}>
+                {/* Unit Icon */}
+                <div className="text-2xl mb-1">
+                  {unit.type === 'commander' ? '👑' : '⚔️'}
+                </div>
+                
+                {/* Unit Name */}
+                <div className="text-xs font-bold truncate w-full px-1">
+                  {unit.name}
+                </div>
+                
+                {/* Unit Stats */}
+                <div className="flex justify-between w-full px-1 text-xs mt-1">
+                  <span className="text-red-300">{unit.attack}</span>
+                  <span className="text-green-300">{unit.health}</span>
+                </div>
+              </div>
+            )}
+            
             {/* Holographic Grid Effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-transparent via-cyan-400/5 to-transparent"></div>
+            {!unit && (
+              <div className="absolute inset-0 bg-gradient-to-br from-transparent via-cyan-400/5 to-transparent"></div>
+            )}
             
             {/* Zone Indicators */}
-            {isPlayerZone && (
-              <div className="absolute bottom-1 right-1 text-xs text-cyan-400 font-semibold">
-                ALLY
-              </div>
-            )}
-            {isEnemyZone && (
-              <div className="absolute bottom-1 right-1 text-xs text-red-400 font-semibold">
-                ENEMY
-              </div>
-            )}
-            {isNeutralZone && (
-              <div className="absolute bottom-1 right-1 text-xs text-purple-400 font-semibold">
-                NEUTRAL
-              </div>
+            {!unit && (
+              <>
+                {isPlayerZone && (
+                  <div className="absolute bottom-1 right-1 text-xs text-cyan-400 font-semibold">
+                    ALLY
+                  </div>
+                )}
+                {isEnemyZone && (
+                  <div className="absolute bottom-1 right-1 text-xs text-red-400 font-semibold">
+                    ENEMY
+                  </div>
+                )}
+                {isNeutralZone && (
+                  <div className="absolute bottom-1 right-1 text-xs text-purple-400 font-semibold">
+                    NEUTRAL
+                  </div>
+                )}
+              </>
             )}
             
             {/* Placement Indicator */}
-            {selectedCard && hoveredZone === position && (
+            {selectedCard && hoveredZone === position && !unit && (
               <div className="absolute inset-2 border-2 border-yellow-400 border-dashed animate-pulse rounded">
                 <div className="absolute inset-0 bg-yellow-400/10"></div>
               </div>
