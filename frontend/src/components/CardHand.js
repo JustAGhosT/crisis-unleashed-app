@@ -87,45 +87,41 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
       <div
         className={`
           card-container relative cursor-pointer transition-all duration-300 select-none
-          ${isCharacter ? 'w-28' : 'w-36'}
-          ${isSelected ? 'transform -translate-y-8 scale-110 z-30' : 'hover:-translate-y-4 hover:scale-105 z-10'}
+          ${isCharacter ? 'w-24' : 'w-28'}
+          ${isSelected ? 'transform -translate-y-6 scale-105 z-30' : 'hover:-translate-y-3 hover:scale-102 z-10'}
           ${!canAfford ? 'opacity-50 cursor-not-allowed' : ''}
         `}
         onClick={() => canAfford && onClick()}
       >
-        {/* Card Frame */}
+        {/* Card Frame - Adjusted Height */}
         <div className={`
-          relative h-40 rounded-lg border-2 bg-gradient-to-br backdrop-blur-sm overflow-hidden
+          relative h-32 rounded-lg border-2 bg-gradient-to-br backdrop-blur-sm overflow-hidden
           ${rarity.bg} ${rarity.border} ${rarity.glow}
           ${isSelected ? 'border-opacity-100 shadow-2xl ring-2 ring-yellow-400/50' : 'border-opacity-70 shadow-lg'}
           ${!canAfford ? 'grayscale' : ''}
         `}>
           
-          {/* Holographic Scan Lines */}
-          <div className="absolute inset-0 opacity-20">
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-400/10 to-transparent animate-pulse"></div>
-            <div className="absolute inset-0" style={{
-              backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(34, 211, 238, 0.05) 2px, rgba(34, 211, 238, 0.05) 4px)',
-              animation: 'scanlines 2s linear infinite'
-            }}></div>
+          {/* Holographic Scan Lines - Reduced */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-400/5 to-transparent"></div>
           </div>
 
-          {/* Card Header */}
-          <div className="relative p-2 border-b border-white/20 bg-black/50">
+          {/* Compact Card Header */}
+          <div className="relative p-1.5 border-b border-white/20 bg-black/50">
             <div className="flex justify-between items-start">
               <div className="flex-1 min-w-0">
-                <h3 className="text-white font-bold text-sm truncate font-mono">
+                <h3 className="text-white font-bold text-xs truncate font-mono">
                   {card.name}
                 </h3>
-                <div className="text-xs text-gray-300 capitalize font-mono opacity-80">
+                <div className="text-xs text-gray-400 capitalize font-mono opacity-70">
                   {card.type}
                 </div>
               </div>
               
-              {/* Energy Cost */}
-              <div className="ml-2 flex-shrink-0">
+              {/* Energy Cost - Smaller */}
+              <div className="ml-1 flex-shrink-0">
                 <div className={`
-                  w-7 h-7 rounded-full border-2 text-black text-sm font-bold 
+                  w-5 h-5 rounded-full border text-black text-xs font-bold 
                   flex items-center justify-center font-mono
                   ${canAfford ? 'bg-cyan-400 border-cyan-300' : 'bg-red-400 border-red-300'}
                   ${isSelected ? 'animate-pulse' : ''}
@@ -136,20 +132,11 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
             </div>
           </div>
 
-          {/* Card Art Area */}
-          <div className="relative flex-1 bg-gradient-to-br from-slate-900 to-black flex items-center justify-center">
-            {/* Background Tech Pattern */}
-            <div className="absolute inset-0 opacity-10">
-              <div className="grid grid-cols-4 grid-rows-3 h-full w-full gap-px">
-                {[...Array(12)].map((_, i) => (
-                  <div key={i} className="bg-cyan-400/20"></div>
-                ))}
-              </div>
-            </div>
-            
-            {/* Unit Icon */}
+          {/* Compact Card Art Area */}
+          <div className="relative flex-1 bg-gradient-to-br from-slate-900 to-black flex items-center justify-center min-h-[40px]">
+            {/* Unit Icon - Smaller */}
             <div className={`
-              text-3xl z-10 relative
+              text-xl z-10 relative
               ${isSelected ? 'animate-bounce' : ''}
               ${isCharacter ? 'text-cyan-400' : 'text-purple-400'}
             `}>
@@ -158,7 +145,7 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
             
             {/* Rarity Indicator */}
             <div className={`
-              absolute top-1 right-1 w-2 h-2 rounded-full
+              absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full
               ${card.rarity === 'legendary' ? 'bg-yellow-400 animate-ping' : ''}
               ${card.rarity === 'epic' ? 'bg-purple-400' : ''}
               ${card.rarity === 'rare' ? 'bg-blue-400' : ''}
@@ -166,15 +153,15 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
             `}></div>
           </div>
 
-          {/* Card Stats (Character only) */}
+          {/* Card Stats (Character only) - Compact */}
           {isCharacter && (
-            <div className="px-2 py-1 bg-black/70 border-t border-white/10">
+            <div className="px-1.5 py-0.5 bg-black/70 border-t border-white/10">
               <div className="flex justify-between text-xs font-bold font-mono">
-                <div className="flex items-center space-x-1">
+                <div className="flex items-center space-x-0.5">
                   <span className="text-red-400">⚔</span>
                   <span className="text-red-300">{card.attack}</span>
                 </div>
-                <div className="flex items-center space-x-1">
+                <div className="flex items-center space-x-0.5">
                   <span className="text-green-400">❤</span>
                   <span className="text-green-300">{card.health}</span>
                 </div>
@@ -182,25 +169,22 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
             </div>
           )}
 
-          {/* Card Abilities */}
-          <div className="px-2 py-1 bg-black/80">
-            <div className="flex flex-wrap gap-1">
-              {card.abilities?.slice(0, 2).map((ability, index) => (
-                <span key={index} className="text-xs px-1.5 py-0.5 bg-yellow-600/30 text-yellow-300 rounded font-mono">
+          {/* Compact Card Abilities */}
+          <div className="px-1.5 py-0.5 bg-black/80">
+            <div className="flex flex-wrap gap-0.5">
+              {card.abilities?.slice(0, 1).map((ability, index) => (
+                <span key={index} className="text-xs px-1 py-0.5 bg-yellow-600/30 text-yellow-300 rounded font-mono">
                   {ability}
                 </span>
               ))}
             </div>
           </div>
 
-          {/* Holographic Sweep Effect */}
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transform -skew-x-12 translate-x-full group-hover:translate-x-[-200%] transition-transform duration-1000 pointer-events-none"></div>
-          
           {/* Selection Effects */}
           {isSelected && (
             <>
               <div className="absolute inset-0 border-2 border-yellow-400 rounded-lg animate-pulse"></div>
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full animate-ping"></div>
+              <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-yellow-400 rounded-full animate-ping"></div>
               <div className="absolute inset-0 bg-yellow-400/5 rounded-lg"></div>
             </>
           )}
@@ -208,31 +192,28 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
           {/* Affordability Indicator */}
           {!canAfford && (
             <div className="absolute inset-0 bg-red-900/50 rounded-lg flex items-center justify-center">
-              <div className="text-red-400 text-xs font-bold font-mono">
-                INSUFFICIENT<br/>ENERGY
+              <div className="text-red-400 text-xs font-bold font-mono text-center">
+                NO<br/>ENERGY
               </div>
             </div>
           )}
         </div>
 
-        {/* Card Description Tooltip (appears on hover/selection) */}
+        {/* Detailed Tooltip (only when selected) */}
         {(isSelected) && (
           <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 z-40">
-            <div className="bg-black/90 border border-cyan-400/50 rounded-lg p-3 max-w-xs backdrop-blur-sm">
-              <div className="text-cyan-400 font-bold text-sm font-mono mb-1">
+            <div className="bg-black/95 border border-cyan-400/50 rounded-lg p-2 max-w-xs backdrop-blur-sm">
+              <div className="text-cyan-400 font-bold text-xs font-mono mb-1">
                 {card.name}
               </div>
               <div className="text-gray-300 text-xs leading-relaxed">
                 {card.description}
               </div>
               {card.abilities && (
-                <div className="mt-2 pt-2 border-t border-gray-600">
-                  <div className="text-yellow-400 text-xs font-bold font-mono mb-1">
-                    ABILITIES:
-                  </div>
+                <div className="mt-1 pt-1 border-t border-gray-600">
                   <div className="flex flex-wrap gap-1">
                     {card.abilities.map((ability, index) => (
-                      <span key={index} className="text-xs px-1.5 py-0.5 bg-yellow-600/20 text-yellow-300 rounded font-mono">
+                      <span key={index} className="text-xs px-1 py-0.5 bg-yellow-600/20 text-yellow-300 rounded font-mono">
                         {ability}
                       </span>
                     ))}
