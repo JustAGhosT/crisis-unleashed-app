@@ -54,40 +54,40 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
   const Card = ({ card, isSelected, onClick }) => {
     const isCharacter = card.type === 'character';
     const rarityColors = {
-      common: 'from-gray-600 to-gray-700 border-gray-500',
-      rare: 'from-blue-600 to-blue-700 border-blue-400',
-      epic: 'from-purple-600 to-purple-700 border-purple-400',
-      legendary: 'from-yellow-600 to-yellow-700 border-yellow-400'
+      common: 'from-gray-600 to-gray-700 border-gray-400',
+      rare: 'from-blue-600 to-blue-700 border-blue-300',
+      epic: 'from-purple-600 to-purple-700 border-purple-300',
+      legendary: 'from-yellow-600 to-yellow-700 border-yellow-300'
     };
 
     return (
       <div
         className={`
           card relative cursor-pointer transition-all duration-300 select-none
-          ${isCharacter ? 'aspect-[3/4]' : 'aspect-[4/3]'}
-          ${isSelected ? 'transform -translate-y-4 scale-110 z-20' : 'hover:-translate-y-2 hover:scale-105'}
+          ${isCharacter ? 'aspect-[3/4] w-24' : 'aspect-[4/3] w-32'}
+          ${isSelected ? 'transform -translate-y-6 scale-110 z-20' : 'hover:-translate-y-3 hover:scale-105'}
         `}
         onClick={onClick}
       >
         <div className={`
           h-full w-full rounded-lg border-2 bg-gradient-to-br backdrop-blur-sm
           ${rarityColors[card.rarity]}
-          ${isSelected ? 'border-opacity-100 shadow-2xl' : 'border-opacity-60 shadow-lg'}
+          ${isSelected ? 'border-opacity-100 shadow-2xl shadow-yellow-400/30' : 'border-opacity-80 shadow-lg'}
           overflow-hidden
         `}>
           {/* Card Header */}
-          <div className="p-2 border-b border-white/20">
+          <div className="p-1.5 border-b border-white/20 bg-black/40">
             <div className="flex justify-between items-start">
               <div className="flex-1 min-w-0">
-                <h3 className="text-white font-bold text-sm truncate">
+                <h3 className="text-white font-bold text-xs truncate">
                   {card.name}
                 </h3>
                 <div className="text-xs text-gray-300 capitalize">
                   {card.type}
                 </div>
               </div>
-              <div className="ml-2 flex-shrink-0">
-                <div className="w-6 h-6 rounded-full bg-cyan-400 text-black text-xs font-bold flex items-center justify-center">
+              <div className="ml-1 flex-shrink-0">
+                <div className="w-5 h-5 rounded-full bg-cyan-400 text-black text-xs font-bold flex items-center justify-center">
                   {card.cost}
                 </div>
               </div>
@@ -95,38 +95,38 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
           </div>
 
           {/* Card Art Placeholder */}
-          <div className="flex-1 bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center">
-            <div className="text-4xl text-gray-600">
+          <div className="flex-1 bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center min-h-[60px]">
+            <div className={`text-2xl ${isSelected ? 'animate-pulse' : ''}`}>
               {isCharacter ? '👤' : '⚡'}
             </div>
           </div>
 
           {/* Card Stats (Character only) */}
           {isCharacter && (
-            <div className="px-2 py-1 bg-black/40 flex justify-between text-xs">
-              <div className="text-red-400 font-bold">
+            <div className="px-1.5 py-1 bg-black/60 flex justify-between text-xs font-bold">
+              <div className="text-red-400">
                 ATK: {card.attack}
               </div>
-              <div className="text-green-400 font-bold">
+              <div className="text-green-400">
                 HP: {card.health}
               </div>
             </div>
           )}
 
           {/* Card Description */}
-          <div className="p-2 bg-black/60">
-            <p className="text-xs text-gray-300 line-clamp-2">
+          <div className="p-1.5 bg-black/80">
+            <p className="text-xs text-gray-200 line-clamp-2 leading-tight">
               {card.description}
             </p>
           </div>
 
           {/* Holographic Effect */}
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent transform -skew-x-12 translate-x-full group-hover:translate-x-[-200%] transition-transform duration-1000 pointer-events-none"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transform -skew-x-12 translate-x-full group-hover:translate-x-[-200%] transition-transform duration-1000 pointer-events-none"></div>
           
           {/* Selection Indicator */}
           {isSelected && (
             <div className="absolute inset-0 border-2 border-yellow-400 rounded-lg animate-pulse">
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full"></div>
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-ping"></div>
             </div>
           )}
         </div>
