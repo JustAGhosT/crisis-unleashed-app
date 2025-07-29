@@ -148,7 +148,7 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
 
       {/* Cards Container */}
       <div className="flex-1 flex items-center justify-center px-4 py-2">
-        <div className="flex space-x-2 max-w-full overflow-x-auto">
+        <div className="flex space-x-3 max-w-full overflow-x-auto pb-2">
           {handCards.map((card) => (
             <Card
               key={card.id}
