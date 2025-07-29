@@ -31,6 +31,12 @@
   50% { opacity: 0.6; }
 }
 
+/* Scanlines Animation for Cards */
+@keyframes scanlines {
+  0% { transform: translateY(0px); }
+  100% { transform: translateY(4px); }
+}
+
 /* Custom Scrollbar for Cyberpunk Theme */
 ::-webkit-scrollbar {
   width: 8px;
@@ -78,13 +84,13 @@
   left: 100%;
 }
 
-/* Card Hover Effects */
-.card {
+/* Enhanced Card Hover Effects */
+.card-container {
   position: relative;
   transform-style: preserve-3d;
 }
 
-.card::after {
+.card-container::after {
   content: '';
   position: absolute;
   top: 0;
@@ -103,7 +109,7 @@
   border-radius: 0.5rem;
 }
 
-.card:hover::after {
+.card-container:hover::after {
   opacity: 1;
 }
 
@@ -215,13 +221,46 @@
   100% { transform: translateY(4px); }
 }
 
+/* Enhanced Card Selection Glow */
+.card-selected {
+  animation: card-selection-glow 1.5s ease-in-out infinite;
+}
+
+@keyframes card-selection-glow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(250, 204, 21, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(250, 204, 21, 0.8), 0 0 30px rgba(250, 204, 21, 0.4);
+  }
+}
+
+/* Tactical Hand Enhancements */
+.tactical-hand {
+  position: relative;
+}
+
+.tactical-hand::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(34, 211, 238, 0.05) 0%,
+    transparent 20%,
+    transparent 80%,
+    rgba(34, 211, 238, 0.05) 100%
+  );
+  pointer-events: none;
+}
+
 /* Responsive Design */
 @media (max-width: 1200px) {
   .battlefield-grid {
     max-width: 600px;
   }
   
-  .card {
+  .card-container {
     min-width: 80px;
   }
 }
@@ -236,7 +275,7 @@
     max-width: 400px;
   }
   
-  .card {
+  .card-container {
     min-width: 60px;
   }
 }
