@@ -1,38 +1,250 @@
+/* Crisis Unleashed - Holographic Command Console Theme */
+
+:root {
+  --color-cyan-400: 34 211 238;
+  --color-cyan-900: 22 78 99;
+  --color-red-400: 248 113 113;
+  --color-red-900: 127 29 29;
+  --color-yellow-400: 250 204 21;
+  --color-purple-400: 196 181 253;
+  --color-green-400: 34 197 94;
+}
+
 .App {
-    text-align: center;
+  text-align: left;
+  font-family: 'Courier New', monospace;
 }
 
-.App-logo {
-    height: 40vmin;
-    pointer-events: none;
+/* Holographic Grid Background */
+.grid-background {
+  background-image: 
+    linear-gradient(rgba(34, 211, 238, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 211, 238, 0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+  width: 100%;
+  height: 100%;
+  animation: grid-pulse 4s ease-in-out infinite;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-    .App-logo {
-        animation: App-logo-spin infinite 20s linear;
-    }
+@keyframes grid-pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
 }
 
-.App-header {
-    background-color: #0f0f10;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
+/* Custom Scrollbar for Cyberpunk Theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-.App-link {
-    color: #61dafb;
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
 }
 
-@keyframes App-logo-spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+::-webkit-scrollbar-thumb {
+  background: rgba(34, 211, 238, 0.6);
+  border-radius: 4px;
+  border: 1px solid rgba(34, 211, 238, 0.3);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(34, 211, 238, 0.8);
+}
+
+/* Battlefield Zone Animations */
+.battlefield-zone {
+  position: relative;
+  overflow: hidden;
+}
+
+.battlefield-zone::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(34, 211, 238, 0.1),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.battlefield-zone:hover::before {
+  left: 100%;
+}
+
+/* Card Hover Effects */
+.card {
+  position: relative;
+  transform-style: preserve-3d;
+}
+
+.card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(34, 211, 238, 0.1) 50%,
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  border-radius: 0.5rem;
+}
+
+.card:hover::after {
+  opacity: 1;
+}
+
+/* Glowing Button Effect */
+.glow-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.glow-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.glow-button:hover::before {
+  left: 100%;
+}
+
+/* Pulsing Animation for Critical Elements */
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(34, 211, 238, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(34, 211, 238, 0.6), 0 0 30px rgba(34, 211, 238, 0.3);
+  }
+}
+
+/* Console Border Glow */
+.console-border {
+  position: relative;
+}
+
+.console-border::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  padding: 2px;
+  background: linear-gradient(45deg, 
+    rgba(34, 211, 238, 0.4), 
+    rgba(168, 85, 247, 0.4), 
+    rgba(34, 211, 238, 0.4)
+  );
+  border-radius: inherit;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: subtract;
+  animation: border-glow 3s linear infinite;
+}
+
+@keyframes border-glow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Text Glow Effects */
+.text-glow-cyan {
+  text-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
+}
+
+.text-glow-red {
+  text-shadow: 0 0 10px rgba(248, 113, 113, 0.5);
+}
+
+.text-glow-yellow {
+  text-shadow: 0 0 10px rgba(250, 204, 21, 0.5);
+}
+
+/* Holographic Interference Effect */
+.holographic-interference {
+  position: relative;
+}
+
+.holographic-interference::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(34, 211, 238, 0.03) 2px,
+    rgba(34, 211, 238, 0.03) 4px
+  );
+  pointer-events: none;
+  animation: interference 0.1s linear infinite;
+}
+
+@keyframes interference {
+  0% { transform: translateY(0px); }
+  100% { transform: translateY(4px); }
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .battlefield-grid {
+    max-width: 600px;
+  }
+  
+  .card {
+    min-width: 80px;
+  }
+}
+
+@media (max-width: 768px) {
+  .game-interface {
+    font-size: 14px;
+  }
+  
+  .battlefield-grid {
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 400px;
+  }
+  
+  .card {
+    min-width: 60px;
+  }
+}
+
+/* Line clamp utility for card descriptions */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
