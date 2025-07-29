@@ -155,8 +155,8 @@ const Battlefield = ({ selectedCard, onCardPlay }) => {
       <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-sm border border-cyan-400/30 rounded-lg p-3">
         <div className="text-xs text-cyan-400 font-mono mb-1">BATTLEFIELD STATUS</div>
         <div className="text-xs text-gray-300">
-          Active Units: 0/15<br/>
-          Control Points: 0
+          Player Units: {Object.values(battlefieldUnits).filter(u => u.player === 'player').length}/8<br/>
+          Enemy Units: {Object.values(battlefieldUnits).filter(u => u.player === 'enemy').length}/8
         </div>
       </div>
     </div>
