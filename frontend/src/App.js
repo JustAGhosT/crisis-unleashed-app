@@ -1,7 +1,7 @@
-import React from "react";
-import "./App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import GameInterface from "./components/GameInterface";
+import React from 'react';
+import './App.css';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import GameInterface from './components/GameInterface';
 
 function App() {
   return (

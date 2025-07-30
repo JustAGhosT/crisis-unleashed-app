@@ -5,55 +5,55 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
   const handCards = [
     {
       id: 1,
-      name: "Cyber Soldier",
-      type: "character",
+      name: 'Cyber Soldier',
+      type: 'character',
       cost: 3,
       attack: 2,
       health: 3,
-      rarity: "common",
-      description: "Basic infantry unit with enhanced targeting systems",
-      abilities: ["First Strike"]
+      rarity: 'common',
+      description: 'Basic infantry unit with enhanced targeting systems',
+      abilities: ['First Strike'],
     },
     {
       id: 2,
-      name: "Neural Hack",
-      type: "action",
+      name: 'Neural Hack',
+      type: 'action',
       cost: 2,
-      rarity: "rare",
-      description: "Disable target enemy unit for one turn",
-      abilities: ["Instant", "Disable"]
+      rarity: 'rare',
+      description: 'Disable target enemy unit for one turn',
+      abilities: ['Instant', 'Disable'],
     },
     {
       id: 3,
-      name: "Plasma Cannon",
-      type: "character",
+      name: 'Plasma Cannon',
+      type: 'character',
       cost: 5,
       attack: 4,
       health: 2,
-      rarity: "epic",
-      description: "Heavy weapons platform with area damage capabilities",
-      abilities: ["Area Damage", "Range 2"]
+      rarity: 'epic',
+      description: 'Heavy weapons platform with area damage capabilities',
+      abilities: ['Area Damage', 'Range 2'],
     },
     {
       id: 4,
-      name: "Data Stream",
-      type: "action",
+      name: 'Data Stream',
+      type: 'action',
       cost: 1,
-      rarity: "common",
-      description: "Access tactical networks • Draw 2 cards from your deck",
-      abilities: ["Draw", "Instant"]
+      rarity: 'common',
+      description: 'Access tactical networks • Draw 2 cards from your deck',
+      abilities: ['Draw', 'Instant'],
     },
     {
       id: 5,
-      name: "Quantum Guardian",
-      type: "character",
+      name: 'Quantum Guardian',
+      type: 'character',
       cost: 7,
       attack: 5,
       health: 6,
-      rarity: "legendary",
-      description: "Elite defender with quantum phase shield technology",
-      abilities: ["Shield", "Phase", "Guardian"]
-    }
+      rarity: 'legendary',
+      description: 'Elite defender with quantum phase shield technology',
+      abilities: ['Shield', 'Phase', 'Guardian'],
+    },
   ];
 
   const Card = ({ card, isSelected, onClick, canAfford = true }) => {
@@ -62,23 +62,23 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
       common: {
         bg: 'from-slate-700 to-slate-800',
         border: 'border-slate-400',
-        glow: 'shadow-slate-400/20'
+        glow: 'shadow-slate-400/20',
       },
       rare: {
         bg: 'from-blue-700 to-blue-800',
         border: 'border-blue-400',
-        glow: 'shadow-blue-400/30'
+        glow: 'shadow-blue-400/30',
       },
       epic: {
         bg: 'from-purple-700 to-purple-800',
         border: 'border-purple-400',
-        glow: 'shadow-purple-400/30'
+        glow: 'shadow-purple-400/30',
       },
       legendary: {
         bg: 'from-yellow-700 to-yellow-800',
         border: 'border-yellow-400',
-        glow: 'shadow-yellow-400/40'
-      }
+        glow: 'shadow-yellow-400/40',
+      },
     };
 
     const rarity = rarityColors[card.rarity];
@@ -93,18 +93,19 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
           group-hover:scale-120 group-hover:-translate-y-4
         `}
         style={{
-          transformOrigin: 'bottom center'
+          transformOrigin: 'bottom center',
         }}
         onClick={() => canAfford && onClick()}
       >
         {/* Card Frame - Maintains proportions, grows uniformly upward */}
-        <div className={`
+        <div
+          className={`
           relative h-32 rounded-lg border-2 bg-gradient-to-br backdrop-blur-sm overflow-visible transition-all duration-500
           ${rarity.bg} ${rarity.border} ${rarity.glow}
           ${isSelected ? 'border-opacity-100 shadow-2xl ring-2 ring-yellow-400/50' : 'border-opacity-70 shadow-lg'}
           ${!canAfford ? 'grayscale' : ''}
-        `}>
-          
+        `}
+        >
           {/* Holographic Scan Lines */}
           <div className="absolute inset-0 opacity-10 group-hover:opacity-15 hover:opacity-20 transition-opacity duration-500">
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-400/5 to-transparent"></div>
@@ -121,16 +122,18 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
                   {card.type}
                 </div>
               </div>
-              
+
               {/* Energy Cost */}
               <div className="ml-1 flex-shrink-0">
-                <div className={`
+                <div
+                  className={`
                   w-5 h-5 rounded-full border text-black text-xs font-bold 
                   flex items-center justify-center font-mono transition-all duration-500
                   group-hover:w-6 group-hover:h-6 hover:w-7 hover:h-7 hover:text-sm
                   ${canAfford ? 'bg-cyan-400 border-cyan-300' : 'bg-red-400 border-red-300'}
                   ${isSelected ? 'animate-pulse' : ''}
-                `}>
+                `}
+                >
                   {card.cost}
                 </div>
               </div>
@@ -140,23 +143,27 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
           {/* Card Art Area */}
           <div className="relative flex-1 bg-gradient-to-br from-slate-900 to-black flex items-center justify-center min-h-[40px] transition-all duration-500">
             {/* Unit Icon */}
-            <div className={`
+            <div
+              className={`
               text-xl z-10 relative transition-all duration-500 group-hover:text-2xl hover:text-3xl
               ${isSelected ? 'animate-bounce text-3xl' : ''}
               ${isCharacter ? 'text-cyan-400' : 'text-purple-400'}
-            `}>
+            `}
+            >
               {isCharacter ? '⚔️' : '⚡'}
             </div>
-            
+
             {/* Rarity Indicator */}
-            <div className={`
+            <div
+              className={`
               absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full transition-all duration-500
               group-hover:w-2 group-hover:h-2 hover:w-2.5 hover:h-2.5
               ${card.rarity === 'legendary' ? 'bg-yellow-400 animate-ping' : ''}
               ${card.rarity === 'epic' ? 'bg-purple-400' : ''}
               ${card.rarity === 'rare' ? 'bg-blue-400' : ''}
               ${card.rarity === 'common' ? 'bg-gray-400' : ''}
-            `}></div>
+            `}
+            ></div>
           </div>
 
           {/* Card Stats */}
@@ -179,7 +186,10 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
           <div className="px-1.5 py-0.5 bg-black/80 group-hover:py-1 hover:py-1.5 hover:px-2 transition-all duration-500">
             <div className="flex flex-wrap gap-0.5 group-hover:gap-1 hover:gap-1.5 transition-all duration-500">
               {card.abilities?.slice(0, 1).map((ability, index) => (
-                <span key={index} className="text-xs px-1 py-0.5 bg-yellow-600/30 text-yellow-300 rounded font-mono group-hover:px-1.5 hover:px-2 hover:text-sm transition-all duration-500">
+                <span
+                  key={index}
+                  className="text-xs px-1 py-0.5 bg-yellow-600/30 text-yellow-300 rounded font-mono group-hover:px-1.5 hover:px-2 hover:text-sm transition-all duration-500"
+                >
                   {ability}
                 </span>
               ))}
@@ -194,12 +204,14 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
               <div className="absolute inset-0 bg-yellow-400/5 rounded-lg"></div>
             </>
           )}
-          
+
           {/* Affordability Indicator */}
           {!canAfford && (
             <div className="absolute inset-0 bg-red-900/50 rounded-lg flex items-center justify-center">
               <div className="text-red-400 text-xs font-bold font-mono text-center group-hover:text-sm hover:text-base transition-all duration-500">
-                NO<br/>ENERGY
+                NO
+                <br />
+                ENERGY
               </div>
             </div>
           )}
@@ -209,20 +221,17 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
         {isSelected && (
           <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 z-50">
             <div className="bg-black/95 border border-cyan-400/50 rounded-lg p-3 max-w-xs backdrop-blur-sm">
-              <div className="text-cyan-400 font-bold text-sm font-mono mb-2">
-                {card.name}
-              </div>
-              <div className="text-gray-300 text-xs leading-relaxed mb-2">
-                {card.description}
-              </div>
+              <div className="text-cyan-400 font-bold text-sm font-mono mb-2">{card.name}</div>
+              <div className="text-gray-300 text-xs leading-relaxed mb-2">{card.description}</div>
               {card.abilities && (
                 <div className="pt-2 border-t border-gray-600">
-                  <div className="text-yellow-400 text-xs font-bold font-mono mb-1">
-                    ABILITIES:
-                  </div>
+                  <div className="text-yellow-400 text-xs font-bold font-mono mb-1">ABILITIES:</div>
                   <div className="flex flex-wrap gap-1">
                     {card.abilities.map((ability, index) => (
-                      <span key={index} className="text-xs px-2 py-1 bg-yellow-600/20 text-yellow-300 rounded font-mono">
+                      <span
+                        key={index}
+                        className="text-xs px-2 py-1 bg-yellow-600/20 text-yellow-300 rounded font-mono"
+                      >
                         {ability}
                       </span>
                     ))}
@@ -246,7 +255,7 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
         <div className="absolute inset-0 opacity-3">
           <div className="grid-background"></div>
         </div>
-        
+
         <div className="flex space-x-3 max-w-full overflow-x-auto overflow-y-visible relative z-10 group-hover:space-x-4 transition-all duration-500">
           {handCards.map((card) => (
             <Card
@@ -280,16 +289,14 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
               <div
                 key={i}
                 className={`w-3 h-4 rounded-sm transition-all duration-300 ${
-                  i < availableEnergy 
-                    ? 'bg-cyan-400 shadow-cyan-400/50 shadow-sm scale-110' 
+                  i < availableEnergy
+                    ? 'bg-cyan-400 shadow-cyan-400/50 shadow-sm scale-110'
                     : 'bg-gray-700 border border-gray-600'
                 }`}
               />
             ))}
           </div>
-          <span className="text-cyan-400 font-bold font-mono text-sm">
-            {availableEnergy}/10
-          </span>
+          <span className="text-cyan-400 font-bold font-mono text-sm">{availableEnergy}/10</span>
         </div>
       </div>
 
@@ -300,7 +307,7 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
             <div className="text-yellow-400 text-xs font-bold font-mono">
               [{selectedCard.name.toUpperCase()}] → DEPLOY TO BATTLEFIELD
             </div>
-            <button 
+            <button
               onClick={() => onCardSelect(null)}
               className="text-xs text-gray-400 hover:text-gray-200 font-mono transition-colors"
             >
