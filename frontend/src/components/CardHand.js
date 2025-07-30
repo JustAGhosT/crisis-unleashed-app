@@ -97,8 +97,7 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
         }}
         onClick={() => canAfford && onClick()}
       >
-      >
-        {/* Card Frame - Maintains proportions, grows uniformly */}
+        {/* Card Frame - Maintains proportions, grows uniformly upward */}
         <div className={`
           relative h-32 rounded-lg border-2 bg-gradient-to-br backdrop-blur-sm overflow-visible transition-all duration-500
           ${rarity.bg} ${rarity.border} ${rarity.glow}
