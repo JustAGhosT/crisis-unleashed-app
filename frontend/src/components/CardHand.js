@@ -233,15 +233,15 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
   const availableEnergy = 7; // This should come from game state
 
   return (
-    <div className="tactical-hand h-full flex flex-col group-hover:scale-105 transition-transform duration-500">
-      {/* Cards Container - Now takes full space with expansion capability */}
-      <div className="flex-1 flex items-center justify-center px-4 py-4 relative overflow-hidden group-hover:py-6 transition-all duration-500">
+    <div className="tactical-hand h-full flex flex-col">
+      {/* Cards Container - Fixed height, allows overflow */}
+      <div className="flex-1 flex items-center justify-center px-4 py-4 relative overflow-visible">
         {/* Background Grid - Subtle */}
         <div className="absolute inset-0 opacity-3">
           <div className="grid-background"></div>
         </div>
         
-        <div className="flex space-x-3 max-w-full overflow-x-auto relative z-10 group-hover:space-x-4 transition-all duration-500">
+        <div className="flex space-x-3 max-w-full overflow-x-auto overflow-y-visible relative z-10">
           {handCards.map((card) => (
             <Card
               key={card.id}
@@ -260,20 +260,20 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
         </div>
 
         {/* Floating Hand Info - Top Right Corner */}
-        <div className="absolute top-2 right-4 text-xs text-gray-400 font-mono opacity-60 group-hover:opacity-80 transition-opacity duration-500">
+        <div className="absolute top-2 right-4 text-xs text-gray-400 font-mono opacity-60">
           <span className="text-cyan-400">{handCards.length}</span>/7
         </div>
       </div>
 
-      {/* Energy Bar - Enhanced with hover effects */}
-      <div className="px-4 py-2 bg-gradient-to-r from-black/60 to-black/40 border-t border-cyan-400/20 group-hover:py-3 transition-all duration-500">
+      {/* Energy Bar - No hover effects on container */}
+      <div className="px-4 py-2 bg-gradient-to-r from-black/60 to-black/40 border-t border-cyan-400/20">
         <div className="flex items-center justify-center space-x-4">
-          <span className="text-sm text-cyan-400 font-mono group-hover:text-base transition-all duration-500">ENERGY:</span>
-          <div className="flex space-x-1 group-hover:space-x-1.5 transition-all duration-500">
+          <span className="text-sm text-cyan-400 font-mono">ENERGY:</span>
+          <div className="flex space-x-1">
             {[...Array(10)].map((_, i) => (
               <div
                 key={i}
-                className={`w-3 h-4 rounded-sm transition-all duration-300 group-hover:w-4 group-hover:h-5 ${
+                className={`w-3 h-4 rounded-sm transition-all duration-300 ${
                   i < availableEnergy 
                     ? 'bg-cyan-400 shadow-cyan-400/50 shadow-sm scale-110' 
                     : 'bg-gray-700 border border-gray-600'
@@ -281,7 +281,7 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
               />
             ))}
           </div>
-          <span className="text-cyan-400 font-bold font-mono text-sm group-hover:text-base transition-all duration-500">
+          <span className="text-cyan-400 font-bold font-mono text-sm">
             {availableEnergy}/10
           </span>
         </div>
@@ -291,12 +291,12 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
       {selectedCard && (
         <div className="px-4 py-2 bg-gradient-to-r from-yellow-900/20 to-yellow-800/20 border-t border-yellow-400/20">
           <div className="flex items-center justify-between">
-            <div className="text-yellow-400 text-xs font-bold font-mono group-hover:text-sm transition-all duration-500">
+            <div className="text-yellow-400 text-xs font-bold font-mono">
               [{selectedCard.name.toUpperCase()}] → DEPLOY TO BATTLEFIELD
             </div>
             <button 
               onClick={() => onCardSelect(null)}
-              className="text-xs text-gray-400 hover:text-gray-200 font-mono transition-colors group-hover:text-sm"
+              className="text-xs text-gray-400 hover:text-gray-200 font-mono transition-colors"
             >
               [CANCEL]
             </button>
