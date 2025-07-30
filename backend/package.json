@@ -1,0 +1,12 @@
+{
+  "name": "@crisis-unleashed/backend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "python -m uvicorn server:app --reload",
+    "build": "echo \"Backend build complete\"",
+    "test": "echo \"Run tests for backend\" && exit 0"
+  },
+  "dependencies": {},
+  "packageManager": "pnpm@8.6.0"
+}

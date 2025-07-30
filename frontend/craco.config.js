@@ -7,6 +7,31 @@ const config = {
 };
 
 module.exports = {
+  eslint: {
+    enable: true,
+    mode: 'extends',
+    configure: (eslintConfig) => {
+      eslintConfig.overrides = [
+        {
+          files: ['**/*.ts', '**/*.tsx'],
+          rules: {
+            'react/react-in-jsx-scope': 'off',
+            'react/display-name': 'off',
+            'react/prop-types': 'off',
+          },
+        },
+      ];
+      return eslintConfig;
+    },
+  },
+  style: {
+    postcss: {
+      plugins: [
+        require('tailwindcss'),
+        require('autoprefixer'),
+      ],
+    },
+  },
   webpack: {
     alias: {
       '@': path.resolve(__dirname, 'src'),

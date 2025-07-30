@@ -1,0 +1,27 @@
+{
+  "name": "crisis-unleashed",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "preinstall": "pnpm install --ignore-scripts",
+    "postinstall": "cd frontend && pnpm install",
+    "start": "concurrently \"pnpm --filter backend start\" \"pnpm --filter frontend start\"",
+    "build": "pnpm --filter frontend build",
+    "test": "pnpm --filter frontend test",
+    "lint": "eslint . --ext .js,.jsx",
+    "format": "prettier --write \"**/*.{js,jsx,json,md}\""
+  },
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "eslint": "^9.23.0",
+    "prettier": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "pnpm": ">=7.0.0"
+  }
+}
