@@ -65,7 +65,7 @@ const GameInterface = () => {
       {/* Main Game Layout */}
       <div className="relative z-10 h-screen flex flex-col">
         
-        {/* Top HUD - Enemy Info with Cards */}
+        {/* Top HUD - Enemy Info with Centered Opponent Hand */}
         <div className="h-20 border-b border-cyan-400/30 bg-black/40 backdrop-blur-sm flex">
           <div className="flex-1">
             <PlayerHUD 
@@ -74,8 +74,14 @@ const GameInterface = () => {
               position="top"
             />
           </div>
-          <div className="w-80">
+          
+          {/* Centered Opponent Hand */}
+          <div className="w-96 flex items-center justify-center">
             <OpponentHand />
+          </div>
+          
+          <div className="flex-1">
+            {/* Right side space for balance */}
           </div>
         </div>
 
