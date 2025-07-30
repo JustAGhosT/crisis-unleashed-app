@@ -88,11 +88,15 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
         className={`
           card-container relative cursor-pointer transition-all duration-500 select-none
           ${isCharacter ? 'w-24' : 'w-28'}
-          ${isSelected ? 'transform -translate-y-6 scale-125 z-50' : 'hover:scale-140 hover:-translate-y-4 hover:z-40 z-10'}
+          ${isSelected ? 'transform -translate-y-8 scale-125 z-50' : 'hover:scale-140 hover:-translate-y-6 hover:z-40 z-10'}
           ${!canAfford ? 'opacity-50 cursor-not-allowed' : ''}
-          group-hover:scale-120 group-hover:-translate-y-3
+          group-hover:scale-120 group-hover:-translate-y-4
         `}
+        style={{
+          transformOrigin: 'bottom center'
+        }}
         onClick={() => canAfford && onClick()}
+      >
       >
         {/* Card Frame - Maintains proportions, grows uniformly */}
         <div className={`
