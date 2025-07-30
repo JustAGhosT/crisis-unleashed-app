@@ -234,27 +234,8 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
 
   return (
     <div className="tactical-hand h-full flex flex-col group-hover:scale-105 transition-transform duration-500">
-      {/* Minimal Header */}
-      <div className="flex justify-between items-center px-4 py-2 border-b border-cyan-400/20 bg-gradient-to-r from-black/40 to-black/20">
-        <div className="flex items-center space-x-4">
-          <h2 className="text-cyan-400 font-bold font-mono text-sm">
-            TACTICAL HAND
-          </h2>
-          <div className="text-xs text-gray-500 font-mono">
-            NEURAL LINK
-          </div>
-        </div>
-        
-        <div className="flex items-center space-x-4">
-          {/* Hand Info */}
-          <div className="text-xs text-gray-400 font-mono">
-            <span className="text-cyan-400">{handCards.length}</span>/7
-          </div>
-        </div>
-      </div>
-
-      {/* Cards Container - Expanded with better scaling */}
-      <div className="flex-1 flex items-center justify-center px-4 py-3 relative overflow-hidden">
+      {/* Cards Container - Now takes full space with expansion capability */}
+      <div className="flex-1 flex items-center justify-center px-4 py-4 relative overflow-hidden group-hover:py-6 transition-all duration-500">
         {/* Background Grid - Subtle */}
         <div className="absolute inset-0 opacity-3">
           <div className="grid-background"></div>
@@ -276,6 +257,11 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
               }}
             />
           ))}
+        </div>
+
+        {/* Floating Hand Info - Top Right Corner */}
+        <div className="absolute top-2 right-4 text-xs text-gray-400 font-mono opacity-60 group-hover:opacity-80 transition-opacity duration-500">
+          <span className="text-cyan-400">{handCards.length}</span>/7
         </div>
       </div>
 
