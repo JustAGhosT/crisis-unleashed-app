@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { PlayerId } from '../types/game.types';
 import styles from './TurnManager.module.css';
 
@@ -20,6 +20,29 @@ const TurnManager: React.FC<TurnManagerProps> = ({
   className = '',
 }) => {
   const isPlayerTurn = activePlayer === 'player1';
+  const [timeRemaining, setTimeRemaining] = useState(105); // 1:45 in seconds
+  
+  // Reset timer when turn changes
+  useEffect(() => {
+    setTimeRemaining(105);
+  }, [currentTurn]);
+  
+  // Countdown timer
+  useEffect(() => {
+    if (!isPlayerTurn) return;
+    
+    const timer = setInterval(() => {
+      setTimeRemaining(prev => Math.max(0, prev - 1));
+    }, 1000);
+    
+    return () => clearInterval(timer);
+  }, [isPlayerTurn, currentTurn]);
+  
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
 
   const renderPhaseIndicator = useCallback(
     (phase: string, index: number) => {
@@ -97,9 +120,9 @@ const TurnManager: React.FC<TurnManagerProps> = ({
         {isPlayerTurn ? 'End Turn' : 'Waiting...'}
       </button>
 
-      {/* Turn Timer (optional) */}
-      <div className={styles.turnTimer}>
-        Turn timer: 1:45
+      {/* Turn Timer */}
+      <div className={styles.turnTimer} aria-live="polite">
+        Turn timer: {formatTime(timeRemaining)}
       </div>
     </div>
   );

@@ -8,9 +8,7 @@ const App: FC = () => {
     <div className="App">
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<GameInterface />}>
-            <Route index element={<GameInterface />} />
-          </Route>
+          <Route path="/" element={<GameInterface />} />
         </Routes>
       </BrowserRouter>
     </div>

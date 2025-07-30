@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { Card, CardRarity } from '../types/game.types';
+import { MOCK_CARDS } from '../constants/mockCards';
 import styles from './CardHand.module.css';
 
 interface CardHandProps {
@@ -17,69 +18,10 @@ const CardHand: React.FC<CardHandProps> = ({
   maxHandSize = 7,
   energy = 0,
 }) => {
-  // Generate mock cards if none are provided
-  const handCards = useMemo<Card[]>(() => {
-    if (cards.length > 0) return cards;
-    
-    return [
-      {
-        id: 1,
-        name: 'Cyber Soldier',
-        type: 'character',
-        cost: 3,
-        attack: 2,
-        health: 3,
-        rarity: 'common' as CardRarity,
-        description: 'Basic infantry unit with enhanced targeting systems',
-        abilities: ['First Strike'],
-      },
-      {
-        id: 2,
-        name: 'Neural Hack',
-        type: 'action',
-        cost: 2,
-        rarity: 'rare' as CardRarity,
-        description: 'Disable target enemy unit for one turn',
-        abilities: ['Instant', 'Disable'],
-        isInstant: true,
-        targetType: 'unit',
-        effect: () => {},
-      },
-      {
-        id: 3,
-        name: 'Plasma Cannon',
-        type: 'character',
-        cost: 5,
-        attack: 4,
-        health: 2,
-        rarity: 'epic' as CardRarity,
-        description: 'Heavy weapons platform with area damage capabilities',
-        abilities: ['Area Damage', 'Range 2'],
-      },
-      {
-        id: 4,
-        name: 'Data Stream',
-        type: 'action',
-        cost: 1,
-        rarity: 'common' as CardRarity,
-        description: 'Access tactical networks • Draw 2 cards from your deck',
-        abilities: ['Draw', 'Instant'],
-        isInstant: true,
-        effect: () => {},
-      },
-      {
-        id: 5,
-        name: 'Quantum Guardian',
-        type: 'character',
-        cost: 7,
-        attack: 3,
-        health: 8,
-        rarity: 'legendary' as CardRarity,
-        description: 'Advanced defense unit with damage mitigation',
-        abilities: ['Shield', 'Taunt'],
-      },
-    ];
-  }, [cards]);
+  // Use provided cards or fall back to mock cards
+  const handCards = useMemo<Card[]>(() => 
+    cards.length > 0 ? cards : MOCK_CARDS
+  , [cards]);
 
   const handleCardClick = useCallback((card: Card) => {
     // Only allow selection if player has enough energy
@@ -88,16 +30,7 @@ const CardHand: React.FC<CardHandProps> = ({
     }
   }, [energy, onCardSelect]);
 
-  const getRarityColor = (rarity: CardRarity): string => {
-    const colors = {
-      common: 'border-gray-400',
-      uncommon: 'border-green-500',
-      rare: 'border-blue-500',
-      epic: 'border-purple-500',
-      legendary: 'border-yellow-500',
-    };
-    return colors[rarity] || 'border-gray-400';
-  };
+
 
   const getCardTypeColor = (type: string): string => {
     const colors: Record<string, string> = {
@@ -110,7 +43,7 @@ const CardHand: React.FC<CardHandProps> = ({
   };
 
   const getRarityClass = (rarity: CardRarity): string => {
-    const classes = {
+    const classes: Record<CardRarity, string> = {
       common: styles.rarityCommon,
       uncommon: styles.rarityUncommon,
       rare: styles.rarityRare,
@@ -192,6 +125,8 @@ const CardHand: React.FC<CardHandProps> = ({
                       <span 
                         key={index}
                         className={styles.abilityBadge}
+                        aria-label={`Ability: ${ability}`}
+                        title={ability}
                       >
                         {ability}
                       </span>
