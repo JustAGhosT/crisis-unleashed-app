@@ -88,45 +88,45 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
         className={`
           card-container relative cursor-pointer transition-all duration-500 select-none
           ${isCharacter ? 'w-24' : 'w-28'}
-          ${isSelected ? 'transform -translate-y-12 scale-150 z-50' : 'hover:-translate-y-16 hover:scale-140 hover:z-40 z-10'}
+          ${isSelected ? 'transform -translate-y-6 scale-125 z-50' : 'hover:scale-140 hover:-translate-y-4 hover:z-40 z-10'}
           ${!canAfford ? 'opacity-50 cursor-not-allowed' : ''}
+          group-hover:scale-120 group-hover:-translate-y-3
         `}
         onClick={() => canAfford && onClick()}
       >
-        {/* Card Frame - Much larger on hover */}
+        {/* Card Frame - Maintains proportions, grows uniformly */}
         <div className={`
-          relative h-32 rounded-lg border-2 bg-gradient-to-br backdrop-blur-sm overflow-hidden transition-all duration-500
-          hover:h-48 hover:shadow-2xl
+          relative h-32 rounded-lg border-2 bg-gradient-to-br backdrop-blur-sm overflow-visible transition-all duration-500
           ${rarity.bg} ${rarity.border} ${rarity.glow}
-          ${isSelected ? 'border-opacity-100 shadow-2xl ring-2 ring-yellow-400/50 h-48' : 'border-opacity-70 shadow-lg'}
+          ${isSelected ? 'border-opacity-100 shadow-2xl ring-2 ring-yellow-400/50' : 'border-opacity-70 shadow-lg'}
           ${!canAfford ? 'grayscale' : ''}
         `}>
           
           {/* Holographic Scan Lines */}
-          <div className="absolute inset-0 opacity-10 hover:opacity-20 transition-opacity duration-500">
+          <div className="absolute inset-0 opacity-10 group-hover:opacity-15 hover:opacity-20 transition-opacity duration-500">
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-400/5 to-transparent"></div>
           </div>
 
-          {/* Card Header - Expanded on hover */}
-          <div className="relative p-1.5 border-b border-white/20 bg-black/50 hover:p-3 transition-all duration-500">
+          {/* Card Header */}
+          <div className="relative p-1.5 border-b border-white/20 bg-black/50 group-hover:p-2 hover:p-2.5 transition-all duration-500">
             <div className="flex justify-between items-start">
               <div className="flex-1 min-w-0">
-                <h3 className="text-white font-bold text-xs truncate font-mono hover:text-base transition-all duration-500">
+                <h3 className="text-white font-bold text-xs truncate font-mono group-hover:text-sm hover:text-base transition-all duration-500">
                   {card.name}
                 </h3>
-                <div className="text-xs text-gray-400 capitalize font-mono opacity-70 hover:opacity-100 hover:text-sm transition-all duration-500">
+                <div className="text-xs text-gray-400 capitalize font-mono opacity-70 group-hover:opacity-85 hover:opacity-100 transition-all duration-500">
                   {card.type}
                 </div>
               </div>
               
-              {/* Energy Cost - Larger on hover */}
+              {/* Energy Cost */}
               <div className="ml-1 flex-shrink-0">
                 <div className={`
                   w-5 h-5 rounded-full border text-black text-xs font-bold 
                   flex items-center justify-center font-mono transition-all duration-500
-                  hover:w-8 hover:h-8 hover:text-base
+                  group-hover:w-6 group-hover:h-6 hover:w-7 hover:h-7 hover:text-sm
                   ${canAfford ? 'bg-cyan-400 border-cyan-300' : 'bg-red-400 border-red-300'}
-                  ${isSelected ? 'animate-pulse w-8 h-8 text-base' : ''}
+                  ${isSelected ? 'animate-pulse' : ''}
                 `}>
                   {card.cost}
                 </div>
@@ -134,12 +134,12 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
             </div>
           </div>
 
-          {/* Card Art Area - Much larger on hover */}
-          <div className="relative flex-1 bg-gradient-to-br from-slate-900 to-black flex items-center justify-center min-h-[40px] hover:min-h-[80px] transition-all duration-500">
-            {/* Unit Icon - Much larger on hover */}
+          {/* Card Art Area */}
+          <div className="relative flex-1 bg-gradient-to-br from-slate-900 to-black flex items-center justify-center min-h-[40px] transition-all duration-500">
+            {/* Unit Icon */}
             <div className={`
-              text-xl z-10 relative transition-all duration-500 hover:text-4xl
-              ${isSelected ? 'animate-bounce text-4xl' : ''}
+              text-xl z-10 relative transition-all duration-500 group-hover:text-2xl hover:text-3xl
+              ${isSelected ? 'animate-bounce text-3xl' : ''}
               ${isCharacter ? 'text-cyan-400' : 'text-purple-400'}
             `}>
               {isCharacter ? '⚔️' : '⚡'}
@@ -147,7 +147,8 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
             
             {/* Rarity Indicator */}
             <div className={`
-              absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full hover:w-3 hover:h-3 transition-all duration-500
+              absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full transition-all duration-500
+              group-hover:w-2 group-hover:h-2 hover:w-2.5 hover:h-2.5
               ${card.rarity === 'legendary' ? 'bg-yellow-400 animate-ping' : ''}
               ${card.rarity === 'epic' ? 'bg-purple-400' : ''}
               ${card.rarity === 'rare' ? 'bg-blue-400' : ''}
@@ -155,15 +156,15 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
             `}></div>
           </div>
 
-          {/* Card Stats - More visible on hover */}
+          {/* Card Stats */}
           {isCharacter && (
-            <div className="px-1.5 py-0.5 bg-black/70 border-t border-white/10 hover:py-2 hover:px-3 transition-all duration-500">
-              <div className="flex justify-between text-xs font-bold font-mono hover:text-base transition-all duration-500">
-                <div className="flex items-center space-x-0.5 hover:space-x-1 transition-all duration-500">
+            <div className="px-1.5 py-0.5 bg-black/70 border-t border-white/10 group-hover:py-1 hover:py-1.5 hover:px-2 transition-all duration-500">
+              <div className="flex justify-between text-xs font-bold font-mono group-hover:text-sm hover:text-base transition-all duration-500">
+                <div className="flex items-center space-x-0.5">
                   <span className="text-red-400">⚔</span>
                   <span className="text-red-300">{card.attack}</span>
                 </div>
-                <div className="flex items-center space-x-0.5 hover:space-x-1 transition-all duration-500">
+                <div className="flex items-center space-x-0.5">
                   <span className="text-green-400">❤</span>
                   <span className="text-green-300">{card.health}</span>
                 </div>
@@ -171,22 +172,15 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
             </div>
           )}
 
-          {/* Card Abilities - Show all on hover */}
-          <div className="px-1.5 py-0.5 bg-black/80 hover:py-2 hover:px-3 transition-all duration-500">
-            <div className="flex flex-wrap gap-0.5 hover:gap-1 transition-all duration-500">
-              {card.abilities?.slice(0, isSelected ? card.abilities.length : 1).map((ability, index) => (
-                <span key={index} className="text-xs px-1 py-0.5 bg-yellow-600/30 text-yellow-300 rounded font-mono hover:px-2 hover:text-sm transition-all duration-500">
+          {/* Card Abilities */}
+          <div className="px-1.5 py-0.5 bg-black/80 group-hover:py-1 hover:py-1.5 hover:px-2 transition-all duration-500">
+            <div className="flex flex-wrap gap-0.5 group-hover:gap-1 hover:gap-1.5 transition-all duration-500">
+              {card.abilities?.slice(0, 1).map((ability, index) => (
+                <span key={index} className="text-xs px-1 py-0.5 bg-yellow-600/30 text-yellow-300 rounded font-mono group-hover:px-1.5 hover:px-2 hover:text-sm transition-all duration-500">
                   {ability}
                 </span>
               ))}
             </div>
-          </div>
-
-          {/* Card Description on Hover */}
-          <div className="absolute inset-x-0 bottom-0 bg-black/90 border-t border-cyan-400/30 p-2 transform translate-y-full opacity-0 hover:translate-y-0 hover:opacity-100 transition-all duration-500 pointer-events-none">
-            <p className="text-xs text-gray-300 leading-tight">
-              {card.description}
-            </p>
           </div>
 
           {/* Selection Effects */}
@@ -201,12 +195,40 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
           {/* Affordability Indicator */}
           {!canAfford && (
             <div className="absolute inset-0 bg-red-900/50 rounded-lg flex items-center justify-center">
-              <div className="text-red-400 text-xs font-bold font-mono text-center hover:text-sm transition-all duration-500">
+              <div className="text-red-400 text-xs font-bold font-mono text-center group-hover:text-sm hover:text-base transition-all duration-500">
                 NO<br/>ENERGY
               </div>
             </div>
           )}
         </div>
+
+        {/* Enhanced tooltip for hovered card */}
+        {isSelected && (
+          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 z-50">
+            <div className="bg-black/95 border border-cyan-400/50 rounded-lg p-3 max-w-xs backdrop-blur-sm">
+              <div className="text-cyan-400 font-bold text-sm font-mono mb-2">
+                {card.name}
+              </div>
+              <div className="text-gray-300 text-xs leading-relaxed mb-2">
+                {card.description}
+              </div>
+              {card.abilities && (
+                <div className="pt-2 border-t border-gray-600">
+                  <div className="text-yellow-400 text-xs font-bold font-mono mb-1">
+                    ABILITIES:
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {card.abilities.map((ability, index) => (
+                      <span key={index} className="text-xs px-2 py-1 bg-yellow-600/20 text-yellow-300 rounded font-mono">
+                        {ability}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     );
   };
