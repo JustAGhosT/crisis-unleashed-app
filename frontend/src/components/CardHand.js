@@ -294,12 +294,12 @@ const CardHand = ({ selectedCard, onCardSelect }) => {
       {selectedCard && (
         <div className="px-4 py-2 bg-gradient-to-r from-yellow-900/20 to-yellow-800/20 border-t border-yellow-400/20">
           <div className="flex items-center justify-between">
-            <div className="text-yellow-400 text-xs font-bold font-mono group-hover:text-sm transition-all duration-500">
+            <div className="text-yellow-400 text-xs font-bold font-mono">
               [{selectedCard.name.toUpperCase()}] → DEPLOY TO BATTLEFIELD
             </div>
             <button 
               onClick={() => onCardSelect(null)}
-              className="text-xs text-gray-400 hover:text-gray-200 font-mono transition-colors group-hover:text-sm"
+              className="text-xs text-gray-400 hover:text-gray-200 font-mono transition-colors"
             >
               [CANCEL]
             </button>
