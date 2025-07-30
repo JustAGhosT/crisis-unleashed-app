@@ -1,9 +1,9 @@
-import React from 'react';
-import './App.css';
+import React, { FC } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import './App.css';
 import GameInterface from './components/GameInterface';
 
-function App() {
+const App: FC = () => {
   return (
     <div className="App">
       <BrowserRouter>
@@ -15,6 +15,6 @@ function App() {
       </BrowserRouter>
     </div>
   );
-}
+};
 
 export default App;

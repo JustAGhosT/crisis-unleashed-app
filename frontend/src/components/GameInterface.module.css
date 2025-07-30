@@ -1,0 +1,112 @@
+/* Base Container */
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #000000 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Holographic Grid Background */
+.gridBackground {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(56, 189, 248, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56, 189, 248, 0.1) 1px, transparent 1px);
+  background-size: 40px 40px;
+  opacity: 0.1;
+}
+
+/* Layout */
+.layout {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  position: relative;
+  z-index: 10;
+}
+
+/* Opponent Area */
+.opponentArea {
+  margin-bottom: 2rem;
+}
+
+/* Battlefield Area */
+.battlefieldArea {
+  margin: 2rem 0;
+}
+
+/* Player Area */
+.playerArea {
+  margin-top: 2rem;
+}
+
+/* Fullscreen Button */
+.fullscreenButton {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  background-color: #2563eb;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  transition: background-color 0.2s ease-in-out;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  z-index: 50;
+}
+
+.fullscreenButton:hover {
+  background-color: #1d4ed8;
+}
+
+.fullscreenButton:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .layout {
+    padding: 1rem 0.5rem;
+  }
+  
+  .opponentArea,
+  .battlefieldArea,
+  .playerArea {
+    margin: 1rem 0;
+  }
+  
+  .fullscreenButton {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* Animation for active player */
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(56, 189, 248, 0);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+  }
+}
+
+.activePlayer {
+  position: relative;
+  animation: pulseGlow 2s infinite;
+}
+
+.activePlayer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #3b82f6, transparent);
+  opacity: 0.7;
+}

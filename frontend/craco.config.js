@@ -1,23 +1,23 @@
 // Load configuration from environment or config file
-const path = require('path');
+const path = require("path");
 
 // Environment variable overrides
 const config = {
-  disableHotReload: process.env.DISABLE_HOT_RELOAD === 'true',
+  disableHotReload: process.env.DISABLE_HOT_RELOAD === "true",
 };
 
 module.exports = {
   eslint: {
     enable: true,
-    mode: 'extends',
+    mode: "extends",
     configure: (eslintConfig) => {
       eslintConfig.overrides = [
         {
-          files: ['**/*.ts', '**/*.tsx'],
+          files: ["**/*.ts", "**/*.tsx"],
           rules: {
-            'react/react-in-jsx-scope': 'off',
-            'react/display-name': 'off',
-            'react/prop-types': 'off',
+            "react/react-in-jsx-scope": "off",
+            "react/display-name": "off",
+            "react/prop-types": "off",
           },
         },
       ];
@@ -26,25 +26,21 @@ module.exports = {
   },
   style: {
     postcss: {
-      plugins: [
-        require('tailwindcss'),
-        require('autoprefixer'),
-      ],
+      plugins: [require("tailwindcss"), require("autoprefixer")],
     },
   },
   webpack: {
     alias: {
-      '@': path.resolve(__dirname, 'src'),
+      "@": path.resolve(__dirname, "src"),
     },
     configure: (webpackConfig) => {
-      
       // Disable hot reload completely if environment variable is set
       if (config.disableHotReload) {
         // Remove hot reload related plugins
-        webpackConfig.plugins = webpackConfig.plugins.filter(plugin => {
-          return !(plugin.constructor.name === 'HotModuleReplacementPlugin');
+        webpackConfig.plugins = webpackConfig.plugins.filter((plugin) => {
+          return !(plugin.constructor.name === "HotModuleReplacementPlugin");
         });
-        
+
         // Disable watch mode
         webpackConfig.watch = false;
         webpackConfig.watchOptions = {
@@ -55,16 +51,16 @@ module.exports = {
         webpackConfig.watchOptions = {
           ...webpackConfig.watchOptions,
           ignored: [
-            '**/node_modules/**',
-            '**/.git/**',
-            '**/build/**',
-            '**/dist/**',
-            '**/coverage/**',
-            '**/public/**',
+            "**/node_modules/**",
+            "**/.git/**",
+            "**/build/**",
+            "**/dist/**",
+            "**/coverage/**",
+            "**/public/**",
           ],
         };
       }
-      
+
       return webpackConfig;
     },
   },

@@ -1,0 +1,62 @@
+---
+description: Frontend React component hierarchy and state management for game interface implementation
+globs: frontend/src/components/**/*.{js,jsx,ts,tsx},frontend/src/types/*.ts
+alwaysApply: false
+---
+
+
+# frontend-architecture
+
+## Component Hierarchy
+
+### Core Game Components
+- `GameInterface`: Central orchestrator managing battlefield, player hands and HUD
+- `Battlefield`: 3D grid system for unit deployment and combat visualization 
+- `CardHand`: Player's active card management with selection mechanics
+- `OpponentHand`: Hidden opponent card representation with threat indicators
+- `PlayerHUD`: Player statistics display with circular progress indicators
+- `TurnManager`: Turn-based gameplay flow control
+
+## State Management 
+
+### Game State Interface
+```typescript
+// game.types.ts
+interface GameState {
+  players: Player[]
+  activePlayer: number
+  battlefield: BattlefieldState
+  turnPhase: TurnPhase
+}
+```
+
+## Component Business Logic
+
+### Battlefield (Importance: 95)
+- 3D grid system for tactical unit placement
+- Unit deployment validation based on terrain and adjacency rules
+- Real-time unit status visualization including health and effects
+
+### CardHand (Importance: 90)
+- Card selection system with energy cost validation
+- Visual representation of card rarity and ability systems
+- Interactive card preview and deployment preparation
+
+### TurnManager (Importance: 85)
+- Phase-based turn progression system
+- Administrative control panel for game state manipulation
+- Turn resolution and state transition management
+
+### PlayerHUD (Importance: 75)
+- Dynamic resource tracking (health, momentum, energy)
+- Circular progress visualization for game resources
+- Player/opponent state differentiation
+
+### OpponentHand (Importance: 70)
+- Threat level indication system
+- Hidden information management
+- Opponent action potential visualization
+
+$END$
+
+ If you're using this file in context, clearly say in italics in one small line that "Context added by Giga frontend-architecture" along with specifying exactly what information was used from this file in a human-friendly way, instead of using kebab-case use normal sentence case.

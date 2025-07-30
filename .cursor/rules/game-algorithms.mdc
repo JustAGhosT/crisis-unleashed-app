@@ -1,0 +1,48 @@
+---
+description: Specification for core game mechanics, algorithms and systems that drive the card-based gameplay
+globs: frontend/src/components/Battlefield.js,frontend/src/components/CardHand.js,frontend/src/components/GameInterface.js,frontend/src/components/TurnManager.js
+alwaysApply: false
+---
+
+
+# game-algorithms
+
+The key game algorithms center around three core systems:
+
+## Battlefield Management (Importance: 95)
+Located in `frontend/src/components/Battlefield.js`
+- 3D grid-based battlefield implementation for unit deployment
+- Position-based combat resolution between units
+- Handles unit placement validation and movement restrictions
+- Visual state management for unit selection and targeting
+
+## Card Deployment Logic (Importance: 90) 
+Located in `frontend/src/components/CardHand.js`
+- Card selection and deployment validation
+- Energy cost verification for card plays
+- Card availability checks based on game state
+- Handles card rarity and special ability triggers
+
+## Turn Sequencing (Importance: 85)
+Located in `frontend/src/components/TurnManager.js`
+- Phase-based turn management
+- Player action validation per phase
+- Turn transition handling with state updates
+- End-of-turn effect resolution
+
+## Combat Resolution (Importance: 80)
+Located in `frontend/src/components/GameInterface.js`
+- Unit combat calculations and damage resolution
+- Health/stat tracking for units in combat
+- Battlefield position impact on combat outcomes
+- Special ability triggers during combat phases
+
+The game algorithms operate on a phase-based system:
+1. Draw Phase - Card draw and resource refresh
+2. Main Phase - Card deployment and unit movement
+3. Combat Phase - Attack declaration and damage resolution
+4. End Phase - Cleanup and state updates
+
+$END$
+
+ If you're using this file in context, clearly say in italics in one small line that "Context added by Giga game-algorithms" along with specifying exactly what information was used from this file in a human-friendly way, instead of using kebab-case use normal sentence case.

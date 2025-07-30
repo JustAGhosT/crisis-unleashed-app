@@ -1,0 +1,243 @@
+/* Base container */
+.opponentHand {
+  padding: 1rem 0;
+  position: relative;
+}
+
+/* Empty state */
+.emptyState {
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.875rem;
+  padding: 1rem 0;
+}
+
+/* Cards container */
+.cardsContainer {
+  position: relative;
+  height: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cardsWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Card back */
+.cardBack {
+  position: relative;
+  width: 2rem;
+  height: 3rem;
+  cursor: default;
+  transition: all 0.3s ease;
+}
+
+.cardBackInner {
+  height: 100%;
+  width: 100%;
+  border-radius: 0.25rem;
+  border: 1px solid rgba(248, 113, 113, 0.6);
+  background: linear-gradient(135deg, rgba(127, 29, 29, 0.8) 0%, rgba(153, 27, 27, 0.8) 100%);
+  -moz-backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.cardBackInner:hover {
+  box-shadow: 0 0 0 1px rgba(248, 113, 113, 0.8), 0 0 15px rgba(248, 113, 113, 0.2);
+}
+
+/* Card back design */
+.cardTopSection {
+  height: calc(100% - 0.75rem);
+  position: relative;
+  background: linear-gradient(135deg, rgba(153, 27, 27, 0.6) 0%, rgba(127, 29, 29, 0.6) 100%);
+  border-bottom: 1px solid rgba(248, 113, 113, 0.3);
+  overflow: hidden;
+}
+
+.techPattern {
+  position: absolute;
+  inset: 0;
+  opacity: 0.2;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 1px;
+  height: 100%;
+  width: 100%;
+}
+
+.techPatternCell {
+  background-color: rgba(248, 113, 113, 0.3);
+}
+
+.centralSymbol {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.symbol {
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid rgba(248, 113, 113, 0.6);
+  transform: rotate(45deg);
+  background-color: rgba(185, 28, 28, 0.4);
+}
+
+.cardBottomSection {
+  height: 0.75rem;
+  background: linear-gradient(90deg, rgba(127, 29, 29, 0.8) 0%, rgba(153, 27, 27, 0.8) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid rgba(248, 113, 113, 0.2);
+}
+
+.indicators {
+  display: flex;
+  gap: 0.125rem;
+}
+
+.indicator {
+  width: 0.125rem;
+  height: 0.125rem;
+  border-radius: 50%;
+  background-color: rgba(248, 113, 113, 0.6);
+}
+
+.indicator:nth-child(2) {
+  background-color: rgba(248, 113, 113, 0.4);
+}
+
+/* Holographic effect */
+.holographicEffect {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 0%, rgba(248, 113, 113, 0.1) 50%, transparent 100%);
+  animation: pulse 2s infinite;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 0.5; }
+}
+
+/* Border glow */
+.borderGlow {
+  position: absolute;
+  inset: 0;
+  border-radius: 0.25rem;
+  border: 1px solid transparent;
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.cardBack:hover .borderGlow {
+  border-color: rgba(248, 113, 113, 0.8);
+  box-shadow: 0 0 10px rgba(248, 113, 113, 0.2);
+}
+
+.borderGlowActive {
+  border-color: rgba(248, 113, 113, 0.8) !important;
+  box-shadow: 0 0 10px rgba(248, 113, 113, 0.2) !important;
+}
+
+/* Card ID (debug) */
+.cardId {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  font-size: 0.5rem;
+  color: rgba(248, 113, 113, 0.5);
+  pointer-events: none;
+}
+
+/* Card positioning */
+.cardWrapper {
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+/* Card count indicator */
+.cardCount {
+  margin-left: 0.5rem;
+  color: #fecaca;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+/* Turn indicator */
+.turnIndicator {
+  position: absolute;
+  top: -0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #dc2626;
+  color: white;
+  font-size: 0.75rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  white-space: nowrap;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Active state */
+.cardActive {
+  transform: scale(1.1) translateY(-0.5rem);
+  z-index: 100;
+}
+
+.cardActive .cardBackInner {
+  box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.8), 0 0 20px rgba(248, 113, 113, 0.3);
+}
+
+/* Card spread */
+.cardSpreadLeft {
+  transform-origin: bottom left;
+  transform: rotate(-6deg);
+  margin-left: 0.5rem;
+  z-index: 110;
+}
+
+.cardSpreadRight {
+  transform-origin: bottom right;
+  transform: rotate(6deg);
+  margin-right: 0.5rem;
+  z-index: 110;
+}
+
+.cardSpreadLeft:hover,
+.cardSpreadRight:hover {
+  z-index: 1000 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .cardBack {
+    width: 1.75rem;
+    height: 2.625rem;
+  }
+  
+  .cardCount {
+    font-size: 0.75rem;
+  }
+  
+  .turnIndicator {
+    font-size: 0.6875rem;
+    padding: 0.125rem 0.375rem;
+  }
+}
