@@ -126,8 +126,8 @@ const GameInterface = () => {
           </div>
         </div>
 
-        {/* Bottom - Player Hand with Expansion (No Header Space) */}
-        <div className="card-hand-container h-64 border-t border-cyan-400/30 bg-black/40 backdrop-blur-sm transition-all duration-500 hover:h-80 group">
+        {/* Bottom - Player Hand (Fixed Height, Cards Overflow) */}
+        <div className="card-hand-container h-64 border-t border-cyan-400/30 bg-black/40 backdrop-blur-sm">
           <CardHand 
             selectedCard={selectedCard}
             onCardSelect={setSelectedCard}
