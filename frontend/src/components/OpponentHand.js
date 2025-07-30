@@ -58,37 +58,33 @@ const OpponentHand = () => {
   };
 
   return (
-    <div className="opponent-hand h-full flex flex-col">
-      {/* Header */}
-      <div className="flex justify-between items-center px-3 py-2 border-b border-red-400/20 bg-gradient-to-r from-red-900/40 to-red-800/40">
+    <div className="opponent-hand flex flex-col items-center justify-center h-full">
+      {/* Compact Header */}
+      <div className="mb-2">
         <div className="flex items-center space-x-2">
           <h3 className="text-red-400 font-bold font-mono text-xs">
             ENEMY HAND
           </h3>
           <div className="text-xs text-red-300/60 font-mono">
-            ENCRYPTED
+            [{opponentCards.length}]
           </div>
-        </div>
-        
-        <div className="text-xs text-red-300 font-mono">
-          {opponentCards.length} CARDS
         </div>
       </div>
 
-      {/* Cards Container */}
-      <div className="flex-1 flex items-center justify-center px-2 py-1">
-        <div className="flex space-x-1 overflow-x-auto">
+      {/* Cards Container - Centered */}
+      <div className="flex items-center justify-center">
+        <div className="flex space-x-1">
           {opponentCards.map((card) => (
             <CardBack key={card.id} cardId={card.id} />
           ))}
         </div>
       </div>
 
-      {/* Threat Level Indicator */}
-      <div className="px-3 py-1 bg-gradient-to-r from-red-900/60 to-red-800/60 border-t border-red-400/20">
-        <div className="flex items-center justify-between">
+      {/* Compact Threat Level Indicator */}
+      <div className="mt-2">
+        <div className="flex items-center space-x-2">
           <div className="text-xs text-red-400 font-mono">
-            THREAT LEVEL:
+            THREAT:
           </div>
           <div className="flex space-x-0.5">
             {[...Array(5)].map((_, i) => (
