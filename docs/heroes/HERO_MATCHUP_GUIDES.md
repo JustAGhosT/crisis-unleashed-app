@@ -1,17 +1,35 @@
 # Hero Matchup Guides
 
-This guide provides strategies for how to play against each hero in the game.
+This guide provides strategies for how to play against each hero in the game. For information on how to play as these heroes, see the [Hero Strategy Guide](HERO_STRATEGY_GUIDE.md).
 
 ## Solaris Nexus
 
 ### Commander Eva
 
-* **Strategy:** Commander Eva is a versatile hero who can be played in a variety of ways. She can be played as a support hero, using her abilities to buff her allies and debuff her enemies. She can also be played as a damage dealer, using her abilities to deal large amounts of damage to single targets.
+* **Counter Strategy:**
+  * Punish her after "Solar Flare" is used - the long cooldown gives you a window to engage.
+  * Build silence/dispel items to remove her powerful ally buffs.
+  * Force fights away from minion waves to limit her AoE heal effectiveness.
+  * Focus her down early in team fights as her defensive scaling increases over time.
+  * Avoid clustered positioning to minimize her area damage potential.
+* **Effective Counters:** Heroes with silence abilities, high mobility assassins
 
 ### Apex
 
-* **Strategy:** Apex is a powerful hero who excels at dealing with large groups of enemies. His abilities allow him to deal damage to multiple targets at once, making him a great choice for clearing out waves of minions.
+* **Counter Strategy:**
+  * Isolate him from team fights where his AoE abilities provide less value.
+  * Build magic resistance to mitigate his area damage abilities.
+  * Take advantage of his lack of escape mechanisms - coordinate crowd control to lock him down.
+  * Engage after he uses his ultimate, as he's much more vulnerable without it.
+  * Use mobility to stay out of his AoE damage zones and force him to reposition.
+* **Effective Counters:** Mobile single-target damage dealers, magic-resistant tanks
 
 ### The Herald
 
-* **Strategy:** The Herald is a unique hero who can be played as either a melee or ranged hero. His abilities allow him to switch between his two forms, giving him a great deal of flexibility on the battlefield.
+* **Counter Strategy:**
+  * Track his form changes and engage during the brief vulnerability window during transitions.
+  * When facing his melee form, utilize ranged harassment and kiting tactics.
+  * Against his ranged form, close the gap quickly with gap-closers or flanking maneuvers.
+  * Silence him to prevent form switching, greatly reducing his flexibility.
+  * Use vision control to spot his approaches, as each form has different engage patterns.
+* **Effective Counters:** Heroes with silence/stun abilities, adaptive damage types
