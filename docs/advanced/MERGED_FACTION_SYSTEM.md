@@ -55,7 +55,7 @@
 5. **Temporal Shield** (5 Energy) - Prevent all damage for 1 turn
 6. **Reality Fracture** (7 Energy) - Reshuffle all units
 
-**Synergy Bonus**: Reduce ability costs by 1 for each Aeonic Dominion card played this turn
+**Synergy Bonus**: Reduce ability costs by 1 (minimum 1) for each different Aeonic Dominion card played this turn (max 3 reduction per turn)
 
 ---
 

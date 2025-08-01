@@ -83,7 +83,13 @@ const CircularProgress: React.FC<CircularProgressProps> = memo(({
 
   return (
     <div className={styles.circularProgressContainer}>
-      <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }} aria-hidden="true">
+      <svg 
+        width={size} 
+        height={size} 
+        style={{ transform: 'rotate(-90deg)' }} 
+        aria-label={`${label}: ${value} out of ${max}`}
+        role="img"
+      >
         <circle
           cx={center}
           cy={center}

@@ -84,7 +84,7 @@ An uneasy alliance between masters of deception and agents of chaos. The Umbral 
 
    - 25% chance to stun the target
 
-2. **Data Leech** + **Infernal Pact**
+2. **Data Leech** + **Infernal Core**
 
    - Steal opponent's card and corrupt it
 

@@ -2,7 +2,7 @@
 
 ## Core Factions
 
-### 1. Solaris Order
+### 1. Solaris Nexus
 
 - **Theme**: Light, law, judgment, ascension
 - **Visual**: Golden-white, armor, sigils, divine rays
@@ -10,7 +10,7 @@
 - **Signature Keywords**: Bless, Illuminate, Fortify
 - **Hero Example**: Solariem, Flame of Order - Grants allies immunity from first debuff
 
-### 2. Umbra Wretches
+### 2. Umbral Eclipse
 
 - **Theme**: Curses, betrayal, darkness, madness
 - **Visual**: Purple-black mist, twisted limbs, shadow creatures
@@ -26,7 +26,7 @@
 - **Signature Keywords**: Spawn, Root, Regrow
 - **Hero Example**: Druthar, Crown of Moss - Ancient parasite god with conditional awakening
 
-### 4. Aeonic Architects
+### 3. Aeonic Dominion
 
 - **Theme**: Time, logic, memory, tech-mysticism
 - **Visual**: Chrome-silver, crystalline structures, time fractures
@@ -34,13 +34,29 @@
 - **Signature Keywords**: Echo, Delay, Loop
 - **Hero Example**: Chron Revenant - Manipulates time to delay or duplicate actions
 
-### 5. Infernal Pact
+### 4. Infernal Core
 
 - **Theme**: Fire, blood, sacrifice, infernal deals
 - **Visual**: Red-black, branded sigils, lava & ash
 - **Key Mechanics**: Burn, discard, sacrifice for gain
 - **Signature Keywords**: Burn, Sacrifice, Frenzy
 - **Hero Example**: Volk'tharr the Devourer - Gains power from every card sacrificed
+
+### 5. Neuralis Conclave
+
+- **Theme**: Psionics, collective consciousness, mental manipulation
+- **Visual**: Blue-purple energy, neural networks, floating crystals
+- **Key Mechanics**: Willpower manipulation, mind control, psychic damage
+- **Signature Keywords**: Willpower, Dominate, Mindlink
+- **Hero Example**: Synapse Prime - Can control enemy units with high Willpower
+
+### 6. Primordial Genesis
+
+- **Theme**: Evolution, adaptation, primal forces
+- **Visual**: Shifting organic forms, bioluminescence, raw energy
+- **Key Mechanics**: Evolution counters, adaptation, transformation
+- **Signature Keywords**: Evolve, Adapt, Mutate
+- **Hero Example**: Oryx the Everchanging - Gains new abilities each turn
 
 ## Faction Mechanics
 

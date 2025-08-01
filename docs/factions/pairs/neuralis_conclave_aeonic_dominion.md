@@ -2,7 +2,7 @@
 
 ## Core Conflict
 
-**Collective Will vs Temporal Authority | The Mind-Time War**
+> **Collective Will vs Temporal Authority | The Mind-Time War**
 
 ## Relationship Status
 
@@ -127,4 +127,3 @@ A philosophical battle between those who believe in the power of collective cons
 - Balance around 48-52% win rate for Neuralis
 
 - Ensure collective mechanics feel impactful
-

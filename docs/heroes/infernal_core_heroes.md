@@ -34,7 +34,7 @@
 - **Effect:** Deal 3 damage. If this kills the target, summon a 1/1 Imp with **Rush**.
 - **Range:** 1 (Front lane only)
 
-#### 3. Infernal Pact (Support Ability)
+#### 3. Infernal Core (Support Ability)
 
 - **Cost:** 1 Health
 - **Effect:** Draw a card. It costs Health instead of Energy this turn.
@@ -53,7 +53,7 @@
 #### Path of the Tormentor (Pain)
 
 - **Level 1:** When your Hero takes damage, deal 1 damage to all enemies
-- **Level 5:** **Infernal Pact** no longer costs Health
+- **Level 5:** **Infernal Core** no longer costs Health
 - **Level 10:** Ultimate: **Hellfire Eruption** - Deal 10 damage randomly split among all enemies. Repeat for each minion that died this turn.
 
 ### Lore
@@ -191,7 +191,7 @@ Once a high-ranking Solaris angel, Ashen Seraph led the celestial host against t
 
 ### Lore
 
-Kythea was a paladin of the Solaris Order, sworn to protect the innocent. When her entire order was slaughtered by Umbral assassins, she made a desperate prayer for the power to avenge them. The Infernal Core answered, offering her the strength she sought... at a price. Now she walks the line between light and darkness, her holy powers tainted by infernal energy. The more she taps into her cursed power, the more she risks losing herself to the demonic forces within. But she doesn't care - she'll burn the world to ashes if it means destroying those who took everything from her.
+Kythea was a paladin of the Solaris Nexus, sworn to protect the innocent. When her entire order was slaughtered by Umbral assassins, she made a desperate prayer for the power to avenge them. The Infernal Core answered, offering her the strength she sought... at a price. Now she walks the line between light and darkness, her holy powers tainted by infernal energy. The more she taps into her cursed power, the more she risks losing herself to the demonic forces within. But she doesn't care - she'll burn the world to ashes if it means destroying those who took everything from her.
 
 ---
 

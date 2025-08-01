@@ -103,9 +103,21 @@ Resolution:
 1. Warrior must attack Tank (due to Taunt)
 2. Warrior (3) vs Tank (1/4 → 1/1)
 3. Archer (2) can shoot over Tank, hits Healer (destroyed)
-4. Player A wins lane (3 Power vs 3 Power, but Healer is down)
-
+4. Lane Power Calculation:
+   - Player A: Tank (1) + Archer (2) = 3 total power
+   - Player B: Warrior (3) + Healer (0, destroyed) = 3 total power
+5. Tiebreaker Check:
+   - Both sides have 3 power
+   - Both have front-row presence (Tank and Warrior)
+   - No other tiebreaker conditions apply
+6. Result: Lane is a draw (no lane advantage gained)
 ```
+
+**Tiebreaker Rules:**
+
+1. Compare total power in lane (sum of all unit attack values)
+2. If equal, check for front-row presence (units with Taunt or highest health)
+3. If still equal, lane is a draw (no advantage gained)
 
 ### Tier 3 Example
 
