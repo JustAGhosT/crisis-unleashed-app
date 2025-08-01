@@ -1,0 +1,162 @@
+/* Base styles and resets */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Theme variables - these will be set by the ThemeProvider */
+  --color-primary: #FFD700;
+  --color-secondary: #FF8C00;
+  --color-accent: #FF4500;
+  --color-background: #0A0A1A;
+  --color-text: #FFFFFF;
+  --color-highlight: #FFD700;
+  --color-energy: #FFD700;
+  --color-health: #FF6B6B;
+  
+  --gradient-bg: linear-gradient(135deg, #0A0A1A 0%, #1A1A3A 100%);
+  
+  --card-bg: rgba(10, 10, 26, 0.8);
+  --card-border: 1px solid rgba(255, 215, 0, 0.3);
+  --card-highlight: rgba(255, 215, 0, 0.1);
+  --card-text: #FFFFFF;
+  
+  --button-primary: rgba(255, 215, 0, 0.9);
+  --button-hover: rgba(255, 140, 0, 0.9);
+  --button-text: #0A0A1A;
+  
+  --glow: 0 0 15px rgba(255, 215, 0, 0.7);
+}
+
+/* Base styles */
+body {
+  @apply bg-background text-text font-sans antialiased;
+  background: var(--gradient-bg);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  @apply font-bold tracking-tight;
+  color: var(--color-primary);
+}
+
+h1 { @apply text-4xl md:text-5xl; }
+h2 { @apply text-3xl md:text-4xl; }
+h3 { @apply text-2xl md:text-3xl; }
+h4 { @apply text-xl md:text-2xl; }
+h5 { @apply text-lg md:text-xl; }
+h6 { @apply text-base md:text-lg; }
+
+p {
+  @apply leading-relaxed;
+  color: var(--color-text);
+}
+
+/* Buttons */
+.btn {
+  @apply px-6 py-2 rounded-full font-medium transition-all duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary;
+  background-color: var(--button-primary);
+  color: var(--button-text);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.btn:hover {
+  background-color: var(--button-hover);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.btn-outline {
+  @apply bg-transparent border-2;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.btn-outline:hover {
+  @apply bg-opacity-10;
+  background-color: var(--color-primary);
+  color: var(--color-text);
+}
+
+/* Cards */
+.card {
+  @apply rounded-lg p-6 transition-all duration-200 ease-in-out;
+  background: var(--card-bg);
+  border: var(--card-border);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(10px);
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+}
+
+/* Utility classes */
+.text-primary { color: var(--color-primary); }
+.text-secondary { color: var(--color-secondary); }
+.text-accent { color: var(--color-accent); }
+.text-highlight { color: var(--color-highlight); }
+.text-energy { color: var(--color-energy); }
+.text-health { color: var(--color-health); }
+
+.bg-primary { background-color: var(--color-primary); }
+.bg-secondary { background-color: var(--color-secondary); }
+.bg-accent { background-color: var(--color-accent); }
+.bg-highlight { background-color: var(--color-highlight); }
+.bg-energy { background-color: var(--color-energy); }
+.bg-health { background-color: var(--color-health); }
+
+.bg-gradient { background: var(--gradient-bg); }
+
+/* Animations */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 5px 0 var(--color-primary); }
+  50% { box-shadow: 0 0 20px 5px var(--color-primary); }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s infinite;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-secondary);
+}
+
+/* Faction-specific styles */
+.solaris-theme {}
+.umbral-theme {}
+.neuralis-theme {}
+.aeonic-theme {}
+.infernal-theme {}
+.primordial-theme {}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .card {
+    @apply p-4;
+  }
+  
+  h1 { @apply text-3xl; }
+  h2 { @apply text-2xl; }
+  h3 { @apply text-xl; }
+}

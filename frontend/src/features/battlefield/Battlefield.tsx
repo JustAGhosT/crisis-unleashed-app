@@ -1,5 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { Card, BattlefieldUnit, BattlefieldZone, PlayerId } from '../types/game.types';
+import { Card, BattlefieldUnit, BattlefieldZone, PlayerId } from '@/types/game.types';
+import { useTheme } from '@/theme/ThemeProvider';
+import clsx from 'clsx';
 import styles from './Battlefield.module.css';
 
 interface BattlefieldProps {
@@ -28,6 +30,8 @@ const Battlefield: React.FC<BattlefieldProps> = ({
   const [hoveredZone, setHoveredZone] = useState<string | null>(null);
   const [battlefieldUnits, setBattlefieldUnits] = useState<Record<string, BattlefieldUnit>>(initialUnits);
 
+  const { theme } = useTheme();
+  
   // Create battlefield grid with zones
   const battlefieldGrid = useMemo(() => {
     const grid: BattlefieldZone[] = [];
@@ -37,6 +41,8 @@ const Battlefield: React.FC<BattlefieldProps> = ({
         const position = `${row}-${col}`;
         const isPlayerZone = row === rows - 1;
         const isEnemyZone = row === 0;
+        const isFrontline = row === 1 || row === rows - 2;
+        const isBackline = isPlayerZone || isEnemyZone;
         const isNeutralZone = !isPlayerZone && !isEnemyZone;
         
         grid.push({
@@ -45,6 +51,8 @@ const Battlefield: React.FC<BattlefieldProps> = ({
           isPlayerZone,
           isEnemyZone,
           isNeutralZone,
+          isFrontline,
+          isBackline,
         });
       }
     }
@@ -120,48 +128,111 @@ const Battlefield: React.FC<BattlefieldProps> = ({
         style={gridStyle}
       >
         {battlefieldGrid.map((zone) => {
-          const isHovered = hoveredZone === zone.position;
-          const canPlayCard = selectedCard && !zone.unit;
-          
-          // Determine zone classes using CSS Modules
-          const zoneClasses = [
-            styles.zone,
-            zone.isPlayerZone ? styles.playerZone : '',
-            zone.isEnemyZone ? styles.enemyZone : '',
-            zone.isNeutralZone ? styles.neutralZone : '',
-            isHovered && canPlayCard ? styles.highlighted : ''
-          ].filter(Boolean).join(' ');
+          const isActiveZone = hoveredZone === zone.position && selectedCard;
+          const isPlayableZone = isActiveZone && 
+            (zone.isPlayerZone || (zone.isNeutralZone && !zone.unit));
           
           return (
             <div
               key={zone.position}
-              className={zoneClasses}
+              className={clsx(
+                'relative flex items-center justify-center rounded-lg transition-all duration-200',
+                'border-2 border-opacity-30',
+                {
+                  'bg-blue-900 bg-opacity-20 border-blue-500': zone.isPlayerZone,
+                  'bg-red-900 bg-opacity-20 border-red-500': zone.isEnemyZone,
+                  'bg-gray-900 bg-opacity-20 border-gray-600': zone.isNeutralZone,
+                  'ring-2 ring-offset-2 ring-offset-gray-900 ring-primary': isActiveZone,
+                  'cursor-pointer hover:bg-opacity-40': isPlayableZone,
+                  'bg-gradient-to-br from-primary/10 to-transparent': zone.isFrontline,
+                }
+              )}
               onMouseEnter={() => handleZoneHover(zone.position)}
               onMouseLeave={() => handleZoneHover(null)}
               onClick={() => handleZoneClick(zone.position, zone)}
             >
-              {zone.unit ? (
-                renderUnit(zone.unit)
-              ) : (
-                <div className={styles.unitPlaceholder}>
-                  {zone.isPlayerZone && '👥'}
-                  {zone.isEnemyZone && '👤'}
-                  {zone.isNeutralZone && '⚔️'}
+              {/* Zone background effects */}
+              <div 
+                className={clsx(
+                  'absolute inset-0 rounded-lg opacity-20 transition-opacity',
+                  {
+                    'bg-blue-500': zone.isPlayerZone,
+                    'bg-red-500': zone.isEnemyZone,
+                    'bg-gray-600': zone.isNeutralZone,
+                  }
+                )}
+              />
+              
+              {/* Grid pattern overlay */}
+              <div className="absolute inset-0 bg-grid-pattern opacity-5 rounded-lg" />
+              
+              {/* Zone content */}
+              <div className="relative z-10 w-full h-full flex items-center justify-center">
+                {zone.unit && (
+                  <div 
+                    className={clsx(
+                      'w-16 h-24 rounded-md flex items-center justify-center text-center p-2',
+                      'transition-transform duration-200 hover:scale-105 cursor-pointer',
+                      'border-2 shadow-lg',
+                      {
+                        'bg-blue-900 border-blue-500': zone.unit.player === playerId,
+                        'bg-red-900 border-red-500': zone.unit.player !== playerId,
+                        'ring-2 ring-yellow-400': isActiveZone,
+                      }
+                    )}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleUnitClick(zone.unit!);
+                    }}
+                  >
+                    <div className="text-xs font-bold text-white">
+                      {zone.unit.name}
+                      <div className="text-2xs opacity-80">
+                        {zone.unit.attack}/{zone.unit.health}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {isActiveZone && selectedCard && (
+                  <div 
+                    className={clsx(
+                      'absolute inset-0 rounded-md flex items-center justify-center',
+                      'text-xs font-medium text-center p-2 border-2 border-dashed',
+                      {
+                        'border-green-500 text-green-400': isPlayableZone,
+                        'border-yellow-500 text-yellow-400': !isPlayableZone,
+                        'opacity-70': !isPlayableZone,
+                      }
+                    )}
+                  >
+                    {selectedCard.name}
+                    <div className="absolute bottom-1 right-1 text-2xs opacity-70">
+                      {selectedCard.cost}⚡
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {/* Zone position indicator (debug) */}
+              {process.env.NODE_ENV === 'development' && (
+                <div className="absolute bottom-1 right-1 text-2xs opacity-30">
+                  {zone.position}
                 </div>
               )}
-              
-              <div className={styles.zonePosition}>
-                {zone.position}
-              </div>
             </div>
           );
         })}
       </div>
       
-      <div className={styles.overlay}>
-        <div className={styles.centerLine}></div>
-        <div className={styles.enemySide}></div>
-        <div className={styles.playerSide}></div>
+      {/* Battlefield decorations */}
+      <div className="absolute inset-0 -z-10 overflow-hidden">
+        <div 
+          className="absolute inset-0 opacity-5"
+          style={{
+            background: `radial-gradient(circle at center, ${theme.colors.primary} 0%, transparent 70%)`,
+          }}
+        />
       </div>
     </div>
   );

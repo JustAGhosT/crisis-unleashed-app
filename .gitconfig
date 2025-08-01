@@ -1,3 +1,15 @@
 [user]
-	email = github@emergent.sh
-	name = emergent-agent-e1
+	email = smit.jurie@gmail.com
+	name = justaghost
+[core]
+	autocrlf = false
+	eol = lf
+	excludesfile = .gitignore
+[pull]
+	rebase = true
+[push]
+	default = current
+[init]
+	defaultBranch = main
+[color]
+	ui = auto

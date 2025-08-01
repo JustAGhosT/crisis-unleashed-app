@@ -1,3 +1,6 @@
+// Faction types
+export type Faction = 'solaris' | 'umbral' | 'neuralis' | 'aeonic' | 'infernal' | 'primordial';
+
 export interface GameState {
   currentTurn: number;
   activePlayer: 'player1' | 'player2';

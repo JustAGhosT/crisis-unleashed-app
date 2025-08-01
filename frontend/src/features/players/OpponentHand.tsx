@@ -1,5 +1,6 @@
 import React, { useMemo, memo, useCallback } from 'react';
-import styles from './OpponentHand.module.css';
+import { useTheme } from '@/theme/ThemeProvider';
+import clsx from 'clsx';
 
 interface OpponentHandProps {
   cardCount?: number;
@@ -13,48 +14,128 @@ interface CardBackProps {
   isActive?: boolean;
 }
 
-const CardBack: React.FC<CardBackProps> = memo(({ cardId, isActive = false }) => (
-  <div className={`${styles.cardBack} ${isActive ? styles.cardActive : ''}`}>
-    <div className={styles.cardBackInner}>
-      {/* Card Back Design */}
-      <div className={styles.cardTopSection}>
-        {/* Tech Pattern */}
-        <div className={styles.techPattern}>
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className={styles.techPatternCell} />
-          ))}
-        </div>
-
-        {/* Central Symbol */}
-        <div className={styles.centralSymbol}>
-          <div className={styles.symbol} />
+const CardBack: React.FC<CardBackProps> = memo(({ cardId, isActive = false }) => {
+  const { theme } = useTheme();
+  
+  return (
+    <div 
+      className={clsx(
+        'relative w-16 h-24 rounded-lg overflow-hidden transition-all duration-300',
+        'transform-gpu shadow-lg',
+        'border-2 border-gray-700/50',
+        'bg-gradient-to-br from-gray-900/80 to-gray-800/80',
+        'flex items-center justify-center',
+        {
+          'scale-110 -translate-y-3 z-10 shadow-xl': isActive,
+          'hover:scale-105 hover:-translate-y-1': !isActive,
+          'ring-2 ring-yellow-400': isActive,
+          'ring-1 ring-white/20': !isActive,
+        }
+      )}
+      style={{
+        backgroundImage: `
+          linear-gradient(145deg, rgba(30, 30, 30, 0.9) 0%, rgba(20, 20, 20, 0.95) 100%),
+          repeating-linear-gradient(
+            45deg,
+            rgba(255, 255, 255, 0.02) 0px,
+            rgba(255, 255, 255, 0.02) 1px,
+            transparent 1px,
+            transparent 8px
+          )
+        `
+      }}
+    >
+      {/* Tech Pattern */}
+      <div className="absolute inset-0 flex flex-wrap opacity-20">
+        {[...Array(16)].map((_, i) => (
+          <div 
+            key={i}
+            className="w-1/4 h-1/4 border border-white/5"
+            style={{
+              backgroundColor: i % 2 === 0 ? 'transparent' : 'rgba(255, 255, 255, 0.03)'
+            }}
+          />
+        ))}
+      </div>
+      
+      {/* Central Symbol */}
+      <div className="relative z-10 w-8 h-8 flex items-center justify-center">
+        <div 
+          className={clsx(
+            'w-full h-full rounded-full',
+            'flex items-center justify-center text-lg',
+            'bg-gradient-to-br from-primary/20 to-secondary/20',
+            'border border-white/10',
+            'shadow-inner',
+            'transform rotate-45',
+            'overflow-hidden'
+          )}
+        >
+          <div className="transform -rotate-45">⚡</div>
         </div>
       </div>
-
-      {/* Bottom Section */}
-      <div className={styles.cardBottomSection}>
-        <div className={styles.indicators}>
-          <div className={styles.indicator} />
-          <div className={styles.indicator} />
-          <div className={styles.indicator} />
-        </div>
+      
+      {/* Bottom Indicators */}
+      <div className="absolute bottom-1 left-0 right-0 flex justify-center space-x-1">
+        {[...Array(3)].map((_, i) => (
+          <div 
+            key={i}
+            className={clsx(
+              'w-1 h-1 rounded-full',
+              'transition-all duration-300',
+              {
+                'bg-yellow-400': isActive,
+                'bg-white/30': !isActive,
+              }
+            )}
+          />
+        ))}
       </div>
-
-      {/* Holographic Scan Effect */}
-      <div className={styles.holographicEffect} />
-
-      {/* Border Glow on Hover/Active */}
+      
+      {/* Holographic Effect */}
       <div 
-        className={`${styles.borderGlow} ${isActive ? styles.borderGlowActive : ''}`}
+        className={clsx(
+          'absolute inset-0 opacity-0 transition-opacity duration-300',
+          'bg-gradient-to-r from-transparent via-white/10 to-transparent',
+          'transform -skew-x-12',
+          'pointer-events-none',
+          {
+            'opacity-100': isActive,
+            'group-hover:opacity-30': !isActive,
+          }
+        )}
+        style={{
+          backgroundImage: `linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.1),
+            rgba(255, 255, 255, 0.2),
+            rgba(255, 255, 255, 0.1),
+            transparent
+          )`
+        }}
       />
       
-      {/* Card ID (for debugging) */}
-      <div className={styles.cardId}>
-        {cardId}
-      </div>
+      {/* Border Glow */}
+      <div 
+        className={clsx(
+          'absolute -inset-0.5 rounded-lg',
+          'transition-all duration-300',
+          'pointer-events-none',
+          {
+            'bg-gradient-to-br from-primary/60 to-secondary/60': isActive,
+            'bg-gradient-to-br from-primary/20 to-secondary/20': !isActive,
+          }
+        )}
+        style={{
+          filter: `blur(${isActive ? '8px' : '4px'})`,
+          opacity: isActive ? 0.8 : 0,
+          zIndex: -1,
+        }}
+      />
     </div>
-  </div>
-));
+  );
+});
 
 CardBack.displayName = 'CardBack';
 
@@ -64,72 +145,91 @@ const OpponentHand: React.FC<OpponentHandProps> = ({
   isActive = false,
   className = ''
 }) => {
-  // Generate array of card placeholders
-  const cardPlaceholders = useMemo(() => {
+  const { theme } = useTheme();
+  
+  // Generate card placeholders
+  const cards = useMemo(() => {
     return Array.from({ length: Math.min(cardCount, maxCards) }, (_, i) => ({
-      id: `opponent-card-${i + 1}`,
-      isActive: isActive && i === 0 // First card is active if it's the opponent's turn
+      id: `card-${i}`,
+      isActive: isActive && i === cardCount - 1 // Highlight the most recently drawn card
     }));
   }, [cardCount, maxCards, isActive]);
 
-  // Calculate card spread
-  const getCardClass = useCallback((index: number, total: number) => {
-    if (total <= 1) return '';
+  // Calculate card positions in a fan shape
+  const getCardStyle = useCallback((index: number, total: number) => {
+    if (total <= 1) return {};
     
-    const centerIndex = (total - 1) / 2;
-    const distanceFromCenter = index - centerIndex;
-    const isLeft = distanceFromCenter < 0;
-    const isRight = distanceFromCenter > 0;
+    const maxRotation = 15; // Maximum rotation in degrees
+    const maxOffset = 16; // Maximum horizontal offset in pixels
+    const maxZIndex = total + 10; // Base z-index for cards
     
-    if (isLeft) {
-      return styles.cardSpreadLeft;
-    } else if (isRight) {
-      return styles.cardSpreadRight;
-    }
+    // Calculate rotation and offset based on position in hand
+    const position = (index / (total - 1)) * 2 - 1; // -1 to 1 range
+    const rotation = position * maxRotation * -1; // Invert for natural fan
+    const offset = position * maxOffset * -1; // Invert for natural fan
+    const zIndex = maxZIndex - Math.abs(position) * (maxZIndex / 2); // Center cards on top
     
-    return '';
+    return {
+      transform: `rotate(${rotation}deg) translateX(${offset}px)`,
+      zIndex: Math.floor(zIndex),
+      transition: 'transform 0.3s ease, z-index 0.3s ease'
+    };
   }, []);
 
-  if (cardCount <= 0) {
-    return (
-      <div className={`${styles.opponentHand} ${className}`}>
-        <div className={styles.emptyState}>
-          Opponent's hand is empty
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className={`${styles.opponentHand} ${className}`}>
-      <div className={styles.cardsContainer}>
-        <div className={styles.cardsWrapper}>
-          {cardPlaceholders.map((card, index) => (
-            <div 
-              key={card.id}
-              className={`${styles.cardWrapper} ${getCardClass(index, cardPlaceholders.length)}`}
-            >
-              <CardBack 
-                cardId={index + 1} 
-                isActive={card.isActive}
-              />
-            </div>
-          ))}
-          
-          {/* Card count indicator if we're not showing all cards */}
-          {cardCount > maxCards && (
-            <div className={styles.cardCount}>
-              +{cardCount - maxCards}
-            </div>
-          )}
-        </div>
-        
-        {/* Turn indicator */}
-        {isActive && (
-          <div className={styles.turnIndicator}>
+    <div className={clsx(
+      'relative w-full h-32 flex flex-col items-center',
+      'transition-all duration-300',
+      className
+    )}>
+      {/* Active Turn Indicator */}
+      {isActive && (
+        <div className="absolute -top-6 left-1/2 transform -translate-x-1/2">
+          <div className="flex items-center bg-red-900/80 text-red-200 text-xs font-bold px-3 py-1 rounded-full border border-red-600/50">
+            <div className="w-2 h-2 rounded-full bg-red-400 animate-pulse mr-2" />
             Opponent's Turn
           </div>
+        </div>
+      )}
+      
+      {/* Cards */}
+      <div className="relative w-full h-full flex items-center justify-center">
+        {cards.length > 0 ? (
+          cards.map((card, index) => (
+            <div 
+              key={card.id}
+              className="absolute transition-all duration-300 origin-bottom"
+              style={getCardStyle(index, cards.length)}
+            >
+              <div className="group">
+                <CardBack 
+                  cardId={card.id}
+                  isActive={card.isActive}
+                />
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="text-gray-500 text-sm italic">
+            No cards in hand
+          </div>
         )}
+      </div>
+      
+      {/* Card Count */}
+      <div className={clsx(
+        'absolute -bottom-2 left-1/2 transform -translate-x-1/2',
+        'px-3 py-1 rounded-full text-xs font-bold',
+        'bg-black/50 backdrop-blur-sm border border-white/10',
+        'flex items-center space-x-2',
+        'transition-all duration-300',
+        {
+          'text-yellow-400': cardCount >= maxCards - 2,
+          'text-gray-300': cardCount < maxCards - 2,
+        }
+      )}>
+        <span>Cards: {cardCount}</span>
+        <span className="text-gray-400">/ {maxCards}</span>
       </div>
     </div>
   );

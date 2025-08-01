@@ -31,7 +31,7 @@ module.exports = {
   },
   webpack: {
     alias: {
-      "@": path.resolve(__dirname, "src"),
+      '@': path.resolve(__dirname, 'src')
     },
     configure: (webpackConfig) => {
       // Disable hot reload completely if environment variable is set
