@@ -14,7 +14,7 @@
   - [x] Neuralis Conclave
   - [x] Synthetic Directive
 - [x] Create faction relationship diagrams and lore connections
-- [ ] Document faction-specific strategy and deck building considerations
+- [x] Document faction-specific strategy and deck building considerations (FACTION_STRATEGY_GUIDE.md)
 - [x] Add faction-specific card examples and synergies
 - [x] Document trait and keyword system (Bless, Corrupt, Spawn, Delay, Psychic Field, Mindlink, Transcend, etc.)
 - [x] Create faction relationship chart and lore connections
@@ -29,7 +29,7 @@
   - [x] Infernal Core heroes
   - [x] Neuralis Conclave heroes
   - [x] Synthetic Directive heroes
-- [ ] Create hero ability reference guide
+- [x] Create hero ability reference guide (HERO_ABILITY_REFERENCE.md)
 - [x] Document hero types (True, Echo, Dual)
 - [ ] Add hero-specific strategy guides
 - [x] Document hero evolution/ascension mechanics
@@ -272,8 +272,8 @@
 ## Completion Status
 
 - Total Tasks: 126
-- Completed: 41
+- Completed: 43
 - In Progress: 0
-- Not Started: 85
+- Not Started: 83
 
 Last Updated: 2025-08-01
