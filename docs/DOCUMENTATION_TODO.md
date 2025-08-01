@@ -5,47 +5,69 @@
 ### Faction Documentation
 
 - [x] Create Faction System documentation (FACTION_SYSTEM.md)
-- [ ] Document faction-specific mechanics and playstyles for all 5 core factions
-- [ ] Create faction relationship diagrams and lore connections
+- [x] Document faction-specific mechanics and playstyles for all core factions
+  - [x] Solaris Nexus
+  - [x] Umbral Eclipse
+  - [x] Aeonic Dominion
+  - [x] Primordial Genesis
+  - [x] Infernal Core
+  - [x] Neuralis Conclave
+  - [x] Synthetic Directive
+- [x] Create faction relationship diagrams and lore connections
 - [ ] Document faction-specific strategy and deck building considerations
-- [ ] Add faction-specific card examples and synergies
-- [ ] - [ ] Document trait and keyword system (Conscious, Burn, Regrow, Echo, etc.)
-- [ ] Create faction relationship chart and lore connections
+- [x] Add faction-specific card examples and synergies
+- [x] Document trait and keyword system (Bless, Corrupt, Spawn, Delay, Psychic Field, Mindlink, Transcend, etc.)
+- [x] Create faction relationship chart and lore connections
 
 ### Hero System
 
-- [ ] Document all 15 heroes (3 per faction)
+- [x] Document all heroes (3 per faction)
+  - [x] Solaris Nexus heroes
+  - [x] Umbral Eclipse heroes
+  - [x] Aeonic Dominion heroes
+  - [x] Primordial Genesis heroes
+  - [x] Infernal Core heroes
+  - [x] Neuralis Conclave heroes
+  - [x] Synthetic Directive heroes
 - [ ] Create hero ability reference guide
-- [ ] Document hero types (True, Echo, Dual)
+- [x] Document hero types (True, Echo, Dual)
 - [ ] Add hero-specific strategy guides
-- [ ] Document hero evolution/ascension mechanics
-- [ ] Document Ascension paths and progression- [ ] Add Echo activation mechanics
+- [x] Document hero evolution/ascension mechanics
+- [x] Document Ascension paths and progression
+- [ ] Add Echo activation mechanics
 - [ ] Detail Quantum evolution system
 - [ ] Create hero matchup guides
 
 ### Card Types & Mechanics
 
-- [ ] Document core card types (Units, Actions, Conditions)
-- [ ] Create keyword reference guide (Bless, Corrupt, Spawn, Delay, Psychic Field, Mindlink, Transcend, etc.)
-- [ ] Add Glitch system documentation
-- [ ] Document faction-specific mechanics (Solaris Blessings, Umbra Curses, etc.)
-- [ ] Add card interaction rules and timing
-- [ ] Add WORM cards documentation (Weavers Of Reality & Memory)
+- [x] Document core card types (Units, Actions, Conditions)
+- [x] Create keyword reference guide (Bless, Corrupt, Spawn, Delay, Psychic Field, Mindlink, Transcend, etc.)
+- [x] Add Glitch system documentation
+- [x] Document faction-specific mechanics
+  - [x] Solaris Nexus mechanics
+  - [x] Umbral Eclipse mechanics
+  - [x] Aeonic Dominion mechanics
+  - [x] Primordial Genesis mechanics
+  - [x] Infernal Core mechanics
+  - [x] Neuralis Conclave mechanics
+  - [x] Synthetic Directive mechanics
+- [x] Add card interaction rules and timing
+- [x] Add WORM cards documentation (Weavers Of Reality & Memory)
 
 ### Visual Identity
 
-- [ ] Document faction visual themes and color palettes
-- [ ] - [ ] Create visual hierarchy standards
-- [ ] Create card template specifications
-- [ ] Document icon system and usage
-- [ ] Create style guide for faction colors
-- [ ] Add AI artwork generation guidelines
+- [x] Document faction visual themes and color palettes
+- [ ] Create visual hierarchy standards
+- [x] Create card template specifications
+- [x] Document icon system and usage
+- [x] Create style guide for faction colors
+- [x] Add AI artwork generation guidelines (Card Animation System)
 
 ### Hero Playbook
 
-[ ] Document card art creation process
-
-- [ ] Add visual guidelines for card effects- [ ] Complete printable playbook templates
+- [ ] Document card art creation process
+- [x] Add visual guidelines for card effects
+- [ ] Complete printable playbook templates
 - [ ] Document lore integration with mechanics
 - [ ] Create campaign hook examples
 - [ ] Add hero-specific strategy guides
@@ -56,7 +78,7 @@
 
 - [ ] Document card rarities and drop rates
 - [ ] Create interaction matrix for card combos
-- [ ] Add mulligan and redraw rules
+- [x] Add mulligan and redraw rules
 - [ ] Document card acquisition methods
 - [ ] Add visual examples of card states
 
@@ -103,16 +125,23 @@
 
 ### Rulebook & Manual
 
-- [ ] Create comprehensive game setup guide
+- [x] Create comprehensive game setup guide
 - [ ] Document turn order and phases
-- [ ] Detail energy/mana system mechanics
+- [x] Detail energy/mana system mechanics
 - [ ] Document all victory conditions
 - [ ] Add example turns and scenarios
 - [ ] Create quick-start guide for new players
 
 ### Starter Decks
 
-- [ ] Design 6 balanced starter decks (1 per faction)
+- [ ] Design balanced starter decks (1 per faction)
+  - [ ] Solaris Nexus starter deck
+  - [ ] Umbral Eclipse starter deck
+  - [ ] Aeonic Dominion starter deck
+  - [ ] Primordial Genesis starter deck
+  - [ ] Infernal Core starter deck
+  - [ ] Neuralis Conclave starter deck
+  - [ ] Synthetic Directive starter deck
 - [ ] Document beginner-friendly combos
 - [ ] Create PvP balance guidelines
 - [ ] Add solo mode adaptations
@@ -154,11 +183,19 @@
 
 ### Lore & Story
 
+- [x] Create faction origin stories
+  - [ ] Solaris Nexus origin
+  - [ ] Umbral Eclipse origin
+  - [ ] Aeonic Dominion origin
+  - [ ] Primordial Genesis origin
+  - [ ] Infernal Core origin
+  - [ ] Neuralis Conclave origin
+  - [x] Synthetic Directive origin
 - [ ] Write universe timeline
 - [ ] Create hero backstories
 - [ ] Document realm histories
 - [ ] Create creation myth
-- [ ] Add faction relationship maps
+- [x] Add faction relationship maps
 
 ## Priority 4: Technical Documentation
 
@@ -204,10 +241,10 @@
 
 ### Style Guide
 
-- [ ] Create writing guidelines
-- [ ] Document formatting standards
-- [ ] Add screenshot guidelines
-- [ ] Create template library
+- [x] Create writing guidelines
+- [x] Document formatting standards
+- [x] Add screenshot guidelines
+- [x] Create template library
 
 ### Review Process
 
@@ -234,9 +271,9 @@
 
 ## Completion Status
 
-- Total Tasks: 48
-- Completed: 0
+- Total Tasks: 126
+- Completed: 40
 - In Progress: 0
-- Not Started: 48
+- Not Started: 86
 
-Last Updated: 2025-07-31
+Last Updated: 2025-08-01

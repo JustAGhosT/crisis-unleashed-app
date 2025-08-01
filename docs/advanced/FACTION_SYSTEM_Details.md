@@ -114,6 +114,25 @@
 
 **Synergy Bonus**: Gain +1 card draw when playing 2+ actions in a turn
 
+---
+
+### 7. Synthetic Directive
+
+**Theme**: Machine Consciousness (Autonomous AI + Networked Evolution)  
+**Visual**: Sleek metallic surfaces, swarms of small drones, glowing data patterns, augmented organisms  
+**Playstyle**: Swarm tactics with distributed processing and algorithmic adaptation
+
+**Signature Actions**:
+
+1. **Distributed Calculation** (2 Energy) - Redistribute stats among all allied units
+2. **Replication Protocol** (3 Energy) - Create copies of your lowest-cost unit in play
+3. **Assimilation Process** (4 Energy) - Convert an enemy unit into a drone under your control
+4. **Network Optimization** (3 Energy) - Draw cards equal to the number of drones you control
+5. **Adaptive Firewall** (2 Energy) - All drones gain resistance to the last damage type used
+6. **Override Command** (5 Energy) - Take control of an enemy unit; it gains Drone type
+
+**Synergy Bonus**: For each 3 drones you control, all your units gain +1/+0
+
 ## Faction Relationships
 
 ```mermaid
@@ -126,12 +145,20 @@ graph TD
     
     F[Neuralis Conclave] -->|Seeks Balance| A & B & C & D & E
     
+    G[Synthetic Directive] -->|Analyzes| A & B & C & D & E & F
+    F -->|Disrupts| G
+    A -->|Counters| G
+    G -->|Assimilates| D
+    
     A -.->|Allied| C
     B -.->|Allied| E
     C -.->|Allied| A
     D -.->|Allied| B
     E -.->|Allied| D
     F -.->|Neutral| A & B & C & D & E
+    G -.->|Opposed| A & F
+    G -.->|Studies| B & C
+    G -.->|Utilizes| D & E
 ```
 
 ## Deck Building Rules
