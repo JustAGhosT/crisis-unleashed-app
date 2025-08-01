@@ -1,57 +1,48 @@
 ---
-description: Defines core game data models including cards, battlefield grid, and player state tracking
-globs: src/types/*.ts,src/models/*.ts,src/components/Battlefield.js,src/components/PlayerHUD.tsx
+description: Defines core game entities and data models for the card-based strategy game Crisis Unleashed
+globs: src/types/*.ts,src/models/*.ts,src/constants/*.ts
 alwaysApply: false
 ---
 
 
 # game-data-models
 
-### Core Game Entity Models
+## Core Game Entities (Importance: 95)
 
-**Player State Model** (Importance: 95)
-`frontend/src/components/PlayerHUD.tsx`
-- Health points tracking (0-100)
-- Momentum resource system
-- Energy points for card deployment
-- Active/inactive turn status
+The game defines several core data models that represent the fundamental game mechanics:
 
-**Card Model** (Importance: 90)
-`frontend/src/types/game.types.ts`
-- Card types: character, action
-- Properties: name, cost, abilities
-- Rarity classification
-- Custom effect definitions
-- Valid deployment validation rules
+### Player Stats Model
+- Health points tracking player survival
+- Energy points for playing cards each turn 
+- Momentum points affecting special abilities
+- Current/maximum values for each stat
 
-**Battlefield Grid** (Importance: 85)
-`frontend/src/components/Battlefield.js`
-- Deployment zone validation
-- Unit positioning tracking
-- Card placement restrictions
-- Battlefield state management
+### Card Model
+- Energy cost requirements
+- Card effects and abilities
+- Target requirements and restrictions
+- Card type classification
+- Synergy identifiers
 
-**Game State Model** (Importance: 95)
-`frontend/src/components/GameInterface.tsx`
-- Turn phase tracking
-- Active player management
-- Resource state updates
-- Win/loss conditions
+### Battlefield Grid Model
+- Player and enemy zones
+- Unit placement coordinates
+- Zone control status
+- Movement range limitations
+- Line of sight calculations
+
+### Game State Model
+- Turn phase tracking (Deploy/Action/End)
+- Active player designation
+- Crisis event status
+- Synergy activation states
 - Game phase transitions
 
-**Hand Management** (Importance: 80)
-`frontend/src/components/CardHand.js`
-- Card selection state
-- Affordability validation
-- Maximum hand size rules
-- Draw/discard mechanics
+File References:
+- `frontend/src/types/game.types.ts` - Core type definitions
+- `frontend/src/constants/mockCards.ts` - Card data structures
 
-The game data models form a complete ecosystem tracking the dynamic state of:
-- Player resources and status
-- Card deployment and effects
-- Battlefield unit positions
-- Turn sequence and phase management
-- Win/loss condition evaluation
+The models are implemented primarily through TypeScript interfaces and constants, with mock data structures providing the initial game state representation for development and testing.
 
 $END$
 

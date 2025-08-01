@@ -1,53 +1,55 @@
 ---
-description: Specification for game-specific algorithms including battlefield management, turn sequencing, and combat resolution
-globs: **/components/Battlefield.js,**/components/GameInterface.{ts,tsx},**/components/TurnManager.js,**/types/game.types.ts
+description: Documentation of core game mechanics and algorithms for turn-based card gameplay systems
+globs: 'frontend/src/features/battlefield/*','frontend/src/features/cards/*','frontend/src/components/game/*'
 alwaysApply: false
 ---
 
 
 # game-algorithms
 
-## Core Game Flow Algorithms
+## Core Game Systems
 
-### Turn Sequence Management (Importance: 95)
-- Located in `/frontend/src/components/GameInterface.tsx`
-- Implements state machine for game phases:
-  1. Turn initialization with energy reset
-  2. Active player designation
-  3. Card deployment phase
-  4. Combat resolution
-  5. Turn transition logic
-- Controls momentum and energy resource allocation
+### Turn Management
+`frontend/src/features/battlefield/TurnManager.tsx`
+- Implements distinct turn phases: DEPLOY, ACTION, END
+- Manages turn transitions and phase-specific validations
+- Handles resource replenishment between turns
+Importance: 95
 
-### Battlefield Management (Importance: 90)
-- Located in `/frontend/src/components/Battlefield.js`
-- Handles unit deployment grid system
-- Manages valid placement zones based on card types
-- Processes unit positioning and movement rules
-- Implements proximity-based effect triggers
+### Card Deployment Logic 
+`frontend/src/features/cards/CardHand.tsx`
+- Validates card plays based on player energy availability
+- Enforces placement restrictions and targeting rules
+- Manages hand size limits and card draw sequencing
+Importance: 90
 
-### Combat Resolution (Importance: 85)
-- Located in `/frontend/src/components/Battlefield.js`
-- Resolves unit interactions during combat phase
-- Applies damage calculations based on unit stats
-- Handles special ability triggers during combat
-- Processes unit removal on defeat
+### Battlefield Management
+`frontend/src/features/battlefield/Battlefield.tsx`
+- Controls unit placement across player/enemy zones
+- Manages battlefield grid state and zone interactions
+- Handles unit positioning validation
+Importance: 85
 
-### Card Deployment Logic (Importance: 80)
-- Located in `/frontend/src/components/CardHand.js`
-- Validates deployment requirements:
-  - Energy cost checks
-  - Placement zone availability
-  - Card type restrictions
-- Handles card selection and deployment confirmation
+### Game State Orchestration
+`frontend/src/components/game/GameInterface.tsx`
+- Coordinates overall game flow and phase transitions
+- Manages player resources (health, energy, momentum)
+- Synchronizes turn-based actions between players
+Importance: 92
 
-### Game State Tracking (Importance: 75)
-- Located in `/frontend/src/types/game.types.ts`
-- Defines core game entities:
-  - Card types and abilities
-  - Unit stats and modifiers
-  - Board state representation
-  - Player resource tracking
+## Combat Systems
+
+### Unit Interaction
+- Manages valid target selection
+- Implements zone-based movement restrictions
+- Controls unit engagement rules
+Importance: 80
+
+### Resource Management
+- Tracks and updates player energy pools
+- Manages momentum accumulation/expenditure
+- Controls resource distribution per turn
+Importance: 75
 
 $END$
 
