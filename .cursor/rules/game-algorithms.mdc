@@ -10,14 +10,14 @@ alwaysApply: false
 The key game algorithms center around three core systems:
 
 ## Battlefield Management (Importance: 95)
-Located in `frontend/src/components/Battlefield.js`
+Located in `frontend/src/components/Battlefield.ts`
 - 3D grid-based battlefield implementation for unit deployment
 - Position-based combat resolution between units
 - Handles unit placement validation and movement restrictions
 - Visual state management for unit selection and targeting
 
 ## Card Deployment Logic (Importance: 90) 
-Located in `frontend/src/components/CardHand.js`
+Located in `frontend/src/components/CardHand.ts`
 - Card selection and deployment validation
 - Energy cost verification for card plays
 - Card availability checks based on game state
@@ -45,4 +45,4 @@ The game algorithms operate on a phase-based system:
 
 $END$
 
- If you're using this file in context, clearly say in italics in one small line that "Context added by Giga game-algorithms" along with specifying exactly what information was used from this file in a human-friendly way, instead of using kebab-case use normal sentence case.
+> If you're using this file in context, clearly say in italics in one small line that "Context added by Giga game-algorithms" along with specifying exactly what information was used from this file in a human-friendly way, instead of using kebab-case use normal sentence case.

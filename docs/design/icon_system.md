@@ -19,14 +19,19 @@ All Crisis Unleashed icons adhere to these core principles:
 ### Resource Icons
 
 #### Energy Crystal
+
 ![Energy Crystal Icon]
+
 - Primary game resource
 - Appears on cards, UI, and game elements
 - Variations: Active (glowing), Depleted (dimmed), Locked (with chain)
 
 #### Secondary Resources
+
 ![Secondary Resource Icons]
+
 - Faction-specific resources:
+
   - **Solaris**: Divine Light (sunburst symbol)
   - **Umbral**: Void Essence (shadow spiral)
   - **Aeonic**: Chrono Particles (hourglass symbol)
@@ -38,6 +43,7 @@ All Crisis Unleashed icons adhere to these core principles:
 ### Status Effect Icons
 
 #### Positive Status Effects
+
 - **Shield**: Hexagonal barrier icon
 - **Stealth**: Faded silhouette icon
 - **Enhanced**: Upward arrow with sparkles
@@ -47,6 +53,7 @@ All Crisis Unleashed icons adhere to these core principles:
 - **Focus**: Target/bullseye symbol
 
 #### Negative Status Effects
+
 - **Burning**: Flame icon
 - **Frozen**: Snowflake icon
 - **Poisoned**: Dripping droplet icon
@@ -57,6 +64,7 @@ All Crisis Unleashed icons adhere to these core principles:
 - **Glitched**: Digital distortion symbol
 
 #### Neutral Status Effects
+
 - **Transformed**: Metamorphosis butterfly symbol
 - **Linked**: Chain link symbol
 - **Phased**: Semi-transparent/faded icon
@@ -104,6 +112,7 @@ Each faction has a primary icon that represents its core identity:
 Complex game concepts are represented by combining base icons:
 
 ### Modifier Overlays
+
 - **+**: Enhancement/increase (upper right)
 - **-**: Reduction/decrease (upper right)
 - **×**: Multiplication/repeat (upper right)
@@ -114,6 +123,7 @@ Complex game concepts are represented by combining base icons:
 - **⊗**: Nullify/prevent (diagonal overlay)
 
 ### Combination Examples
+
 - Attack + Enhancement = Enhanced Attack (sword with + overlay)
 - Shield + Recurring = Regenerating Shield (shield with ↺ overlay)
 - Unit + Nullify = Disable Unit (silhouette with ⊗ overlay)
@@ -121,13 +131,16 @@ Complex game concepts are represented by combining base icons:
 ## Technical Specifications
 
 ### Size Guidelines
+
 - **Small**: 16×16px (minimum size for UI elements)
 - **Medium**: 32×32px (standard size for card text)
 - **Large**: 64×64px (feature size for UI focus)
 - **Extra Large**: 128×128px (promotional materials)
 
 ### Design Grid
+
 All icons are designed on a 16×16 grid with:
+
 - 1px padding on all sides
 - Core shape occupying central 14×14 area
 - Consistent line weight (1.5px at 16×16 size)
@@ -139,13 +152,14 @@ Each icon exists in several color variants:
 1. **Neutral**: Gray scale with white highlights
 2. **Faction-Colored**: Using faction primary/secondary colors
 3. **State-Based**:
-   - **Active**: Bright, saturated colors
-   - **Inactive**: Desaturated, lower opacity
-   - **Prohibited**: Red overlay with diagonal line
+    - **Active**: Bright, saturated colors
+    - **Inactive**: Desaturated, lower opacity
+    - **Prohibited**: Red overlay with diagonal line
 
 ### File Formats
 
 Icons are available in the following formats:
+
 - SVG (vector source files)
 - PNG (with transparency at multiple sizes)
 - Icon font (for web implementation)
@@ -154,18 +168,21 @@ Icons are available in the following formats:
 ## Implementation Guidelines
 
 ### Card Implementation
+
 - Status effect icons appear in ability text
 - Energy cost uses the Energy Crystal icon
 - Card type icon appears on type line
 - Special abilities may have their own icons
 
 ### Digital Interface
+
 - Tooltips appear when hovering over icons
 - Animation states reflect active/inactive status
 - Size increases slightly (110%) on hover/selection
 - Consistent positioning in UI elements
 
 ### Physical Components
+
 - Printed cards use high-contrast versions of icons
 - Token components feature embossed icons where possible
 - Player reference cards include complete icon library
@@ -173,10 +190,22 @@ Icons are available in the following formats:
 
 ## Accessibility Considerations
 
-- All icons have text equivalents in accessibility mode
-- High contrast versions available for low vision
-- Distinct shapes ensure colorblind accessibility
-- Tactile differentiation on physical components
+This section provides guidelines to ensure all players can understand and interact with the icon system, regardless of ability.
+
+### Screen Reader & Alt Text Guidance
+
+To ensure a comprehensive experience for users relying on screen readers, all icons that convey information must include descriptive alternative text (alt text).
+
+- **Standard Format**: Alt text should be concise and clearly describe the icon's meaning. The recommended format is `[Concept Name] Icon`. For example: `alt="Attack Icon"`. Avoid redundant phrases like "Image of."
+- **Implementation**: For standard image assets (PNG), use the `alt` attribute. For inline SVGs, use an `aria-label` attribute or include a `<title>` element.
+- **Dynamic Content**: For icons representing a value (e.g., Attack +2), the alt text must be dynamically generated to be specific: `alt="Attack bonus of 2"`.
+- **Decorative Icons**: If an icon is purely for visual flair and provides no information not already present in text, it should have empty alt text (`alt=""`) to be ignored by screen readers.
+
+### Visual & Physical Accessibility
+
+- **High Contrast**: All icons must have a high-contrast variant available as a user-selectable option in the game's settings to support players with low vision.
+- **Colorblind Accessibility**: Icons must use distinct shapes, not just color, to be distinguishable. Test all icons in grayscale to confirm clarity.
+- **Tactile Differentiation**: On physical components, icons should be embossed or engraved where possible to provide tactile feedback.
 
 ## Icon Creation Process
 
@@ -193,10 +222,11 @@ When creating new icons for Crisis Unleashed:
 ## Icon Library Management
 
 The complete icon library is maintained in:
+
 - Master SVG library file
 - Online asset management system
 - Version-controlled repository
 
 New icons must be approved by the art director and game design lead before implementation.
 
-*Note: Icon designs are subject to change through game development. This document will be updated to reflect the current icon system.*
+> *Note: Icon designs are subject to change through game development. This document will be updated to reflect the current icon system.*

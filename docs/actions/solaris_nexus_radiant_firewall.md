@@ -8,13 +8,13 @@
 
 ## Effect
 
-Create a 0/5 Radiant Barrier with "When this takes damage, deal 1 damage to all enemies."
+Summon a 0/5 **Radiant Barrier Structure** in an empty lane slot. It has the ability: "When this takes damage, deal 1 damage to all enemies."
 
 ## Strategy
 
-- **Defensive Play**: Excellent for stalling against aggressive decks
-- **Board Control**: Punishes opponents for attacking with multiple small units
-- **Combo Potential**: Works well with healing and damage amplification effects
+- **Defensive Play**: Excellent for stalling against aggressive decks by placing a durable Structure in a lane.
+- **Board Control**: Punishes opponents for attacking with multiple small units.
+- **Combo Potential**: Works well with healing and damage amplification effects.
 
 ## Upgrade Paths
 
@@ -48,4 +48,4 @@ Create a 0/5 Radiant Barrier with "When this takes damage, deal 1 damage to all 
 
 ## Flavor Text
 
-*"The light that burns twice as bright burns half as long." - Archon Solis*
+> *"The light that burns twice as bright burns half as long." - Archon Solis*

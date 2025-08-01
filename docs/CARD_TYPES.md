@@ -18,9 +18,8 @@ Character cards represent the heroes, units, and entities that fight on the tact
 
 - **Health (HP)**: When reduced to 0, the character is defeated
 - **Attack (ATK)**: Damage dealt in combat
-- **Energy Cost**: Resource cost to play the card
+- **Power Cost**: Resource cost to play the card
 - **Speed**: Determines attack order (higher = acts first)
-
 ### Grid Placement
 
 Characters are deployed to one of three lanes:

@@ -13,7 +13,7 @@ This document outlines the permanent progression system for Artifacts, Heroes, a
 - **Rare (Blue)**: +2 base stats, 7 upgrade levels
 - **Epic (Purple)**: +3 base stats, 8 upgrade levels
 - **Legendary (Orange)**: +4 base stats, 10 upgrade levels
-- **Mythic (Red)**: +5 base stats, 12 upgrade levels (NFT-only)
+- **Mythic (Red)**: +5 base stats, 12 upgrade levels (Primarily NFT, with alternative paths)
 
 ### 2. Upgrade Resources
 
@@ -21,12 +21,12 @@ This document outlines the permanent progression system for Artifacts, Heroes, a
 - **Soul Embers**: Rare resource for high-tier upgrades
 - **Faction Cores**: Faction-specific resources
 - **Time Crystals**: Time-gated resource for NFT upgrades
+- **Fusion Catalyst**: Craftable item to boost fusion success rate
 
 ## Artifact Upgrades
 
 ### Upgrade Paths
 
-```markdown
 **Solaris Crest** (Example)  
 *Legendary Artifact*  
 **Base Stats:**  
@@ -46,8 +46,6 @@ This document outlines the permanent progression system for Artifacts, Heroes, a
 
 3. **Synergy** (Enhances faction bonus)
    - Lv1: +1 ATK with Shield → Lv4: +2 ATK and Lifesteal with Shield
-
-```
 
 ### NFT-Exclusive Upgrades
 
@@ -79,9 +77,10 @@ This document outlines the permanent progression system for Artifacts, Heroes, a
 
 ### Core Mechanics
 
-- Combine multiple copies of the same card to increase its tier
-- Higher tiers unlock additional upgrade paths
-- NFT cards gain bonus fusion success rates
+- Combine multiple copies of the same card to increase its tier.
+- Higher tiers unlock additional upgrade paths.
+- NFT cards have a baseline bonus to fusion success rates.
+- All players can use a craftable **Fusion Catalyst** to guarantee the success of a fusion.
 
 ### Fusion Example
 
@@ -94,9 +93,9 @@ Common Sword (Lv5) + Common Sword (Lv5) + Fusion Core
 
 ### Minting Benefits
 
-1. **True Ownership**: Players own their upgraded cards as NFTs
-2. **Play-to-Earn**: Earn resources through ranked play
-3. **Marketplace**: Trade upgraded cards with other players
+1. **True Ownership**: Players own their upgraded cards as NFTs.
+2. **Play-to-Earn**: Earn resources through ranked play.
+3. **Marketplace**: Trade upgraded cards with other players.
 
 ### NFT Rarity Bonuses
 
@@ -121,17 +120,20 @@ Common Sword (Lv5) + Common Sword (Lv5) + Fusion Core
 
 ## Balance Considerations
 
-### Power Creep
+### Competitive Balance & Accessibility
 
-- Diminishing returns on upgrades
-- Level-based matchmaking
-- Separate ranked queues for NFT/non-NFT play
+To address the compounding advantages of NFTs and maintain a fair playing field, we will implement several key systems:
+
+- **Separate Competitive Formats**: We will host distinct ranked queues. The **"Arena"** queue will be for all players, while the **"Coliseum"** will be an NFT-only format with its own ladder and rewards, allowing for direct competition among collectors.
+- **Power-Normalized Tournament Mode**: A recurring tournament mode where all cards are set to a baseline power level, making strategy and skill the deciding factor.
+- **Gradual Unlocking for F2P**: High-tier content will be gradually unlocked for free players through consistent play and achievement. This includes paths to Mythic-tier cards via **Mythic Essence** and **Achievement Mythics**.
+- **Time-Gated Premium Access**: Dedicated free players will be able to unlock select premium features or gain temporary access to NFT bonuses by completing difficult, time-gated challenges.
 
 ### Economy
 
 - Careful resource sink design
 - Anti-whale mechanics
-- Free-to-play progression paths
+- Robust free-to-play progression paths
 
 ## Example: Upgraded Artifact
 
@@ -165,16 +167,15 @@ Common Sword (Lv5) + Common Sword (Lv5) + Fusion Core
 
 ### Free Track
 
-- Standard upgrade materials
-- Slower progression
-- Access to common/uncommon upgrades
+- Standard upgrade materials and progression speed.
+- Access to all core content, including paths to Mythic-tier cards.
+- Dedicated players can unlock certain premium features through time-gated challenges.
 
 ### Premium Track (NFT)
 
-- Bonus resources
-- Exclusive upgrade paths
-- Faster progression
-- Unique visual effects
+- Bonus resources and faster progression.
+- Access to exclusive cosmetic effects and customization.
+- Participation in exclusive NFT-only competitive formats.
 
 ## Implementation Roadmap
 
@@ -197,5 +198,5 @@ Common Sword (Lv5) + Common Sword (Lv5) + Fusion Core
 - Cross-promotion events
 
 ---
-*Document Version: 1.0.0*  
-*Last Updated: 2025-07-31*
+*Document Version: 1.2.0*  
+*Last Updated: 2025-08-01*

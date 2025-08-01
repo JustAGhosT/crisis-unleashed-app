@@ -4,9 +4,7 @@ if (-not (Test-Path -Path ".venv")) {
 }
 
 # Activate the virtual environment
-.\.venv\Scripts\Activate.ps1
-
-# Upgrade pip using the venv's Python
+. . .\.venv\Scripts\Activate.p   # note leading dot & space# Upgrade pip using the venv's Python
 .\.venv\Scripts\python.exe -m pip install --upgrade pip
 
 # Install Python dependencies using the venv's Python

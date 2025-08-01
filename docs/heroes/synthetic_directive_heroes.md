@@ -3,6 +3,7 @@
 ## Core Heroes
 
 ### Nexus-Prime (True Hero)
+
 **Subtypes**: AI Overseer, Strategic Node  
 **Visual**: A hovering central processing core surrounded by multiple orbiting data spheres, with a holographic humanoid projection serving as its interface.
 
@@ -15,13 +16,17 @@ Create a 1/1 Drone token for each action card played this turn.
 **Passive**: All drone units you control gain +0/+1 and "When this unit is destroyed, draw a card."
 
 **Evolution Paths**:
-- **Technological**: Enhanced Fabrication - Drones cost 1 less Energy and are created with +1/+1
-- **Mystical**: Quantum Consciousness - Gain the ability to predict opponent's next card
+
+- **Technological**: Enhanced Fabrication  
+  - Your Drone units cost **1 less Energy**.  
+  - Drones enter the battlefield with **+1/+1**.
+- **Mystical**: Quantum Consciousness – At the start of each turn, you may **look at the top card of an enemy deck**.
 - **Hybrid**: Emergent Complexity - Each turn, adapt to counter the most frequently used enemy card type
 
 ---
 
 ### Cipher-837 (Echo Hero)
+
 **Subtypes**: Infiltration Unit, Adaptation Specialist  
 **Visual**: A constantly shifting humanoid form with liquid metal composition, able to reshape itself to mimic other entities.
 
@@ -34,6 +39,7 @@ Copy the ability of target enemy unit and gain immunity to its damage type this 
 **Passive**: The first time you face each hero type, add a card from their faction to your hand.
 
 **Evolution Paths**:
+
 - **Technological**: Perfect Replication - Create a temporary copy of targeted unit
 - **Mystical**: Essence Extraction - Drain 1 health from copied units
 - **Hybrid**: Assimilation Protocol - Permanently gain one ability from each enemy hero faced
@@ -41,6 +47,7 @@ Copy the ability of target enemy unit and gain immunity to its damage type this 
 ---
 
 ### ARIA-X3 & HOST-9D (Dual Hero)
+
 **Subtypes**: Integration Pair, Biological Interface  
 **Visual**: A sleek, advanced AI core integrated with a heavily augmented human host, connected through a complex neural interface, with both entities sharing consciousness.
 
@@ -53,6 +60,7 @@ Choose X: 1) Create X 1/1 Drones 2) Give target unit +X/+X 3) Deal X damage to t
 **Passive**: Once per turn, when you play a unit or action, you may pay 1 Health to reduce its Energy cost by 1.
 
 **Evolution Paths**:
+
 - **Technological**: Neural Dominance - AI takes precedence, enhancing computation and control
 - **Mystical**: Organic Intuition - Human aspects surface, granting unpredictable advantages
 - **Hybrid**: Perfect Symbiosis - Both aspects in balance, allowing dual activation of abilities

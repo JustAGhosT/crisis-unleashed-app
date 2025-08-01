@@ -32,6 +32,8 @@ Disable all enemy abilities in target lane until your next turn. Draw a card for
 
 ## Balance Notes
 
+> Note: TBD
+
 - Win rate: x%
 - Play rate: x%
 - Last adjusted: 31 July 2025

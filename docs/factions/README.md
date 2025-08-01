@@ -64,7 +64,7 @@ Each faction document includes:
 
 ## Faction Relationships
 
-See [FACTION_RELATIONS.md](FACTION_RELATIONS.md) for detailed information about how factions interact with each other in the game's lore and mechanics.
+See [faction_relationships.md](faction_relationships.md) for detailed information about how factions interact with each other in the game's lore and mechanics.
 
 ## Contributing
 
@@ -74,4 +74,3 @@ When adding or modifying faction information:
 2. Update the faction relationships document if needed
 3. Ensure all new mechanics are properly balanced
 4. Include concept strength ratings for demo purposes
-

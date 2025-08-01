@@ -34,7 +34,7 @@
 - [ ] Add hero-specific strategy guides
 - [x] Document hero evolution/ascension mechanics
 - [x] Document Ascension paths and progression
-- [ ] Add Echo activation mechanics
+- [x] Add Echo activation mechanics
 - [ ] Detail Quantum evolution system
 - [ ] Create hero matchup guides
 
@@ -66,7 +66,7 @@
 ### Hero Playbook
 
 - [ ] Document card art creation process
-- [x] Add visual guidelines for card effects
+- [ ] Add visual guidelines for card effects
 - [ ] Complete printable playbook templates
 - [ ] Document lore integration with mechanics
 - [ ] Create campaign hook examples
@@ -272,8 +272,8 @@
 ## Completion Status
 
 - Total Tasks: 126
-- Completed: 40
+- Completed: 41
 - In Progress: 0
-- Not Started: 86
+- Not Started: 85
 
 Last Updated: 2025-08-01

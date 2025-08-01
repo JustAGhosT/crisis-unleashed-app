@@ -26,9 +26,8 @@ Masters of temporal manipulation, the Aeonic Dominion bends time itself to their
 
 - **Upgrade Path**:
 
-  - Tier 2: Reduce the cost reduction to (1)
-
-  - Tier 3: Get to choose from 2 cards
+  - Tier 2: Choose from 2 cards instead of it being random.
+  - Tier 3: The copied card costs (3) less instead of (2).
 
 ## Hero Progression
 
@@ -107,4 +106,3 @@ The Aeonic Dominion exists outside normal time, observing and manipulating event
 - **Key Visuals**: Clockwork mechanisms, hourglasses, temporal rifts
 
 - **Animation Style**: Time distortions, rewind effects
-

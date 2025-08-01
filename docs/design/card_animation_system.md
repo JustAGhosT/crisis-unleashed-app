@@ -204,8 +204,7 @@ class CardAnimation {
         
         // Activate appropriate animation layers based on rarity
         if (settings.overflow > 0) {
-            this.card.characterLayer.style.maxWidth = `${100 + settings.overflow * 100}%`;
-            this.card.characterLayer.style.maxHeight = `${100 + settings.overflow * 100}%`;
+            this.card.characterLayer.style.transform = `scale(${1 + settings.overflow})`;
             this.card.effectsLayer.classList.add('overflow-enabled');
         }
         

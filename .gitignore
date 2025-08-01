@@ -23,13 +23,11 @@ build/
 .vscode/
 *.swp
 *.swo
-.DS_Store
-.directory
-.Trash-*
-
 # Testing
 coverage/
 .nyc_output/
+test-results/
+playwright-report/
 
 # Logs
 logs/
@@ -41,7 +39,13 @@ logs/
 .stylelintcache
 .cache/
 .parcel-cache/
+.next/
+.nuxt/
+.vite/
 
 # Misc
 .DS_Store
+.directory
+.Trash-*
 Thumbs.db
+*.tsbuildinfo

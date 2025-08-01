@@ -1,5 +1,5 @@
-# Crisis Unleashed Faction System
-
+# Crisis Unleashed Faction System- **Infernal**: Pact Seal, Wrathwell
+- **Neuralis**: Mind Fracture, Synaptic Override
 ## Core Factions
 
 ### 1. Solaris Nexus
@@ -26,15 +26,14 @@
 - **Signature Keywords**: Spawn, Root, Regrow
 - **Hero Example**: Druthar, Crown of Moss - Ancient parasite god with conditional awakening
 
-### 3. Aeonic Dominion
-
+### 4. Aeonic Dominion
 - **Theme**: Time, logic, memory, tech-mysticism
 - **Visual**: Chrome-silver, crystalline structures, time fractures
 - **Key Mechanics**: Delay, echo, rewind, duplicate
 - **Signature Keywords**: Echo, Delay, Loop
 - **Hero Example**: Chron Revenant - Manipulates time to delay or duplicate actions
 
-### 4. Infernal Core
+### 5. Infernal Core
 
 - **Theme**: Fire, blood, sacrifice, infernal deals
 - **Visual**: Red-black, branded sigils, lava & ash
@@ -42,7 +41,7 @@
 - **Signature Keywords**: Burn, Sacrifice, Frenzy
 - **Hero Example**: Volk'tharr the Devourer - Gains power from every card sacrificed
 
-### 5. Neuralis Conclave
+### 6. Neuralis Conclave
 
 - **Theme**: Psionics, collective consciousness, mental manipulation
 - **Visual**: Blue-purple energy, neural networks, floating crystals
@@ -50,7 +49,7 @@
 - **Signature Keywords**: Willpower, Dominate, Mindlink
 - **Hero Example**: Synapse Prime - Can control enemy units with high Willpower
 
-### 6. Primordial Genesis
+### 7. Primordial Genesis
 
 - **Theme**: Evolution, adaptation, primal forces
 - **Visual**: Shifting organic forms, bioluminescence, raw energy
@@ -75,6 +74,7 @@ Each faction has signature action cards that reflect their theme:
 - **Verdant**: Cycle of Bloom, Entangling Roots
 - **Aeonic**: Paradox Rift, Chrono-Still
 - **Infernal**: Pact Seal, Wrathwell
+- **Neuralis**: TODO
 
 ## Hero Types
 

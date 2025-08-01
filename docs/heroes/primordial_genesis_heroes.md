@@ -14,12 +14,12 @@
 
 ### Stats
 
-| Attribute | Base | Max |
-|-----------|------|-----|
-| Health | 30 | 45 |
-| Attack | 2 | 4 |
-| Speed | 3 | 5 |
-| Energy Cost | 4 | 3 |
+| Attribute   | Base | Max |
+| ----------- | ---- | --- |
+| Health      | 30   | 45  |
+| Attack      | 2    | 4   |
+| Speed       | 3    | 5   |
+| Energy Cost | 4    | 3   |
 
 ### Abilities
 
@@ -66,7 +66,7 @@ Nyxa was once a guardian of the Everbloom, a sacred grove where the first plants
 
 *"I am the last king of a forgotten people. Bow before your new god."
 
-### Hero Type
+### Hero Type, Druthar
 
 - **Category:** Echo Hero
 - **Role:** Immovable Object
@@ -74,24 +74,22 @@ Nyxa was once a guardian of the Everbloom, a sacred grove where the first plants
 - **Race:** Fungal Symbiote (Formerly Human)
 - **Alignment:** Neutral Evil
 
-### Stats
+### Stats, Druthar
 
-| Attribute | Base | Max |
-|-----------|------|-----|
-| Health | 35 | 50 |
-| Attack | 1 | 3 |
-| Speed | 1 | 3 |
-| Energy Cost | 4 | 3 |
+| Attribute   | Base | Max |
+| ----------- | ---- | --- |
+| Health      | 35   | 50  |
+| Attack      | 1    | 3   |
+| Speed       | 1    | 3   |
+| Energy Cost | 4    | 3   |
 
-### Abilities
+### Abilities, Druthar
 
 #### 1. Eternal Monarchy (Signature Ability)
 
 - **Passive:** Druthar can't be targeted by spells or abilities. Doesn't take damage from attacks below 3 damage.
 - **Awakening:** After 3 friendly minions die, Druthar awakens, gaining +3/+3 and **Taunt**.
-- **Echo:** When Druthar would die, instead he returns to your hand with -1/-1 and **Dormant** for 2 turns.
-
-#### 2. Crushing Presence (Basic Attack)
+- **Echo:** When Druthar would die, instead he returns to your hand with -1/-1, +1 cost, and **Dormant** for 2 turns. (Max 2 times per game)#### 2. Crushing Presence (Basic Attack)
 
 - **Effect:** Deal damage equal to Druthar's Health divided by 4 (rounded down).
 - **Range:** 1 (Front lane only)
@@ -104,7 +102,7 @@ Nyxa was once a guardian of the Everbloom, a sacred grove where the first plants
   - Level 5: It also gains +2/+2
   - Level 10: Can target two minions
 
-### Heroic Paths
+### Heroic Paths for Royal Decree
 
 #### Path of the Parasite (Control)
 
@@ -118,7 +116,7 @@ Nyxa was once a guardian of the Everbloom, a sacred grove where the first plants
 - **Level 5:** **Crushing Presence** deals damage to all enemies in the lane
 - **Level 10:** Ultimate: **Fungal Ascension** - Transform all minions into 1/1 Mushroom Spores. They can't attack or be attacked for 2 turns
 
-### Lore
+### Lore, Druthar
 
 Druthar was the last king of a mighty empire that stood where the Verdant Wilds now grow. When his kingdom fell to the Umbral Eclipse, he made a desperate pact with an ancient fungal intelligence beneath his castle. The fungus preserved his body and mind, but at a terrible cost. Now he rules over a kingdom of rot and decay, his once-proud crown now a mass of pulsating mushrooms, his royal robes replaced by a living carpet of mycelium. He seeks to spread his fungal dominion across the world, that all might know the embrace of the eternal kingdom.
 
@@ -128,7 +126,7 @@ Druthar was the last king of a mighty empire that stood where the Verdant Wilds 
 
 *"Breathe deep... the forest welcomes you."
 
-### Hero Type
+### Hero Type, Symme
 
 - **Category:** Dual Hero
 - **Role:** Healer/Transformer
@@ -136,14 +134,14 @@ Druthar was the last king of a mighty empire that stood where the Verdant Wilds 
 - **Race:** Myconid (Mushroom Person)
 - **Alignment:** Neutral Good
 
-### Stats
+### Stats, Symme
 
-| Attribute | Base | Max | Transformed |
-|-----------|------|-----|-------------|
-| Health | 28 | 40 | 35 |
-| Attack | 2 | 4 | 5 |
-| Speed | 3 | 5 | 6 |
-| Energy Cost | 3 | 2 | 2 |
+| Attribute   | Base | Max | Transformed |
+| ----------- | ---- | --- | ----------- |
+| Health      | 28   | 40  | 35          |
+| Attack      | 2    | 4   | 5           |
+| Speed       | 3    | 5   | 6           |
+| Energy Cost | 3    | 2   | 2           |
 
 ### Forms
 
@@ -160,7 +158,7 @@ Druthar was the last king of a mighty empire that stood where the Verdant Wilds 
   - Deal 2 damage to all enemies and heal all friendly characters for 2.
   - **Perfect Symbiosis:** After casting this 3 times, your healing effects deal that much damage to a random enemy
 
-### Abilities
+### Abilities, Symme
 
 #### 1. Fungal Strike (Basic Attack)
 
@@ -175,7 +173,7 @@ Druthar was the last king of a mighty empire that stood where the Verdant Wilds 
   - Level 5: Also give +1/+1
   - Level 10: Affects all minions
 
-### Heroic Paths
+### Heroic Paths, Symme
 
 #### Path of the Lifebinder (Healing)
 
@@ -189,7 +187,7 @@ Druthar was the last king of a mighty empire that stood where the Verdant Wilds 
 - **Level 5:** Your minions have "**Deathrattle**: Summon a 1/1 Mushroomling"
 - **Level 10:** Ultimate: **Fungal Bloom** - Summon a copy of each friendly minion. They have 1 Health
 
-### Lore
+### Lore, Symme
 
 Symme was once a simple myconid, one of many in the vast fungal networks beneath the Verdant Wilds. But when the Umbral Eclipse came, something changed. The mycelium network gained consciousness, and chose Symme as its voice. Now she wanders the surface world, a living bridge between the fungal underworld and the world above. Her spores bring healing and growth, but where she walks, the ground sprouts mushrooms and the air fills with a fine, glowing dust. Some say she's the last hope of the natural world. Others whisper that she's the vanguard of something far more ancient and alien.
 

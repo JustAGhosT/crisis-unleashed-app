@@ -2,6 +2,13 @@
 
 A strategic card game built with React and FastAPI.
 
+## Tech Stack
+
+- **Frontend**: React, TypeScript, Redux Toolkit
+- **Backend**: FastAPI (Python), MongoDB
+- **Testing**: Jest, React Testing Library, Playwright
+- **Package Manager**: pnpm
+
 ## Prerequisites
 
 - Node.js >= 16.0.0
@@ -12,29 +19,33 @@ A strategic card game built with React and FastAPI.
 ## Getting Started
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/yourusername/crisis-unleashed-app.git
    cd crisis-unleashed-app
    ```
 
 2. **Install pnpm** (if you haven't already)
+
    ```bash
    npm install -g pnpm
    ```
 
 3. **Install frontend dependencies**
+
    ```bash
    pnpm install
    ```
 
 4. **Set up Python backend**
+
    ```bash
    # Navigate to backend directory
    cd backend
    
    # Create and activate virtual environment (Windows)
    python -m venv .venv
-   .\.venv\Scripts\Activate
+   .venv\\Scripts\\Activate
    
    # Install Python dependencies
    pip install -r requirements.txt
@@ -44,14 +55,17 @@ A strategic card game built with React and FastAPI.
    ```
 
 5. **Set up environment variables**
+
    - Copy `.env.example` to `.env` in both frontend and backend directories
    - Update the values as needed
 
 6. **Start the development servers**
+
    ```bash
    # In the root directory
    pnpm start
    ```
+
    This will start both the frontend and backend servers in development mode.
 
 ## Available Scripts
@@ -87,6 +101,7 @@ pnpm start  # Starts the FastAPI development server
 ## Deployment
 
 1. Build the frontend:
+
    ```bash
    pnpm build
    ```
@@ -95,4 +110,6 @@ pnpm start  # Starts the FastAPI development server
 
 ## License
 
-MIT
+MIT# Crisis Unleashed
+
+A strategic card game built with React and FastAPI.

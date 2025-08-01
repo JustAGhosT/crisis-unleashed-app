@@ -67,7 +67,7 @@ Born from the collective pain of a dying world, Thirix is neither alive nor dead
 
 *"The truth is just a shadow of what we choose to believe."
 
-### Hero Type
+### Hero Type, Lady of the Veil
 
 - **Category:** Echo Hero
 - **Role:** Elusive Assassin
@@ -75,7 +75,7 @@ Born from the collective pain of a dying world, Thirix is neither alive nor dead
 - **Race:** Unknown (Appears as a noblewoman)
 - **Alignment:** Neutral Evil
 
-### Stats
+### Stats, Lady of the Veil
 
 | Attribute | Base | Max |
 |-----------|------|-----|
@@ -84,7 +84,7 @@ Born from the collective pain of a dying world, Thirix is neither alive nor dead
 | Speed | 6 | 8 |
 | Energy Cost | 3 | 2 |
 
-### Abilities
+### Abilities, Lady of the Veil
 
 #### 1. Veil of Secrets (Signature Ability)
 
@@ -105,7 +105,7 @@ Born from the collective pain of a dying world, Thirix is neither alive nor dead
   - Level 5: Can target heroes
   - Level 10: Also apply **Confused** (50% chance to attack wrong target) for 1 turn
 
-### Heroic Paths
+### Heroic Paths, Lady of the Veil
 
 #### Path of the Assassin (Offensive)
 
@@ -119,7 +119,7 @@ Born from the collective pain of a dying world, Thirix is neither alive nor dead
 - **Level 5:** When you become Invisible, create a 1/1 Decoy in your space
 - **Level 10:** Ultimate: **Grand Illusion** - Swap all units' positions randomly. Your units gain Stealth for 1 turn.
 
-### Lore
+### Lore, Lady of the Veil
 
 No one knows the true origins of the Lady of the Veil. She appears in Umbral courts and Solaris palaces alike, her true face forever hidden behind an ever-shifting mask of shadows. Some say she was once a noblewoman who made a pact with the darkness, while others believe she is the personification of betrayal itself. What is certain is that where she walks, trust dies and alliances crumble.
 
@@ -129,7 +129,7 @@ No one knows the true origins of the Lady of the Veil. She appears in Umbral cou
 
 > *"Which face shall be your last?"
 
-### Hero Type
+### Hero Type, Nocte
 
 - **Category:** Dual Hero
 - **Role:** Adaptive Trickster
@@ -137,7 +137,7 @@ No one knows the true origins of the Lady of the Veil. She appears in Umbral cou
 - **Race:** Changeling
 - **Alignment:** Chaotic Evil
 
-### Stats
+### Stats, Nocte
 
 | Attribute | Base | Max | Transformed |
 |-----------|------|-----|-------------|
@@ -161,7 +161,7 @@ No one knows the true origins of the Lady of the Veil. She appears in Umbral cou
   - Deal 3 damage to all enemies. For each enemy damaged, gain +1/+1 this game.
   - **Perfect Imitation:** After casting this 3 times, you may keep one copied ability permanently
 
-### Abilities
+### Abilities, Nocte
 
 #### 1. Shifting Strike (Basic Attack)
 
@@ -176,7 +176,7 @@ No one knows the true origins of the Lady of the Veil. She appears in Umbral cou
   - Level 5: Also copy Health
   - Level 10: Can target enemies to reduce their Attack instead
 
-### Heroic Paths
+### Heroic Paths, Nocte
 
 #### Path of a Thousand Faces (Adaptive)
 
@@ -190,7 +190,7 @@ No one knows the true origins of the Lady of the Veil. She appears in Umbral cou
 - **Level 5:** **Shatter Mask** destroys all copies of the same unit
 - **Level 10:** Ultimate: **Identity Crisis** - Swap all units' Attack and Health values
 
-### Lore
+### Lore, Nocte
 
 Nocte was once a simple actor in the Umbral Court, until a cursed mask fused to their face, granting the power to become anyone - at the cost of forgetting their original self. Now, they wander the world, collecting faces and identities, always searching for the one visage that will make them whole again. But with each new face they steal, the less remains of the person they used to be.
 
@@ -207,20 +207,20 @@ Nocte was once a simple actor in the Umbral Court, until a cursed mask fused to 
 ### Recommended Team Compositions
 
 1. **The Unseen Hand**
-2. 
+
    - Lady of the Veil (Elusive Assassin)
    - 2x Umbral Assassin (Stealth DPS)
    - 1x Shadowmancer (Support)
    - **Synergy:** High burst damage with stealth mechanics
 
-3. **Pain and Suffering**
+2. **Pain and Suffering**
 
    - Thirix (Sustain Tank)
    - 2x Tormentor (Debuff Appliers)
    - 1x Shadow Priest (Healer/Support)
    - **Synergy:** Debuff-focused with strong sustain
 
-4. **Masquerade Ball**
+3. **Masquerade Ball**
 
    - Nocte (Adaptive Trickster)
    - 1x Mirror Mage (Copy Effects)

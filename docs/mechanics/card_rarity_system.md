@@ -162,7 +162,7 @@ Each rarity tier follows specific design principles:
 - Complex decision trees
 - Meta-defining potential
 
-#### Mythical Cards
+#### Mythical Cards power levels
 
 - Transformative gameplay effects
 - Story-significant characters or events
@@ -239,6 +239,7 @@ Each rarity level features distinct visual treatments:
 ### Set Symbols
 
 Set symbols change color based on rarity:
+
 - Common: Black
 - Uncommon: Silver
 - Rare: Gold
@@ -358,4 +359,3 @@ Animation complexity scales with rarity:
 - Mythical: Premium animations with boundary-breaking effects (60-120 frames)
 
 > *"The rarity of a card reflects not only its power, but its significance to the unfolding story of our fractured reality."* - Archivist Mera, Chronicler of the Crisis
-> 

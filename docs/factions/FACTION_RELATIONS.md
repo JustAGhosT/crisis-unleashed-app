@@ -50,9 +50,16 @@ graph TD
         SN -- "Purge Corruption" --> UE
         AD -- "Temporal Lock" --> PG
         IC -- "Corrupting Touch" --> SN
-        NC -- "Neutral Observer" --> All
-    end
-```
+        %% Option A – connect individually
+        NC -- "Neutral Observer" --> SN
+        NC -- "Neutral Observer" --> UE
+        NC -- "Neutral Observer" --> AD
+        NC -- "Neutral Observer" --> PG
+        NC -- "Neutral Observer" --> IC
+        %% Option B – or declare a collective node
+        ALL[All Factions]
+        NC -- "Neutral Observer" --> ALL
+    end```
 
 ## Detailed Faction Relationships
 

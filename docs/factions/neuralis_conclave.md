@@ -26,9 +26,8 @@ The Neuralis Conclave are masters of mental manipulation, using advanced psionic
 
 - **Upgrade Path**:
 
-  - Tier 2: Reduce the cost reduction to (1)
-
-  - Tier 3: Add a copy to your hand instead of casting it
+  - Tier 2: If the copied card is a unit, it gains +1/+1.
+  - Tier 3: The copied card costs (3) less instead of (2).
 
 ## Hero Progression
 
@@ -95,6 +94,7 @@ The Neuralis Conclave are masters of mental manipulation, using advanced psionic
 - **Umbral Eclipse** (44% Win Rate)
 
 - **Solaris Nexus** (46% Win Rate)
+- **Aeonic Dominion** (45% Win Rate)
 
 ## Lore
 
@@ -107,4 +107,3 @@ The Neuralis Conclave is a secretive order of psionic beings who believe that th
 - **Key Visuals**: Floating brains, neural networks, psionic energy
 
 - **Animation Style**: Wavy distortion, psychic pulses, mind control effects
-

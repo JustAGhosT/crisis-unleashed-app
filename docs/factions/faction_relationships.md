@@ -14,7 +14,11 @@ graph TD
     IC -- "Forbidden Knowledge" <--> NC
 
     %% Neutral Relationships (Grey)
-    NC -. "Neutral Observer" .-> SN & UE & AD & PG & IC
+    NC -. "Neutral Observer" .-> SN
+    NC -. "Neutral Observer" .-> UE
+    NC -. "Neutral Observer" .-> AD
+    NC -. "Neutral Observer" .-> PG
+    NC -. "Neutral Observer" .-> IC
 
     %% Faction Styling
     classDef solaris fill:#ffcc00,color:black,stroke:#333,stroke-width:2px
@@ -38,4 +42,3 @@ graph TD
         Alliance[Alliance]:::solaris
         Neutral[Neutral]:::neuralis
     end
-
