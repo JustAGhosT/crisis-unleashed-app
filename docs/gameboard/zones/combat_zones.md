@@ -18,8 +18,7 @@ When you play a unit card, you must choose an empty position in one of your Comb
 
 ## Combat
 
-Combat is resolved within the lanes. When a unit attacks, it can typically target an enemy unit in the same lane. The specific rules for targeting and combat resolution are detailed in the [Turn Order and Phases](./../rulebook/turn_order_and_phases.md) document.
-
+Combat is resolved within the lanes. When a unit attacks, it can typically target an enemy unit in the same lane. The specific rules for targeting and combat resolution are detailed in the [Turn Order and Phases](../../rulebook/turn_order_and_phases.md) document.
 ## Lane-Based Effects
 
 Many cards and abilities have effects that are specific to a particular lane. For example, an ability might deal damage to all enemy units in a single lane, or a condition card might provide a buff to all of your units in a specific lane. This makes lane positioning a key strategic consideration.

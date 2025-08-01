@@ -1,7 +1,7 @@
-import React, { useState, useCallback, useMemo } from 'react';
-import { Card, BattlefieldUnit, BattlefieldZone, PlayerId } from '@/types/game.types';
 import { useTheme } from '@/theme/ThemeProvider';
+import { BattlefieldUnit, BattlefieldZone, Card, PlayerId } from '@/types/game.types';
 import clsx from 'clsx';
+import React, { useCallback, useMemo, useState } from 'react';
 import styles from './Battlefield.module.css';
 
 interface BattlefieldProps {
@@ -31,11 +31,11 @@ const Battlefield: React.FC<BattlefieldProps> = ({
   const [battlefieldUnits, setBattlefieldUnits] = useState<Record<string, BattlefieldUnit>>(initialUnits);
 
   const { theme } = useTheme();
-  
+
   // Create battlefield grid with zones
   const battlefieldGrid = useMemo(() => {
     const grid: BattlefieldZone[] = [];
-    
+
     for (let row = 0; row < rows; row++) {
       for (let col = 0; col < cols; col++) {
         const position = `${row}-${col}`;
@@ -44,7 +44,7 @@ const Battlefield: React.FC<BattlefieldProps> = ({
         const isFrontline = row === 1 || row === rows - 2;
         const isBackline = isPlayerZone || isEnemyZone;
         const isNeutralZone = !isPlayerZone && !isEnemyZone;
-        
+
         grid.push({
           position,
           unit: battlefieldUnits[position] || null,
@@ -56,7 +56,7 @@ const Battlefield: React.FC<BattlefieldProps> = ({
         });
       }
     }
-    
+
     return grid;
   }, [battlefieldUnits, rows, cols]);
 
@@ -77,10 +77,10 @@ const Battlefield: React.FC<BattlefieldProps> = ({
 
   const renderUnit = (unit: BattlefieldUnit) => {
     if (!unit) return null;
-    
+
     const isPlayerUnit = unit.player === playerId;
     const isHovered = hoveredZone && battlefieldUnits[hoveredZone]?.id === unit.id;
-    
+
     // Determine unit classes using CSS Modules
     const unitClasses = [
       styles.unitCard,
@@ -88,9 +88,12 @@ const Battlefield: React.FC<BattlefieldProps> = ({
       unit.type ? styles[unit.type] : styles.normal,
       isHovered ? styles.hovered : ''
     ].filter(Boolean).join(' ');
-    
+
     return (
-      <div className={unitClasses}>
+      <div className={unitClasses} onClick={(e) => {
+        e.stopPropagation();
+        onUnitSelected?.(unit);
+      }}>
         <div className={styles.unitName}>
           {unit.name}
         </div>
@@ -101,8 +104,8 @@ const Battlefield: React.FC<BattlefieldProps> = ({
         {unit.abilities && unit.abilities.length > 0 && (
           <div className={styles.unitAbility}>
             {unit.abilities.map((ability, idx) => (
-              <span 
-                key={idx} 
+              <span
+                key={idx}
                 className={styles.abilityBadge}
                 title={ability}
               >
@@ -123,15 +126,15 @@ const Battlefield: React.FC<BattlefieldProps> = ({
 
   return (
     <div className={styles.container}>
-      <div 
+      <div
         className={styles.grid}
         style={gridStyle}
       >
         {battlefieldGrid.map((zone) => {
           const isActiveZone = hoveredZone === zone.position && selectedCard;
-          const isPlayableZone = isActiveZone && 
+          const isPlayableZone = isActiveZone &&
             (zone.isPlayerZone || (zone.isNeutralZone && !zone.unit));
-          
+
           return (
             <div
               key={zone.position}
@@ -152,7 +155,7 @@ const Battlefield: React.FC<BattlefieldProps> = ({
               onClick={() => handleZoneClick(zone.position, zone)}
             >
               {/* Zone background effects */}
-              <div 
+              <div
                 className={clsx(
                   'absolute inset-0 rounded-lg opacity-20 transition-opacity',
                   {
@@ -162,58 +165,10 @@ const Battlefield: React.FC<BattlefieldProps> = ({
                   }
                 )}
               />
-              
+
               {/* Grid pattern overlay */}
               <div className="absolute inset-0 bg-grid-pattern opacity-5 rounded-lg" />
-              
-              {/* Zone content */}
-              <div className="relative z-10 w-full h-full flex items-center justify-center">
-                {zone.unit && (
-                  <div 
-                    className={clsx(
-                      'w-16 h-24 rounded-md flex items-center justify-center text-center p-2',
-                      'transition-transform duration-200 hover:scale-105 cursor-pointer',
-                      'border-2 shadow-lg',
-                      {
-                        'bg-blue-900 border-blue-500': zone.unit.player === playerId,
-                        'bg-red-900 border-red-500': zone.unit.player !== playerId,
-                        'ring-2 ring-yellow-400': isActiveZone,
-                      }
-                    )}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleUnitClick(zone.unit!);
-                    }}
-                  >
-                    <div className="text-xs font-bold text-white">
-                      {zone.unit.name}
-                      <div className="text-2xs opacity-80">
-                        {zone.unit.attack}/{zone.unit.health}
-                      </div>
-                    </div>
-                  </div>
-                )}
-                
-                {isActiveZone && selectedCard && (
-                  <div 
-                    className={clsx(
-                      'absolute inset-0 rounded-md flex items-center justify-center',
-                      'text-xs font-medium text-center p-2 border-2 border-dashed',
-                      {
-                        'border-green-500 text-green-400': isPlayableZone,
-                        'border-yellow-500 text-yellow-400': !isPlayableZone,
-                        'opacity-70': !isPlayableZone,
-                      }
-                    )}
-                  >
-                    {selectedCard.name}
-                    <div className="absolute bottom-1 right-1 text-2xs opacity-70">
-                      {selectedCard.cost}⚡
-                    </div>
-                  </div>
-                )}
-              </div>
-              
+              {zone.unit && renderUnit(zone.unit)}
               {/* Zone position indicator (debug) */}
               {process.env.NODE_ENV === 'development' && (
                 <div className="absolute bottom-1 right-1 text-2xs opacity-30">
@@ -223,16 +178,6 @@ const Battlefield: React.FC<BattlefieldProps> = ({
             </div>
           );
         })}
-      </div>
-      
-      {/* Battlefield decorations */}
-      <div className="absolute inset-0 -z-10 overflow-hidden">
-        <div 
-          className="absolute inset-0 opacity-5"
-          style={{
-            background: `radial-gradient(circle at center, ${theme.colors.primary} 0%, transparent 70%)`,
-          }}
-        />
       </div>
     </div>
   );

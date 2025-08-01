@@ -1,5 +1,4 @@
-// Faction types
-export type Faction = 'solaris' | 'umbral' | 'neuralis' | 'aeonic' | 'infernal' | 'primordial';
+export type Faction = 'solaris' | 'umbral' | 'neuralis' | 'aeonic' | 'infernal' | 'primordial' | 'synthesis';
 
 export interface GameState {
   currentTurn: number;
@@ -10,8 +9,26 @@ export interface GameState {
   enemyHealth: number;
 }
 
-export type CardRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
-export type CardType = 'character' | 'action' | 'upgrade' | 'tactic';
+export enum CardRarity {
+  Common = 'common',
+  Uncommon = 'uncommon',
+  Rare = 'rare',
+  Epic = 'epic',
+  Legendary = 'legendary',
+}
+
+export enum CardType {
+  Character = 'character',
+  Action = 'action',
+  Upgrade = 'upgrade',
+  Tactic = 'tactic',
+}
+
+export enum UnitType {
+  Unit = 'unit',
+  Commander = 'commander',
+  Structure = 'structure',
+}
 
 export interface CardBase {
   id: string | number;
@@ -25,7 +42,7 @@ export interface CardBase {
 }
 
 export interface CharacterCard extends CardBase {
-  type: 'character';
+  type: CardType.Character;
   attack: number;
   health: number;
   defense?: number;
@@ -34,10 +51,10 @@ export interface CharacterCard extends CardBase {
 }
 
 export interface ActionCard extends CardBase {
-  type: 'action';
+  type: CardType.Action;
   isInstant?: boolean;
   targetType?: 'unit' | 'player' | 'area' | 'self' | 'any';
-  effect: (target: any) => void; // TODO: Define proper effect type
+  effect: (target: unknown) => void; // TODO: Define proper effect type
 }
 
 export type Card = CharacterCard | ActionCard | CardBase;
@@ -47,7 +64,7 @@ export type PlayerId = 'player1' | 'player2' | 'enemy';
 export interface UnitBase {
   id: string;
   name: string;
-  type: 'unit' | 'commander' | 'structure';
+  type: UnitType;
   health: number;
   attack: number;
   player: PlayerId;
@@ -59,24 +76,24 @@ export interface UnitBase {
 }
 
 export interface Unit extends UnitBase {
-  type: 'unit';
+  type: UnitType.Unit;
   // Unit-specific properties
   movement?: number;
   range?: number;
 }
 
 export interface Commander extends UnitBase {
-  type: 'commander';
+  type: UnitType.Commander;
   // Commander-specific properties
   ability?: string;
   abilityCooldown?: number;
 }
 
 export interface Structure extends UnitBase {
-  type: 'structure';
-  // Structure-specific properties
-  isInvulnerable?: boolean;
-  isFlying?: boolean;
+    type: UnitType.Structure;
+    // Structure-specific properties
+    isInvulnerable?: boolean;
+    isFlying?: boolean;
 }
 
 export type BattlefieldUnit = Unit | Commander | Structure;
@@ -87,6 +104,8 @@ export interface BattlefieldZone {
   isPlayerZone: boolean;
   isEnemyZone: boolean;
   isNeutralZone: boolean;
+  isFrontline: boolean;
+  isBackline: boolean;
 }
 
 export interface Player {

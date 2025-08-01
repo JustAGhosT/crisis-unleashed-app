@@ -23,11 +23,11 @@ When you play a card or when one of your units is destroyed, it is placed in the
 
 ## Banish Pile
 
-Some cards and abilities have the ability to banish cards, which removes them from the game entirely. Banished cards are placed in the Banish Pile and cannot be returned to the game by any means.
+Some cards and abilities can banish cards, removing them from the game entirely. Banished cards are placed in the Banish Pile and cannot be returned to the game by any means.
 
 ## Energy Crystals
 
-Energy is the primary resource you use to play cards and activate abilities. Your available energy is tracked using Energy Crystals or tokens. You gain a certain amount of energy at the start of each of your turns, as detailed in the [Turn Order and Phases](./../rulebook/turn_order_and_phases.md) document.
+Energy is the primary resource you use to play cards and activate abilities. Your available energy is tracked using Energy Crystals or tokens. You gain a certain amount of energy at the start of each of your turns, as detailed in the [Turn Order and Phases](../../rulebook/turn_order_and_phases.md) document.
 
 ## Strategic Considerations
 

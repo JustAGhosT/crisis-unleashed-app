@@ -132,7 +132,7 @@
 }
 
 .phasePending {
-  color: #475569;
+  color: #64748b; /* Increased contrast from #475569 */
 }
 
 .phasePulse {
@@ -145,8 +145,15 @@
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
 }
 
 /* End Turn Button */
@@ -164,6 +171,12 @@
   will-change: transform;
   border: none;
   cursor: pointer;
+}
+
+.endTurnButton:focus-visible {
+  outline: 2px solid #67e8f9;
+  /* matches accent colour */
+  outline-offset: 2px;
 }
 
 .endTurnButtonActive {
@@ -185,7 +198,7 @@
 
 .endTurnButtonInactive {
   background-color: #475569;
-  color: #64748b;
+  color: #e2e8f0; /* Increased contrast from #64748b to meet AA standard */
   cursor: not-allowed;
 }
 
@@ -202,20 +215,20 @@
   .turnNumber {
     font-size: 1.25rem;
   }
-  
+
   .subtitle {
     font-size: 0.75rem;
   }
-  
+
   .activePlayerText {
     font-size: 1rem;
   }
-  
+
   .phaseIndicator {
     font-size: 0.6875rem;
     padding: 0.375rem 0.125rem;
   }
-  
+
   .endTurnButton {
     padding: 0.625rem 0.75rem;
     font-size: 0.8125rem;

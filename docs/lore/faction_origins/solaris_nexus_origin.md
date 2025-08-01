@@ -1,3 +1,9 @@
+---
+title: "Faction Origin Story: The Solaris Nexus"
+version: "1.0.0"
+last_updated: "2025-08-01"
+---
+
 # Faction Origin Story: The Solaris Nexus
 
 ## The First Dawn
@@ -31,8 +37,3 @@ With the Umbra imprisoned, a new era of peace began. The Solaris Nexus took on t
 They became a beacon of hope and order for the younger races that emerged in the universe. They shared their knowledge, guided civilizations, and upheld the balance of creation. But their vigilance never wavered. They knew the Obsidian Cage was not a permanent solution. The Umbra's whispers still echoed in the dark corners of the universe, and the Nexus knew that one day, the shadows would rise again.
 
 The Solaris Nexus of today is the inheritor of this ancient legacy. They are the guardians of the light, the keepers of order, and the first and last line of defense against the encroaching darkness. Every soldier, every hero, and every citizen of the Nexus understands the oath they carry: to protect the dawn, no matter the cost.
-
----
-
-*Document Version: 1.0.0*  
-*Last Updated: 2025-08-01*
