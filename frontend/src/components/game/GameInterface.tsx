@@ -93,6 +93,7 @@ const GameInterface: React.FC = () => {
                   {faction === 'aeonic' && '⏳'}
                   {faction === 'infernal' && '🔥'}
                   {faction === 'primordial' && '🌱'}
+                  {faction === 'synthetic' && ''}
                 </div>
                 <h3 className="text-xl font-bold mb-1" style={{ color: factionTheme.colors.primary }}>
                   {factionTheme.name}

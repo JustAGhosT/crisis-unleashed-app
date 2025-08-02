@@ -1,4 +1,4 @@
-export type Faction = 'solaris' | 'umbral' | 'neuralis' | 'aeonic' | 'infernal' | 'primordial' | 'synthesis';
+export type Faction = 'solaris' | 'umbral' | 'neuralis' | 'aeonic' | 'infernal' | 'primordial' | 'synthetic';
 
 export interface GameState {
   currentTurn: number;
