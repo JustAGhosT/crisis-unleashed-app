@@ -124,5 +124,5 @@ The most heavily guarded Umbral Eclipse facility contains their accumulated know
 
 ---
 
-*"They believe they own the light, so we claimed the shadows. They hide truth behind blinding radiance, so we reveal it in soothing darkness. They call us heretics and criminals, but history will remember us as the ones who brought balance to a world drowning in false illumination."*  
+> *"They believe they own the light, so we claimed the shadows. They hide truth behind blinding radiance, so we reveal it in soothing darkness. They call us heretics and criminals, but history will remember us as the ones who brought balance to a world drowning in false illumination."*  
 — Excerpt from "The Shadow Manifesto," author unknown

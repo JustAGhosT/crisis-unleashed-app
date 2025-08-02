@@ -61,20 +61,20 @@
 - [ ] Create environment concepts
 - [ ] Document visual effects standards
 
-### Lore & Story
+### ✅ Lore & Story
 
-- [ ] Create faction origin stories
+- [x] Create faction origin stories
   - [x] Solaris Nexus origin
   - [x] Umbral Eclipse origin
   - [x] Aeonic Dominion origin
   - [x] Primordial Genesis origin
-  - [ ] Infernal Core origin
-  - [ ] Neuralis Conclave origin
+  - [x] Infernal Core origin
+  - [x] Neuralis Conclave origin
   - [x] Synthetic Directive origin
 - [ ] Write universe timeline
 - [ ] Create hero backstories
 - [ ] Document realm histories
-- [ ] Create creation myth
+- [x] Create creation myt
 - [x] Add faction relationship maps
 
 ## Priority 4: Technical Documentation
@@ -162,18 +162,18 @@
 ## Completion Status
 
 - Total Tasks: 137
-- Completed: 115 (83.9%)
+- Completed: 117 (85.4%)
 - In Progress: 0
-- Not Started: 22 (16.1%)
+- Not Started: 20 (14.6%)
 
-Last Updated: 2025-08-01
+Last Updated: 2025-08-02
 
 ## Next Steps & Priorities
 
 1. **Content Enhancement (High Priority)**
-   - Complete remaining faction origin stories (Infernal Core, Neuralis Conclave)
-   - Remove/complete TODO placeholders in documentation
    - Create hero backstories
+   - Remove/complete TODO placeholders in documentation
+   - Write universe timeline
 
 2. **Process Documentation (Medium Priority)**
    - Create update checklist
