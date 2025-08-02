@@ -129,19 +129,19 @@ Establish corruption on multiple enemy units, then follow with Shade's Ultimate 
 - Save Shadow Strike for their key synergy units like Dawn Priest
 - Play around Solar Flare by not overextending your board
 
+### Against Synthetic Directive "Calculated Assembly"
+
+- Target their upgrade engine units with Corruption effects
+- Use Elusive units to bypass their defensive line
+- Save Eclipse for when they've committed multiple upgraded units
+- Deploy Shadow Master to prevent them from corrupting your key units
+
 ### Against Primordial Genesis "Evolutionary Surge"
 
 - Prioritize Corrupting their evolving units early before they grow too large
 - Use mobility to avoid their larger units
 - Save Soul Drain for when multiple evolved units are Corrupted
 - Deploy Shadow Realm to punish their wide-board strategy
-
-### Against Infernal Core "Burning Vengeance"
-
-- Avoid Corrupting their sacrifice-oriented units which they want to lose anyway
-- Use Elusive units to pressure their hero directly
-- Save Eclipse as a counter to their board development
-- Maintain health with Soul Drain as they typically deal direct damage
 
 ## Upgrade Path
 
@@ -179,7 +179,7 @@ As you become more familiar with the faction, consider building toward these mor
 
 For the digital version, use this deck code to instantly import the Shadow's Embrace starter deck:
 
-``` text
+```text
 UMBRAL-SHADOWS-EMBRACE-V1-04B8C2D6E0F3G9H1J7
 ```
 
