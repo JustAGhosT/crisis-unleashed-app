@@ -1,0 +1,66 @@
+
+# main-overview
+
+## Development Guidelines
+
+- Only modify code directly relevant to the specific request. Avoid changing unrelated functionality.
+- Never replace code with placeholders like `# ... rest of the processing ...`. Always include complete code.
+- Break problems into smaller steps. Think through each step separately before implementing.
+- Always provide a complete PLAN with REASONING based on evidence from code and logs before making changes.
+- Explain your OBSERVATIONS clearly, then provide REASONING to identify the exact issue. Add console logs when needed to gather more information.
+
+The game system implements a turn-based card strategy game with the following core business components:
+
+## Core Game Engine (Importance: 95)
+
+- Centralized game state management in `GameInterface.tsx`
+- Turn-based progression with alternating player actions
+- Energy and momentum resource systems
+- Automated state transitions and resource resets
+
+## Turn Management (Importance: 90)
+
+Located in `TurnManager.tsx`:
+
+- Phase-based turn structure (DEPLOY, ACTION, END)
+- Countdown timer integration
+- Active phase highlighting
+- Turn completion validation
+
+## Card Management System (Importance: 85)
+
+Implemented in `CardHand.tsx`:
+
+- Energy-based card play validation
+- Hand size management
+- Card selection and targeting system
+- Play condition verification
+
+## Battlefield Control (Importance: 85)
+
+Managed through `Battlefield.tsx`:
+
+- Grid-based unit placement system
+- Combat zone definitions (player/enemy areas)
+- Unit interaction handling
+- Battlefield state management
+
+## Player Status System (Importance: 80)
+
+Implemented in `PlayerHUD.tsx`:
+
+- Health tracking
+- Resource management (energy/momentum)
+- Visual status representation
+- Active player state indication
+
+## Backend Integration (Importance: 75)
+
+Server components in `server.py`:
+
+- Status check management
+- Game state persistence
+- Unique identifier generation
+- Timestamp-based state tracking
+
+The system prioritizes core gameplay mechanics with clear separation between battlefield management, turn control, and resource systems, creating an integrated strategic experience.

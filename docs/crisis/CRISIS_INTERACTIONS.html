@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crisis Interactions - Crisis Unleashed</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #f0f0f0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #f6ad55;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .diagram {
+            background: #2d3748;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 5px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        .solaris { background-color: #f6ad55; color: #000; }
+        .umbral { background-color: #805ad5; }
+        .aeonic { background-color: #4299e1; }
+        .primordial { background-color: #48bb78; color: #000; }
+        .infernal { background-color: #e53e3e; }
+        .neuralis { background-color: #9f7aea; }
+        .global { background-color: #4a5568; }
+        
+        .section {
+            background: #2d3748;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        h2 {
+            color: #f6ad55;
+            border-bottom: 2px solid #4a5568;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        
+        .crisis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .crisis-card {
+            background: #4a5568;
+            border-radius: 6px;
+            padding: 15px;
+            transition: transform 0.2s;
+        }
+        
+        .crisis-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .crisis-card h3 {
+            margin-top: 0;
+            color: #f6ad55;
+        }
+        
+        .faction-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Crisis Interactions</h1>
+        
+        <div class="legend">
+            <div class="legend-item solaris">Solaris Nexus</div>
+            <div class="legend-item umbral">Umbral Eclipse</div>
+            <div class="legend-item aeonic">Aeonic Dominion</div>
+            <div class="legend-item primordial">Primordial Genesis</div>
+            <div class="legend-item infernal">Infernal Core</div>
+            <div class="legend-item neuralis">Neuralis Conclave</div>
+            <div class="legend-item global">Global Effect</div>
+        </div>
+        
+        <div class="diagram">
+            <div class="mermaid">
+                %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#1a1a1a', 'primaryTextColor': '#f0f0f0', 'primaryBorderColor': '#666', 'lineColor': '#4a90e2', 'secondaryColor': '#2d3748', 'tertiaryColor': '#4a5568'}}}%%
+                flowchart TD
+                    %% Crisis Nodes
+                    CC["Cosmic Alignment\n(Solaris/Aeonic)"]:::solaris
+                    SC["Shadow Convergence\n(Umbral/Neuralis)"]:::umbral
+                    TB["Technological Blackout\n(Neuralis)"]:::neuralis
+                    PA["Primordial Awakening\n(Primordial)"]:::primordial
+                    IS["Infernal Surge\n(Global)"]:::infernal
+                    DR["Dimensional Rift\n(Global)"]:::aeonic
+                    TA["Temporal Anomaly\n(Global)"]:::aeonic
+                    CE["Celestial Eclipse\n(Global)"]:::solaris
+                    NO["Neural Overload\n(Neuralis)"]:::neuralis
+                    VI["Void Incursion\n(Global)"]:::infernal
+
+                    %% Faction Nodes
+                    SN[Solaris Nexus]:::solaris
+                    UE[Umbral Eclipse]:::umbral
+                    AD[Aeonic Dominion]:::aeonic
+                    PG[Primordial Genesis]:::primordial
+                    IC[Infernal Core]:::infernal
+                    NC[Neuralis Conclave]:::neuralis
+
+                    %% Crisis Relationships
+                    CC -->|Boosts| SN
+                    CC -->|Boosts| AD
+                    
+                    SC -->|Empowers| UE
+                    SC -->|Empowers| NC
+                    
+                    TB -->|Disables| NC
+                    TB -->|Increases Cost| NC
+                    
+                    PA -->|Empowers| PG
+                    
+                    IS -->|Affects All| SN
+                    IS -->|Affects All| UE
+                    IS -->|Affects All| AD
+                    IS -->|Affects All| PG
+                    IS -->|Affects All| IC
+                    IS -->|Affects All| NC
+                    
+                    DR -->|Affects All| SN
+                    DR -->|Affects All| UE
+                    DR -->|Affects All| AD
+                    DR -->|Affects All| PG
+                    DR -->|Affects All| IC
+                    DR -->|Affects All| NC
+                    
+                    TA -->|Affects All| SN
+                    TA -->|Affects All| UE
+                    TA -->|Affects All| AD
+                    TA -->|Affects All| PG
+                    TA -->|Affects All| IC
+                    TA -->|Affects All| NC
+                    
+                    CE -->|Boosts Ultimates| SN
+                    CE -->|Boosts Ultimates| UE
+                    CE -->|Boosts Ultimates| AD
+                    CE -->|Boosts Ultimates| PG
+                    CE -->|Boosts Ultimates| IC
+                    CE -->|Boosts Ultimates| NC
+                    
+                    NO -->|Empowers| NC
+                    
+                    VI -->|Affects All| SN
+                    VI -->|Affects All| UE
+                    VI -->|Affects All| AD
+                    VI -->|Affects All| PG
+                    VI -->|Affects All| IC
+                    VI -->|Affects All| NC
+
+                    %% Styling
+                    classDef solaris fill:#f6ad55,stroke:#fff,color:#000
+                    classDef umbral fill:#805ad5,stroke:#fff
+                    classDef aeonic fill:#4299e1,stroke:#fff
+                    classDef primordial fill:#48bb78,stroke:#fff,color:#000
+                    classDef infernal fill:#e53e3e,stroke:#fff
+                    classDef neuralis fill:#9f7aea,stroke:#fff
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Understanding Crisis Interactions</h2>
+            <p>Crisis events create dynamic gameplay by modifying the rules of engagement. Each crisis affects factions differently, creating opportunities for strategic adaptation.</p>
+            
+            <h3>Faction-Specific Crises</h3>
+            <div class="crisis-grid">
+                <div class="crisis-card">
+                    <h3>Cosmic Alignment</h3>
+                    <div>
+                        <span class="faction-badge solaris">Solaris Nexus</span>
+                        <span class="faction-badge aeonic">Aeonic Dominion</span>
+                    </div>
+                    <p>Boosts units from these factions with +2 Attack and Spellshield.</p>
+                </div>
+                
+                <div class="crisis-card">
+                    <h3>Shadow Convergence</h3>
+                    <div>
+                        <span class="faction-badge umbral">Umbral Eclipse</span>
+                        <span class="faction-badge neuralis">Neuralis Conclave</span>
+                    </div>
+                    <p>Grants Stealth to units from these factions for 1 turn.</p>
+                </div>
+                
+                <div class="crisis-card">
+                    <h3>Primordial Awakening</h3>
+                    <div>
+                        <span class="faction-badge primordial">Primordial Genesis</span>
+                    </div>
+                    <p>Empowers units with +1/+1 and Regeneration.</p>
+                </div>
+            </div>
+            
+            <h3>Global Crises</h3>
+            <div class="crisis-grid">
+                <div class="crisis-card">
+                    <h3>Infernal Surge</h3>
+                    <div>
+                        <span class="faction-badge global">Global Effect</span>
+                    </div>
+                    <p>Deals 1 damage to all units each turn, granting Energy when they die.</p>
+                </div>
+                
+                <div class="crisis-card">
+                    <h3>Dimensional Rift</h3>
+                    <div>
+                        <span class="faction-badge global">Global Effect</span>
+                    </div>
+                    <p>Reduces the battlefield to 2 lanes, returning units from disabled lanes.</p>
+                </div>
+                
+                <div class="crisis-card">
+                    <h3>Celestial Eclipse</h3>
+                    <div>
+                        <span class="faction-badge global">Global Effect</span>
+                    </div>
+                    <p>Reduces Ultimate ability costs by 2 Momentum.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Strategic Implications</h2>
+            <ul>
+                <li><strong>Faction Synergy:</strong> Some crises specifically empower certain factions, rewarding faction-focused decks.</li>
+                <li><strong>Adaptability:</strong> Successful decks can handle both faction-specific and global crises.</li>
+                <li><strong>Timing:</strong> Plan your plays around crisis duration and effects.</li>
+                <li><strong>Counterplay:</strong> Some cards can manipulate or prevent crisis effects.</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            securityLevel: 'strict',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+    </script>
+</body>
+</html>

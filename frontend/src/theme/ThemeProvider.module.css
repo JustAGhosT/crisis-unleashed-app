@@ -1,0 +1,101 @@
+/* ThemeProvider Component - Theme selector styling */
+.themeSelector {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 50;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.themeSelectorContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.themeSelectorTitle {
+  color: white;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  margin: 0;
+}
+
+.factionGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.factionButton {
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.factionButton.active {
+  box-shadow: 0 0 0 2px white;
+  outline: 2px solid white;
+  outline-offset: -2px;
+}
+
+.factionButton:hover {
+  transform: scale(1.05);
+}
+
+.darkModeToggle {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background-color: #374151;
+  color: white;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.darkModeToggle:hover {
+  background-color: #4B5563;
+}
+
+/* Faction-specific button colors */
+.solaris {
+  background-color: #FFD700;
+  color: #0A0A1A;
+}
+
+.umbral {
+  background-color: #9B59B6;
+  color: #FFFFFF;
+}
+
+.neuralis {
+  background-color: #00CED1;
+  color: #001A1A;
+}
+
+.aeonic {
+  background-color: #9370DB;
+  color: #FFFFFF;
+}
+
+.infernal {
+  background-color: #FF4500;
+  color: #FFFFFF;
+}
+
+.primordial {
+  background-color: #32CD32;
+  color: #FFFFFF;
+}
+
+.synthetic {
+  background-color: #C0C0C0;
+  color: #0A0A1A;
+}

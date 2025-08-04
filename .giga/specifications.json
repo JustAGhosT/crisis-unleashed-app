@@ -1,0 +1,22 @@
+[
+  {
+    "fileName": "main-overview.mdc",
+    "description": "Complete system overview documenting the card game architecture, component relationships, and core game mechanics"
+  },
+  {
+    "fileName": "game-data-models.mdc",
+    "description": "Documentation of core game entities including cards, battlefield grid, player stats (health/momentum/energy), and game state models"
+  },
+  {
+    "fileName": "game-algorithms.mdc",
+    "description": "Detailed documentation of key algorithms including battlefield management, card deployment logic, turn sequencing, and combat resolution"
+  },
+  {
+    "fileName": "component-dataflow.mdc",
+    "description": "Documentation of data flow between major game components: Battlefield, CardHand, GameInterface, PlayerHUD, and TurnManager including state updates"
+  },
+  {
+    "fileName": "frontend-architecture.mdc",
+    "description": "Documentation of React component hierarchy, state management patterns, and UI/UX implementation for the game interface"
+  }
+]

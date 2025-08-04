@@ -1,0 +1,152 @@
+/* FactionDetail Component - Isolated faction popup styles */
+.factionDetail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 2rem;
+}
+
+.detailContent {
+  background: rgba(10, 10, 26, 0.95);
+  background-image: linear-gradient(rgba(10, 10, 26, 0.7), rgba(10, 10, 26, 0.9)), var(--faction-bg-image);
+  border: 2px solid var(--faction-primary);
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 600px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+.closeButton {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.closeButton:hover {
+  color: rgba(255, 255, 255, 1);
+}
+
+.detailHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.detailEmblem {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 2px solid var(--faction-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+}
+
+.detailEmblem img {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.detailTitle {
+  font-family: 'Cinzel', serif;
+  font-size: 2rem;
+  margin: 0;
+  color: var(--faction-primary);
+}
+
+.detailBody {
+  margin-bottom: 2rem;
+}
+
+.detailDescription {
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.detailAttributes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.attributeItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.attributeLabel {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.attributeValue {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.exploreDetailButton {
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease; 
+  background-color: var(--faction-primary);
+.synthetic {
+  background-color: #C0C0C0;
+  color: #0A0A1A;
+}
+}
+
+.exploreDetailButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .factionDetail {
+    padding: 1rem;
+  }
+  
+  .detailContent {
+    padding: 1.5rem;
+    max-height: 90vh;
+  }
+  
+  .detailTitle {
+    font-size: 1.5rem;
+  }
+  
+  .detailHeader {
+    flex-direction: column;
+    text-align: center;
+  }
+}

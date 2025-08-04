@@ -1,0 +1,86 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#1a1a1a', 'primaryTextColor': '#f0f0f0', 'primaryBorderColor': '#666', 'lineColor': '#4a90e2', 'secondaryColor': '#2d3748', 'tertiaryColor': '#4a5568'}}}%%
+flowchart TD
+    %% Crisis Nodes
+    CC[Cosmic Alignment]:::solaris
+    SC[Shadow Convergence]:::umbral
+    TB[Technological Blackout]:::neuralis
+    PA[Primordial Awakening]:::primordial
+    IS[Infernal Surge]:::infernal
+    DR[Dimensional Rift]:::aeonic
+    TA[Temporal Anomaly]:::aeonic
+    CE[Celestial Eclipse]:::solaris
+    NO[Neural Overload]:::neuralis
+    VI[Void Incursion]:::infernal
+
+    %% Faction Nodes
+    SN[Solaris Nexus]:::solaris
+    UE[Umbral Eclipse]:::umbral
+    AD[Aeonic Dominion]:::aeonic
+    PG[Primordial Genesis]:::primordial
+    IC[Infernal Core]:::infernal
+    NC[Neuralis Conclave]:::neuralis
+
+    %% Crisis Relationships
+    CC -->|Boosts| SN
+    CC -->|Boosts| AD
+    
+    SC -->|Empowers| UE
+    SC -->|Empowers| NC
+    
+    TB -->|Disables| NC
+    TB -->|Increases Cost| NC
+    
+    PA -->|Empowers| PG
+    
+    IS -->|Affects All| SN
+    IS -->|Affects All| UE
+    IS -->|Affects All| AD
+    IS -->|Affects All| PG
+    IS -->|Affects All| IC
+    IS -->|Affects All| NC
+    
+    DR -->|Affects All| SN
+    DR -->|Affects All| UE
+    DR -->|Affects All| AD
+    DR -->|Affects All| PG
+    DR -->|Affects All| IC
+    DR -->|Affects All| NC
+    
+    TA -->|Affects All| SN
+    TA -->|Affects All| UE
+    TA -->|Affects All| AD
+    TA -->|Affects All| PG
+    TA -->|Affects All| IC
+    TA -->|Affects All| NC
+    
+    CE -->|Boosts Ultimates| SN
+    CE -->|Boosts Ultimates| UE
+    CE -->|Boosts Ultimates| AD
+    CE -->|Boosts Ultimates| PG
+    CE -->|Boosts Ultimates| IC
+    CE -->|Boosts Ultimates| NC
+    
+    NO -->|Empowers| NC
+    
+    VI -->|Affects All| SN
+    VI -->|Affects All| UE
+    VI -->|Affects All| AD
+    VI -->|Affects All| PG
+    VI -->|Affects All| IC
+    VI -->|Affects All| NC
+
+    %% Legend
+    subgraph Legend
+        direction TB
+        L1[Faction]:::solaris
+        L2[Crisis]:::umbral
+        L3[Global Effect]:::aeonic
+    end
+
+    %% Styling
+    classDef solaris fill:#f6ad55,stroke:#fff,color:#000
+    classDef umbral fill:#805ad5,stroke:#fff
+    classDef aeonic fill:#4299e1,stroke:#fff
+    classDef primordial fill:#48bb78,stroke:#fff,color:#000
+    classDef infernal fill:#e53e3e,stroke:#fff
+    classDef neuralis fill:#9f7aea,stroke:#fff

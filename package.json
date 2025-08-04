@@ -1,0 +1,32 @@
+{
+  "name": "crisis-unleashed",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "preinstall": "pnpm install --ignore-scripts",
+    "postinstall": "echo \"Skipping postinstall to prevent infinite loop. Run 'pnpm install' in the frontend directory manually.\"",
+    "start": "concurrently -n \"BACKEND,FRONTEND\" -c \"bgBlue.bold,bgGreen.bold\" \"cd backend && .\\.venv\\Scripts\\Activate && python -m uvicorn server:app --reload\" \"cd frontend && pnpm start\"",
+    "build": "pnpm --filter frontend build",
+    "test": "pnpm --filter frontend test",
+    "lint": "eslint . --ext .js,.jsx",
+    "format": "prettier --write \"**/*.{js,jsx,json,md}\"",
+    "setup": "cd frontend && pnpm install"
+  },
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "eslint": "^8.56.0",
+    "prettier": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "pnpm": ">=7.0.0"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "posthog-js": "^1.258.5"
+  }
+}
