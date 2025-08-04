@@ -3,9 +3,6 @@ API endpoints for blockchain operations using the outbox pattern.
 """
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import Dict, Any
-
-from ..repository import TransactionOutboxRepository, OutboxType
 
 router = APIRouter(prefix="/blockchain", tags=["blockchain"])
 
