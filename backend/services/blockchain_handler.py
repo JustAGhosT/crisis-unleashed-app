@@ -1,14 +1,14 @@
 """
 Blockchain Handler for processing outbox entries.
 """
-import asyncio
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from ..repository import (
     TransactionOutboxRepository,
     OutboxEntry,
-    OutboxStatus,
+    OutboxType,
+)
     OutboxType,
 )
 from .blockchain_service import BlockchainService
