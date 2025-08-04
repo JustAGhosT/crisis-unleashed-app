@@ -1,196 +1,348 @@
 # Documentation TODO List
 
-## Priority 1: Core Game Systems
+## Priority 1: Critical Technical Implementation (Pre-Launch)
+
+### 🚨 Backend & API Documentation (URGENT)
+
+- [ ] **Core API Specifications**
+  - [ ] Complete OpenAPI/Swagger documentation for all endpoints
+  - [ ] Request/response schemas for game actions
+  - [ ] Error codes and handling documentation
+  - [ ] Rate limiting and authentication flows
+  - [ ] WebSocket event documentation for real-time gameplay
+
+- [ ] **Database Architecture**
+  - [ ] Complete database schema documentation
+  - [ ] Player data models and relationships
+  - [ ] Game state persistence strategies
+  - [ ] Migration guides and version history
+  - [ ] Backup and recovery procedures
+
+- [ ] **Game Logic Implementation**
+  - [ ] Turn resolution algorithms and priority systems
+  - [ ] Combat calculation formulas and damage systems
+  - [ ] Card interaction matrix and rule precedence
+  - [ ] Victory condition implementation details
+  - [ ] State synchronization between client and server
+
+### 🔗 Blockchain Integration (URGENT)
+
+- [ ] **Smart Contract Documentation**
+  - [ ] Contract specifications for each card type (Hero, Action, Crisis)
+  - [ ] NFT minting and transfer mechanisms
+  - [ ] Tournament prize distribution contracts
+  - [ ] Marketplace and trading functionality
+  - [ ] Gas optimization strategies for gaming transactions
+
+- [ ] **Etherlink Integration**
+  - [ ] Deployment guide for Etherlink networks
+  - [ ] Cross-chain bridge implementation
+  - [ ] Wallet integration patterns and user flows
+  - [ ] Tezos FA2 token integration strategies
+  - [ ] Network configuration and environment setup
+
+### 🛡️ Security & Testing (URGENT)
+
+- [ ] **Security Documentation**
+  - [ ] Smart contract security audit guidelines
+  - [ ] User wallet security best practices
+  - [ ] Anti-cheat systems and detection methods
+  - [ ] Data protection and encryption standards
+  - [ ] Vulnerability disclosure and response procedures
+
+- [ ] **Testing Strategy**
+  - [ ] Comprehensive test scenarios for game mechanics
+  - [ ] Performance testing for multiplayer scenarios
+  - [ ] Security testing for blockchain interactions
+  - [ ] Load testing documentation for tournaments
+  - [ ] Integration test coverage for API endpoints
+
+## Priority 2: Core Game Systems (Mostly Complete)
 
 ### ✅ Completed Sections
 
-- Faction Documentation
-- Hero System
+- Faction Documentation (All 7 factions)
+- Hero System & Abilities
 - Card Types & Mechanics
-- Visual Identity
-- Hero Playbook
+- Visual Identity & Faction Themes
 - Action Cards System
 - Crisis Cards
-
-### ✅ Unit Abilities
-
-## Priority 2: NFT & Interface
-
-### ✅ NFT System
-
-### Gamification
-
-- [ ] Create detailed reward tables
-- [ ] Document event calendar system
-- [ ] Add social feature specifications
-- [ ] Document retention metrics
-
-## Priority 2: Game Components
-
-### ✅ Completed Sections
-
+- Unit Abilities
+- Starter Decks
+- Status Effects & Icons
 - Gameboard Layout
 - Rulebook & Manual
-- Status Effects & Icons
 
-### ✅ Starter Decks
+### ⚠️ Needs Enhancement
 
-### Card Backs & Variants
+- [ ] **Game Balance Documentation**
+  - [ ] Statistical balance frameworks for cards and heroes
+  - [ ] Playtesting methodology and results
+  - [ ] Meta-game analysis and adjustment procedures
+  - [ ] XP and leveling systems implementation
+  - [ ] Economy design for in-game currencies
 
-- [ ] Design faction-themed card backs
-- [ ] Create holo/foil variant specs
-- [ ] Document special edition treatments
-- [ ] Add print-and-play templates
-- [ ] Document digital adaptations
+## Priority 3: DevOps & Production (Critical for Launch)
 
-## Priority 3: Expansion & Lore
+### 🚀 Deployment Documentation
 
-### Expansion Content
+- [ ] **Production Environment Setup**
+  - [ ] Infrastructure architecture diagrams
+  - [ ] Environment configuration management
+  - [ ] CI/CD pipeline documentation
+  - [ ] Container deployment with Docker/Kubernetes
+  - [ ] Database migration and rollback procedures
 
-- [ ] Outline Celestial Gods expansion
-- [ ] Design Rift Entities mechanics
-- [ ] Plan Multiverse Invasion event
-- [ ] Create corrupted hero forms
-- [ ] Document new card types and mechanics
+- [ ] **Monitoring & Operations**
+  - [ ] Application performance monitoring setup
+  - [ ] Error tracking and alerting systems
+  - [ ] Business metrics and analytics tracking
+  - [ ] Log aggregation and analysis
+  - [ ] Incident response procedures
 
-### Art & Visuals
+- [ ] **Scalability Planning**
+  - [ ] Performance targets and SLAs
+  - [ ] Concurrent user limits and scaling triggers
+  - [ ] Resource usage optimization
+  - [ ] Network protocol efficiency
+  - [ ] Caching strategies for game data
 
-- [ ] Create faction mood boards
-- [ ] Document art style guidelines
-- [ ] Add character design templates
-- [ ] Create environment concepts
-- [ ] Document visual effects standards
+## Priority 4: User Experience & Frontend
 
-### ✅ Lore & Story
+### 🎨 Frontend Architecture
 
-- [x] Create faction origin stories
-  - [x] Solaris Nexus origin
-  - [x] Umbral Eclipse origin
-  - [x] Aeonic Dominion origin
-  - [x] Primordial Genesis origin
-  - [x] Infernal Core origin
-  - [x] Neuralis Conclave origin
-  - [x] Synthetic Directive origin
-- [ ] Write universe timeline
-- [ ] Create hero backstories
-- [ ] Document realm histories
-- [x] Create creation myt
-- [x] Add faction relationship maps
+- [ ] **Component Documentation**
+  - [ ] Component library usage guidelines
+  - [ ] State management patterns with React Context
+  - [ ] Theme system implementation for factions
+  - [ ] Mobile responsiveness and PWA features
+  - [ ] Asset loading and optimization strategies
 
-## Priority 4: Technical Documentation
+- [ ] **User Interface Standards**
+  - [ ] Accessibility guidelines (WCAG compliance)
+  - [ ] Cross-browser compatibility testing
+  - [ ] Performance budgets for frontend assets
+  - [ ] Error handling and user feedback systems
+  - [ ] Offline functionality specifications
 
-### Digital Implementation
+### 📱 Mobile & Cross-Platform
 
-- [ ] Document Tabletop Simulator setup
-- [ ] Create PDF print sheets (3x3 layout)
-- [ ] Document online builder requirements
-- [ ] Add digital playtesting guidelines
-- [ ] Document version control for assets
+- [ ] **Mobile Development**
+  - [ ] React Native architecture documentation
+  - [ ] Platform-specific implementation guides
+  - [ ] App store submission procedures
+  - [ ] Mobile wallet integration patterns
+  - [ ] Offline gameplay synchronization
 
-### Performance
+## Priority 5: Business & Legal (Post-Launch)
 
-- [ ] Document performance budgets
-- [ ] Add optimization guides
-- [ ] Create testing benchmarks
-- [ ] Document memory management
+### ⚖️ Legal & Compliance
 
-### Localization
+- [ ] **Legal Documentation**
+  - [ ] Terms of service and privacy policy templates
+  - [ ] GDPR compliance documentation for user data
+  - [ ] Age rating and content guidelines documentation
+  - [ ] Intellectual property guidelines for community content
+  - [ ] Regulatory compliance for different jurisdictions
 
-- [ ] Create localization kit
-- [ ] Document translation workflow
-- [ ] Add style guide for translations
-- [ ] Document RTL support
+### 👥 Community & Support
 
-## Priority 4: Community & Support
+- [ ] **Community Management**
+  - [ ] Community moderator guidelines and tools
+  - [ ] Customer support workflows and FAQs
+  - [ ] Bug reporting and feature request processes
+  - [ ] Content creator program documentation
+  - [ ] Social media management guidelines
 
-### Community
+- [ ] **Tournament & Events**
+  - [ ] Official tournament rules and procedures
+  - [ ] Event organization guidelines
+  - [ ] Prize distribution and tax implications
+  - [ ] Streaming and broadcasting guidelines
+  - [ ] Anti-cheat measures for competitive play
 
-- [ ] Write community guidelines
-- [ ] Create support ticket templates
-- [ ] Document moderation tools
-- [ ] Add content creator resources
+## Priority 6: Content & Expansion
 
-### Tournaments
+### 🎮 Game Content
 
-- [ ] Document tournament rules
-- [ ] Create organizer guide
-- [ ] Document prize distribution
-- [ ] Add streaming guidelines
+### ✅ Completed Lore & Story
+- [x] All faction origin stories (7 factions)
+- [x] Creation myth documentation
+- [x] Faction relationship maps
 
-## Documentation Standards
+### 🔄 Content Pipeline
 
-### ✅ Completed Sections
+- [ ] **Expansion Planning**
+  - [ ] Outline Celestial Gods expansion
+  - [ ] Design Rift Entities mechanics
+  - [ ] Plan Multiverse Invasion event
+  - [ ] Create corrupted hero forms
+  - [ ] Document new card types and mechanics
+
+- [ ] **Content Creation Standards**
+  - [ ] Card design templates and specifications
+  - [ ] Art asset creation pipeline
+  - [ ] Localization workflow and standards
+  - [ ] Version control for game assets
+  - [ ] Quality assurance for new content
+
+### 🎨 Art & Visual Standards
+
+- [ ] **Visual Documentation**
+  - [x] Faction mood boards (partially complete)
+  - [ ] Complete art style guidelines
+  - [ ] Character design templates
+  - [ ] Environment concept documentation
+  - [ ] Visual effects standards and specifications
+
+## Priority 7: Technical Integrations
+
+### 🔌 Third-Party Services
+
+- [ ] **External Integrations**
+  - [ ] Payment processing integration (Stripe, crypto payments)
+  - [ ] Analytics platforms (Mixpanel, Google Analytics)
+  - [ ] Social media API integrations
+  - [ ] Content delivery network setup
+  - [ ] Email service integration
+
+- [ ] **Development Tools**
+  - [ ] Development environment setup guides
+  - [ ] Code review and contribution guidelines
+  - [ ] Automated testing pipeline setup
+  - [ ] Performance profiling tools
+  - [ ] Debugging and troubleshooting guides
+
+### 🌐 Internationalization
+
+- [ ] **Localization Systems**
+  - [ ] Translation management workflow
+  - [ ] Cultural adaptation guidelines
+  - [ ] Right-to-left language support
+  - [ ] Regional compliance variations
+  - [ ] Multi-currency support documentation
+
+## Documentation Standards & Maintenance
+
+### ✅ Completed Standards
 
 - Style Guide
+- Document review workflow
+- Versioning strategy  
+- Document approval process
+- Documentation calendar setup
+- Feedback collection systems
 
-### Review Process
+### 📋 Process Documentation
 
-- [x] Document review workflow
-- [ ] Create update schedule
-- [x] Add versioning strategy
-- [x] Document approval process
+- [ ] **Documentation Workflows**
+  - [ ] Create update checklist and review cycle
+  - [ ] Document deprecation and retirement process
+  - [ ] Add archiving strategy for outdated content
+  - [ ] Documentation usage tracking and analytics
+  - [ ] Improvement process based on user feedback
 
-## Maintenance
+- [ ] **Content Quality**
+  - [ ] Remove or complete all TODO placeholders in existing docs
+  - [ ] Standardize formatting across all documentation
+  - [ ] Add cross-references and internal linking
+  - [ ] Create documentation search and discovery tools
 
-### Regular Updates
- 
-- [x] Set up documentation calendar
-- [ ] Create update checklist
-- [ ] Document deprecation process
-- [ ] Add archiving strategy
+## 📊 Updated Completion Status
 
-### Analytics
+### Critical Path Items (Must Complete for Launch)
+- Total Critical Tasks: 45
+- Completed: 8 (17.8%)
+- **Remaining: 37 (82.2%) - URGENT**
 
-- [ ] Document usage tracking
-- [x] Create feedback collection
-- [ ] Document metrics review
-- [ ] Add improvement process
+### Overall Documentation Status
+- Total Tasks: 187 (updated count)
+- Completed: 125 (66.8%)
+- In Progress: 12 (6.4%)  
+- Not Started: 50 (26.8%)
 
-## Documentation Structure Issues
+**Last Updated: 2024-12-19**
 
-### ✅ Directory & File Organization
+## 🎯 Revised Priority Roadmap
 
-### Documentation Enhancements
+### **Phase 1: Pre-Launch Essentials (Weeks 1-4) - CRITICAL**
 
-- [x] Add visual aids to documentation
-- [x] Improve onboarding documentation
-- [ ] Remove or complete all TODO placeholders in:
-  - [ ] Effect descriptions
-  - [ ] Card interaction examples
-  - [ ] Ability definitions
+1. **Backend API Documentation** 
+   - Complete OpenAPI specifications
+   - Database schema documentation
+   - Game logic implementation details
 
-## Completion Status
+2. **Blockchain Integration**
+   - Smart contract specifications
+   - Etherlink deployment guides
+   - Wallet integration documentation
 
-- Total Tasks: 137
-- Completed: 117 (85.4%)
-- In Progress: 0
-- Not Started: 20 (14.6%)
+3. **Security & Testing**
+   - Security audit guidelines
+   - Comprehensive testing strategies
+   - Performance benchmarks
 
-Last Updated: 2025-08-02
+### **Phase 2: Production Ready (Weeks 5-8) - HIGH PRIORITY**
 
-## Next Steps & Priorities
+1. **DevOps & Deployment**
+   - Infrastructure setup guides
+   - Monitoring and alerting systems
+   - CI/CD pipeline documentation
 
-1. **Content Enhancement (High Priority)**
-   - Create hero backstories
-   - Remove/complete TODO placeholders in documentation
-   - Write universe timeline
+2. **Frontend Architecture**
+   - Component library guidelines
+   - Mobile responsiveness standards
+   - Performance optimization
 
-2. **Process Documentation (Medium Priority)**
-   - Create update checklist
-   - Document deprecation process
-   - Document metrics review process
+### **Phase 3: Launch Support (Weeks 9-12) - MEDIUM PRIORITY**
 
-3. **Technical Enhancement (Medium Priority)**
-   - Document Tabletop Simulator setup
-   - Create PDF print sheets (3x3 layout)
-   - Add digital playtesting guidelines
+1. **User Experience**
+   - Customer support workflows
+   - Community management guidelines
+   - Bug reporting systems
 
-4. **Community & Support (Low Priority)**
-   - Write community guidelines
-   - Document tournament rules
-   - Create content creator resources
+2. **Legal & Compliance**
+   - Terms of service templates
+   - GDPR compliance documentation
+   - Content guidelines
 
-5. **Localization Planning (Low Priority)**
-   - Create localization kit
-   - Document translation workflow
-   - Add style guide for translations
+### **Phase 4: Growth & Expansion (Weeks 13+) - LOW PRIORITY**
+
+1. **Content Pipeline**
+   - Expansion planning documentation
+   - Localization workflows
+   - Art creation standards
+
+2. **Advanced Features**
+   - Tournament systems
+   - Third-party integrations
+   - Analytics and metrics
+
+## ⚠️ Critical Blockers for Launch
+
+**These must be completed before any production deployment:**
+
+1. **API Documentation** - No backend can launch without proper API docs
+2. **Security Documentation** - Required for handling user assets and data
+3. **Smart Contract Specs** - Essential for blockchain integration
+4. **Database Schema** - Core to data persistence and game state
+5. **Testing Strategy** - Cannot ensure quality without comprehensive testing
+
+**Estimated effort required: 6-8 weeks with dedicated technical writing resources**
+
+## 📚 Documentation Dependencies
+
+**High Dependencies (Block other work):**
+- API Documentation → Frontend integration
+- Smart Contract Specs → Blockchain development  
+- Database Schema → Backend development
+
+**Medium Dependencies:**
+- Security Guidelines → Production deployment
+- Testing Strategy → Quality assurance
+- DevOps Docs → Automated deployment
+
+**Low Dependencies:**
+- Community Guidelines → Post-launch community management
+- Localization → International expansion
+- Tournament Rules → Competitive features
