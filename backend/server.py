@@ -10,6 +10,9 @@ from typing import List
 import uuid
 from datetime import datetime
 
+# Import the blockchain router
+from .api import blockchain_router
+
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / ".env")
@@ -62,8 +65,9 @@ async def get_status_checks(
     return [StatusCheck(**status_check) for status_check in status_checks]
 
 
-# Include the router in the main app
+# Include the routers in the main app
 app.include_router(api_router)
+app.include_router(blockchain_router, prefix="/api")
 
 app.add_middleware(
     CORSMiddleware,
