@@ -6,21 +6,30 @@ import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field
-from typing import List
+from typing import List, Optional
 import uuid
 from datetime import datetime
 
-# Import the blockchain router
+# Import routers and configuration
 from .api import blockchain_router
+from .config import get_settings
+from .services import BlockchainService
+from .workers import OutboxProcessor
 
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / ".env")
 
+# Load settings
+settings = get_settings()
+
 # MongoDB connection
-mongo_url = os.environ["MONGO_URL"]
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ["DB_NAME"]]
+client = AsyncIOMotorClient(settings.mongo_url)
+db = client[settings.database_name]
+
+# Global services (will be initialized on startup)
+blockchain_service: Optional[BlockchainService] = None
+outbox_processor: Optional[OutboxProcessor] = None
 
 # Create the main app without a prefix
 app = FastAPI()
@@ -84,6 +93,60 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+@app.on_event("startup")
+async def startup_event():
+    """Initialize services on application startup."""
+    global blockchain_service, outbox_processor
+
+    logger.info("Starting Crisis Unleashed Backend...")
+
+    try:
+        # Initialize blockchain service
+        blockchain_config = settings.get_blockchain_config()
+        blockchain_service = BlockchainService(blockchain_config)
+
+        # Initialize blockchain providers
+        init_results = await blockchain_service.initialize()
+        logger.info(f"Blockchain initialization results: {init_results}")
+
+        # Initialize outbox processor
+        outbox_config = settings.get_outbox_config()
+        outbox_processor = OutboxProcessor(
+            db=db,
+            blockchain_service=blockchain_service,
+            processing_interval=outbox_config["processing_interval"],
+            max_entries_per_batch=outbox_config["max_batch_size"],
+        )
+
+        # Start background processing
+        await outbox_processor.start()
+        logger.info("Outbox processor started")
+
+        logger.info("Crisis Unleashed Backend started successfully!")
+
+    except Exception as e:
+        logger.error(f"Failed to initialize services: {e}")
+        # Don't fail startup, but log the error
+
+
 @app.on_event("shutdown")
-async def shutdown_db_client() -> None:
-    client.close()
+async def shutdown_event():
+    """Cleanup on application shutdown."""
+    global outbox_processor
+
+    logger.info("Shutting down Crisis Unleashed Backend...")
+
+    try:
+        # Stop outbox processor
+        if outbox_processor:
+            await outbox_processor.stop()
+            logger.info("Outbox processor stopped")
+
+        # Close database connection
+        client.close()
+        logger.info("Database connection closed")
+
+        logger.info("Crisis Unleashed Backend shut down successfully!")
+
+    except Exception as e:
+        logger.error(f"Error during shutdown: {e}")

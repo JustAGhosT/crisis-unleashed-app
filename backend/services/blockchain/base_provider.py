@@ -30,6 +30,14 @@ class BaseBlockchainProvider(ABC):
         pass
     
     @abstractmethod
+    async def disconnect(self) -> None:
+        """
+        Disconnect from the blockchain network.
+        Cleanup resources and close connections.
+        """
+        pass
+    
+    @abstractmethod
     async def mint_nft(self,
                       recipient: str,
                       card_id: str, 

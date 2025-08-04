@@ -1,0 +1,250 @@
+import React from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { CardFilters as CardFiltersType } from '@/types/card';
+import { getFactionOptions } from '@/data/factions';
+import { Search, X } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+// Zod schema for card filter validation
+const cardFiltersSchema = z.object({
+  search: z.string().optional(),
+  faction: z.enum(['', 'solaris', 'umbral', 'aeonic', 'primordial', 'infernal', 'neuralis', 'synthetic']).optional(),
+  type: z.enum(['', 'character', 'action', 'artifact', 'hero']).optional(),
+  rarity: z.enum(['', 'common', 'uncommon', 'rare', 'epic', 'legendary']).optional(),
+  costMin: z.number().min(0).max(20).optional(),
+  costMax: z.number().min(0).max(20).optional(),
+  owned: z.boolean().optional(),
+});
+
+type CardFiltersFormData = z.infer<typeof cardFiltersSchema>;
+
+interface CardFiltersProps {
+  initialFilters?: CardFiltersType;
+  onFiltersChange: (filters: CardFiltersType) => void;
+  showOwnedFilter?: boolean;
+  className?: string;
+}
+
+/**
+ * CardFilters component - Provides filtering interface for card search
+ * Uses React Hook Form + Zod for form validation
+ * Following SOLID principles with clear separation of concerns
+ */
+export const CardFilters: React.FC<CardFiltersProps> = ({
+  initialFilters = {},
+  onFiltersChange,
+  showOwnedFilter = true,
+  className,
+}) => {
+  const {
+    register,
+    handleSubmit,
+    watch,
+    reset,
+    setValue,
+    formState: { errors },
+  } = useForm<CardFiltersFormData>({
+    resolver: zodResolver(cardFiltersSchema),
+    defaultValues: {
+      search: initialFilters.search || '',
+      faction: initialFilters.faction || '',
+      type: initialFilters.type || '',
+      rarity: initialFilters.rarity || '',
+      costMin: initialFilters.costMin,
+      costMax: initialFilters.costMax,
+      owned: initialFilters.owned || false,
+    },
+  });
+
+  const factionOptions = getFactionOptions();
+
+  // Watch form values for real-time filtering
+  const watchedValues = watch();
+
+  React.useEffect(() => {
+    // Apply filters whenever form values change
+    const filters: CardFiltersType = {};
+    
+    if (watchedValues.search?.trim()) {
+      filters.search = watchedValues.search.trim();
+    }
+    if (watchedValues.faction) {
+      filters.faction = watchedValues.faction as any;
+    }
+    if (watchedValues.type) {
+      filters.type = watchedValues.type as any;
+    }
+    if (watchedValues.rarity) {
+      filters.rarity = watchedValues.rarity as any;
+    }
+    if (watchedValues.costMin !== undefined && watchedValues.costMin >= 0) {
+      filters.costMin = watchedValues.costMin;
+    }
+    if (watchedValues.costMax !== undefined && watchedValues.costMax >= 0) {
+      filters.costMax = watchedValues.costMax;
+    }
+    if (showOwnedFilter && watchedValues.owned) {
+      filters.owned = watchedValues.owned;
+    }
+
+    onFiltersChange(filters);
+  }, [watchedValues, onFiltersChange, showOwnedFilter]);
+
+  const handleClearFilters = () => {
+    reset({
+      search: '',
+      faction: '',
+      type: '',
+      rarity: '',
+      costMin: undefined,
+      costMax: undefined,
+      owned: false,
+    });
+  };
+
+  return (
+    <Card className={cn('p-4 bg-slate-800/50 border-slate-600', className)}>
+      <div className="space-y-4">
+        {/* Search */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Input
+            {...register('search')}
+            placeholder="Search cards by name, description, or abilities..."
+            className="pl-10 bg-slate-700 border-slate-600 text-white placeholder-gray-400"
+          />
+        </div>
+
+        {/* Filter Row 1 */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Faction Filter */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">
+              Faction
+            </label>
+            <Select
+              {...register('faction')}
+              className="bg-slate-700 border-slate-600 text-white"
+            >
+              <option value="">All Factions</option>
+              {factionOptions.map((faction) => (
+                <option key={faction.value} value={faction.value}>
+                  {faction.label}
+                </option>
+              ))}
+            </Select>
+          </div>
+
+          {/* Type Filter */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">
+              Type
+            </label>
+            <Select
+              {...register('type')}
+              className="bg-slate-700 border-slate-600 text-white"
+            >
+              <option value="">All Types</option>
+              <option value="character">Character</option>
+              <option value="action">Action</option>
+              <option value="artifact">Artifact</option>
+              <option value="hero">Hero</option>
+            </Select>
+          </div>
+
+          {/* Rarity Filter */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">
+              Rarity
+            </label>
+            <Select
+              {...register('rarity')}
+              className="bg-slate-700 border-slate-600 text-white"
+            >
+              <option value="">All Rarities</option>
+              <option value="common">Common</option>
+              <option value="uncommon">Uncommon</option>
+              <option value="rare">Rare</option>
+              <option value="epic">Epic</option>
+              <option value="legendary">Legendary</option>
+            </Select>
+          </div>
+        </div>
+
+        {/* Filter Row 2 */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+          {/* Cost Range */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">
+              Min Cost
+            </label>
+            <Input
+              {...register('costMin', { valueAsNumber: true })}
+              type="number"
+              min="0"
+              max="20"
+              placeholder="0"
+              className="bg-slate-700 border-slate-600 text-white"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">
+              Max Cost
+            </label>
+            <Input
+              {...register('costMax', { valueAsNumber: true })}
+              type="number"
+              min="0"
+              max="20"
+              placeholder="20"
+              className="bg-slate-700 border-slate-600 text-white"
+            />
+          </div>
+
+          {/* Owned Filter */}
+          {showOwnedFilter && (
+            <div>
+              <label className="flex items-center space-x-2">
+                <input
+                  {...register('owned')}
+                  type="checkbox"
+                  className="h-4 w-4 text-purple-600 rounded border-gray-600 bg-slate-700 focus:ring-purple-500"
+                />
+                <span className="text-sm text-gray-300">Owned Only</span>
+              </label>
+            </div>
+          )}
+
+          {/* Clear Filters Button */}
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleClearFilters}
+            className="flex items-center gap-2"
+          >
+            <X className="w-4 h-4" />
+            Clear
+          </Button>
+        </div>
+
+        {/* Error Display */}
+        {Object.keys(errors).length > 0 && (
+          <div className="text-red-400 text-sm space-y-1">
+            {Object.entries(errors).map(([field, error]) => (
+              <div key={field}>{error?.message}</div>
+            ))}
+          </div>
+        )}
+      </div>
+    </Card>
+  );
+};
+
+CardFilters.displayName = 'CardFilters';

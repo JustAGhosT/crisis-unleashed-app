@@ -75,6 +75,17 @@ class EthereumProvider(BaseBlockchainProvider):
         except Exception:
             return False
 
+    async def disconnect(self) -> None:
+        """Disconnect from Ethereum network."""
+        try:
+            if self.web3:
+                # Clean up web3 instance
+                self.web3 = None
+                self.contract = None
+                logger.info("Disconnected from Ethereum network")
+        except Exception as e:
+            logger.error(f"Error disconnecting from Ethereum: {e}")
+
     async def mint_nft(
         self, recipient: str, card_id: str, metadata: Dict[str, Any]
     ) -> Tuple[str, Dict[str, Any]]:

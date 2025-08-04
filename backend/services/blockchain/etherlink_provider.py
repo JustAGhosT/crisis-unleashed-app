@@ -81,6 +81,17 @@ class EtherlinkProvider(BaseBlockchainProvider):
         except Exception:
             return False
     
+    async def disconnect(self) -> None:
+        """Disconnect from Etherlink network."""
+        try:
+            if self.web3:
+                # Clean up web3 instance
+                self.web3 = None
+                self.contract = None
+                logger.info("Disconnected from Etherlink network")
+        except Exception as e:
+            logger.error(f"Error disconnecting from Etherlink: {e}")
+    
     async def mint_nft(self,
                       recipient: str,
                       card_id: str,
