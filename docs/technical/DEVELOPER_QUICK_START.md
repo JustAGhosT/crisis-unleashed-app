@@ -191,7 +191,8 @@ const MyComponent: React.FC = () => {
 - `GET /api` - Health check
 - `GET /api/status` - Get recent status checks
 - `POST /api/status` - Create a status check
-
+- `POST /api/blockchain/mint` - Queue NFT minting operation
+- `GET /api/blockchain/status/{outbox_id}` - Get blockchain operation status
 ## 📦 Available Scripts
 
 ### Root Level
