@@ -4,6 +4,7 @@ Transaction Outbox Pattern for blockchain-database consistency.
 
 import logging
 from typing import Any, Dict, List, Optional
+from datetime import datetime
 from pymongo import ReturnDocument
 
 from .outbox_models import OutboxEntry, OutboxStatus, OutboxType
