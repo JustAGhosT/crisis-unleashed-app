@@ -61,31 +61,31 @@ Crisis Unleashed combines deep tactical combat with rich narrative elements, fea
    ```
 
 3. **Set up the backend**
- 
+
    ```bash
 
    cd backend
-
    python -m venv .venv
- 
-  # Windows
+
+   // Windows
    .venv\Scripts\Activate
   
-   # macOS/Linux
+   // macOS/Linux
    source .venv/bin/activate
-   
+
    pip install -r requirements.txt
    cd ..
    ```
 
 4. **Start the development environment**
+
    ```bash
 
    pnpm start
    ```
 
    This launches:
-   
+
    ``` text
     Frontend: [http://localhost:5173](http://localhost:5173)
     Backend API: [http://localhost:8000](http://localhost:8000)
