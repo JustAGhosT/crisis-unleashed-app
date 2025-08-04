@@ -72,11 +72,29 @@ class TransactionOutboxRepository:
 
     async def mark_processing(self, outbox_id: str) -> Optional[OutboxEntry]:
         """Mark entry as processing."""
-        entry = await self.get_by_id(outbox_id)
-        if entry:
-            entry.update_status(OutboxStatus.PROCESSING)
-            return await self.update_entry(entry)
-        return None
+-       entry = await self.get_by_id(outbox_id)
+-       if entry:
+-           entry.update_status(OutboxStatus.PROCESSING)
+-           return await self.update_entry(entry)
+-       return None
++       result = await self.collection.find_one_and_update(
++           {
++               "_id": outbox_id,
++               "status": {"$in": [
++                   OutboxStatus.PENDING.value,
++                   OutboxStatus.RETRY.value,
++                   OutboxStatus.ERROR.value
++               ]}
++           },
++           {
++               "$set": {
++                   "status": OutboxStatus.PROCESSING.value,
++                   "updated_at": datetime.utcnow()
++               }
++           },
++           return_document=ReturnDocument.AFTER
++       )
++       return OutboxEntry.from_dict(result) if result else None
 
     async def mark_completed(
         self, outbox_id: str, result: Dict[str, Any]
