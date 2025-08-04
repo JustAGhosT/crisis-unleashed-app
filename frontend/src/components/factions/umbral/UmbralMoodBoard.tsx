@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import styles from './UmbralMoodBoard.module.css';
-import { getFactionTheme } from '@/theme/factionThemes';
 
 interface UmbralMoodBoardProps {
   expanded?: boolean;
@@ -11,7 +10,6 @@ interface UmbralMoodBoardProps {
  * Showcases the faction's aesthetic design principles and visual elements
  */
 const UmbralMoodBoard: React.FC<UmbralMoodBoardProps> = ({ expanded = false }) => {
-  const theme = getFactionTheme('umbral');
   const [glitchActive, setGlitchActive] = useState(false);
   
   // Random glitch effect for shadow elements
@@ -74,28 +72,28 @@ const UmbralMoodBoard: React.FC<UmbralMoodBoardProps> = ({ expanded = false }) =
           <h3 className={styles.sectionTitle}>Color Palette</h3>
           <div className={styles.colorPalette}>
             <div className={styles.colorSwatch}>
-              <div className={styles.color} style={{ backgroundColor: "#9B59B6" }}></div>
+              <div className={`${styles.color} ${styles.colorMediumPurple}`}></div>
               <div className={styles.colorInfo}>
                 <span className={styles.colorName}>Medium Purple</span>
                 <span className={styles.colorHex}>#9B59B6</span>
               </div>
             </div>
             <div className={styles.colorSwatch}>
-              <div className={styles.color} style={{ backgroundColor: "#8E44AD" }}></div>
+              <div className={`${styles.color} ${styles.colorDarkViolet}`}></div>
               <div className={styles.colorInfo}>
                 <span className={styles.colorName}>Dark Violet</span>
                 <span className={styles.colorHex}>#8E44AD</span>
               </div>
             </div>
             <div className={styles.colorSwatch}>
-              <div className={styles.color} style={{ backgroundColor: "#6C3483" }}></div>
+              <div className={`${styles.color} ${styles.colorDeepPurple}`}></div>
               <div className={styles.colorInfo}>
                 <span className={styles.colorName}>Deep Purple</span>
                 <span className={styles.colorHex}>#6C3483</span>
               </div>
             </div>
             <div className={styles.colorSwatch}>
-              <div className={styles.color} style={{ backgroundColor: "#0A0A0A" }}></div>
+              <div className={`${styles.color} ${styles.colorNearBlack}`}></div>
               <div className={styles.colorInfo}>
                 <span className={styles.colorName}>Near-Black</span>
                 <span className={styles.colorHex}>#0A0A0A</span>

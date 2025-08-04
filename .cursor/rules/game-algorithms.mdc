@@ -1,48 +1,74 @@
 ---
-description: Specification for core game mechanics, algorithms and systems that drive the card-based gameplay
-globs: frontend/src/components/Battlefield.js,frontend/src/components/CardHand.js,frontend/src/components/GameInterface.js,frontend/src/components/TurnManager.js
+description: Documentation for core game mechanics and algorithms related to gameplay systems and faction behaviors
+globs: '**/game/**','**/battlefield/**','**/cards/**','**/features/**','**/factions/**'
 alwaysApply: false
 ---
 
 
 # game-algorithms
 
-The key game algorithms center around three core systems:
+## Core Game Systems
 
-## Battlefield Management (Importance: 95)
-Located in `frontend/src/components/Battlefield.ts`
-- 3D grid-based battlefield implementation for unit deployment
-- Position-based combat resolution between units
-- Handles unit placement validation and movement restrictions
-- Visual state management for unit selection and targeting
+### Turn Management (80/100)
+- Three-phase turn structure: Deploy, Action, End 
+- Resource accumulation/spending system per phase
+- Automated phase progression with timer
+- Phase-specific action validation
+- Located in: `/frontend/src/features/battlefield/TurnManager.tsx`
 
-## Card Deployment Logic (Importance: 90) 
-Located in `frontend/src/components/CardHand.ts`
-- Card selection and deployment validation
-- Energy cost verification for card plays
-- Card availability checks based on game state
-- Handles card rarity and special ability triggers
+### Battlefield Management (85/100)
+- Zone-based control system with distinct areas:
+  - Player territories
+  - Enemy zones  
+  - Neutral contested spaces
+  - Strategic frontline/backline positions
+- Unit placement validation based on zone type
+- Combat positioning mechanics
+- Located in: `/frontend/src/features/battlefield/Battlefield.tsx`
 
-## Turn Sequencing (Importance: 85)
-Located in `frontend/src/components/TurnManager.js`
-- Phase-based turn management
-- Player action validation per phase
-- Turn transition handling with state updates
-- End-of-turn effect resolution
+### Combat Resolution (90/100)
+- Initiative-based attack sequencing
+- Simultaneous damage resolution
+- Status effect application/removal
+- Unit destruction processing
+- Combat keywords: Quick Attack, Overwhelm, Lifesteal, Shield
 
-## Combat Resolution (Importance: 80)
-Located in `frontend/src/components/GameInterface.js`
-- Unit combat calculations and damage resolution
-- Health/stat tracking for units in combat
-- Battlefield position impact on combat outcomes
-- Special ability triggers during combat phases
+### Card System (95/100)
+- Complex card hierarchy:
+  - Hero cards with unique abilities
+  - Unit cards (melee, ranged, siege, flying)
+  - Action cards (instant, ongoing, equipment)
+  - Structure cards (buildings, traps, auras)
+- Energy cost validation
+- Play condition verification
+- Synergy detection between card types
 
-The game algorithms operate on a phase-based system:
-1. Draw Phase - Card draw and resource refresh
-2. Main Phase - Card deployment and unit movement
-3. Combat Phase - Attack declaration and damage resolution
-4. End Phase - Cleanup and state updates
+### Resource Management (75/100)
+- Energy system with 10-point cap
+- Momentum accumulation up to 5 points
+- Resource gain/spend tracking
+- Hero ability activation costs
+- Located in: `/frontend/src/features/players/PlayerHUD.tsx`
+
+### Faction Mechanics (95/100)
+Unique systems per faction:
+- Solaris: Energy manipulation
+- Umbral: Stealth and information warfare
+- Neuralis: Mind control mechanics
+- Aeonic: Time manipulation
+- Primordial: Growth and adaptation
+- Infernal: Sacrifice mechanics
+
+Located in faction-specific files under `/frontend/src/components/factions/`
+
+### Crisis Events (85/100)
+- Event trigger conditions
+- Impact calculation
+- Countdown mechanics
+- Resolution requirements
+- Reward distribution
+- Located in: `/frontend/src/components/CrisisEvent.tsx`
 
 $END$
 
-> If you're using this file in context, clearly say in italics in one small line that "Context added by Giga game-algorithms" along with specifying exactly what information was used from this file in a human-friendly way, instead of using kebab-case use normal sentence case.
+ If you're using this file in context, clearly say in italics in one small line that "Context added by Giga game-algorithms" along with specifying exactly what information was used from this file in a human-friendly way, instead of using kebab-case use normal sentence case.

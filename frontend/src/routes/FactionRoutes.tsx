@@ -1,14 +1,15 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import FactionsHub from '@/pages/FactionsHub';
-import SolarisPage from '@/pages/factions/SolarisPage';
-import UmbralPage from '@/pages/factions/UmbralPage';
-import NeuralisPage from '@/pages/factions/NeuralisPage';
 import AeonicPage from '@/pages/factions/AeonicPage';
 import InfernalPage from '@/pages/factions/InfernalPage';
+import NeuralisPage from '@/pages/factions/NeuralisPage';
 import PrimordialPage from '@/pages/factions/PrimordialPage';
+import SolarisPage from '@/pages/factions/SolarisPage';
 import SyntheticPage from '@/pages/factions/SyntheticPage';
+import UmbralPage from '@/pages/factions/UmbralPage';
+import { FactionsHub } from '@/pages/FactionsHub';
 import TimelinePage from '@/pages/TimelinePage';
+import DebugObjectPage from '@/pages/DebugObjectPage';
+import React from 'react';
+import { Navigate, Route, Routes } from 'react-router-dom';
 
 /**
  * Faction Portal routing configuration
@@ -26,6 +27,7 @@ const FactionRoutes: React.FC = () => {
       <Route path="/primordial" element={<PrimordialPage />} />
       <Route path="/synthetic" element={<SyntheticPage />} />
       <Route path="/timeline" element={<TimelinePage />} />
+      <Route path="/debug" element={<DebugObjectPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

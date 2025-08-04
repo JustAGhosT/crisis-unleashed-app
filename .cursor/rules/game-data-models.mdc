@@ -1,45 +1,68 @@
 ---
-description: Defines core game entities and state models for cards, battlefield grid, and player stats
-globs: **/types/*.ts,**/models/*.ts,**/game/*.ts,**/state/*.ts
+description: Handles core game entities, systems and data models including cards, battlefield grid, player resources and state models.
+globs: */types/*.ts,*/models/*.ts,*/state/*.ts,*/data/*.ts
 alwaysApply: false
 ---
 
 
 # game-data-models
 
-Based on the provided specification, the game data models focus on the following key entities:
+### Core Game Entities
 
-## Card Model (frontend/src/types/game.types.ts)
-- Core card attributes and behaviors
-- Combat stats (attack, health)
-- Energy cost mechanics
-- Card abilities and effects
-- Rarity classification
+1. Card System Models
+- Hero cards with unique abilities and stats
+- Unit cards (melee, ranged, siege, flying) with specific attributes
+- Action cards (instant, ongoing, equipment) with faction effects
+- Structure cards (buildings, traps, auras) with battlefield persistence
 
-## Player Model (frontend/src/types/game.types.ts) 
-- Player resource tracking
-- Health points management
-- Momentum accumulation system
-- Energy pool for card deployment
-- Hand card management
+2. Battlefield Grid Model
+- Zone-based system with player/enemy/neutral territories
+- Frontline and backline placement rules
+- Strategic positioning and unit movement constraints 
+- Line of sight and range calculations
 
-## Game State Model (frontend/src/types/game.types.ts)
-- Current turn tracking
-- Active player identification 
-- Battlefield grid state
-- Card placement coordinates
-- Game phase management
+3. Player Resource Models
+- Energy system (max 10)
+  - Per-turn gain
+  - Spent on card plays
+  - Carryover rules
+- Momentum system (max 5)
+  - Generated through combat/actions
+  - Powers hero abilities
+  - Strategic banking decisions
+- Health tracking
 
-## Combat Grid Model (frontend/src/components/Battlefield.js)
-- 3D battlefield coordinate system
-- Unit deployment validation
-- Combat zone restrictions
-- Position tracking for units
+4. Faction-Specific Systems
+- Solaris: Energy manipulation mechanics
+- Umbral: Stealth and information warfare
+- Neuralis: Mind control abilities  
+- Aeonic: Time manipulation effects
+- Primordial: Growth and adaptation stats
+- Infernal: Sacrifice and risk/reward tracking
 
-Importance Scores:
-- Card Model: 95 (Core gameplay mechanic)
-- Player Model: 90 (Essential game state)
-- Game State Model: 85 (Match flow control)
-- Combat Grid Model: 80 (Strategic positioning)
+5. Game State Model
+- Turn phase tracking (Draw/Energy/Main/Combat/End)
+- Combat resolution state
+- Card zone assignments
+- Battlefield unit positions
+- Resource pool status
+- Crisis event progress
+- Player action history
+
+6. Combat Resolution Model  
+- Initiative determination
+- Attack sequencing
+- Simultaneous damage calculation
+- Unit survival checks
+- Special ability triggers
+- Status effect application
+
+Relevant Files:
+- `frontend/src/types/game.types.ts`
+- `frontend/src/features/battlefield/Battlefield.tsx`
+- `frontend/src/features/players/PlayerHUD.tsx`
+- `frontend/src/data/types/MoodBoardTypes.ts`
 
 $END$
+
+ If you're using this file in context, clearly say in italics in one small line that "Context added by Giga game-data-models" along with specifying exactly what information was used from this file in a human-friendly way, instead of using kebab-case use normal sentence case.

@@ -1,0 +1,96 @@
+/* FactionGrid Component - Isolated positioning system */
+.factionGrid {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  height: 700px;
+  margin: 0 auto;
+}
+
+/* Fixed positions for factions */
+.centerFaction {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+}
+
+.topFaction {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.topRightFaction {
+  position: absolute;
+  top: 15%;
+  right: 0;
+}
+
+.bottomRightFaction {
+  position: absolute;
+  bottom: 15%;
+  right: 0;
+}
+
+.bottomFaction {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.bottomLeftFaction {
+  position: absolute;
+  bottom: 15%;
+  left: 0;
+}
+
+.topLeftFaction {
+  position: absolute;
+  top: 15%;
+  left: 0;
+}
+
+.connectionsOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.connectionsOverlay.hidden {
+  opacity: 0;
+}
+
+/* Responsive Styles */
+@media (max-width: 900px) {
+  .factionGrid {
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  
+  .centerFaction, .topFaction, .topRightFaction, .bottomRightFaction, 
+  .bottomFaction, .bottomLeftFaction, .topLeftFaction {
+    position: static;
+    transform: none;
+  }
+  
+  .centerFaction {
+    order: -1; /* Display center faction first */
+  }
+  
+  .connectionsOverlay {
+    display: none; /* Hide connections on mobile */
+  }
+}

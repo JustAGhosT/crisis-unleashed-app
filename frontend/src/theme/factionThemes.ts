@@ -191,6 +191,33 @@ export const factionThemes: Record<Faction, FactionTheme> = {
       text: '#FFFFFF',
     },
   },
+  'synthetic': {
+    id: 'synthetic',
+    name: 'Synthetic Directive',
+    colors: {
+      primary: '#C0C0C0',
+      secondary: '#A8A8A8',
+      accent: '#808080',
+      background: '#0A0A0A',
+      text: '#F0F0F0',
+      highlight: '#E0E0E0',
+      energy: '#C0C0C0',
+      health: '#FF6B6B',
+    },
+    gradient: 'linear-gradient(135deg, #0A0A0A 0%, #1A1A1A 100%)',
+    glow: '0 0 15px rgba(192, 192, 192, 0.7)',
+    cardTheme: {
+      background: 'rgba(15, 15, 15, 0.85)',
+      border: '1px solid rgba(192, 192, 192, 0.4)',
+      highlight: 'rgba(192, 192, 192, 0.15)',
+      text: '#F0F0F0',
+    },
+    buttonTheme: {
+      primary: 'rgba(192, 192, 192, 0.9)',
+      hover: 'rgba(168, 168, 168, 0.9)',
+      text: '#0A0A0A',
+    },
+  },
 };
 
 export const defaultTheme = factionThemes.solaris;

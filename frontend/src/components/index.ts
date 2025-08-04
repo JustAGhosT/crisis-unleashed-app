@@ -6,5 +6,8 @@ export { default as OpponentHand } from '@/features/players/OpponentHand';
 export { default as PlayerHUD } from '@/features/players/PlayerHUD';
 export { default as TurnManager } from '@/features/battlefield/TurnManager';
 
+// Re-export faction components
+export * from '@/components/factions';
+
 // Export types
 export type { Card, CardRarity, PlayerId, BattlefieldUnit, Unit, Commander, Structure } from '@/types/game.types';

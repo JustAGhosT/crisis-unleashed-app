@@ -199,6 +199,23 @@
   justify-content: center;
 }
 
+/* Color Background Classes */
+.colorGold {
+  background-color: #FFD700;
+}
+
+.colorOrange {
+  background-color: #FF8C00;
+}
+
+.colorOrangeRed {
+  background-color: #FF4500;
+}
+
+.colorDeepSpace {
+  background-color: #0A0A1A;
+}
+
 .colorSwatch {
   width: calc(50% - 15px);
   border-radius: 6px;

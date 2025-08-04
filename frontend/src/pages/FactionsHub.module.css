@@ -1,187 +1,28 @@
-/* FactionsHub styles - Universal Program Formation */
-.hubContainer {
+/* FactionsHub styles - Fixed SVG-based layout */
+.container {
   min-height: 100vh;
   background-color: #0A0A1A;
   color: #FFFFFF;
   font-family: 'Roboto', sans-serif;
 }
 
-/* Hero Section */
-.heroSection {
+/* Removed - moved to Header.module.css */
+
+.mainContent {
+  padding: 3rem 1rem;
+  background-color: #0A0A1A;
+}
+
+/* Faction Grid Layout */
+.factionGrid {
   position: relative;
-  height: 50vh;
-  min-height: 400px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  background-image: url('/assets/backgrounds/universe_map.jpg');
-  background-size: cover;
-  background-position: center;
-  overflow: hidden;
-}
-
-.overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(to bottom, rgba(10, 10, 26, 0.8), rgba(10, 10, 26, 0.6));
-  z-index: 1;
-}
-
-.content {
-  position: relative;
-  z-index: 2;
+  width: 100%;
   max-width: 800px;
-  padding: 0 2rem;
-}
-
-.title {
-  font-family: 'Cinzel', serif;
-  font-size: 3.5rem;
-  margin: 0;
-  background: linear-gradient(120deg, #FFFFFF, #FFD700, #9B59B6, #9370DB, #FF4500, #32CD32, #00CED1, #1E90FF);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 1.5rem;
-  text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
-}
-
-.subtitle {
-  font-size: 1.5rem;
-  line-height: 1.5;
-  margin: 0;
-  color: rgba(255, 255, 255, 0.9);
-}
-
-/* Intro Section */
-.introSection {
-  padding: 4rem 2rem;
-  background: linear-gradient(to bottom, rgba(10, 10, 26, 1), rgba(10, 10, 26, 0.9));
-  text-align: center;
-}
-
-.introContent {
-  max-width: 800px;
+  height: 700px;
   margin: 0 auto;
 }
 
-.introContent h2 {
-  font-family: 'Cinzel', serif;
-  font-size: 2.5rem;
-  margin: 0 0 1.5rem;
-  color: #FFFFFF;
-}
-
-.introContent p {
-  font-size: 1.2rem;
-  line-height: 1.6;
-  margin: 0 0 1rem;
-  color: rgba(255, 255, 255, 0.8);
-}
-
-/* Program Wrapper */
-.programWrapper {
-  padding: 4rem 2rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* Universal Program Formation */
-.universalProgram {
-  position: relative;
-  width: 940px;
-  height: 900px;
-  margin: 0 auto;
-}
-
-/* Factions styling */
-.factionContent {
-  width: 220px;
-  background-color: rgba(10, 10, 26, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  transition: all 0.3s ease;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-}
-
-.factionContent:hover {
-  transform: translateY(-10px);
-  border-color: rgba(255, 255, 255, 0.3);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-}
-
-.factionEmblem {
-  width: 80px;
-  height: 80px;
-  padding: 5px;
-  border-radius: 50%;
-  border: 1px solid;
-  margin-bottom: 15px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: all 0.3s ease;
-}
-
-.factionEmblem img {
-  max-width: 100%;
-  max-height: 100%;
-}
-
-.factionContent:hover .factionEmblem {
-  transform: scale(1.1);
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
-}
-
-.factionName {
-  font-family: 'Cinzel', serif;
-  font-size: 1.5rem;
-  margin: 0 0 10px;
-  transition: all 0.3s ease;
-}
-
-.factionDescription {
-  font-size: 0.9rem;
-  line-height: 1.4;
-  margin: 0 0 20px;
-  opacity: 0;
-  max-height: 0;
-  overflow: hidden;
-  transition: all 0.3s ease;
-}
-
-.factionDescription.visible {
-  opacity: 1;
-  max-height: 200px;
-  margin-bottom: 15px;
-}
-
-.exploreButton {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  color: #0A0A1A;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-top: auto;
-}
-
-.exploreButton:hover {
-  transform: scale(1.05);
-}
-
-/* Center faction */
+/* Fixed positions for factions */
 .centerFaction {
   position: absolute;
   top: 50%;
@@ -190,50 +31,124 @@
   z-index: 10;
 }
 
-.centerFaction .factionContent {
-  width: 240px;
-  padding: 25px;
-}
-
-/* Outer hexagon faction positions */
-.factionNode {
+.topFaction {
   position: absolute;
-}
-
-/* Fixed positions for hexagon layout */
-.topPosition {
-  top: 30px;
+  top: 0;
   left: 50%;
   transform: translateX(-50%);
 }
 
-.topRightPosition {
-  top: 150px;
-  right: 100px;
+.topRightFaction {
+  position: absolute;
+  top: 15%;
+  right: 0;
 }
 
-.bottomRightPosition {
-  bottom: 150px;
-  right: 100px;
+.bottomRightFaction {
+  position: absolute;
+  bottom: 15%;
+  right: 0;
 }
 
-.bottomPosition {
-  bottom: 30px;
+.bottomFaction {
+  position: absolute;
+  bottom: 0;
   left: 50%;
   transform: translateX(-50%);
 }
 
-.bottomLeftPosition {
-  bottom: 150px;
-  left: 100px;
+.bottomLeftFaction {
+  position: absolute;
+  bottom: 15%;
+  left: 0;
 }
 
-.topLeftPosition {
-  top: 150px;
-  left: 100px;
+.topLeftFaction {
+  position: absolute;
+  top: 15%;
+  left: 0;
 }
 
-/* Connection lines */
+/* Faction Cards */
+.factionCard {
+  width: 200px;
+  background-color: rgba(10, 10, 26, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: all 0.3s ease;
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.factionCard:hover {
+  transform: translateY(-5px);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+}
+
+.factionEmblem {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 1px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+  background-color: rgba(0, 0, 0, 0.3);
+  padding: 0.25rem;
+}
+
+.factionEmblem img {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.factionName {
+  font-family: 'Cinzel', serif;
+  font-size: 1.25rem;
+  margin: 0 0 0.5rem;
+}
+
+.factionDescription {
+  font-size: 0.8rem;
+  line-height: 1.4;
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  margin: 0;
+}
+
+.factionDescription.visible {
+  height: auto;
+  opacity: 1;
+  margin: 0.5rem 0;
+}
+
+.exploreButton {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  color: #0A0A1A;
+  font-weight: 500;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 0.75rem;
+}
+
+.exploreButton:hover {
+  transform: scale(1.05);
+}
+
+/* SVG Connection Lines */
 .connectionLines {
   position: absolute;
   top: 0;
@@ -244,248 +159,42 @@
 }
 
 .connectionLine {
-  position: absolute;
-  opacity: 0.2;
-  height: 2px;
+  stroke-width: 1.5;
+  stroke-opacity: 0.3;
   transition: all 0.3s ease;
-  transform-origin: center;
 }
 
 .connectionLine.active {
-  opacity: 0.8;
-  height: 3px;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
-  z-index: 5;
+  stroke-width: 3;
+  stroke-opacity: 0.8;
+  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.5));
+  animation: pulseLine 2s infinite alternate ease-in-out;
 }
 
-/* Radial connection lines from center to each faction */
-.lineTop {
-  top: 30%;
-  left: 50%;
-  width: 220px;
-  transform: translateX(-50%) rotate(270deg);
-}
-
-.lineTopRight {
-  top: 38%;
-  right: 38%;
-  width: 220px;
-  transform: rotate(330deg);
-}
-
-.lineBottomRight {
-  bottom: 38%;
-  right: 38%;
-  width: 220px;
-  transform: rotate(30deg);
-}
-
-.lineBottom {
-  bottom: 30%;
-  left: 50%;
-  width: 220px;
-  transform: translateX(-50%) rotate(90deg);
-}
-
-.lineBottomLeft {
-  bottom: 38%;
-  left: 38%;
-  width: 220px;
-  transform: rotate(150deg);
-}
-
-.lineTopLeft {
-  top: 38%;
-  left: 38%;
-  width: 220px;
-  transform: rotate(210deg);
-}
-
-/* Outer hexagon connection lines */
-.lineHexTop {
-  top: 120px;
-  left: 30%;
-  width: 40%;
-}
-
-.lineHexTopRight {
-  top: 200px;
-  right: 160px;
-  width: 250px;
-  transform: rotate(60deg);
-}
-
-.lineHexBottomRight {
-  bottom: 200px;
-  right: 160px;
-  width: 250px;
-  transform: rotate(120deg);
-}
-
-.lineHexBottom {
-  bottom: 120px;
-  left: 30%;
-  width: 40%;
-}
-
-.lineHexBottomLeft {
-  bottom: 200px;
-  left: 160px;
-  width: 250px;
-  transform: rotate(60deg);
-}
-
-.lineHexTopLeft {
-  top: 200px;
-  left: 160px;
-  width: 250px;
-  transform: rotate(120deg);
-}
-
-/* Center nexus point */
-.centerNexus {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 5;
-  animation: pulsate 2s infinite alternate ease-in-out;
-}
-
-@keyframes pulsate {
-  from { transform: translate(-50%, -50%) scale(0.8); opacity: 0.7; }
-  to { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
-}
-
-/* Timeline Section */
-.timelineSection {
-  padding: 4rem 2rem;
-  text-align: center;
-  background: linear-gradient(to bottom, rgba(10, 10, 26, 0.9), rgba(10, 10, 26, 1));
-}
-
-.timelineSection h2 {
-  font-family: 'Cinzel', serif;
-  font-size: 2.5rem;
-  margin: 0 0 1.5rem;
-  color: #FFFFFF;
-}
-
-.timelineSection p {
-  font-size: 1.2rem;
-  line-height: 1.6;
-  margin: 0 0 2rem;
-  color: rgba(255, 255, 255, 0.8);
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.timelineButton {
-  padding: 0.75rem 1.5rem;
-  background: linear-gradient(90deg, #9370DB, #3498db);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-family: 'Roboto', sans-serif;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
-}
-
-.timelineButton:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
-}
-
-/* Footer */
-.footer {
-  padding: 2rem;
-  background: rgba(0, 0, 0, 0.6);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.footerContent {
-  text-align: center;
-  max-width: 1200px;
-  margin: 0 auto;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.copyright {
-  font-size: 0.85rem;
-  margin-top: 0.5rem;
-}
-
-/* Responsive handling */
-@media (max-width: 1024px) {
-  .title {
-    font-size: 3rem;
+@keyframes pulseLine {
+  from {
+    stroke-opacity: 0.5;
+    stroke-width: 2;
   }
-  
-  .universalProgram {
-    transform: scale(0.8);
-    transform-origin: center;
-    height: 720px;
+
+  to {
+    stroke-opacity: 0.8;
+    stroke-width: 3;
   }
 }
 
-@media (max-width: 768px) {
-  /* Switch to mobile view */
-  .universalProgram {
-    height: auto;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    transform: none;
+.centerNode {
+  animation: pulseNode 2s infinite alternate ease-in-out;
+}
+
+@keyframes pulseNode {
+  from {
+    r: 6;
+    opacity: 0.7;
   }
-  
-  .centerFaction, 
-  .factionNode {
-    position: relative;
-    top: auto;
-    left: auto;
-    right: auto;
-    bottom: auto;
-    transform: none;
-    margin: 0 auto;
-  }
-  
-  .centerFaction {
-    order: -1; /* Put center faction first */
-  }
-  
-  .connectionLines {
-    display: none; /* Hide connections on mobile */
-  }
-  
-  .factionContent, 
-  .centerFaction .factionContent {
-    width: 100%;
-    max-width: 300px;
-  }
-  
-  .title {
-    font-size: 2.5rem;
-  }
-  
-  .subtitle {
-    font-size: 1.2rem;
-  }
-  
-  .introContent h2,
-  .timelineSection h2 {
-    font-size: 2rem;
-  }
-  
-  .introContent p,
-  .timelineSection p {
-    font-size: 1rem;
+
+  to {
+    r: 10;
+    opacity: 1;
   }
 }
