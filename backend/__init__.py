@@ -15,7 +15,7 @@ Key Features:
 - Transaction outbox pattern for blockchain consistency
 - RESTful API endpoints
 - MongoDB data persistence
-- Blockchain integration (Etherlink, Ethereum, Solana)
+- Blockchain integration (Etherlink, Ethereum)
 """
 
 # Package metadata

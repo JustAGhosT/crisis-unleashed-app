@@ -330,7 +330,6 @@ async def retry_operation(outbox_id: str):
         logger.error(f"Error retrying operation {outbox_id}: {e}")
         raise HTTPException(status_code=500, detail="Failed to retry operation")
 
-
 @router.get("/health")
 async def get_blockchain_health(
     blockchain_service=Depends(get_blockchain_service),
