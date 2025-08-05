@@ -1,73 +1,71 @@
 ---
-description: Documentation for core game mechanics and algorithms related to gameplay systems and faction behaviors
-globs: '**/game/**','**/battlefield/**','**/cards/**','**/features/**','**/factions/**'
+description: Defines core game mechanics, combat resolution, faction abilities and card interactions for Crisis Unleashed
+globs: **/game/**,**/battlefield/**,**/combat/**,**/cards/**,**/factions/**
 alwaysApply: false
 ---
 
 
 # game-algorithms
 
-## Core Game Systems
+Core Game Systems:
 
-### Turn Management (80/100)
-- Three-phase turn structure: Deploy, Action, End 
-- Resource accumulation/spending system per phase
-- Automated phase progression with timer
+1. Turn Sequencing Engine
+- Enforced phase ordering:
+  - Draw Phase 
+  - Energy Phase (Resource regeneration)
+  - Main Phase (Card deployment)
+  - Combat Phase (Attack resolution)
+  - End Phase
+- Energy regeneration rules between turns
 - Phase-specific action validation
-- Located in: `/frontend/src/features/battlefield/TurnManager.tsx`
 
-### Battlefield Management (85/100)
-- Zone-based control system with distinct areas:
-  - Player territories
-  - Enemy zones  
-  - Neutral contested spaces
-  - Strategic frontline/backline positions
-- Unit placement validation based on zone type
-- Combat positioning mechanics
-- Located in: `/frontend/src/features/battlefield/Battlefield.tsx`
+2. Combat Resolution System
+- Unit positioning on hexagonal grid
+- Attack priority calculation based on unit types
+- Combat damage resolution with faction modifiers
+- Terrain effect application during combat
 
-### Combat Resolution (90/100)
-- Initiative-based attack sequencing
-- Simultaneous damage resolution
-- Status effect application/removal
-- Unit destruction processing
-- Combat keywords: Quick Attack, Overwhelm, Lifesteal, Shield
+3. Faction Ability Processing
+- Unique faction power activation:
+  - Solaris: Predictive algorithm enhancement
+  - Umbral: Information warfare mechanics 
+  - Aeonic: Time manipulation effects
+  - Others defined but not detailed
+- Cross-faction interaction rules
+- Ability timing validation
 
-### Card System (95/100)
-- Complex card hierarchy:
-  - Hero cards with unique abilities
-  - Unit cards (melee, ranged, siege, flying)
-  - Action cards (instant, ongoing, equipment)
-  - Structure cards (buildings, traps, auras)
-- Energy cost validation
-- Play condition verification
-- Synergy detection between card types
+4. Card Deployment Logic
+- Placement validity checking based on:
+  - Unit type restrictions
+  - Terrain compatibility
+  - Faction requirements
+  - Resource availability
+- Chain reaction triggers for card effects
 
-### Resource Management (75/100)
-- Energy system with 10-point cap
-- Momentum accumulation up to 5 points
-- Resource gain/spend tracking
-- Hero ability activation costs
-- Located in: `/frontend/src/features/players/PlayerHUD.tsx`
+5. Resource Management
+- Multi-resource economy:
+  - Energy points 
+  - Momentum generation
+  - Crisis event tokens
+- Resource conversion rules
+- Faction-specific resource modifiers
 
-### Faction Mechanics (95/100)
-Unique systems per faction:
-- Solaris: Energy manipulation
-- Umbral: Stealth and information warfare
-- Neuralis: Mind control mechanics
-- Aeonic: Time manipulation
-- Primordial: Growth and adaptation
-- Infernal: Sacrifice mechanics
-
-Located in faction-specific files under `/frontend/src/components/factions/`
-
-### Crisis Events (85/100)
+6. Crisis Event System
+- Dynamic battlefield modifiers
 - Event trigger conditions
-- Impact calculation
-- Countdown mechanics
-- Resolution requirements
-- Reward distribution
-- Located in: `/frontend/src/components/CrisisEvent.tsx`
+- Resolution pathways
+- Reward distribution logic
+
+7. Synergy Detection
+- Card combo identification
+- Cross-faction power amplification
+- Data-Link activation requirements
+- Chain effect resolution
+
+File paths containing core algorithms:
+- frontend/src/features/battlefield/
+- frontend/src/features/cards/
+- backend/services/game/
 
 $END$
 

@@ -341,53 +341,8 @@ The following indexes will be created to optimize query performance:
 
 - `user_id` - For finding transactions by user
 - `transaction_hash` (unique) - For uniqueness and lookup by hash
-- `status` - For monitoring transaction states
-- `created_at` - For chronological ordering
-
-The following indexes will be created to optimize query performance:
-
-### Idx - Users
-
-- `username` (unique)
-- `email` (unique)
-- `wallet_address` (unique, sparse)
-
-### Idx - Cards
-
-- `faction` (for filtering by faction)
-- `type, rarity` (for filtering by type and rarity)
-
-### Idx - UserCards
-
-- `user_id, card_id` (for quick lookups)
-
-### Decks
-
-- `user_id` (for finding user's decks)
-
-### Idx - Games
-
-- `status` (for filtering active games)
-- `players.user_id` (for finding player's games)
-
-### Idx - GameState
-
-- `game_id` (unique)
-
-### Idx - GameActions
-
-- `game_id, timestamp` (for chronological action history)
-
-### Idx - NFTCards
-
-- `token_id, contract_address, blockchain` (unique)
-- `owner_id` (for finding user's NFTs)
-
-### Idx - Transactions
-
-- `user_id` (for finding user's transactions)
-- `transaction_hash` (unique)
-- `status` (for monitoring pending transactions)## Data Migration Strategy
+- `status` - For monitoring transaction states  
+- `created_at` - For chronological ordering## Data Migration Strategy
 
 As the application evolves, database migrations will be managed through:
 

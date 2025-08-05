@@ -10,62 +10,42 @@
 - Explain your OBSERVATIONS clearly, then provide REASONING to identify the exact issue. Add console logs when needed to gather more information.
 
 
-The project implements a faction-based gaming portal with distinct business domains:
+The project implements a digital collectible card game with blockchain integration, organized around three core systems:
 
-### Asset Generation System
-Core asset generation pipeline handles faction-specific visual elements:
-- Faction emblems with unique thematic patterns
-- Background generators incorporating faction aesthetics
-- Effect systems for visual treatments
-- Icon generation with faction-specific attributes
+## Faction Architecture
+Seven distinct factions form the core gameplay system:
+- Solaris: Light/energy manipulation with predictive algorithms
+- Umbral: Shadow operations and information warfare
+- Neuralis: Mind control and consciousness networking
+- Aeonic: Time/space manipulation mechanics
+- Infernal: Risk/reward sacrifice mechanics  
+- Primordial: Growth and evolutionary systems
+- Synthetic: Mechanical optimization and efficiency
 
-File paths:
-- `frontend/scripts/generate-placeholder-assets.cjs`
-- `frontend/scripts/generate-placeholder-assets-part2.cjs`
-- `frontend/scripts/generate-placeholder-assets-part3.cjs`
+Key implementation: frontend/src/data/factions/index.ts
 
-### Faction System Architecture
-Seven distinct factions with unique mechanics:
-- Solaris Nexus: Energy manipulation
-- Umbral Eclipse: Stealth warfare 
-- Aeonic Dominion: Time manipulation
-- Primordial Genesis: Adaptation systems
-- Infernal Core: Risk/reward mechanics
-- Neuralis Conclave: Mind control systems
-- Synthetic Ascendancy: Tech evolution
+## Blockchain Integration Layer
+Multi-chain NFT operations system supporting:
+- Card minting across Ethereum, Etherlink, and Solana
+- Cross-chain asset transfers with ownership validation
+- Marketplace operations with faction-specific metadata
+- Transaction outbox pattern ensuring operation consistency
 
-### Game Mechanics Framework
-Structured turn system with:
-- Resource management (Energy/Momentum)
-- Phase-based turns (Deploy/Action/End)
-- Combat resolution system
-- Crisis event handling
-- Card type hierarchy:
-  - Hero cards
-  - Unit cards (melee/ranged/siege/flying)
-  - Action cards
-  - Structure cards
+Key implementations:
+- backend/services/blockchain_service.py
+- backend/services/blockchain_handler.py
 
-File paths:
-- `frontend/src/features/battlefield/TurnManager.tsx`
-- `frontend/src/features/cards/CardHand.tsx`
-- `frontend/src/components/CrisisEvent.tsx`
+## Game Mechanics System
+Specialized gameplay mechanics including:
+- Resource management (Energy, Momentum)
+- Grid-based battlefield positioning
+- Faction-specific ability activations
+- Crisis event modifiers
+- Cross-faction synergy detection
 
-### Status Management
-Backend system for tracking game status:
-- Status check creation and retrieval
-- Client tracking
-- Timestamp management
+Key implementation: frontend/features/battlefield/Battlefield.tsx
 
-File paths:
-- `backend/server.py`
-
-### Multiplayer Framework
-- Ranked/casual matchmaking
-- Tournament systems
-- Social features (friends, spectate, guilds)
-
-The architecture emphasizes faction-specific implementations while maintaining balance through distinct strengths and weaknesses for each faction.
+The architecture emphasizes faction identity preservation across both gameplay and blockchain systems, with specialized handling for NFT metadata and cross-chain operations.
 
 $END$
 
