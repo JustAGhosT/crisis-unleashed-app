@@ -29,9 +29,12 @@ export class CardService {
       if (error.response?.status === 401 || error.response?.status === 403) {
         throw new ApiException('Authentication required', error.response.status);
       }
-      // Fallback to mock data for development only!
-      console.warn('Using mock card data');
-      return CardMockData.getMockCardSearchResult(filters, page, pageSize);
+      // Fallback to mock data in development only
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('Using mock card data');
+        return CardMockData.getMockCardSearchResult(filters, page, pageSize);
+      }
+      throw new ApiException('Failed to search cards', error.response?.status || 500);
     }
   }
 
