@@ -1,11 +1,7 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { DeckService } from '@/services/deckService';
-import { Deck, DeckCard } from '@/types/card';
-
-/**
- * Custom hooks for deck-related operations using TanStack Query
- * Demonstrates proper mutation patterns with optimistic updates
- */
+import { DeckService, createDeck as createDeckService } from '@/services/deckService';
+import { Deck, DeckCard, Card } from '@/types/card';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useToast } from '@/hooks/useToast';
 
 // Query keys for deck operations
 export const deckQueryKeys = {
@@ -40,24 +36,34 @@ export function useDeck(deckId: string, enabled = true) {
 
 /**
  * Mutation hook for creating a new deck
+ * Uses toast notifications for errors and success.
  */
 export function useCreateDeck() {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   return useMutation({
-    mutationFn: (deckData: Omit<Deck, 'id' | 'createdAt' | 'updatedAt'>) =>
-      DeckService.createDeck(deckData),
+    mutationFn: createDeckService,
     onSuccess: (newDeck) => {
+      toast({
+        title: 'Deck created!',
+        description: `Deck "${newDeck.name}" was created successfully.`,
+      });
       // Invalidate user decks to refetch the list
       queryClient.invalidateQueries({
         queryKey: deckQueryKeys.userDecks(newDeck.userId),
       });
-      
       // Add the new deck to the cache
       queryClient.setQueryData(deckQueryKeys.deck(newDeck.id), newDeck);
     },
-    onError: (error) => {
-      console.error('Failed to create deck:', error);
+    onError: (error: Error) => {
+      toast({
+        title: 'Error creating deck',
+        description: error.message,
+        variant: 'destructive',
+      });
+      // Optionally add additional logging here
+      // console.error('Failed to create deck:', error);
     },
   });
 }
@@ -67,36 +73,34 @@ export function useCreateDeck() {
  */
 export function useUpdateDeck() {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   return useMutation({
     mutationFn: ({ deckId, updates }: { deckId: string; updates: Partial<Deck> }) =>
       DeckService.updateDeck(deckId, updates),
     onMutate: async ({ deckId, updates }) => {
-      // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: deckQueryKeys.deck(deckId) });
-
-      // Snapshot the previous value
       const previousDeck = queryClient.getQueryData(deckQueryKeys.deck(deckId));
-
-      // Optimistically update the cache
-      queryClient.setQueryData(deckQueryKeys.deck(deckId), (old: Deck | undefined) => 
+      queryClient.setQueryData(deckQueryKeys.deck(deckId), (old: Deck | undefined) =>
         old ? { ...old, ...updates, updatedAt: new Date().toISOString() } : old
       );
-
       return { previousDeck, deckId };
     },
-    onError: (error, variables, context) => {
-      // Rollback on error
+    onError: (error: any, variables, context) => {
       if (context?.previousDeck) {
         queryClient.setQueryData(
           deckQueryKeys.deck(context.deckId),
           context.previousDeck
         );
       }
-      console.error('Failed to update deck:', error);
+      toast({
+        title: 'Error updating deck',
+        description: error?.message || 'Failed to update deck.',
+        variant: 'destructive',
+      });
+      // console.error('Failed to update deck:', error);
     },
     onSettled: (data, error, { deckId }) => {
-      // Always refetch after error or success
       queryClient.invalidateQueries({ queryKey: deckQueryKeys.deck(deckId) });
     },
   });
@@ -107,40 +111,42 @@ export function useUpdateDeck() {
  */
 export function useDeleteDeck() {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   return useMutation({
     mutationFn: DeckService.deleteDeck,
-    onMutate: async (deckId) => {
-      // Get the deck data before deletion for rollback
+    onMutate: async (deckId: string) => {
       const deck = queryClient.getQueryData(deckQueryKeys.deck(deckId)) as Deck | undefined;
-      
       if (deck) {
-        // Optimistically remove from user decks list
         queryClient.setQueryData(
           deckQueryKeys.userDecks(deck.userId),
-          (old: Deck[] | undefined) => 
+          (old: Deck[] | undefined) =>
             old?.filter(d => d.id !== deckId) || []
         );
-
-        // Remove deck from cache
         queryClient.removeQueries({ queryKey: deckQueryKeys.deck(deckId) });
       }
-
       return { deck };
     },
-    onError: (error, deckId, context) => {
-      // Rollback deletion
+    onError: (error, deckId: string, context) => {
       if (context?.deck) {
         queryClient.setQueryData(deckQueryKeys.deck(deckId), context.deck);
         queryClient.setQueryData(
           deckQueryKeys.userDecks(context.deck.userId),
-          (old: Deck[] | undefined) => [...(old || []), context.deck!]
+          (old: Deck[] | undefined) => {
+            const existing = old || [];
+            const deckExists = existing.some(d => d.id === context.deck!.id);
+            return deckExists ? existing : [...existing, context.deck!];
+          }
         );
       }
-      console.error('Failed to delete deck:', error);
+      toast({
+        title: 'Error deleting deck',
+        description: error?.message || 'Failed to delete deck.',
+        variant: 'destructive',
+      });
+      // console.error('Failed to delete deck:', error);
     },
     onSettled: (data, error, deckId, context) => {
-      // Refetch user decks to ensure consistency
       if (context?.deck) {
         queryClient.invalidateQueries({
           queryKey: deckQueryKeys.userDecks(context.deck.userId),
@@ -152,12 +158,10 @@ export function useDeleteDeck() {
 
 /**
  * Hook for deck validation and statistics
- * This doesn't use TanStack Query as it's purely computational
  */
-export function useDeckValidation(cards: any[], deckCards: DeckCard[]) {
+export function useDeckValidation(cards: Card[], deckCards: DeckCard[]) {
   const validation = DeckService.validateDeck(cards, deckCards);
   const stats = DeckService.calculateDeckStats(cards, deckCards);
-  
   return { validation, stats };
 }
 
@@ -166,7 +170,6 @@ export function useDeckValidation(cards: any[], deckCards: DeckCard[]) {
  */
 export function useInvalidateDecks() {
   const queryClient = useQueryClient();
-
   return {
     invalidateAll: () => queryClient.invalidateQueries({ queryKey: deckQueryKeys.all }),
     invalidateUserDecks: (userId: string) =>

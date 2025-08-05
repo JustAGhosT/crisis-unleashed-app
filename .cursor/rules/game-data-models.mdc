@@ -1,67 +1,89 @@
 ---
-description: Handles core game entities, systems and data models including cards, battlefield grid, player resources and state models.
-globs: */types/*.ts,*/models/*.ts,*/state/*.ts,*/data/*.ts
+description: Defines core game entities and data models for the Crisis Unleashed digital card game
+globs: /backend/**/models/*.py,/frontend/src/types/*.ts,/frontend/src/data/*.ts
 alwaysApply: false
 ---
 
 
 # game-data-models
 
-### Core Game Entities
+## Core Game Entities
 
-1. Card System Models
-- Hero cards with unique abilities and stats
-- Unit cards (melee, ranged, siege, flying) with specific attributes
-- Action cards (instant, ongoing, equipment) with faction effects
-- Structure cards (buildings, traps, auras) with battlefield persistence
+### Card Model
+- Attributes:
+  - ID (unique identifier)
+  - Name
+  - Type (Character, Action, Artifact)
+  - Faction (one of seven core factions)
+  - Rarity (Common, Uncommon, Rare, Epic, Legendary)
+  - Cost (energy requirement)
+  - Attack/Health (for Character cards)
+  - Effect text
+  - Synergy tags
 
-2. Battlefield Grid Model
-- Zone-based system with player/enemy/neutral territories
-- Frontline and backline placement rules
-- Strategic positioning and unit movement constraints 
-- Line of sight and range calculations
+### Battlefield Grid
+- 5x4 grid structure
+- Zone types:
+  - Frontline (rows 1-2)
+  - Backline (rows 3-4)
+  - Command Zone (row 5)
+- Position-based effects tracking
+- Unit placement validation
 
-3. Player Resource Models
-- Energy system (max 10)
-  - Per-turn gain
-  - Spent on card plays
-  - Carryover rules
-- Momentum system (max 5)
-  - Generated through combat/actions
-  - Powers hero abilities
-  - Strategic banking decisions
-- Health tracking
+### Player Stats
+- Health (0-30)
+- Energy (0-10, resets each turn)
+- Momentum (0-5, persistent resource)
+- Active effects
+- Hand size tracking
 
-4. Faction-Specific Systems
-- Solaris: Energy manipulation mechanics
-- Umbral: Stealth and information warfare
-- Neuralis: Mind control abilities  
-- Aeonic: Time manipulation effects
-- Primordial: Growth and adaptation stats
-- Infernal: Sacrifice and risk/reward tracking
+### Game State
+- Turn phases:
+  - Draw
+  - Energy Allocation
+  - Main
+  - Combat Resolution
+  - End
+- Crisis event tracking
+- Synergy combinations
+- Battlefield state
 
-5. Game State Model
-- Turn phase tracking (Draw/Energy/Main/Combat/End)
-- Combat resolution state
-- Card zone assignments
-- Battlefield unit positions
-- Resource pool status
-- Crisis event progress
-- Player action history
+### Faction Definitions
+- Seven core factions:
+  - Solaris: Energy/prediction mechanics
+  - Umbral: Stealth/information warfare
+  - Neuralis: Mind control/psychic
+  - Aeonic: Time/space manipulation
+  - Infernal: Risk/reward mechanics
+  - Primordial: Growth/evolution
+  - Synthetic: Optimization/precision
 
-6. Combat Resolution Model  
-- Initiative determination
-- Attack sequencing
-- Simultaneous damage calculation
-- Unit survival checks
-- Special ability triggers
-- Status effect application
+### Resource Economy
+- Energy System:
+  - Base gain: 1 per turn
+  - Maximum: 10
+  - Carry-over rules
+- Momentum System:
+  - Generation from card effects
+  - Persistent between turns
+  - Faction-specific uses
 
-Relevant Files:
-- `frontend/src/types/game.types.ts`
-- `frontend/src/features/battlefield/Battlefield.tsx`
-- `frontend/src/features/players/PlayerHUD.tsx`
-- `frontend/src/data/types/MoodBoardTypes.ts`
+### Crisis Events
+- Event types:
+  - Universal effects
+  - Targeted effects
+  - Duration tracking
+- Resolution conditions
+- Reward structures
+
+Importance Scores:
+- Card Model: 95 (Core game entity)
+- Battlefield Grid: 90 (Critical gameplay structure)
+- Player Stats: 85 (Essential game state)
+- Game State: 90 (Core game flow)
+- Faction Definitions: 95 (Unique game identity)
+- Resource Economy: 85 (Core mechanics)
+- Crisis Events: 80 (Unique gameplay element)
 
 $END$
 

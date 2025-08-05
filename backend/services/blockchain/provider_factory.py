@@ -30,7 +30,7 @@ class BlockchainProviderFactory:
         """Get default configuration for a blockchain."""
         # Load Ethereum RPC URL from environment variable with fallback
         ethereum_rpc_url = os.environ.get(
-            "ETHEREUM_RPC_URL", 
+            "ETHEREUM_RPC_URL",
             f"https://mainnet.infura.io/v3/{os.environ.get('INFURA_PROJECT_ID', 'YOUR_PROJECT_ID')}"
         )
         
@@ -40,6 +40,9 @@ class BlockchainProviderFactory:
                 "Ethereum RPC URL contains placeholder 'YOUR_PROJECT_ID'. "
                 "Set ETHEREUM_RPC_URL or INFURA_PROJECT_ID environment variable for proper configuration."
             )
+            # Consider raising an exception in production environments
+            if os.environ.get("ENVIRONMENT") == "production":
+                raise ValueError("Invalid Ethereum RPC URL configuration in production")
         
         configs = {
             "etherlink": {
@@ -50,15 +53,24 @@ class BlockchainProviderFactory:
                 "marketplace_contract_address": os.environ.get("ETHERLINK_MARKETPLACE_CONTRACT_ADDRESS")
             },
             "ethereum": {
-                "name": "ethereum", 
+                "name": "ethereum",
                 "rpc_url": ethereum_rpc_url,
                 "chain_id": int(os.environ.get("ETHEREUM_CHAIN_ID", "1")),
                 "nft_contract_address": os.environ.get("ETHEREUM_NFT_CONTRACT_ADDRESS"),
                 "marketplace_contract_address": os.environ.get("ETHEREUM_MARKETPLACE_CONTRACT_ADDRESS")
             }
         }
+         
+        # Extract and validate the selected blockchain config
+        config = configs.get(blockchain, {})
+         
+        # Log warning if contract addresses are missing
+        if config and not config.get("nft_contract_address"):
+            logger.warning(f"NFT contract address not configured for {blockchain}")
+        if config and not config.get("marketplace_contract_address"):
+            logger.warning(f"Marketplace contract address not configured for {blockchain}")
         
-        return configs.get(blockchain, {})
+        return config
 
     @classmethod
     def get_provider(

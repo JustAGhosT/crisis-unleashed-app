@@ -1,10 +1,10 @@
-import React from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { cn, getFactionColorClass, getRarityColorClass } from '@/lib/utils';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { cn, getFactionColorClass } from '@/lib/utils';
 import { Card as GameCardData } from '@/types/card';
-import { Heart, Swords, Zap, Plus, Minus } from 'lucide-react';
+import { Heart, Minus, Plus, Swords } from 'lucide-react';
+import React from 'react';
 
 interface GameCardProps {
   card: GameCardData;
@@ -92,7 +92,7 @@ export const GameCard: React.FC<GameCardProps> = ({
           )}>
             {card.cost}
           </div>
-          
+
           {/* Rarity Badge */}
           <Badge variant={card.rarity as any} className="text-xs">
             {card.rarity}
@@ -112,8 +112,8 @@ export const GameCard: React.FC<GameCardProps> = ({
         {/* Card Image Placeholder */}
         <div className="w-full h-20 bg-slate-700/50 rounded mb-2 flex items-center justify-center">
           {card.imageUrl ? (
-            <img 
-              src={card.imageUrl} 
+            <img
+              src={card.imageUrl}
               alt={card.name}
               className="w-full h-full object-cover rounded"
             />
@@ -151,12 +151,12 @@ export const GameCard: React.FC<GameCardProps> = ({
           <div className="mt-2">
             <div className="flex flex-wrap gap-1">
               {card.abilities.slice(0, 2).map((ability, index) => (
-                <Badge key={index} variant="outline" className="text-x">
+                <Badge key={index} variant="outline" className="text-xs">
                   {ability}
                 </Badge>
               ))}
               {card.abilities.length > 2 && (
-                <Badge variant="outline" className="text-x">
+                <Badge variant="outline" className="text-xs">
                   +{card.abilities.length - 2}
                 </Badge>
               )}
@@ -178,7 +178,7 @@ export const GameCard: React.FC<GameCardProps> = ({
                 <Minus className="w-3 h-3" />
               </Button>
             )}
-            
+
             {showQuantity && (
               <span className="text-xs font-medium text-white bg-slate-700 px-2 py-1 rounded">
                 {quantity}/{maxQuantity}

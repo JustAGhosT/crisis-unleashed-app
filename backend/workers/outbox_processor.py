@@ -7,7 +7,7 @@ ensuring eventual consistency between database and blockchain state.
 import asyncio
 import logging
 from typing import Any, Dict
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from ..repository import TransactionOutboxRepository
 from ..services import BlockchainService, BlockchainHandler
@@ -111,11 +111,10 @@ class OutboxProcessor:
             "is_running": self.is_running,
             "processing_interval": self.processing_interval,
             "max_batch_size": self.max_entries_per_batch,
-            "last_check": datetime.utcnow().isoformat(),
+            "last_check": datetime.now(timezone.utc).isoformat(),
             "blockchain_health": stats.get("blockchain_health", {}),
             "supported_networks": stats.get("supported_networks", [])
         }
-
 
 class OutboxMonitor:
     """Monitor for outbox entries and system health."""
@@ -125,17 +124,12 @@ class OutboxMonitor:
     
     async def get_queue_status(self) -> Dict[str, Any]:
         """Get current queue status."""
-        from ..repository.outbox_models import OutboxStatus
-        
-        status_counts = {}
-        
-        # Count entries by status
-        for status in OutboxStatus:
-            entries = await self.outbox_repo.get_entries_by_status(status, limit=1000)
-            status_counts[status.value] = len(entries)
+        # Use the new get_processing_stats method for efficient counting
+        status_counts = await self.outbox_repo.get_processing_stats()
         
         return {
             "status_counts": status_counts,
             "total_entries": sum(status_counts.values()),
-            "needs_attention": status_counts.get("manual_review", 0) > 0
+            "needs_attention": status_counts.get("manual_review", 0) > 0,
+            "timestamp": datetime.utcnow().isoformat()
         }

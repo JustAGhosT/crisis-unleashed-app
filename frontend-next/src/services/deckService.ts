@@ -1,47 +1,75 @@
 import { apiClient } from './api';
-import { Deck, DeckCard, DeckValidationResult, DeckStats, Card } from '@/types/card';
+import {
+  Deck,
+  DeckCard,
+  DeckValidationResult,
+  DeckStats,
+  Card,
+  CardType,
+  CardRarity,
+} from '@/types/card';
 import { FactionId } from '@/types/faction';
+import { mockUserDecks, getMockDeckData } from '@/lib/DeckMockData';
 
-/**
- * Deck Service - Handles all deck-related operations
- * Following the Single Responsibility Principle
- */
+// Helper function to check if we're in production server environment
+const isProductionServer = (): boolean => {
+  return typeof window === 'undefined' && process?.env?.NODE_ENV === 'production';
+};
+
+// DeckService handles all deck-related operations. Single Responsibility Principle is maintained.
 export class DeckService {
+  // Deck composition constraints
+  private static readonly MAX_COPIES_PER_CARD = 3;
+  private static readonly MIN_DECK_SIZE = 30;
+  private static readonly MAX_DECK_SIZE = 50;
+  private static readonly MAX_FACTIONS = 2;
+
   /**
-   * Get user's decks
+   * Get decks for a user
    */
   static async getUserDecks(userId: string): Promise<Deck[]> {
     try {
       const response = await apiClient.get(`/users/${userId}/decks`);
       return response.data;
     } catch (error) {
-      console.warn('Using mock deck data');
+      console.error('Failed to fetch user decks:', error);
+      if (isProductionServer()) {
+        throw new Error('Failed to fetch user decks');
+      }
       return this.getMockUserDecks(userId);
     }
   }
 
   /**
-   * Get deck by ID
+   * Get a specific deck by ID
    */
   static async getDeckById(deckId: string): Promise<Deck> {
     try {
       const response = await apiClient.get(`/decks/${deckId}`);
       return response.data;
     } catch (error) {
-      console.warn('Using mock deck');
+      console.error('Failed to fetch deck:', error);
+      if (isProductionServer()) {
+        throw new Error('Failed to fetch deck');
+      }
       return this.getMockDeck(deckId);
     }
   }
 
   /**
-   * Create a new deck
+   * Create a deck
    */
-  static async createDeck(deckData: Omit<Deck, 'id' | 'createdAt' | 'updatedAt'>): Promise<Deck> {
+  static async createDeck(
+    deckData: Omit<Deck, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<Deck> {
     try {
       const response = await apiClient.post('/decks', deckData);
       return response.data;
     } catch (error) {
-      console.warn('Simulating deck creation');
+      console.error('Simulating deck creation due to error:', error);
+      if (isProductionServer()) {
+        throw new Error('Failed to create deck');
+      }
       return this.simulateCreateDeck(deckData);
     }
   }
@@ -54,7 +82,10 @@ export class DeckService {
       const response = await apiClient.put(`/decks/${deckId}`, updates);
       return response.data;
     } catch (error) {
-      console.warn('Simulating deck update');
+      console.error('Simulating deck update due to error:', error);
+      if (isProductionServer()) {
+        throw new Error('Failed to update deck');
+      }
       return this.simulateUpdateDeck(deckId, updates);
     }
   }
@@ -66,67 +97,63 @@ export class DeckService {
     try {
       await apiClient.delete(`/decks/${deckId}`);
     } catch (error) {
-      console.warn('Simulating deck deletion');
+      console.error('Simulating deck deletion due to error:', error);
+      if (isProductionServer()) {
+        throw new Error('Failed to delete deck');
+      }
     }
   }
 
   /**
-   * Validate deck composition
+   * Validate deck composition and constraints
    */
   static validateDeck(cards: Card[], deckCards: DeckCard[]): DeckValidationResult {
     const errors: string[] = [];
     const warnings: string[] = [];
-    
-    // Create card lookup map
     const cardMap = new Map(cards.map(card => [card.id, card]));
-    
-    // Calculate total cards and validate quantities
     let totalCards = 0;
     const cardCounts = new Map<string, number>();
-    
+
     for (const deckCard of deckCards) {
       totalCards += deckCard.quantity;
       cardCounts.set(deckCard.cardId, deckCard.quantity);
-      
-      // Validate card exists
       const card = cardMap.get(deckCard.cardId);
       if (!card) {
         errors.push(`Card with ID ${deckCard.cardId} not found`);
         continue;
       }
-      
-      // Validate quantity limits
-      if (deckCard.quantity > 3) {
-        errors.push(`${card.name}: Maximum 3 copies per deck`);
+      if (deckCard.quantity > this.MAX_COPIES_PER_CARD) {
+        errors.push(`${card.name}: Maximum ${this.MAX_COPIES_PER_CARD} copies per deck`);
       }
       if (deckCard.quantity < 1) {
         errors.push(`${card.name}: Must have at least 1 copy`);
       }
     }
 
-    // Validate deck size
-    const MIN_DECK_SIZE = 30;
-    const MAX_DECK_SIZE = 50;
-    
-    if (totalCards < MIN_DECK_SIZE) {
-      errors.push(`Deck must contain at least ${MIN_DECK_SIZE} cards (currently ${totalCards})`);
+    if (totalCards < this.MIN_DECK_SIZE) {
+      errors.push(
+        `Deck must contain at least ${this.MIN_DECK_SIZE} cards (currently ${totalCards})`
+      );
     }
-    if (totalCards > MAX_DECK_SIZE) {
-      errors.push(`Deck cannot exceed ${MAX_DECK_SIZE} cards (currently ${totalCards})`);
+    if (totalCards > this.MAX_DECK_SIZE) {
+      errors.push(
+        `Deck cannot exceed ${this.MAX_DECK_SIZE} cards (currently ${totalCards})`
+      );
     }
 
-    // Validate faction consistency
+    // Validate faction count
     const factions = new Set(
       deckCards
         .map(dc => cardMap.get(dc.cardId)?.faction)
         .filter(Boolean)
     );
-    
-    if (factions.size > 2) {
-      errors.push('Deck can only contain cards from up to 2 factions');
+    if (factions.size > this.MAX_FACTIONS) {
+      errors.push(
+        `Deck can only contain cards from up to ${this.MAX_FACTIONS} factions`
+      );
     }
 
-    // Generate cost curve
+    // Build cost curve
     const costCurve: { [cost: number]: number } = {};
     for (const deckCard of deckCards) {
       const card = cardMap.get(deckCard.cardId);
@@ -135,8 +162,7 @@ export class DeckService {
       }
     }
 
-    // Warnings for deck composition
-    if (totalCards >= MIN_DECK_SIZE) {
+    if (totalCards >= this.MIN_DECK_SIZE) {
       const avgCost = this.calculateAverageCost(cards, deckCards);
       if (avgCost > 4.5) {
         warnings.push('High average cost - consider adding cheaper cards');
@@ -156,110 +182,76 @@ export class DeckService {
   }
 
   /**
-   * Calculate deck statistics
+   * Calculate overall deck statistics, returns full stats breakdown for analytics/inspection
    */
   static calculateDeckStats(cards: Card[], deckCards: DeckCard[]): DeckStats {
     const cardMap = new Map(cards.map(card => [card.id, card]));
-    
     let totalCards = 0;
     let totalCost = 0;
-    const typeDistribution: Record<string, number> = {};
-    const rarityDistribution: Record<string, number> = {};
+    const typeDistribution: { [type in CardType]?: number } = {};
+    const rarityDistribution: { [rarity in CardRarity]?: number } = {};
     const costCurve: { [cost: number]: number } = {};
 
     for (const deckCard of deckCards) {
       const card = cardMap.get(deckCard.cardId);
       if (!card) continue;
-
       totalCards += deckCard.quantity;
       totalCost += card.cost * deckCard.quantity;
-      
-      // Type distribution
-      typeDistribution[card.type] = (typeDistribution[card.type] || 0) + deckCard.quantity;
-      
-      // Rarity distribution
-      rarityDistribution[card.rarity] = (rarityDistribution[card.rarity] || 0) + deckCard.quantity;
-      
-      // Cost curve
+      typeDistribution[card.type] =
+        (typeDistribution[card.type] || 0) + deckCard.quantity;
+      rarityDistribution[card.rarity] =
+        (rarityDistribution[card.rarity] || 0) + deckCard.quantity;
       costCurve[card.cost] = (costCurve[card.cost] || 0) + deckCard.quantity;
     }
-
     return {
       totalCards,
       averageCost: totalCards > 0 ? totalCost / totalCards : 0,
-      typeDistribution: typeDistribution as any,
-      rarityDistribution: rarityDistribution as any,
+      typeDistribution,
+      rarityDistribution,
       costCurve,
     };
   }
 
   /**
-   * Calculate average mana cost
+   * Helper: Calculate average mana/energy cost
    */
   private static calculateAverageCost(cards: Card[], deckCards: DeckCard[]): number {
     const cardMap = new Map(cards.map(card => [card.id, card]));
-    let totalCost = 0;
     let totalCards = 0;
-
+    let totalCost = 0;
     for (const deckCard of deckCards) {
       const card = cardMap.get(deckCard.cardId);
-      if (card) {
-        totalCost += card.cost * deckCard.quantity;
-        totalCards += deckCard.quantity;
-      }
+      if (!card) continue;
+      totalCards += deckCard.quantity;
+      totalCost += card.cost * deckCard.quantity;
     }
-
     return totalCards > 0 ? totalCost / totalCards : 0;
   }
 
   /**
-   * Mock data methods for development
+   * Mock: Get test user decks
    */
   private static getMockUserDecks(userId: string): Deck[] {
-    return [
-      {
-        id: 'deck-1',
-        userId,
-        name: 'Solar Domination',
-        faction: 'solaris',
-        isActive: true,
-        cards: [
-          { cardId: 'card-solaris-1', quantity: 2 },
-          { cardId: 'card-solaris-2', quantity: 3 },
-        ],
-        createdAt: '2024-01-01T00:00:00Z',
-        updatedAt: '2024-01-01T00:00:00Z',
-      },
-      {
-        id: 'deck-2',
-        userId,
-        name: 'Shadow Strike',
-        faction: 'umbral',
-        isActive: false,
-        cards: [
-          { cardId: 'card-umbral-1', quantity: 3 },
-          { cardId: 'card-umbral-2', quantity: 2 },
-        ],
-        createdAt: '2024-01-01T00:00:00Z',
-        updatedAt: '2024-01-01T00:00:00Z',
-      },
-    ];
+    // Re-attach userId for SRP-compliant separation, since mockUserDecks omits it
+    return mockUserDecks.map(deck => ({
+      ...deck,
+      userId,
+    }));
   }
 
+  /**
+   * Mock: Get single deck by id
+   */
   private static getMockDeck(deckId: string): Deck {
-    return {
-      id: deckId,
-      userId: 'user-1',
-      name: 'Mock Deck',
-      faction: 'solaris',
-      isActive: false,
-      cards: [],
-      createdAt: '2024-01-01T00:00:00Z',
-      updatedAt: '2024-01-01T00:00:00Z',
-    };
+    return getMockDeckData(deckId);
   }
 
-  private static simulateCreateDeck(deckData: Omit<Deck, 'id' | 'createdAt' | 'updatedAt'>): Deck {
+  /**
+   * Mock: Simulate deck creation
+   */
+  private static simulateCreateDeck(
+    deckData: Omit<Deck, 'id' | 'createdAt' | 'updatedAt'>
+  ): Deck {
     return {
       ...deckData,
       id: `deck-${Date.now()}`,
@@ -268,6 +260,9 @@ export class DeckService {
     };
   }
 
+  /**
+   * Mock: Simulate deck update
+   */
   private static simulateUpdateDeck(deckId: string, updates: Partial<Deck>): Deck {
     return {
       id: deckId,

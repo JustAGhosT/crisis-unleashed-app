@@ -17,6 +17,18 @@ export interface Faction {
   philosophy: string;
   strength: string;
   technology: string;
+
+  /** Mechanical knobs consumed by rules engine */
+  mechanics: {
+    energyManipulation?: boolean; // Solaris
+    stealth?: boolean; // Umbral
+    mindControl?: boolean; // Neuralis
+    timeWarp?: boolean; // Aeonic
+    adaptation?: boolean; // Primordial
+    sacrifice?: boolean; // Infernal
+    // Add structured numeric configs if/when available
+  };
+
   colors: {
     primary: string;
     secondary: string;

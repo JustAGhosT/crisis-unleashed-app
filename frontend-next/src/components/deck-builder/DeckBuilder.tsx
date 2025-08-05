@@ -1,12 +1,10 @@
-"use client";
-
 import React from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Select } from '@/components/ui/select';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { GameCard } from '@/components/cards/GameCard';
 import { CardFilters } from '@/components/cards/CardFilters';
@@ -15,10 +13,11 @@ import { DeckStats } from './DeckStats';
 import { useCardSearch, useUserCards } from '@/hooks/useCards';
 import { useCreateDeck, useUpdateDeck, useDeckValidation } from '@/hooks/useDecks';
 import { CardFilters as CardFiltersType, DeckCard, Card as GameCardData } from '@/types/card';
-import { FactionId } from '@/types/faction';
+import { FactionId, FACTION_IDS } from '@/types/faction';
 import { getFactionOptions } from '@/data/factions';
 import { cn } from '@/lib/utils';
 import { Plus, Save, Loader2, AlertCircle } from 'lucide-react';
+import { useToast } from '@/hooks/useToast';
 
 // Zod schema for deck creation form
 const deckCreationSchema = z.object({
@@ -26,9 +25,7 @@ const deckCreationSchema = z.object({
     .string()
     .min(1, 'Deck name is required')
     .max(50, 'Deck name must be less than 50 characters'),
-  faction: z
-    .enum(['solaris', 'umbral', 'aeonic', 'primordial', 'infernal', 'neuralis', 'synthetic'])
-    .or(z.literal('')),
+  faction: z.enum(FACTION_IDS).optional(),
 });
 
 type DeckCreationData = z.infer<typeof deckCreationSchema>;
@@ -58,19 +55,22 @@ export const DeckBuilder: React.FC<DeckBuilderProps> = ({
   const [cardFilters, setCardFilters] = React.useState<CardFiltersType>({});
   const [currentPage, setCurrentPage] = React.useState(1);
   const [viewMode, setViewMode] = React.useState<'list' | 'grid'>('grid');
-  
+
+  const { toast } = useToast();
+
   // Form handling for deck creation
   const {
     register,
     handleSubmit,
     watch,
+    control,
     formState: { errors, isValid },
     reset,
   } = useForm<DeckCreationData>({
     resolver: zodResolver(deckCreationSchema),
     defaultValues: {
       name: '',
-      faction: '',
+      faction: undefined,
     },
     mode: 'onChange',
   });
@@ -93,7 +93,7 @@ export const DeckBuilder: React.FC<DeckBuilderProps> = ({
   const createDeckMutation = useCreateDeck();
 
   // Create card ownership map for filtering
-  const ownedCardIds = React.useMemo(() => 
+  const ownedCardIds = React.useMemo(() =>
     new Set(userCards?.map(uc => uc.cardId) || []),
     [userCards]
   );
@@ -101,16 +101,16 @@ export const DeckBuilder: React.FC<DeckBuilderProps> = ({
   // Filter available cards based on ownership
   const availableCards = React.useMemo(() => {
     if (!cardSearchResult?.cards) return [];
-    
+
     if (cardFilters.owned) {
       return cardSearchResult.cards.filter(card => ownedCardIds.has(card.id));
     }
-    
+
     return cardSearchResult.cards;
   }, [cardSearchResult?.cards, cardFilters.owned, ownedCardIds]);
 
   // Create deck card quantity map
-  const deckCardMap = React.useMemo(() => 
+  const deckCardMap = React.useMemo(() =>
     new Map(currentDeckCards.map(dc => [dc.cardId, dc.quantity])),
     [currentDeckCards]
   );
@@ -122,7 +122,7 @@ export const DeckBuilder: React.FC<DeckBuilderProps> = ({
   const handleAddCard = React.useCallback((card: GameCardData) => {
     setCurrentDeckCards(previous => {
       const existingCardIndex = previous.findIndex(dc => dc.cardId === card.id);
-      
+
       if (existingCardIndex >= 0) {
         // Increase quantity if less than 3
         if (previous[existingCardIndex].quantity < 3) {
@@ -144,7 +144,7 @@ export const DeckBuilder: React.FC<DeckBuilderProps> = ({
   const handleRemoveCard = React.useCallback((card: GameCardData) => {
     setCurrentDeckCards(previous => {
       const existingCardIndex = previous.findIndex(dc => dc.cardId === card.id);
-      
+
       if (existingCardIndex >= 0) {
         const existing = previous[existingCardIndex];
         if (existing.quantity > 1) {
@@ -160,7 +160,7 @@ export const DeckBuilder: React.FC<DeckBuilderProps> = ({
           return previous.filter((_, index) => index !== existingCardIndex);
         }
       }
-      
+
       return previous;
     });
   }, []);
@@ -173,7 +173,11 @@ export const DeckBuilder: React.FC<DeckBuilderProps> = ({
   const handleSaveDeck = React.useCallback(
     handleSubmit(async (data) => {
       if (!validation.isValid) {
-        alert('Please fix deck validation errors before saving');
+        toast({
+          title: 'Validation Error',
+          description: 'Please fix deck validation errors before saving',
+          variant: 'destructive',
+        });
         return;
       }
 
@@ -181,21 +185,30 @@ export const DeckBuilder: React.FC<DeckBuilderProps> = ({
         await createDeckMutation.mutateAsync({
           userId,
           name: data.name,
-          faction: (data.faction || 'solaris') as FactionId,
+          faction: (data.faction ?? 'solaris') as FactionId,
           isActive: false,
           cards: currentDeckCards,
         });
-        
+
         // Reset form and deck on successful save
         reset();
         setCurrentDeckCards([]);
-        alert('Deck saved successfully!');
+        toast({
+          title: 'Deck Saved',
+          description: 'Your deck has been saved successfully!',
+          variant: 'default',
+        });
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.error('Failed to save deck:', error);
-        alert('Failed to save deck. Please try again.');
+        toast({
+          title: 'Save Failed',
+          description: 'Failed to save deck. Please try again.',
+          variant: 'destructive',
+        });
       }
     }),
-    [validation.isValid, createDeckMutation, userId, currentDeckCards, reset, handleSubmit]
+    [validation.isValid, createDeckMutation, userId, currentDeckCards, reset, handleSubmit, toast]
   );
 
   // Filter change handler
@@ -256,17 +269,29 @@ export const DeckBuilder: React.FC<DeckBuilderProps> = ({
                       <label className="block text-sm font-medium text-gray-300 mb-1">
                         Primary Faction
                       </label>
-                      <Select
-                        {...register('faction')}
-                        className="bg-slate-700 border-slate-600 text-white"
-                      >
-                        <option value="">Auto-detect</option>
-                        {getFactionOptions().map((faction) => (
-                          <option key={faction.value} value={faction.value}>
-                            {faction.label}
-                          </option>
-                        ))}
-                      </Select>
+                      <Controller
+                        name="faction"
+                        control={control}
+                        render={({ field }) => (
+                          <Select
+                            value={field.value || ''}
+                            onValueChange={field.onChange}
+                            className="bg-slate-700 border-slate-600 text-white"
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Auto-detect" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="">Auto-detect</SelectItem>
+                              {getFactionOptions().map((faction) => (
+                                <SelectItem key={faction.value} value={faction.value}>
+                                  {faction.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
                     </div>
                   </div>
 
@@ -292,7 +317,7 @@ export const DeckBuilder: React.FC<DeckBuilderProps> = ({
             </Card>
 
             {/* Card Filters */}
-            <CardFilters 
+            <CardFilters
               onFiltersChange={handleFiltersChange}
               showOwnedFilter={true}
             />

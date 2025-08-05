@@ -1,53 +1,71 @@
 ---
-description: Documents data flow patterns and state management between major game components
-globs: frontend/src/features/**/*.tsx,frontend/src/components/**/*.tsx
+description: Documents data flow between major game components and state management for the Crisis Unleashed card game
+globs: **/battlefield/*,**/game/*,**/cards/*,**/players/*,**/components/*
 alwaysApply: false
 ---
 
 
 # component-dataflow
 
-The game components maintain the following key data flows:
+Core Game Component Data Flow
 
-### Battlefield <-> TurnManager
-- Battlefield subscribes to turn phase changes from TurnManager
-- Updates unit placement/movement permissions based on current turn phase
-- Notifies TurnManager when unit actions are completed
-- Receives zone control updates affecting valid unit placements
+1. Battlefield → Components
+- Sends grid position updates to CardHand and PlayerHUD
+- Notifies TurnManager of unit placement events
+- Updates GameInterface with battlefield state changes
+- Importance Score: 95
 
-### CardHand <-> TurnManager 
-- Receives turn phase to determine playable cards
-- Validates card plays based on current energy/momentum from TurnManager
-- Notifies TurnManager when cards are played for resource deduction
-- Updates hand state when TurnManager signals phase transitions
+2. CardHand → Components 
+- Emits card selection events to Battlefield
+- Updates PlayerHUD with remaining card counts
+- Notifies TurnManager of card play attempts
+- Sends hand state to GameInterface
+- Importance Score: 90
 
-### GameInterface <-> PlayerHUD
-- Passes player resource updates (health/energy/momentum)
-- Receives player action selections and validates against current resources
-- Updates crisis event status and impacts on player resources
-- Synchronizes battlefield state changes to HUD display
+3. TurnManager → Components
+- Controls game phase transitions affecting all components
+- Manages resource updates to PlayerHUD
+- Coordinates action validation with Battlefield
+- Synchronizes CardHand state changes
+- Importance Score: 95
 
-### PlayerHUD <-> TurnManager
-- Subscribes to phase changes to update available actions
-- Validates resource costs against current player pools
-- Signals resource changes after actions resolve
-- Maintains turn timer state from TurnManager
+4. PlayerHUD → Components
+- Broadcasts resource state (Energy/Momentum) to CardHand
+- Sends player status updates to GameInterface
+- Receives battlefield position data
+- Updates based on TurnManager phase changes
+- Importance Score: 85
 
-Key State Updates:
-- Turn phases trigger cascading updates across all components
-- Resource changes (energy/momentum) affect valid actions
-- Unit placement/movement updates battlefield control zones
-- Card plays modify hand state and trigger resource updates
-- Crisis events impact multiple component states simultaneously
+5. GameInterface → Components
+- Centralizes state management between components
+- Routes faction-specific ability triggers
+- Manages cross-component event subscriptions
+- Handles game state persistence
+- Importance Score: 90
 
-Component Hierarchy:
-```
-GameInterface
-├── TurnManager
-├── Battlefield  
-├── CardHand
-└── PlayerHUD
-```
+Key Data Flows:
+
+Battlefield ←→ CardHand
+- Unit placement validation
+- Card targeting coordinates
+- Zone control status
+
+CardHand ←→ PlayerHUD
+- Resource cost verification
+- Card play availability
+- Hand size limitations
+
+TurnManager ←→ GameInterface
+- Phase transition coordination
+- Action window management
+- State synchronization
+
+Critical State Updates:
+- Unit positions (Battlefield)
+- Available resources (PlayerHUD)
+- Card availability (CardHand)
+- Turn phases (TurnManager)
+- Game state (GameInterface)
 
 $END$
 

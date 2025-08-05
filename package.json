@@ -26,7 +26,13 @@
     "pnpm": ">=7.0.0"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.84.1",
+    "@types/react": "^18.3.23",
     "clsx": "^2.1.1",
-    "posthog-js": "^1.258.5"
+    "lucide-react": "^0.536.0",
+    "posthog-js": "^1.258.5",
+    "react": "^18.3.1",
+    "tailwindcss": "^3.4.17",
+    "tailwindcss-animate": "^1.0.7"
   }
 }

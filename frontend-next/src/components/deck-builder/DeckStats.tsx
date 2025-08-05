@@ -15,11 +15,11 @@ interface DeckStatsProps {
  * DeckStats component - Displays deck composition statistics and validation
  * Following Single Responsibility Principle - focused on stats display
  */
-export const DeckStats: React.FC<DeckStatsProps> = ({
+export const DeckStats = ({
   stats,
   validation,
   className,
-}) => {
+}: DeckStatsProps) => {
   // Cost curve visualization data
   const maxCostCount = Math.max(...Object.values(stats.costCurve), 1);
   const costCurveData = Array.from({ length: 11 }, (_, cost) => ({
@@ -27,6 +27,13 @@ export const DeckStats: React.FC<DeckStatsProps> = ({
     count: stats.costCurve[cost] || 0,
     percentage: ((stats.costCurve[cost] || 0) / maxCostCount) * 100,
   }));
+  
+  const validRarities = ["common", "uncommon", "rare", "legendary"] as const;
+  type Rarity = typeof validRarities[number];
+
+  function isValidRarity(rarity: string): rarity is Rarity {
+    return validRarities.includes(rarity as Rarity);
+  }
 
   return (
     <div className={cn('space-y-4', className)}>
@@ -52,7 +59,6 @@ export const DeckStats: React.FC<DeckStatsProps> = ({
               {validation.cardCount}/30-50
             </Badge>
           </div>
-
           {/* Validation Errors */}
           {validation.errors.length > 0 && (
             <div className="space-y-2">
@@ -69,11 +75,10 @@ export const DeckStats: React.FC<DeckStatsProps> = ({
               </ul>
             </div>
           )}
-
           {/* Validation Warnings */}
           {validation.warnings.length > 0 && (
             <div className="space-y-2">
-              <div className="flex items-center gap-2 text-yellow-400">
+             <div className="flex items-center gap-2 text-yellow-400">
                 <AlertTriangle className="w-4 h-4" />
                 <span className="font-medium">Warnings</span>
               </div>
@@ -86,7 +91,6 @@ export const DeckStats: React.FC<DeckStatsProps> = ({
               </ul>
             </div>
           )}
-
           {/* Success State */}
           {validation.isValid && validation.errors.length === 0 && (
             <div className="text-green-400 text-sm">
@@ -95,10 +99,9 @@ export const DeckStats: React.FC<DeckStatsProps> = ({
           )}
         </CardContent>
       </Card>
-
       {/* Deck Statistics */}
       <Card className="bg-slate-800/50 border-slate-600">
-        <CardHeader className="pb-3">
+       <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2">
             <BarChart3 className="w-5 h-5" />
             Statistics
@@ -116,7 +119,6 @@ export const DeckStats: React.FC<DeckStatsProps> = ({
               <div className="text-sm text-gray-400">Avg Cost</div>
             </div>
           </div>
-
           {/* Type Distribution */}
           {Object.keys(stats.typeDistribution).length > 0 && (
             <div>
@@ -126,7 +128,7 @@ export const DeckStats: React.FC<DeckStatsProps> = ({
               </h4>
               <div className="space-y-2">
                 {Object.entries(stats.typeDistribution).map(([type, count]) => (
-                  <div key={type} className="flex justify-between items-center">
+                 <div key={type} className="flex justify-between items-center">
                     <span className="text-sm text-gray-400 capitalize">{type}:</span>
                     <span className="text-sm text-white">{count}</span>
                   </div>
@@ -134,7 +136,6 @@ export const DeckStats: React.FC<DeckStatsProps> = ({
               </div>
             </div>
           )}
-
           {/* Rarity Distribution */}
           {Object.keys(stats.rarityDistribution).length > 0 && (
             <div>
@@ -142,7 +143,7 @@ export const DeckStats: React.FC<DeckStatsProps> = ({
               <div className="space-y-2">
                 {Object.entries(stats.rarityDistribution).map(([rarity, count]) => (
                   <div key={rarity} className="flex justify-between items-center">
-                    <Badge variant={rarity as any} className="text-xs">
+                    <Badge variant={isValidRarity(rarity) ? rarity : "default"} className="text-xs">
                       {rarity}
                     </Badge>
                     <span className="text-sm text-white">{count}</span>
@@ -153,7 +154,6 @@ export const DeckStats: React.FC<DeckStatsProps> = ({
           )}
         </CardContent>
       </Card>
-
       {/* Cost Curve */}
       <Card className="bg-slate-800/50 border-slate-600">
         <CardHeader className="pb-3">

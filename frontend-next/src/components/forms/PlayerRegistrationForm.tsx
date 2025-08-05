@@ -155,13 +155,21 @@ export const PlayerRegistrationForm: React.FC<PlayerRegistrationFormProps> = ({
               />
               <span className="text-sm text-gray-300">
                 I accept the{' '}
-                <a href="#" className="text-purple-400 hover:text-purple-300 underline">
+                <button
+                  type="button"
+                  onClick={() => setShowTermsModal(true)}
+                  className="text-purple-400 hover:text-purple-300 underline"
+                >
                   Terms and Conditions
-                </a>{' '}
+                </button>{' '}
                 and{' '}
-                <a href="#" className="text-purple-400 hover:text-purple-300 underline">
+                <button
+                  type="button"
+                  onClick={() => setShowPrivacyModal(true)}
+                  className="text-purple-400 hover:text-purple-300 underline"
+                >
                   Privacy Policy
-                </a>
+                </button>
               </span>
             </label>
             {errors.acceptTerms && (

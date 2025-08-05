@@ -341,9 +341,8 @@ The following indexes will be created to optimize query performance:
 
 - `user_id` - For finding transactions by user
 - `transaction_hash` (unique) - For uniqueness and lookup by hash
-- `status` - For monitoring transaction states- `created_at` - For chronological ordering
-
-## Data Migration Strategy
+- `status` - For monitoring transaction states  
+- `created_at` - For chronological ordering## Data Migration Strategy
 
 As the application evolves, database migrations will be managed through:
 

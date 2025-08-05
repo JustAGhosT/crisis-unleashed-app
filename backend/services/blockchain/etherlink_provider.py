@@ -85,10 +85,17 @@ class EtherlinkProvider(BaseBlockchainProvider):
         """Disconnect from Etherlink network."""
         try:
             if self.web3:
-                # Clean up web3 instance
+                # Close any underlying connections if using session-based provider
+                provider = getattr(self.web3, "provider", None)
+                session = getattr(provider, "session", None)
+                if session and hasattr(session, "close"):
+                    session.close()
+                # Clean up references
                 self.web3 = None
                 self.contract = None
                 logger.info("Disconnected from Etherlink network")
+            else:
+                logger.debug("Already disconnected from Etherlink network")
         except Exception as e:
             logger.error(f"Error disconnecting from Etherlink: {e}")
     
