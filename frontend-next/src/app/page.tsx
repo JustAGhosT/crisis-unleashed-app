@@ -1,29 +1,23 @@
 "use client";
 
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { FactionGrid } from "@/components/factions/FactionGrid";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { fetchGameStatus } from "@/services/gameService";
 import { useQuery } from "@tanstack/react-query";
-
-// Temporary API function - will be moved to services
-async function fetchGameStatus() {
-  try {
-    const response = await fetch('/api/');
-    if (!response.ok) {
-      throw new Error('Failed to fetch game status');
-    }
-    return await response.json();
-  } catch (error) {
-    console.warn('Backend not available, using mock data');
-    return { message: "Crisis Unleashed - Ready to deploy!" };
-  }
-}
+import { useRouter } from 'next/navigation';
 
 export default function HomePage() {
+  const router = useRouter();
   const { data: gameStatus, isLoading } = useQuery({
     queryKey: ['game-status'],
-    queryFn: fetchGameStatus,
+    queryFn: () => fetchGameStatus(),
     retry: false,
+    // Fallback to mock data on error
+    onError: () => {
+      console.warn('Backend not available, using mock data');
+      return { message: "Crisis Unleashed - Ready to deploy!" };
+    }
   });
 
   return (
@@ -37,7 +31,7 @@ export default function HomePage() {
           <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
             A strategic digital collectible card game set in a multiverse where seven unique factions battle for supremacy
           </p>
-          
+
           {/* Status Card */}
           <Card className="p-6 bg-slate-800/50 border-slate-700 backdrop-blur-sm max-w-md mx-auto mb-8">
             <div className="text-center">
@@ -53,12 +47,11 @@ export default function HomePage() {
           <div className="flex gap-4 justify-center flex-wrap">
             <Button size="lg" className="bg-purple-600 hover:bg-purple-700">
               Start Playing
-            </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
+            </Button><Button
+              size="lg"
+              variant="outline"
               className="border-purple-400 text-purple-400 hover:bg-purple-400 hover:text-white"
-              onClick={() => window.location.href = '/deck-builder'}
+              onClick={() => router.push('/deck-builder')}
             >
               Build Deck
             </Button>
@@ -84,14 +77,14 @@ export default function HomePage() {
               Deploy heroes with unique abilities and master faction-specific mechanics in tactical battles.
             </p>
           </Card>
-          
+
           <Card className="p-6 bg-slate-800/50 border-slate-700 backdrop-blur-sm">
             <h3 className="text-xl font-semibold text-white mb-3">Digital Ownership</h3>
             <p className="text-gray-300">
               True ownership of cards and heroes through NFT integration on multiple blockchains.
             </p>
           </Card>
-          
+
           <Card className="p-6 bg-slate-800/50 border-slate-700 backdrop-blur-sm">
             <h3 className="text-xl font-semibold text-white mb-3">Rich Lore</h3>
             <p className="text-gray-300">
