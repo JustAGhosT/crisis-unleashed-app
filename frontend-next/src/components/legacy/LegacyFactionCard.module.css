@@ -17,6 +17,36 @@
   align-items: center;
   padding: 16px;
   color: white;
+  background-color: #333; /* Default color */
+}
+
+/* Faction-specific header colors */
+.header_solaris {
+  background-color: #f39c12;
+}
+
+.header_umbral {
+  background-color: #8e44ad;
+}
+
+.header_aeonic {
+  background-color: #3498db;
+}
+
+.header_primordial {
+  background-color: #27ae60;
+}
+
+.header_infernal {
+  background-color: #c0392b;
+}
+
+.header_neuralis {
+  background-color: #1abc9c;
+}
+
+.header_synthetic {
+  background-color: #7f8c8d;
 }
 
 .logo {

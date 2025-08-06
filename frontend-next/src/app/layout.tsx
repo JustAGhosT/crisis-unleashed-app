@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { QueryProvider } from "@/lib/query-provider";
 import { ThemeProvider } from "@/components/theme-provider";
+import { FeatureFlagProvider } from "@/lib/feature-flags/feature-flag-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -32,9 +33,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <QueryProvider>
-            {children}
-          </QueryProvider>
+          <FeatureFlagProvider>
+            <QueryProvider>
+              {children}
+            </QueryProvider>
+          </FeatureFlagProvider>
         </ThemeProvider>
       </body>
     </html>

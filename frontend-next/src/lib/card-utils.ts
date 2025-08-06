@@ -16,25 +16,10 @@ export function isValidRarity(rarity: string): rarity is CardRarity {
  */
 export function getRarityVariant(rarity: string): string {
   if (isValidRarity(rarity)) {
-    // Return the appropriate variant based on rarity
-    switch (rarity.toLowerCase()) {
-      case 'common':
-        return 'secondary';
-      case 'uncommon':
-        return 'outline';
-      case 'rare':
-        return 'default';
-      case 'epic':
-        return 'destructive';
-      case 'legendary':
-        return 'purple'; // Requires custom Badge variant
-      case 'mythic':
-        return 'amber'; // Requires custom Badge variant
-      default:
-        return 'default';
-    }
+    // The badge component already has variants that match our rarity names
+    return rarity.toLowerCase() as CardRarity;
   }
-  
+
   // Fallback for invalid values
   return 'default';
 }

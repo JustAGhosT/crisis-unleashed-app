@@ -260,17 +260,32 @@ function FeatureFlagCard({
 "use client";
 
 import { useFeatureFlags } from "@/lib/feature-flags/feature-flag-provider";
-import { LegacyFactionGrid } from "@/components/legacy/LegacyFactionGrid";
-import { NewFactionGrid } from "@/components/factions/FactionGrid";
+import { FactionGrid } from "@/components/factions/FactionGrid";
+import { LegacyFactionGrid } from "frontend-next/src/components/legacy/LegacyFactionGrid";
 
 export default function FactionGridWrapper({ factions }) {
   const { flags } = useFeatureFlags();
   
-  return flags.useNewFactionUI ? (
-    <NewFactionGrid factions={factions} />
-  ) : (
-    <LegacyFactionGrid factions={factions} />
-  );
+  // Use the new implementation if the feature flag is enabled
+  if (flags.useNewFactionUI) {
+    return <FactionGrid factions={factions} />;
+  }
+  
+  // Use the migrated legacy implementation from frontend-next
+  // Adapt the faction data to match what the Next.js component expects
+  const adaptedFactions = factions.map(faction => ({
+    ...faction,
+    mechanics: Array.isArray(faction.mechanics) 
+      ? faction.mechanics.reduce((acc, mechanic) => ({ ...acc, [mechanic]: true }), {})
+      : faction.mechanics || {},
+    colors: {
+      primary: faction.color,
+      secondary: faction.color,
+      accent: faction.color
+    }
+  }));
+  
+  return <LegacyFactionGrid factions={adaptedFactions} />;
 }
 ```
 
