@@ -1,24 +1,40 @@
-# Migration Status: Faction Components
+# Migration Status
 
 ## Completed
 
 The following components and functionality have been migrated from `src/` to `frontend-next/src/`:
 
-### Components
+### Faction Components
 - ✅ Faction Card components
 - ✅ Faction Grid components
 - ✅ Legacy components (for backward compatibility)
 
+### Card Components
+- ✅ GameCard component
+- ✅ CardGrid component
+- ✅ CardFilters component
+- ✅ CardDetail component
+- ✅ CardCollection component
+- ✅ Pagination component
+
 ### Pages
 - ✅ Factions list page (`/factions`)
 - ✅ Faction detail page (`/factions/[id]`)
+- ✅ Cards browsing page (`/cards`)
 
 ### Services
 - ✅ Faction data service with mock data
+- ✅ Card service with mock data
 - ✅ Feature flag provider for progressive rollout
 
 ### Types
 - ✅ Faction types and interfaces
+- ✅ Card types and interfaces
+
+### Custom Hooks
+- ✅ useFeatureFlags hook
+- ✅ useCards hook
+- ✅ usePagination hook
 
 ## Implementation Details
 

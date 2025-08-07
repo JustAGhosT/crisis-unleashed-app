@@ -1,71 +1,56 @@
 ---
-description: Defines core game mechanics, combat resolution, faction abilities and card interactions for Crisis Unleashed
-globs: **/game/**,**/battlefield/**,**/combat/**,**/cards/**,**/factions/**
+description: Specifications for core game algorithms including battlefield management, card deployment, turn sequencing, and combat resolution
+globs: 
 alwaysApply: false
 ---
 
 
 # game-algorithms
 
-Core Game Systems:
+## Core Game Systems
 
-1. Turn Sequencing Engine
-- Enforced phase ordering:
-  - Draw Phase 
-  - Energy Phase (Resource regeneration)
-  - Main Phase (Card deployment)
-  - Combat Phase (Attack resolution)
-  - End Phase
-- Energy regeneration rules between turns
-- Phase-specific action validation
+### Turn Structure and Resource Management
+- **Draw Phase**: Players draw until reaching hand size limit
+- **Energy Phase**: Energy resets to maximum (10) plus modifiers
+- **Main Phase**: Players can deploy units, structures, and actions
+- **Combat Phase**: Combat resolution using initiative-based sequencing
+- **End Phase**: Effects resolve, momentum accumulates, crisis events trigger
 
-2. Combat Resolution System
-- Unit positioning on hexagonal grid
-- Attack priority calculation based on unit types
-- Combat damage resolution with faction modifiers
-- Terrain effect application during combat
+### Battlefield Management
+- Hexagonal grid system with 3 zones:
+  - Frontline (units engage in direct combat)
+  - Support (ranged units and structures)
+  - Reserve (protected reinforcement zone)
+- Zone control mechanics affect resource generation and card abilities
+- Line of sight calculations for ranged combat and abilities
 
-3. Faction Ability Processing
-- Unique faction power activation:
-  - Solaris: Predictive algorithm enhancement
-  - Umbral: Information warfare mechanics 
-  - Aeonic: Time manipulation effects
-  - Others defined but not detailed
-- Cross-faction interaction rules
-- Ability timing validation
+### Combat Resolution
+- Initiative order determines unit activation sequence
+- Attack resolution includes:
+  - Base damage + modifiers
+  - Faction-specific combat abilities
+  - Zone control bonuses
+  - Structure effects
+  - Crisis event modifiers
 
-4. Card Deployment Logic
-- Placement validity checking based on:
-  - Unit type restrictions
-  - Terrain compatibility
-  - Faction requirements
-  - Resource availability
-- Chain reaction triggers for card effects
+### Card Deployment Logic
+- Resource cost validation (Energy/Momentum)
+- Zone placement restrictions
+- Faction alignment requirements
+- Synergy calculations between allied units
+- Crisis event impact assessment
 
-5. Resource Management
-- Multi-resource economy:
-  - Energy points 
-  - Momentum generation
-  - Crisis event tokens
-- Resource conversion rules
-- Faction-specific resource modifiers
+### Crisis Integration System
+- Dynamic events affect battlefield conditions
+- Zone control modifiers during crisis
+- Resource generation changes
+- Special combat rules during events
 
-6. Crisis Event System
-- Dynamic battlefield modifiers
-- Event trigger conditions
-- Resolution pathways
-- Reward distribution logic
-
-7. Synergy Detection
-- Card combo identification
-- Cross-faction power amplification
-- Data-Link activation requirements
-- Chain effect resolution
-
-File paths containing core algorithms:
-- frontend/src/features/battlefield/
-- frontend/src/features/cards/
-- backend/services/game/
+Relevant File Paths:
+- src/features/battlefield/Battlefield.tsx
+- src/features/battlefield/TurnManager.tsx
+- src/components/game/GameInterface.tsx
+- src/types/game.types.ts
 
 $END$
 

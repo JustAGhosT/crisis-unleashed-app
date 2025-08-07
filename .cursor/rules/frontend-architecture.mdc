@@ -1,51 +1,61 @@
 ---
-description: Frontend architecture specifications for a faction-based card game with complex component hierarchy and state management
-globs: frontend/**,frontend-next/**
+description: Frontend architecture specification for React-based game client with faction system and feature flags
+globs: src/**/*.tsx,src/**/*.ts,src/components/**/*,src/app/**/*,src/lib/**/*
 alwaysApply: false
 ---
 
 
 # frontend-architecture
 
-## Component Hierarchy
+The frontend architecture implements specialized game logic through a component hierarchy focused on faction interactions and progressive feature deployment.
 
-Core Game Components:
-- FactionPortal (`/frontend/src/FactionPortal.tsx`)
-  - Manages faction selection and interaction flows
-  - Implements faction relationship visualization through hex grid
-  - Handles faction-specific visual treatments and animations
+## Core Component Architecture
 
-- Battlefield (`/frontend/src/features/battlefield/Battlefield.tsx`)
-  - Grid-based combat zone with specialized territory markers
-  - Dynamic resource display tied to faction mechanics
-  - Implements turn phase system with faction-specific modifiers
+### Feature Flag System
+- Dynamic feature flag provider enables gradual rollout of new features
+- Admin interface toggles flags for A/B testing and staged releases
+- Middleware routes users between legacy and new implementations
+- File paths:
+  - `src/lib/feature-flags/feature-flag-provider.tsx`
+  - `src/app/admin/feature-flags/page.tsx`
+  - `src/middleware.ts`
 
-- GameInterface (`/frontend/src/components/game/GameInterface.tsx`)
-  - Coordinates cross-faction ability interactions
-  - Manages state for dual resource system (Energy/Momentum)
-  - Handles crisis event triggers and resolution
+### Faction System Components
+- FactionGridWrapper conditionally renders new/legacy faction grids
+- Custom data transformations map old faction structure to new schema
+- Specialized faction detail pages with dynamic routing
+- File paths:
+  - `src/components/factions/FactionGridWrapper.tsx`
+  - `src/app/factions/[id]/page.tsx`
+  - `src/app/factions/page.tsx`
 
-## State Management
+### Theme Management
+- Custom theme provider with light/dark/system modes
+- Faction-specific color themes and styling
+- Theme persistence across sessions
+- File paths:
+  - `src/components/theme-provider.tsx`
+  - `src/components/theme-toggle.tsx`
 
-Faction State:
-- FactionThemesContext (`/frontend/src/context/FactionThemesContext.tsx`)
-  - Maintains active faction visual identities
-  - Coordinates cross-faction synergy effects
-  - Manages faction-specific resource modifiers
+## Migration Architecture
 
-Game State:
-- TurnManager (`/frontend/src/features/battlefield/TurnManager.tsx`)
-  - Tracks phase progression
-  - Manages crisis countdown system
-  - Updates resource pools based on faction abilities
+### Component Migration Strategy
+- Incremental migration from Vite to Next.js
+- Feature flags control deployment of new components
+- Legacy compatibility layer during transition
+- Type adapters ensure data consistency
+- File paths:
+  - `src/MIGRATION.md`
+  - `src/MIGRATION_PLAN.md`
+  - `src/components/legacy/README.md`
 
-Component Integration:
-- MoodBoard System (`/frontend/src/components/factions/MoodBoard.tsx`)
-  - Faction-specific visual language coordination
-  - Dynamic theme application based on faction combinations
-  - Handles faction power manifestation effects
-
-The architecture emphasizes faction identity preservation while enabling complex inter-faction mechanics through a modular component system. Each faction maintains distinct visual and mechanical characteristics while supporting cross-faction synergies.
+### Faction Data Models
+- Detailed specifications for six unique factions
+- Each faction has distinct themes and mechanics
+- Custom validation for faction IDs in static generation
+- File paths:
+  - `.neuralliquid-ai/FACTION_SYSTEM.md`
+  - `src/lib/data.ts`
 
 $END$
 

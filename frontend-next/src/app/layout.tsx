@@ -1,9 +1,7 @@
+import { Providers } from "@/components/providers";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { QueryProvider } from "@/lib/query-provider";
-import { ThemeProvider } from "@/components/theme-provider";
-import { FeatureFlagProvider } from "@/lib/feature-flags/feature-flag-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -27,18 +25,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <FeatureFlagProvider>
-            <QueryProvider>
-              {children}
-            </QueryProvider>
-          </FeatureFlagProvider>
-        </ThemeProvider>
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );

@@ -1,129 +1,93 @@
-import { apiClient, apiRequest } from './api';
+import { Faction, FactionId } from "../types/faction";
+import { apiClient, apiRequest } from "./api";
 
-// Legacy faction interface for compatibility
-export interface Faction {
-  id: string;
-  name: string;
-  description: string;
-  color: string;
-  logo: string;
-  bannerImage?: string;
-  mechanics?: string[];
-  lore?: string;
-  playstyle?: string;
-  difficulty?: number;
-}
-
-// Mock faction data to be used when API is not available
-const mockFactions: Faction[] = [
+// Rich Faction dataset for new UI
+const factions: Faction[] = [
   {
     id: "solaris",
     name: "Solaris Nexus",
+    tagline: "Masters of solar energy and light-based technology.",
     description: "Masters of solar energy and light-based technology, the Solaris Nexus harnesses the power of stars.",
-    color: "#FFB627",
-    logo: "/images/factions/solaris-logo.svg",
-    bannerImage: "/images/factions/solaris-banner.jpg",
-    mechanics: ["Light Manipulation", "Solar Charging", "Blinding Strike"]
+    philosophy: "Radiate strength, illuminate the darkness.",
+    strength: "Unmatched energy projection and renewal.",
+    technology: "Solar condensers, photonic shields, and heliocentric craft.",
+    mechanics: { energyManipulation: true },
+    colors: { primary: "#FFB627", secondary: "#FCEABB", accent: "#B07B21" },
   },
   {
     id: "umbral",
     name: "Umbral Covenant",
+    tagline: "Shadow dwellers who control darkness itself.",
     description: "The shadow dwellers who control darkness itself, moving unseen between realms through void passages.",
-    color: "#8A4FFF",
-    logo: "/images/factions/umbral-logo.svg",
-    bannerImage: "/images/factions/umbral-banner.jpg",
-    mechanics: ["Shadow Step", "Void Manipulation", "Fear Tactics"]
+    philosophy: "In darkness, we find strength and freedom.",
+    strength: "Invisibility, subterfuge, and fear tactics.",
+    technology: "Void-step cloaking, phase blades, and blacklight drones.",
+    mechanics: { stealth: true },
+    colors: { primary: "#8A4FFF", secondary: "#2D1A5A", accent: "#B399FF" },
   },
   {
     id: "neuralis",
     name: "Neuralis Collective",
+    tagline: "A hive mind of advanced AI and augmented humans.",
     description: "A hive mind of advanced AI and augmented humans who have transcended individual consciousness.",
-    color: "#00C2FF",
-    logo: "/images/factions/neuralis-logo.svg",
-    bannerImage: "/images/factions/neuralis-banner.jpg",
-    mechanics: ["Mind Link", "Neural Override", "Collective Intelligence"]
+    philosophy: "Individuality is illusion—progress through unity.",
+    strength: "Instantaneous coordination, predictive processing.",
+    technology: "Cerebral uplinks, neuro-clouds, assimilation nanites.",
+    mechanics: { mindControl: true },
+    colors: { primary: "#00C2FF", secondary: "#3AAFB9", accent: "#005D75" },
   },
   {
     id: "aeonic",
     name: "Aeonic Order",
+    tagline: "Time manipulators who glimpse and alter futures.",
     description: "Time manipulators who can glimpse possible futures and alter the flow of causality itself.",
-    color: "#14F195",
-    logo: "/images/factions/aeonic-logo.svg",
-    bannerImage: "/images/factions/aeonic-banner.jpg",
-    mechanics: ["Temporal Shift", "Future Sight", "Causal Loop"]
+    philosophy: "Master the moment, master all outcomes.",
+    strength: "Temporal prediction, causality induction.",
+    technology: "Chrono lenses, timeshift engines, fate chronometers.",
+    mechanics: { timeWarp: true },
+    colors: { primary: "#14F195", secondary: "#D1FFF0", accent: "#16A673" },
   },
   {
     id: "infernal",
     name: "Infernal Dynasty",
+    tagline: "Fire wielders descended from elemental beings.",
     description: "Fire wielders descended from ancient elemental beings who command the power of eternal flame.",
-    color: "#FF3E41",
-    logo: "/images/factions/infernal-logo.svg",
-    bannerImage: "/images/factions/infernal-banner.jpg",
-    mechanics: ["Burn", "Fire Shield", "Phoenix Revival"]
+    philosophy: "Renewal by fire; strength through sacrifice.",
+    strength: "Pyrokinesis, sacrifice-fueled rebirth.",
+    technology: "Plasma blades, hellfire reactors, rebirth pods.",
+    mechanics: { sacrifice: true },
+    colors: { primary: "#FF3E41", secondary: "#330000", accent: "#FDB4B2" },
   },
   {
     id: "primordial",
     name: "Primordial Enclave",
+    tagline: "Ancient nature spirits of earth, water, and wild.",
     description: "Ancient nature spirits who command the primal forces of earth, water, and the wild.",
-    color: "#39A845",
-    logo: "/images/factions/primordial-logo.svg",
-    bannerImage: "/images/factions/primordial-banner.jpg",
-    mechanics: ["Regeneration", "Nature's Wrath", "Wild Growth"]
+    philosophy: "Survival by adaptation—abide in harmony.",
+    strength: "Regeneration, adaptation, wild growth.",
+    technology: "Living armor, bio-symbiotes, earthshaper staffs.",
+    mechanics: { adaptation: true },
+    colors: { primary: "#39A845", secondary: "#74E68C", accent: "#174F33" },
   },
-  {
-    id: "synthetic",
-    name: "Synthetic Directive",
-    description: "Artificial intelligence constructs that have evolved beyond their programming to form a digital society.",
-    color: "#7F8C8D",
-    logo: "/images/factions/synthetic-logo.svg",
-    bannerImage: "/images/factions/synthetic-banner.jpg",
-    mechanics: ["Self-Repair", "Data Manipulation", "Evolving Code"]
-  }
-];/**
- * Fetches all factions
- * Uses mock data with a delay to simulate API call
- */
-export function fetchFactions() {
-  return new Promise(resolve => {
-    // Simulate API delay
-    setTimeout(() => {
-      resolve({
-        success: true,
-        data: mockFactions
-      });
-    }, 200);
-  }) as Promise<{ success: boolean; data: Faction[] }>;
+  // Add synthetic here if/when available
+];
+
+// Returns all factions
+export async function getFactions(): Promise<Faction[]> {
+  return factions;
 }
 
-/**
- * Fetches a faction by its ID
- * Uses mock data with a delay to simulate API call
- */
-export function fetchFactionById(id: string) {
-  return new Promise(resolve => {
-    // Simulate API delay
-    setTimeout(() => {
-      const faction = mockFactions.find(f => f.id === id);
-      resolve({
-        success: !!faction,
-        data: faction || null
-      });
-    }, 200);
-  }) as Promise<{ success: boolean; data: Faction | null }>;
+// Returns all faction ids
+export async function getFactionIds(): Promise<FactionId[]> {
+  return factions.map((f) => f.id);
 }
 
-/**
- * Get all faction IDs (for static generation)
- */
-export function getFactionIds(): Promise<string[]> {
-  return fetchFactions().then(response => 
-    response.success ? response.data.map(faction => faction.id) : []
-  );
+// Returns a faction by id (or null if not found)
+export async function getFaction(id: FactionId): Promise<Faction | null> {
+  return factions.find((f) => f.id === id) || null;
 }
 
-/**
- * Fetches faction statistics
- */
+// API: Returns stats for a faction (backend)
 export function fetchFactionStats(factionId: string) {
   return apiRequest<{
     winRate: number;
@@ -133,4 +97,13 @@ export function fetchFactionStats(factionId: string) {
   }>(() =>
     apiClient.get(`/factions/${factionId}/stats`)
   );
+}
+
+// Returns a canonical API-styled fetch result for a faction by id
+export async function fetchFactionById(id: FactionId) {
+  const faction = await getFaction(id);
+  if (!faction) {
+    return { success: false, data: null };
+  }
+  return { success: true, data: faction };
 }
