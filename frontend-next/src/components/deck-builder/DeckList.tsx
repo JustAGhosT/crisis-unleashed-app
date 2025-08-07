@@ -1,11 +1,12 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { GameCard } from '@/components/cards/GameCard';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { isValidRarity } from '@/lib/card-utils';
+import { cn } from '@/lib/utils';
 import { DeckCard, Card as GameCardData } from '@/types/card';
-import { cn, getRarityColorClass } from '@/lib/utils';
-import { Trash2, Copy, Save, List, Grid } from 'lucide-react';
+import { Grid, List, Save, Trash2 } from 'lucide-react';
+import React from 'react';
 
 interface DeckListProps {
   deckCards: DeckCard[];
@@ -37,13 +38,13 @@ export const DeckList: React.FC<DeckListProps> = ({
   className,
 }) => {
   // Create card lookup map for efficiency
-  const cardMap = React.useMemo(() => 
-    new Map(cards.map(card => [card.id, card])), 
+  const cardMap = React.useMemo(() =>
+    new Map(cards.map(card => [card.id, card])),
     [cards]
   );
 
   // Calculate total cards in deck
-  const totalCards = React.useMemo(() => 
+  const totalCards = React.useMemo(() =>
     deckCards.reduce((sum, dc) => sum + dc.quantity, 0),
     [deckCards]
   );
@@ -54,7 +55,7 @@ export const DeckList: React.FC<DeckListProps> = ({
       const cardA = cardMap.get(a.cardId);
       const cardB = cardMap.get(b.cardId);
       if (!cardA || !cardB) return 0;
-      
+
       if (cardA.cost !== cardB.cost) {
         return cardA.cost - cardB.cost;
       }
@@ -81,7 +82,7 @@ export const DeckList: React.FC<DeckListProps> = ({
   };
 
   return (
-    <Card 
+    <Card
       className={cn('bg-slate-800/50 border-slate-600', className)}
       onDrop={handleDrop}
       onDragOver={handleDragOver}
@@ -94,7 +95,7 @@ export const DeckList: React.FC<DeckListProps> = ({
               {totalCards} cards
             </Badge>
           </CardTitle>
-          
+
           <div className="flex items-center gap-2">
             {/* View Mode Toggle */}
             {onViewModeChange && (
@@ -128,7 +129,7 @@ export const DeckList: React.FC<DeckListProps> = ({
               <Save className="w-4 h-4 mr-1" />
               Save
             </Button>
-            
+
             <Button
               size="sm"
               variant="outline"
@@ -197,7 +198,10 @@ export const DeckList: React.FC<DeckListProps> = ({
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
                           <span className="font-medium text-white">{card.name}</span>
-                          <Badge variant={card.rarity as any} className="text-xs">
+                          <Badge
+                            variant={isValidRarity(card.rarity) ? card.rarity : "default"}
+                            className="text-xs"
+                          >
                             {card.rarity}
                           </Badge>
                         </div>

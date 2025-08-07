@@ -1,13 +1,13 @@
 "use client";
 
-import React from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { FactionId } from '@/types/faction';
+import { zodResolver } from '@hookform/resolvers/zod';
+import React from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+// Assuming this function exists in your codebase; if not, we'll need to create it
 import { getFactionOptions } from '@/data/factions';
 
 // Zod schema for player registration validation
@@ -60,6 +60,8 @@ export const PlayerRegistrationForm: React.FC<PlayerRegistrationFormProps> = ({
 
   const selectedFaction = watch('preferredFaction');
   const factionOptions = getFactionOptions();
+  const [ setShowTermsModal] = React.useState(false);
+  const [ setShowPrivacyModal] = React.useState(false);
 
   const handleFormSubmit = (data: PlayerRegistrationData) => {
     onSubmit(data);
@@ -73,7 +75,7 @@ export const PlayerRegistrationForm: React.FC<PlayerRegistrationFormProps> = ({
           Create your account and choose your faction
         </CardDescription>
       </CardHeader>
-      
+
       <CardContent>
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
           {/* Username Field */}

@@ -1,8 +1,8 @@
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn, getFactionColorClass, getFactionGradientClass } from '@/lib/utils';
 import { FactionCardProps } from '@/types/faction';
+import React from 'react';
 
 /**
  * FactionCard component following SOLID principles
@@ -81,12 +81,12 @@ export const FactionCard: React.FC<FactionCardProps> = ({
             <span className="text-sm font-semibold text-gray-400 min-w-fit">Philosophy:</span>
             <span className="text-sm text-gray-300">{faction.philosophy}</span>
           </div>
-          
+
           <div className="flex items-start gap-2">
             <span className="text-sm font-semibold text-gray-400 min-w-fit">Strength:</span>
             <span className="text-sm text-gray-300">{faction.strength}</span>
           </div>
-          
+
           <div className="flex items-start gap-2">
             <span className="text-sm font-semibold text-gray-400 min-w-fit">Technology:</span>
             <span className="text-sm text-gray-300">{faction.technology}</span>
@@ -96,14 +96,17 @@ export const FactionCard: React.FC<FactionCardProps> = ({
         {/* Action button */}
         {interactive && (
           <div className="pt-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               className={cn(
                 'w-full border-current hover:bg-current/10',
                 getFactionColorClass(faction.id)
               )}
-              onClick={handleClick}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleClick();
+              }}
             >
               Select {faction.name}
             </Button>

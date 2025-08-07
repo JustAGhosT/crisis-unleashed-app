@@ -1,9 +1,11 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { isValidRarity } from '@/lib/card-utils';
 import { cn, getFactionColorClass } from '@/lib/utils';
 import { Card as GameCardData } from '@/types/card';
 import { Heart, Minus, Plus, Swords } from 'lucide-react';
+import Image from 'next/image';
 import React from 'react';
 
 interface GameCardProps {
@@ -94,7 +96,10 @@ export const GameCard: React.FC<GameCardProps> = ({
           </div>
 
           {/* Rarity Badge */}
-          <Badge variant={card.rarity as any} className="text-xs">
+          <Badge
+            variant={isValidRarity(card.rarity) ? card.rarity : "default"}
+            className="text-xs"
+          >
             {card.rarity}
           </Badge>
         </div>
@@ -112,10 +117,12 @@ export const GameCard: React.FC<GameCardProps> = ({
         {/* Card Image Placeholder */}
         <div className="w-full h-20 bg-slate-700/50 rounded mb-2 flex items-center justify-center">
           {card.imageUrl ? (
-            <img
+            <Image
               src={card.imageUrl}
               alt={card.name}
               className="w-full h-full object-cover rounded"
+              width={100}
+              height={100}
             />
           ) : (
             <div className={cn(
@@ -127,8 +134,8 @@ export const GameCard: React.FC<GameCardProps> = ({
           )}
         </div>
 
-        {/* Attack/Health for Characters */}
-        {card.type === 'character' && card.attack !== undefined && card.health !== undefined && (
+        {/* Attack/Health for Units and Heroes */}
+        {(card.type === 'hero' || card.type === 'unit') && card.attack !== undefined && card.health !== undefined && (
           <div className="flex justify-between mb-2">
             <div className="flex items-center gap-1 text-xs text-orange-300">
               <Swords className="w-3 h-3" />

@@ -1,6 +1,6 @@
-import * as React from "react";
-import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
+import { cva, type VariantProps } from "class-variance-authority";
+import * as React from "react";
 
 const badgeVariants = cva(
   "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
@@ -20,6 +20,7 @@ const badgeVariants = cva(
         rare: "border-blue-400 bg-blue-400/10 text-blue-300",
         epic: "border-purple-400 bg-purple-400/10 text-purple-300",
         legendary: "border-yellow-400 bg-yellow-400/10 text-yellow-300",
+        mythic: "border-orange-500 bg-orange-500/10 text-orange-300",
       },
     },
     defaultVariants: {
@@ -30,11 +31,16 @@ const badgeVariants = cva(
 
 export interface BadgeProps
   extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof badgeVariants> {}
+  VariantProps<typeof badgeVariants> {
+  // Explicitly add children to props
+  children?: React.ReactNode;
+}
 
-function Badge({ className, variant, ...props }: BadgeProps) {
+function Badge({ className, variant, children, ...props }: BadgeProps) {
   return (
-    <div className={cn(badgeVariants({ variant }), className)} {...props} />
+    <div className={cn(badgeVariants({ variant }), className)} {...props}>
+      {children}
+    </div>
   );
 }
 

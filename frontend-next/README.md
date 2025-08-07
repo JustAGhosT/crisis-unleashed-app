@@ -14,7 +14,7 @@ Modern Next.js 14 frontend for Crisis Unleashed, featuring App Router, Shadcn UI
 
 ## 📁 **Project Structure**
 
-```
+``` text
 frontend-next/
 ├── src/
 │   ├── app/                    # Next.js App Router
@@ -38,6 +38,7 @@ frontend-next/
 ## 🎯 **Key Features Implemented**
 
 ### **SOLID Principles Applied**
+
 - **Single Responsibility**: Each component has one clear purpose
 - **Open/Closed**: Components are extensible through props
 - **Liskov Substitution**: All components follow consistent interfaces
@@ -45,12 +46,14 @@ frontend-next/
 - **Dependency Inversion**: Components depend on abstractions
 
 ### **Component Architecture**
+
 - **FactionCard**: Displays individual faction information
 - **FactionGrid**: Responsive grid of faction cards
 - **Theme System**: Faction-specific colors and gradients
 - **Type Safety**: Full TypeScript coverage
 
 ### **Modern Patterns**
+
 - Server/Client component separation
 - Composition over inheritance
 - Custom hooks for reusable logic
@@ -60,16 +63,19 @@ frontend-next/
 ## 🛠️ **Development Setup**
 
 ### **Prerequisites**
-- Node.js 18+ 
+
+- Node.js 18+
 - pnpm (recommended) or npm
 
 ### **Installation**
+
 ```bash
 cd frontend-next
 pnpm install
 ```
 
 ### **Development Commands**
+
 ```bash
 # Start development server
 pnpm dev
@@ -88,13 +94,16 @@ pnpm type-check
 ```
 
 ### **Development Server**
+
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:8000 (proxied via Next.js)
 
 ## 🎨 **Styling System**
 
 ### **Faction Colors**
+
 Each faction has a dedicated color palette:
+
 - **Solaris**: Gold to Orange gradient
 - **Umbral**: Purple to Violet gradient  
 - **Aeonic**: Cyan to Turquoise gradient
@@ -104,6 +113,7 @@ Each faction has a dedicated color palette:
 - **Synthetic**: Silver to Gray gradient
 
 ### **Utility Classes**
+
 ```css
 /* Faction gradients */
 .faction-gradient-solaris
@@ -118,19 +128,33 @@ Each faction has a dedicated color palette:
 ## 🔄 **Migration Strategy**
 
 ### **Phase 1: Infrastructure ✅**
+
 - [x] Next.js 14 setup with App Router
 - [x] Shadcn UI component library
 - [x] TanStack Query configuration
 - [x] TypeScript and linting
 - [x] Faction system foundation
 
-### **Phase 2: Component Migration**
-- [ ] Migrate core game components
+### **Phase 2: Component Migration ✅**
+
+- [x] Migrate faction components
+  - [x] FactionCard, FactionGrid
+  - [x] Legacy compatibility components
+  - [x] Faction detail page
+- [x] Implement feature flag system
+  - [x] Feature flag provider
+  - [x] Admin UI for flags
+- [x] Set up data services
+  - [x] Faction service with mock data
+  - [x] Type adapters for compatibility
 - [ ] Implement form components with React Hook Form + Zod
 - [ ] Add data fetching hooks with TanStack Query
 - [ ] Create reusable UI patterns
 
+See [MIGRATION_STATUS.md](./MIGRATION_STATUS.md) for detailed migration status.
+
 ### **Phase 3: Feature Development**
+
 - [ ] Game interface components
 - [ ] Deck building system
 - [ ] Battle system interface
@@ -185,22 +209,40 @@ NEXT_PUBLIC_BLOCKCHAIN_NETWORK=testnet
 
 ## 🔄 **Comparison: Old vs New**
 
-| Feature | Old (Vite + React) | New (Next.js 14) |
-|---------|-------------------|------------------|
-| **Routing** | React Router | App Router |
-| **Styling** | CSS Modules | Tailwind + Shadcn |
-| **State** | React Context | TanStack Query |
-| **Forms** | Manual validation | React Hook Form + Zod |
-| **Build** | Vite | Next.js |
-| **SSR** | Client-only | Server/Client hybrid |
-| **Performance** | Good | Excellent |
+| Feature            | Old (Vite + React)   | New (Next.js 14)               |
+| ------------------ | -------------------- | ------------------------------ |
+| **Routing**        | React Router         | App Router                     |
+| **Styling**        | CSS Modules          | Tailwind + Shadcn              |
+| **State**          | React Context        | TanStack Query                 |
+| **Forms**          | Manual validation    | React Hook Form + Zod          |
+| **Build**          | Vite                 | Next.js                        |
+| **SSR**            | Client-only          | Server/Client hybrid           |
+| **Performance**    | Good                 | Excellent                      |
+| **Components**     | Class/Function mix   | Function + Hooks               |
+| **Faction System** | Basic implementation | Enhanced with SOLID principles |
+| **Type Safety**    | Partial              | Complete                       |
+| **Feature Flags**  | Limited              | Comprehensive system           |
+
+| Feature         | Old (Vite + React) | New (Next.js 14)      |
+| --------------- | ------------------ | --------------------- |
+| **Routing**     | React Router       | App Router            |
+| **Styling**     | CSS Modules        | Tailwind + Shadcn     |
+| **State**       | React Context      | TanStack Query        |
+| **Forms**       | Manual validation  | React Hook Form + Zod |
+| **Build**       | Vite               | Next.js               |
+| **SSR**         | Client-only        | Server/Client hybrid  |
+| **Performance** | Good               | Excellent             |
 
 ## 🎮 **Game-Specific Features**
 
-### **Faction System**
+### **Faction System** ✅
 - Complete faction data with colors and themes
 - Responsive faction cards with hover effects
 - Grid layout with loading states
+- Detailed faction pages
+- Progressive enhancement with feature flags
+- Type-safe faction interfaces
+- Legacy compatibility layer
 
 ### **Planned Features**
 - Card collection interface

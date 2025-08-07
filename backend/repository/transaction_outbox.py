@@ -1,7 +1,6 @@
 """
 Transaction Outbox Pattern for blockchain-database consistency.
 """
-
 import logging
 from typing import Any, Dict, List, Optional
 from datetime import datetime
@@ -10,7 +9,6 @@ from pymongo import ReturnDocument
 from .outbox_models import OutboxEntry, OutboxStatus, OutboxType
 
 logger = logging.getLogger(__name__)
-
 
 class TransactionOutboxRepository:
     """Repository for managing transaction outbox entries."""
@@ -45,7 +43,6 @@ class TransactionOutboxRepository:
                 "$expr": {"$lt": ["$attempts", "$max_attempts"]},
             }
         ).limit(limit)
-
         docs = await cursor.to_list(length=limit)
         return [OutboxEntry.from_dict(doc) for doc in docs]
 
@@ -73,29 +70,24 @@ class TransactionOutboxRepository:
 
     async def mark_processing(self, outbox_id: str) -> Optional[OutboxEntry]:
         """Mark entry as processing."""
--       entry = await self.get_by_id(outbox_id)
--       if entry:
--           entry.update_status(OutboxStatus.PROCESSING)
--           return await self.update_entry(entry)
--       return None
-+       result = await self.collection.find_one_and_update(
-+           {
-+               "_id": outbox_id,
-+               "status": {"$in": [
-+                   OutboxStatus.PENDING.value,
-+                   OutboxStatus.RETRY.value,
-+                   OutboxStatus.ERROR.value
-+               ]}
-+           },
-+           {
-+               "$set": {
-+                   "status": OutboxStatus.PROCESSING.value,
-+                   "updated_at": datetime.utcnow()
-+               }
-+           },
-+           return_document=ReturnDocument.AFTER
-+       )
-+       return OutboxEntry.from_dict(result) if result else None
+        result = await self.collection.find_one_and_update(
+            {
+                "_id": outbox_id,
+                "status": {"$in": [
+                    OutboxStatus.PENDING.value,
+                    OutboxStatus.RETRY.value,
+                    OutboxStatus.ERROR.value
+                ]}
+            },
+            {
+                "$set": {
+                    "status": OutboxStatus.PROCESSING.value,
+                    "updated_at": datetime.utcnow()
+                }
+            },
+            return_document=ReturnDocument.AFTER
+        )
+        return OutboxEntry.from_dict(result) if result else None
 
     async def mark_completed(
         self, outbox_id: str, result: Dict[str, Any]
@@ -132,7 +124,6 @@ class TransactionOutboxRepository:
         cursor = self.collection.find(
             {"status": status.value}
         ).skip(offset).limit(limit).sort("created_at", -1)
-        
         docs = await cursor.to_list(length=limit)
         return [OutboxEntry.from_dict(doc) for doc in docs]
 
@@ -143,7 +134,6 @@ class TransactionOutboxRepository:
         cursor = self.collection.find(
             {"type": outbox_type.value}
         ).skip(offset).limit(limit).sort("created_at", -1)
-        
         docs = await cursor.to_list(length=limit)
         return [OutboxEntry.from_dict(doc) for doc in docs]
 
@@ -163,7 +153,6 @@ class TransactionOutboxRepository:
                 ]
             }
         ).limit(limit).sort("updated_at", -1)
-        
         docs = await cursor.to_list(length=limit)
         return [OutboxEntry.from_dict(doc) for doc in docs]
 
@@ -174,7 +163,6 @@ class TransactionOutboxRepository:
         cursor = self.collection.find(
             {"request_data.blockchain": blockchain}
         ).skip(offset).limit(limit).sort("created_at", -1)
-        
         docs = await cursor.to_list(length=limit)
         return [OutboxEntry.from_dict(doc) for doc in docs]
 
@@ -192,27 +180,21 @@ class TransactionOutboxRepository:
                 }
             }
         ]
-        
         cursor = self.collection.aggregate(pipeline)
         results = await cursor.to_list(length=None)
-        
         stats = {status.value: 0 for status in OutboxStatus}
         for result in results:
             stats[result["_id"]] = result["count"]
-        
         return stats
 
     async def cleanup_completed_entries(self, days_old: int = 30) -> int:
         """Clean up old completed entries."""
-        from datetime import datetime, timedelta
-        
+        from datetime import timedelta
         cutoff_date = datetime.utcnow() - timedelta(days=days_old)
-        
         result = await self.collection.delete_many({
             "status": OutboxStatus.COMPLETED.value,
             "processed_at": {"$lt": cutoff_date}
         })
-        
         logger.info(f"Cleaned up {result.deleted_count} completed entries older than {days_old} days")
         return result.deleted_count
 
