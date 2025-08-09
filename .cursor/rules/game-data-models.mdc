@@ -1,68 +1,60 @@
 ---
-description: Specifications for core game entities including cards, battlefield, player stats, and game state models
-globs: **/types/*.ts,**/models/*.ts,**/data/*.ts,**/game/*.ts,**/entities/*.ts
-alwaysApply: false
+description: Rules and specifications for core game entities including cards, battlefield grid, player stats, and game state models
 ---
 
 
 # game-data-models
 
-## Core Game Entities
+### Core Game Models
 
-### Card System
-- Card type hierarchy with distinct rules:
-  - Heroes (1 per deck limit)
-  - Units (combat stats + initiative)
-  - Actions (instant effects)
-  - Structures (zone-based persistence)
+**Card System (90)**
+- Card types hierarchy with Heroes, Units, Structures, Actions
+- Unique attributes per type: Initiative, Range, Zone Restrictions
+- Card state tracking including zone location, buffs/debuffs, energy cost
+- Implementation in `frontend/src/types/card.ts`
 
-### Battlefield Grid
-- Specialized zones:
-  - Player frontline/backline 
-  - Neutral territory
-  - Movement/positioning restrictions
-  - Zone control mechanics
+**Battlefield Grid (85)**
+- 5x6 hexagonal grid with distinct zones
+- Zone control and influence mechanics
+- Line of sight and range calculations
+- Combat resolution system
+- Implementation in `frontend/src/features/battlefield/Battlefield.tsx`
 
-### Player Resources
-- Multi-resource management:
-  - Energy (capped at 10, +1 per turn)
-  - Momentum (0-5, gained through combat)
-  - Health (starting at 20)
+**Player Stats (80)**
+- Dual resource system: Energy and Momentum
+- Health tracking with faction-specific modifiers
+- Resource generation/consumption rules
+- Implementation in `frontend/src/features/players/PlayerHUD.tsx`
 
-### Faction Mechanics
-- Seven unique faction implementations:
-  - Solaris: Energy manipulation, predictive algorithms
-  - Umbral: Stealth, information warfare
-  - Neuralis: Mind control, mental projection
-  - Aeonic: Time manipulation
-  - Infernal: Blood sacrifice mechanics
-  - Primordial: Evolution acceleration
-  - Synthetic: System optimization
+**Game State Model (85)**
+- Phase-based turn structure: Draw, Energy, Main, Combat, End
+- State transitions with faction-specific modifications
+- Crisis event system affecting gameplay rules
+- Implementation in `frontend/src/features/battlefield/TurnManager.tsx`
 
-### Combat Resolution
-- Initiative-based attack order
-- Simultaneous damage resolution
-- Special combat keywords:
-  - Quick Attack
-  - Overwhelm
-  - Lifesteal
-  - Shield
+**Combat System (90)**
+- Initiative-based sequencing
+- Range-based targeting rules
+- Zone control effects on combat
+- Faction-specific combat modifiers
+- Implementation in `frontend/src/features/battlefield/CombatResolver.tsx`
 
-### Game State Model
-- Turn phases:
-  - Draw Phase
-  - Energy Phase (resource generation)
-  - Main Phase (card playing)
-  - Combat Phase
-  - End Phase
-- State transitions with validation rules
-- Crisis event triggers and effects
+### Faction-Specific Models
 
-Relevant Files:
-- `frontend/src/types/game.types.ts`
-- `frontend/src/data/factions/index.ts`
-- `frontend/src/features/battlefield/Battlefield.tsx`
-- `backend/types/faction.py`
+**Faction Mechanics (85)**
+- Solaris: Energy manipulation mechanics
+- Umbral: Stealth and visibility systems
+- Neuralis: Mind control abilities
+- Aeonic: Time manipulation effects
+- Primordial: Adaptation mechanics
+- Synthetic: Resource optimization
+- Implementation in `frontend/src/data/factions/index.ts`
+
+**Synergy System (80)**
+- Inter-card synergy tracking
+- Faction combination effects
+- Chain reaction mechanics
+- Implementation in `frontend/src/features/game/SynergySystem.tsx`
 
 $END$
 

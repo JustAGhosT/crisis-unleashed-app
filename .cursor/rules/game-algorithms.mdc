@@ -1,78 +1,65 @@
 ---
-description: Analyzes and documents core game mechanics, algorithms, and systems that define the unique gameplay elements
-globs: **/game/**,**/gameplay/**,**/mechanics/**,**/battle/**,**/cards/**,**/factions/**
-alwaysApply: false
+description: Specifications for core game algorithms including battlefield management, card mechanics, turn sequencing and combat resolution
 ---
 
 
 # game-algorithms
 
-## Core Systems
+## Core Combat System
+**Importance Score: 95**
+- Implements zone-based tactical combat with unit placement rules
+- Manages battlefield grid layout and positioning
+- Handles line-of-sight calculations and range restrictions
+- Resolves combat interactions between units including timing and initiative
+- Processes status effects, buffs, and zone control mechanics
 
-### Turn Sequence Engine
-- Phase-based turn management system:
-  - Draw Phase: Card drawing and resource regeneration
-  - Energy Phase: Energy point allocation 
-  - Main Phase: Card playing and ability activation
-  - Combat Phase: Attack declaration and resolution
-  - End Phase: Cleanup and effect resolution
+## Turn Sequence Management 
+**Importance Score: 90**
+- Implements distinct turn phases: Draw, Energy, Main, Combat, End
+- Manages resource resets (energy/momentum) between phases
+- Handles phase-specific actions and timing restrictions
+- Controls turn transitions with faction-specific modifications
 
-### Combat Resolution System
-- Initiative-based combat using unit stats and positioning
-- Multi-zone battlefield grid with specialized areas:
-  - Frontline/Backline zones
-  - Faction-specific territory bonuses
-  - Strategic control points
-- Simultaneous damage resolution with priority ordering
-
-### Resource Management
-- Dual resource system:
-  - Energy: Primary resource for playing cards and abilities
-  - Momentum: Secondary resource gained through combat/actions
-- Progressive scaling with turn count
-- Faction-specific resource modifiers
-
-### Card Deployment Logic
-- Position validation based on:
-  - Zone restrictions (frontline/backline)
-  - Adjacency rules
-  - Faction territory requirements
-- Unit type restrictions:
-  - Heroes limited to 1 per deck
-  - Regular units max 3 copies
-  - Structure placement rules
-
-## Faction Mechanics
-
-### Faction-Specific Algorithms
-- Solaris: Energy manipulation and prediction systems
-- Umbral: Stealth and information warfare mechanics
-- Neuralis: Mind control and psychological warfare
-- Aeonic: Time manipulation effects
-- Infernal: Sacrifice and power transfer systems
-- Primordial: Evolution and adaptation mechanics
-- Synthetic: Optimization and efficiency algorithms
-
-### Synergy System
-- Inter-faction ability combinations
-- Power scaling based on faction alignment
-- Territory control bonuses
-- Resource sharing mechanics
+## Card Deployment Logic
+**Importance Score: 85**
+- Validates card play conditions including energy costs and timing
+- Implements targeting system for card abilities and effects
+- Manages card counters for deck, hand and discard piles
+- Processes mulligan system and card draw mechanics
 
 ## Crisis Event System
-- Dynamic event generation
-- Multi-faction impact calculations
-- Territorial control modifications
-- Resource distribution algorithms
+**Importance Score: 80**
+- Implements dynamic crisis events that modify gameplay
+- Manages crisis resolution mechanics and rewards
+- Controls timing of crisis activation and effects
+- Handles interaction between crisis events and battlefield state
 
-Relevant Files:
-- `frontend/src/features/battlefield/Battlefield.tsx`
-- `frontend/src/features/battlefield/TurnManager.tsx`
-- `frontend/src/types/game.types.ts`
-- `frontend/src/utils/factionUtils.ts`
-- `backend/types/faction.py`
-- `backend/services/game/combat_resolver.py`
-- `backend/services/game/turn_manager.py`
+## Synergy System
+**Importance Score: 75**
+- Calculates potential card synergies and combo effects
+- Manages activation conditions for synergy bonuses
+- Tracks synergy chains and multipliers
+- Implements faction-specific synergy mechanics
+
+## Resource Management
+**Importance Score: 70**
+- Controls three-resource system: Health, Energy, Momentum
+- Implements resource generation and consumption rules
+- Handles faction-specific resource modifiers
+- Manages resource overflow and minimum thresholds
+
+File paths for core implementations:
+```
+src/
+  features/
+    battlefield/Battlefield.tsx
+    battlefield/TurnManager.tsx  
+    cards/CardHand.tsx
+    combat/CombatResolver.tsx
+    crisis/CrisisManager.tsx
+    synergy/SynergyCalculator.tsx
+    resources/ResourceManager.tsx
+```
 
 $END$
 
