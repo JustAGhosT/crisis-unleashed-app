@@ -10,42 +10,71 @@
 - Explain your OBSERVATIONS clearly, then provide REASONING to identify the exact issue. Add console logs when needed to gather more information.
 
 
-Crisis Unleashed implements a digital card game with unique faction-based mechanics and blockchain integration. The core business logic is organized around three main systems:
+The Crisis Unleashed project implements a complex card game with blockchain integration, organized around several core business domains:
 
-## Core Game Mechanics
-- Seven distinct factions (Solaris, Umbral, Neuralis, Aeonic, Infernal, Primordial, Synthetic) each with unique abilities and mechanics
-- Dual resource system (Energy and Momentum) for card play and ability activation
-- Hexagonal battlefield grid with territory control mechanics
-- Turn-based gameplay with specialized phases (Draw, Energy, Main, Combat, End)
+## Core Game Systems
+
+### Faction Mechanics
+- Seven unique factions with distinct technological approaches and abilities
+- Faction-specific resource systems and combat mechanics
+- Custom validation rules for faction interactions and synergies
 
 File paths:
-- `src/components/game/TurnManager.tsx`
-- `src/features/battlefield/Battlefield.tsx`
-- `src/types/game.types.ts`
+- `frontend/src/components/factions/`
+- `backend/types/faction.py`
+
+### Card System
+- Hero-based combat with specialized card types
+- Multi-resource management (Energy, Momentum)
+- Faction-specific card abilities and effects
+- NFT integration for card ownership
+
+File paths:
+- `frontend/src/features/cards/`
+- `backend/services/blockchain_handler.py`
 
 ## Blockchain Integration
-- Transaction outbox pattern for consistent NFT minting and transfers
-- Multi-chain support (Ethereum, Etherlink, Solana) with provider abstraction
-- Health monitoring system for blockchain services
-- Feature flag system for gradual rollout of blockchain features
+
+### Transaction Management
+- Outbox pattern for blockchain consistency
+- Support for multiple chains (Ethereum, Etherlink, Solana)
+- NFT minting and trading workflows
+- Custom validation for blockchain operations
 
 File paths:
-- `backend/services/blockchain_handler.py`
-- `backend/services/blockchain_service.py`
 - `backend/repository/transaction_outbox.py`
+- `backend/services/blockchain/`
 
-## Faction System
-- Unique mechanics per faction (e.g., Solaris energy manipulation, Umbral stealth)
-- Cross-faction synergy system with power scaling
-- Progressive faction advancement through "Universal Program" paths
-- Crisis events that modify gameplay based on faction alignment
+### Asset Generation
+- Faction-based placeholder asset generation
+- Dynamic SVG content generation
+- Custom faction-themed patterns
+- Hierarchical asset generation workflow
 
 File paths:
-- `src/data/factions/index.ts`
-- `src/components/factions/FactionGridWrapper.tsx`
-- `.neuralliquid-ai/FACTION_SYSTEM.md`
+- `frontend/scripts/generate-placeholder-assets*.cjs`
 
-The business logic emphasizes faction interactions, strategic resource management, and secure blockchain integration for digital asset ownership. Feature flags enable gradual rollout of new components while maintaining backward compatibility through middleware routing.
+## Game State Management
+
+### Combat System
+- Phase-based turn system
+- Zone-based battlefield control
+- Initiative-based combat resolution
+- Resource regeneration rules
+
+File paths:
+- `frontend/src/features/battlefield/`
+
+### Health Monitoring
+- Service dependency management
+- Critical service validation
+- Custom health check implementations
+- Fail-fast initialization system
+
+File paths:
+- `backend/services/health_manager.py`
+
+The business logic emphasizes faction identity, strategic depth through resource management, and secure blockchain integration while maintaining game balance and consistency.
 
 $END$
 

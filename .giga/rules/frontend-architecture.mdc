@@ -1,6 +1,6 @@
 ---
-description: Defines React component hierarchy, state management patterns, and UI/UX implementation for a card-based strategy game
-globs: frontend/src/**/*.tsx,frontend/src/**/*.ts,frontend/src/**/*.css
+description: Frontend architecture specification for Crisis Unleashed card game, covering component hierarchy, state management, and UI/UX patterns
+globs: frontend/src/**/*.{ts,tsx},frontend/components/**/*.{ts,tsx},frontend-next/src/**/*.{ts,tsx}
 alwaysApply: false
 ---
 
@@ -9,47 +9,35 @@ alwaysApply: false
 
 ## Component Hierarchy
 
-### Game Interface (90/100)
-`frontend/src/components/game/GameInterface.tsx`
-- Centralizes game state management for turn phases, player resources, and momentum
-- Orchestrates interactions between battlefield, card hands, and player HUDs
-- Manages turn-based gameplay flow and resource resets
+### Faction System Components
+- `components/factions/FactionGrid.tsx`: Hexagonal grid layout for displaying 7 unique factions with connection lines indicating technological relationships
+- `components/factions/FactionCard.tsx`: Faction-specific cards with dynamic theming and visual effects based on faction technology 
+- `components/factions/TimelineSection.tsx`: Tracks faction emergence and technological development across three possible future paths
 
-### Battlefield Management (85/100)
-`frontend/src/features/battlefield/Battlefield.tsx`
-- Implements grid-based unit placement system
-- Controls player and enemy zone interactions
-- Handles battlefield state updates during gameplay phases
+### Game Interface Components
+- `features/battlefield/Battlefield.tsx`: Grid-based combat system with distinct zones and faction-specific rules
+- `features/battlefield/TurnManager.tsx`: Three-phase turn structure with resource management
+- `features/cards/CardHand.tsx`: Hand management with faction-specific card interactions
 
-### Card Management (80/100)
-`frontend/src/features/cards/CardHand.tsx`
-- Controls card selection mechanics based on energy availability
-- Manages player hand states and card playability rules
-- Implements energy cost validation for card plays
+### Deck Building Components 
+- `components/deck-builder/DeckBuilder.tsx`: Implements complex deck building rules:
+  - Maximum 3 copies per card (1 for Hero cards)
+  - 30-50 cards per deck
+  - Maximum 2 factions per deck
+  - Hero card requirements
+  - Faction consistency validation
 
-### Turn Phase System (75/100)
-`frontend/src/features/battlefield/TurnManager.tsx`
-- Defines turn phases (DEPLOY, ACTION, END)
-- Controls phase transitions and associated game state changes
-- Implements turn timer functionality
+### State Management
+- Faction state: Manages active faction themes, technology levels, and integration paths
+- Game state: Tracks battlefield state, turn phases, and resource systems (Energy/Momentum)
+- Collection state: Manages card ownership, deck compositions, and faction progression
 
-### Player Information Display (70/100)
-`frontend/src/features/players/PlayerHUD.tsx`
-- Visualizes player and opponent stats using circular progress indicators
-- Updates resource displays (health, momentum, energy)
-- Highlights active player status
-
-### Opponent Hand Visualization (65/100)
-`frontend/src/features/players/OpponentHand.tsx`
-- Displays opponent card count and hand size
-- Implements face-down card visualization
-- Manages opponent hand animations
-
-## State Management
-- Centralizes game state in GameInterface component
-- Implements resource management for energy, health, and momentum
-- Controls turn-based state transitions
-- Manages battlefield grid state and unit positions
+### UI/UX Implementation
+- Dynamic faction theming system adapting colors, effects, and animations
+- Hexagonal grid layout system for faction relationships
+- Responsive battlefield grid with zone-specific rules
+- Interactive card preview and detail system
+- Real-time resource and state tracking displays
 
 $END$
 

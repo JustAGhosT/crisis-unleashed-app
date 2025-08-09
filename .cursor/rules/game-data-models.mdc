@@ -1,67 +1,68 @@
 ---
-description: Defines core game data models including cards, battlefield grid, player stats, and game state for a digital card game with unique faction mechanics.
-globs: src/types/*.ts,src/models/*.ts,src/data/*.ts,backend/types/*.py,backend/models/*.py
+description: Specifications for core game entities including cards, battlefield, player stats, and game state models
+globs: **/types/*.ts,**/models/*.ts,**/data/*.ts,**/game/*.ts,**/entities/*.ts
 alwaysApply: false
 ---
 
 
 # game-data-models
 
-### Core Game Entities
+## Core Game Entities
 
-#### Card Data Model
-- Card types: Hero, Unit, Action, Structure
-- Rarity system with numeric mappings (1-5)
-- Faction alignment with multiple faction support
-- Resource costs: Energy and Momentum
-- Combat stats: Attack, Health, Initiative
-- Special abilities and keywords
+### Card System
+- Card type hierarchy with distinct rules:
+  - Heroes (1 per deck limit)
+  - Units (combat stats + initiative)
+  - Actions (instant effects)
+  - Structures (zone-based persistence)
 
-#### Battlefield Grid Model 
-- Hexagonal grid system
-- Zone control mechanics (player/enemy/neutral)
-- Position tracking (frontline/backline)
-- Territory influence mapping
-- Faction-specific zone bonding
+### Battlefield Grid
+- Specialized zones:
+  - Player frontline/backline 
+  - Neutral territory
+  - Movement/positioning restrictions
+  - Zone control mechanics
 
-#### Player Stats Model
-- Three primary resources:
-  - Health (0-100)
-  - Energy (0-10, resets each turn)  
-  - Momentum (0-10, accumulates)
-- Deck state tracking
-- Hand size limits
-- Active effects tracking
+### Player Resources
+- Multi-resource management:
+  - Energy (capped at 10, +1 per turn)
+  - Momentum (0-5, gained through combat)
+  - Health (starting at 20)
 
-#### Game State Model
-- Turn structure:
+### Faction Mechanics
+- Seven unique faction implementations:
+  - Solaris: Energy manipulation, predictive algorithms
+  - Umbral: Stealth, information warfare
+  - Neuralis: Mind control, mental projection
+  - Aeonic: Time manipulation
+  - Infernal: Blood sacrifice mechanics
+  - Primordial: Evolution acceleration
+  - Synthetic: System optimization
+
+### Combat Resolution
+- Initiative-based attack order
+- Simultaneous damage resolution
+- Special combat keywords:
+  - Quick Attack
+  - Overwhelm
+  - Lifesteal
+  - Shield
+
+### Game State Model
+- Turn phases:
   - Draw Phase
-  - Energy Phase
-  - Main Phase
+  - Energy Phase (resource generation)
+  - Main Phase (card playing)
   - Combat Phase
   - End Phase
-- Crisis event tracking
-- Faction power distribution
-- Universal Program progression paths:
-  - Integration Path
-  - Collapse Path  
-  - Divergence Path
+- State transitions with validation rules
+- Crisis event triggers and effects
 
-### Faction System
-- Seven unique factions with distinct mechanics:
-  - Solaris: Energy manipulation
-  - Umbral: Stealth operations 
-  - Neuralis: Mind control
-  - Aeonic: Time manipulation
-  - Primordial: Growth systems
-  - Infernal: Sacrifice mechanics
-  - Synthetic: AI evolution
-
-File paths:
-- `src/types/game.types.ts`
-- `src/data/factions/index.ts`
+Relevant Files:
+- `frontend/src/types/game.types.ts`
+- `frontend/src/data/factions/index.ts`
+- `frontend/src/features/battlefield/Battlefield.tsx`
 - `backend/types/faction.py`
-- `backend/repository/outbox_models.py`
 
 $END$
 

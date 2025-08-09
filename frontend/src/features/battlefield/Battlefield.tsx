@@ -118,18 +118,20 @@ const Battlefield: React.FC<BattlefieldProps> = ({
     );
   };
 
-  // Set CSS custom properties for grid layout
-  const gridStyle = useMemo(() => ({
-    '--battlefield-cols': cols,
-    '--battlefield-rows': rows,
-  } as React.CSSProperties), [cols, rows]);
+  // Compute helper classes for grid sizing instead of inline styles
+  const { colsClass, rowsClass } = useMemo(() => {
+    const clamp = (val: number, min: number, max: number) => Math.max(min, Math.min(max, val));
+    const c = clamp(cols, 3, 7);
+    const r = clamp(rows, 2, 6);
+    return {
+      colsClass: styles[`cols${c}` as keyof typeof styles] as string,
+      rowsClass: styles[`rows${r}` as keyof typeof styles] as string,
+    };
+  }, [cols, rows]);
 
   return (
     <div className={styles.container}>
-      <div
-        className={styles.grid}
-        style={gridStyle}
-      >
+      <div className={[styles.grid, colsClass, rowsClass].filter(Boolean).join(' ')}>
         {battlefieldGrid.map((zone) => {
           const isActiveZone = hoveredZone === zone.position && selectedCard;
           const isPlayableZone = isActiveZone &&

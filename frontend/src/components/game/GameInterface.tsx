@@ -72,19 +72,42 @@ const GameInterface: React.FC = () => {
         </div>
         
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-4xl w-full">
+          {/** Faction style maps to avoid inline styles **/}
+          {/** Background/border **/}
+          {/** Title color **/}
+          {/** Keep duplication minimal and readable **/}
+          {/** These are approximate visual matches to factionThemes **/}
+          {/** Solaris, Umbral, Neuralis, Aeonic, Infernal, Primordial, Synthetic **/}
+          {/** Using Tailwind arbitrary colors for gradients **/}
+          {/** Consider centralizing if reused elsewhere **/}
           {FACTIONS.map((faction) => {
             const factionTheme = factionThemes[faction];
+            const bgBorderClass: Record<Faction, string> = {
+              solaris: 'bg-gradient-to-br from-[#0A0A1A] to-[#1A1A3A] border-[#FFD700]/25',
+              umbral: 'bg-gradient-to-br from-[#0A0A0A] to-[#1A0A1A] border-[#9B59B6]/25',
+              neuralis: 'bg-gradient-to-br from-[#001A1A] to-[#003333] border-[#00CED1]/25',
+              aeonic: 'bg-gradient-to-br from-[#0A0A1A] to-[#1A0A2A] border-[#9370DB]/25',
+              infernal: 'bg-gradient-to-br from-[#1A0A0A] to-[#3A0A0A] border-[#FF4500]/25',
+              primordial: 'bg-gradient-to-br from-[#0A1A0A] to-[#0A2A0A] border-[#32CD32]/25',
+              synthetic: 'bg-gradient-to-br from-[#0A0A0A] to-[#1A1A1A] border-[#C0C0C0]/25',
+            };
+            const titleColor: Record<Faction, string> = {
+              solaris: 'text-[#FFD700]',
+              umbral: 'text-[#9B59B6]',
+              neuralis: 'text-[#00CED1]',
+              aeonic: 'text-[#9370DB]',
+              infernal: 'text-[#FF4500]',
+              primordial: 'text-[#32CD32]',
+              synthetic: 'text-[#C0C0C0]',
+            };
+            const baseButton = 'p-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg flex flex-col items-center justify-center border';
             return (
               <button
                 key={faction}
                 onClick={() => handleFactionSelect(faction)}
-                className={`p-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg flex flex-col items-center justify-center ${
-                  selectedFaction === faction ? 'ring-4 ring-primary ring-opacity-70' : ''
+                className={`${baseButton} ${bgBorderClass[faction]} ${
+                  selectedFaction === faction ? 'ring-4 ring-primary/70' : ''
                 }`}
-                style={{
-                  background: `linear-gradient(135deg, ${factionTheme.colors.background} 0%, ${factionTheme.colors.secondary}20 100%)`,
-                  border: `1px solid ${factionTheme.colors.primary}40`,
-                }}
               >
                 <div className="text-4xl mb-2">
                   {faction === 'solaris' && '☀️'}
@@ -95,7 +118,7 @@ const GameInterface: React.FC = () => {
                   {faction === 'primordial' && '🌱'}
                   {faction === 'synthetic' && ''}
                 </div>
-                <h3 className="text-xl font-bold mb-1" style={{ color: factionTheme.colors.primary }}>
+                <h3 className={`text-xl font-bold mb-1 ${titleColor[faction]}`}>
                   {factionTheme.name}
                 </h3>
                 <p className="text-xs text-gray-300 text-center">
@@ -122,7 +145,7 @@ const GameInterface: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: theme.gradient }}>
+    <div className="min-h-screen flex flex-col bg-[var(--gradient-bg)]">
       {/* Game Header */}
       <header className="bg-black bg-opacity-50 backdrop-blur-sm p-2 border-b border-opacity-20 border-white">
         <div className="container mx-auto flex justify-between items-center">

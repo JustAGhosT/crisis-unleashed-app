@@ -1,6 +1,13 @@
+/* eslint-disable react/prop-types */
 import React, { useMemo, memo, useCallback } from 'react';
-import { useTheme } from '@/theme/ThemeProvider';
 import clsx from 'clsx';
+import styles from './OpponentHand.module.css';
+
+type CardPosVars = {
+  '--rot'?: string;
+  '--x'?: string;
+  '--z'?: number;
+};
 
 interface OpponentHandProps {
   cardCount?: number;
@@ -14,8 +21,7 @@ interface CardBackProps {
   isActive?: boolean;
 }
 
-const CardBack: React.FC<CardBackProps> = memo(({ cardId, isActive = false }) => {
-  const { theme } = useTheme();
+const CardBack: React.FC<CardBackProps> = memo(({ cardId: _cardId, isActive = false }) => {
   
   return (
     <div 
@@ -24,6 +30,7 @@ const CardBack: React.FC<CardBackProps> = memo(({ cardId, isActive = false }) =>
         'transform-gpu shadow-lg',
         'border-2 border-gray-700/50',
         'bg-gradient-to-br from-gray-900/80 to-gray-800/80',
+        styles.cardBackgroundVar,
         'flex items-center justify-center',
         {
           'scale-110 -translate-y-3 z-10 shadow-xl': isActive,
@@ -32,17 +39,12 @@ const CardBack: React.FC<CardBackProps> = memo(({ cardId, isActive = false }) =>
           'ring-1 ring-white/20': !isActive,
         }
       )}
-      style={{
-        backgroundImage: `
-          linear-gradient(145deg, rgba(30, 30, 30, 0.9) 0%, rgba(20, 20, 20, 0.95) 100%),
-          repeating-linear-gradient(
-            45deg,
-            rgba(255, 255, 255, 0.02) 0px,
-            rgba(255, 255, 255, 0.02) 1px,
-            transparent 1px,
-            transparent 8px
-          )
-        `
+      ref={(el) => {
+        if (!el) return;
+        el.style.setProperty(
+          '--card-bg',
+          'linear-gradient(145deg, rgba(30, 30, 30, 0.9) 0%, rgba(20, 20, 20, 0.95) 100%), repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.02) 0px, rgba(255, 255, 255, 0.02) 1px, transparent 1px, transparent 8px)'
+        );
       }}
     >
       {/* Tech Pattern */}
@@ -50,10 +52,10 @@ const CardBack: React.FC<CardBackProps> = memo(({ cardId, isActive = false }) =>
         {[...Array(16)].map((_, i) => (
           <div 
             key={i}
-            className="w-1/4 h-1/4 border border-white/5"
-            style={{
-              backgroundColor: i % 2 === 0 ? 'transparent' : 'rgba(255, 255, 255, 0.03)'
-            }}
+            className={clsx(
+              'w-1/4 h-1/4 border border-white/5',
+              i % 2 === 0 ? styles.techPatternCell : styles.techPatternCellAlt
+            )}
           />
         ))}
       </div>
@@ -99,20 +101,18 @@ const CardBack: React.FC<CardBackProps> = memo(({ cardId, isActive = false }) =>
           'bg-gradient-to-r from-transparent via-white/10 to-transparent',
           'transform -skew-x-12',
           'pointer-events-none',
+          styles.holographicVar,
           {
             'opacity-100': isActive,
             'group-hover:opacity-30': !isActive,
           }
         )}
-        style={{
-          backgroundImage: `linear-gradient(
-            90deg,
-            transparent,
-            rgba(255, 255, 255, 0.1),
-            rgba(255, 255, 255, 0.2),
-            rgba(255, 255, 255, 0.1),
-            transparent
-          )`
+        ref={(el) => {
+          if (!el) return;
+          el.style.setProperty(
+            '--holo-bg',
+            'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1), transparent)'
+          );
         }}
       />
       
@@ -122,15 +122,17 @@ const CardBack: React.FC<CardBackProps> = memo(({ cardId, isActive = false }) =>
           'absolute -inset-0.5 rounded-lg',
           'transition-all duration-300',
           'pointer-events-none',
+          styles.borderGlowVars,
           {
             'bg-gradient-to-br from-primary/60 to-secondary/60': isActive,
             'bg-gradient-to-br from-primary/20 to-secondary/20': !isActive,
           }
         )}
-        style={{
-          filter: `blur(${isActive ? '8px' : '4px'})`,
-          opacity: isActive ? 0.8 : 0,
-          zIndex: -1,
+        ref={(el) => {
+          if (!el) return;
+          el.style.setProperty('--glow-blur', isActive ? '8px' : '4px');
+          el.style.setProperty('--glow-opacity', isActive ? '0.8' : '0');
+          el.style.setProperty('--glow-z', '-1');
         }}
       />
     </div>
@@ -145,7 +147,6 @@ const OpponentHand: React.FC<OpponentHandProps> = ({
   isActive = false,
   className = ''
 }) => {
-  const { theme } = useTheme();
   
   // Generate card placeholders
   const cards = useMemo(() => {
@@ -156,24 +157,23 @@ const OpponentHand: React.FC<OpponentHandProps> = ({
   }, [cardCount, maxCards, isActive]);
 
   // Calculate card positions in a fan shape
-  const getCardStyle = useCallback((index: number, total: number) => {
-    if (total <= 1) return {};
-    
-    const maxRotation = 15; // Maximum rotation in degrees
-    const maxOffset = 16; // Maximum horizontal offset in pixels
-    const maxZIndex = total + 10; // Base z-index for cards
-    
-    // Calculate rotation and offset based on position in hand
-    const position = (index / (total - 1)) * 2 - 1; // -1 to 1 range
-    const rotation = position * maxRotation * -1; // Invert for natural fan
-    const offset = position * maxOffset * -1; // Invert for natural fan
-    const zIndex = maxZIndex - Math.abs(position) * (maxZIndex / 2); // Center cards on top
-    
+  const getCardVars = useCallback((index: number, total: number): CardPosVars => {
+    if (total <= 1) return {} as CardPosVars;
+
+    const maxRotation = 15;
+    const maxOffset = 16;
+    const maxZIndex = total + 10;
+
+    const position = (index / (total - 1)) * 2 - 1;
+    const rotation = position * maxRotation * -1;
+    const offset = position * maxOffset * -1;
+    const zIndex = maxZIndex - Math.abs(position) * (maxZIndex / 2);
+
     return {
-      transform: `rotate(${rotation}deg) translateX(${offset}px)`,
-      zIndex: Math.floor(zIndex),
-      transition: 'transform 0.3s ease, z-index 0.3s ease'
-    };
+      '--rot': `${rotation}deg`,
+      '--x': `${offset}px`,
+      '--z': Math.floor(zIndex),
+    } as CardPosVars;
   }, []);
 
   return (
@@ -187,7 +187,7 @@ const OpponentHand: React.FC<OpponentHandProps> = ({
         <div className="absolute -top-6 left-1/2 transform -translate-x-1/2">
           <div className="flex items-center bg-red-900/80 text-red-200 text-xs font-bold px-3 py-1 rounded-full border border-red-600/50">
             <div className="w-2 h-2 rounded-full bg-red-400 animate-pulse mr-2" />
-            Opponent's Turn
+            Opponent&#39;s Turn
           </div>
         </div>
       )}
@@ -198,8 +198,15 @@ const OpponentHand: React.FC<OpponentHandProps> = ({
           cards.map((card, index) => (
             <div 
               key={card.id}
-              className="absolute transition-all duration-300 origin-bottom"
-              style={getCardStyle(index, cards.length)}
+              className={clsx('absolute transition-all duration-300 origin-bottom', styles.cardPos)}
+              ref={(el) => {
+                if (!el) return;
+                const vars = getCardVars(index, cards.length);
+                // Set CSS vars imperatively
+                if (vars['--rot']) el.style.setProperty('--rot', vars['--rot']!);
+                if (vars['--x']) el.style.setProperty('--x', vars['--x']!);
+                if (vars['--z'] !== undefined) el.style.setProperty('--z', String(vars['--z']!));
+              }}
             >
               <div className="group">
                 <CardBack 

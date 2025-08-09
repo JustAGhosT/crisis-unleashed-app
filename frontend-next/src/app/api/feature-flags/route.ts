@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
   
   // This is a simplified example
   return NextResponse.json({
-    useNewFactionUI: true,  // Default to true in the new codebase
+    useNewFactionUI: process.env.ENABLE_NEW_FACTION_UI === "true",
     useNewDeckBuilder: process.env.ENABLE_NEW_DECK_BUILDER === "true",
     useNewCardDisplay: process.env.ENABLE_NEW_CARD_DISPLAY === "true", 
     useNewNavigation: process.env.ENABLE_NEW_NAVIGATION === "true",

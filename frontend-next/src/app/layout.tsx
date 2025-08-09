@@ -1,19 +1,22 @@
-import { Providers } from "@/components/providers";
+import "@/styles/globals.css";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
+import { Inter as FontSans } from "next/font/google";
+import { Providers } from "@/components/providers";
+import { cn } from "@/lib/utils";
 
-const inter = Inter({ subsets: ["latin"] });
+const fontSans = FontSans({
+  subsets: ["latin"],
+  variable: "--font-sans",
+});
 
 export const metadata: Metadata = {
-  title: "Crisis Unleashed",
-  description: "A strategic digital collectible card game set in a multiverse where seven unique factions battle for supremacy",
-  keywords: ["card game", "strategy", "digital collectibles", "NFT", "blockchain", "gaming"],
-  authors: [{ name: "Crisis Unleashed Team" }],
-  openGraph: {
-    title: "Crisis Unleashed",
-    description: "Strategic multiverse card game with faction-based gameplay",
-    type: "website",
+  title: {
+    default: "Card Game",
+    template: "%s | Card Game",
+  },
+  description: "Strategic card game with unique factions",
+  icons: {
+    icon: "/favicon.ico",
   },
 };
 
@@ -24,9 +27,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body
+        className={cn(
+          "min-h-screen bg-background font-sans antialiased",
+          fontSans.variable
+        )}
+      >
         <Providers>
-          {children}
+          <div className="relative flex min-h-screen flex-col">
+            <main className="flex-1">{children}</main>
+          </div>
         </Providers>
       </body>
     </html>

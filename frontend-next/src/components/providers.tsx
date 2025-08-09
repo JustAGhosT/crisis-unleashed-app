@@ -1,28 +1,26 @@
+"use client";
+
+import { ReactNode } from "react";
 import { ThemeProvider } from "@/components/theme-provider";
-import { ToastProvider } from "@/hooks/useToast";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { FeatureFlagProvider } from "@/lib/feature-flags/feature-flag-provider";
-import { QueryProvider } from "@/lib/query-provider";
-import React from 'react';
 
-interface ProvidersProps {
-  children: React.ReactNode;
-}
+// Create a client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60 * 1000, // 1 minute
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
-export function Providers({ children }: ProvidersProps) {
+export function Providers({ children }: { children: ReactNode }) {
   return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="dark"
-      enableSystem
-      disableTransitionOnChange
-    >
-      <FeatureFlagProvider>
-        <QueryProvider>
-          <ToastProvider>
-            {children}
-          </ToastProvider>
-        </QueryProvider>
-      </FeatureFlagProvider>
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <FeatureFlagProvider>{children}</FeatureFlagProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }

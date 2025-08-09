@@ -1,61 +1,58 @@
 ---
-description: Frontend architecture specification for React-based game client with faction system and feature flags
-globs: src/**/*.tsx,src/**/*.ts,src/components/**/*,src/app/**/*,src/lib/**/*
+description: Frontend architecture specification for card game component hierarchy, state management, and UI implementation
+globs: frontend/**/*,frontend-next/**/*
 alwaysApply: false
 ---
 
 
 # frontend-architecture
 
-The frontend architecture implements specialized game logic through a component hierarchy focused on faction interactions and progressive feature deployment.
+## Core Component Structure
+- Game Layout: `frontend/components/game/GameInterface.tsx`
+  - Battlefield Grid: Controls zone placement and unit positioning
+  - Resource Management: Tracks energy/momentum across turn phases  
+  - Player Areas: Defines card hand and hero placement zones
+  - Combat Resolution: Manages attack targeting and damage resolution
 
-## Core Component Architecture
+## State Management 
+- Faction-Based Theming: `frontend/context/FactionThemesContext.tsx`
+  - Dynamic theme switching based on active faction
+  - Custom styling per faction: colors, gradients, fonts
+  - Shared theme tokens for consistent faction identity
 
-### Feature Flag System
-- Dynamic feature flag provider enables gradual rollout of new features
-- Admin interface toggles flags for A/B testing and staged releases
-- Middleware routes users between legacy and new implementations
-- File paths:
-  - `src/lib/feature-flags/feature-flag-provider.tsx`
-  - `src/app/admin/feature-flags/page.tsx`
-  - `src/middleware.ts`
+- Card Management: `frontend/features/cards/CardHand.tsx`
+  - Hand size limits and draw mechanics
+  - Energy cost validation for card plays
+  - Combat keyword resolution (Quick Attack, Overwhelm, etc)
+  - Zone placement restrictions
 
-### Faction System Components
-- FactionGridWrapper conditionally renders new/legacy faction grids
-- Custom data transformations map old faction structure to new schema
-- Specialized faction detail pages with dynamic routing
-- File paths:
-  - `src/components/factions/FactionGridWrapper.tsx`
-  - `src/app/factions/[id]/page.tsx`
-  - `src/app/factions/page.tsx`
+## UI/UX Implementation
+- Battlefield Grid: `frontend/features/battlefield/Battlefield.tsx`
+  - Frontline/Backline zone system
+  - Unit positioning constraints
+  - Attack vector visualization
+  - Zone control indicators
 
-### Theme Management
-- Custom theme provider with light/dark/system modes
-- Faction-specific color themes and styling
-- Theme persistence across sessions
-- File paths:
-  - `src/components/theme-provider.tsx`
-  - `src/components/theme-toggle.tsx`
+- Resource Display: `frontend/features/players/PlayerHUD.tsx` 
+  - Energy/Momentum tracking
+  - Turn phase indicators
+  - Combat stats visualization
+  - Hero power availability
 
-## Migration Architecture
+- Faction Selection: `frontend/components/factions/FactionGrid.tsx`
+  - Dynamic faction emblem loading
+  - Faction synergy visualization
+  - Technology tree connections
+  - Ability preview system
 
-### Component Migration Strategy
-- Incremental migration from Vite to Next.js
-- Feature flags control deployment of new components
-- Legacy compatibility layer during transition
-- Type adapters ensure data consistency
-- File paths:
-  - `src/MIGRATION.md`
-  - `src/MIGRATION_PLAN.md`
-  - `src/components/legacy/README.md`
+## Game Flow Control
+- Turn Manager: `frontend/features/battlefield/TurnManager.tsx`
+  - Phase sequencing logic
+  - Action point allocation
+  - Combat resolution queuing
+  - Resource regeneration rules
 
-### Faction Data Models
-- Detailed specifications for six unique factions
-- Each faction has distinct themes and mechanics
-- Custom validation for faction IDs in static generation
-- File paths:
-  - `.neuralliquid-ai/FACTION_SYSTEM.md`
-  - `src/lib/data.ts`
+The architecture emphasizes faction-specific theming and mechanics while maintaining a consistent game flow across different faction combinations. Core systems like resource management and combat resolution are designed to be extensible for future faction additions.
 
 $END$
 

@@ -210,6 +210,12 @@
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
+/* Phase progress bar driven by CSS variables */
+.phaseProgress {
+  width: var(--phase-progress);
+  opacity: var(--phase-opacity);
+}
+
 /* Responsive adjustments */
 @media (max-width: 640px) {
   .turnNumber {

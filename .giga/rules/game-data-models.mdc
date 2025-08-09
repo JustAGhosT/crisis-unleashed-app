@@ -1,48 +1,57 @@
 ---
-description: Defines core game entities and data models for the card-based strategy game Crisis Unleashed
-globs: src/types/*.ts,src/models/*.ts,src/constants/*.ts
+description: Rules for modeling core game data structures including cards, battlefield, player stats, and state models
+globs: **/types/*.ts,**/models/*.ts,**/data/*.ts,**/state/*.ts
 alwaysApply: false
 ---
 
 
 # game-data-models
 
-## Core Game Entities (Importance: 95)
+## Core Game Entities
 
-The game defines several core data models that represent the fundamental game mechanics:
+### Card Models
+- Card Types: Hero, Unit, Action, Structure
+- Combat Stats: Initiative, Range, Movement Speed
+- Resource Costs: Energy, Momentum 
+- Zone Restrictions: Backline/Frontline placement rules
+- Persistence Rules: Permanent vs temporary effects
 
-### Player Stats Model
-- Health points tracking player survival
-- Energy points for playing cards each turn 
-- Momentum points affecting special abilities
-- Current/maximum values for each stat
+### Battlefield Grid
+- Layout: 6x4 grid divided into player zones
+- Zone Types: Backline (2 rows), Frontline (2 rows)
+- Unit Placement: Maximum 1 unit per cell
+- Movement Rules: Based on unit movement speed and zone type
 
-### Card Model
-- Energy cost requirements
-- Card effects and abilities
-- Target requirements and restrictions
-- Card type classification
-- Synergy identifiers
-
-### Battlefield Grid Model
-- Player and enemy zones
-- Unit placement coordinates
-- Zone control status
-- Movement range limitations
-- Line of sight calculations
+### Player Stats
+- Health Points: Starting at 30
+- Energy: Gained +1 per turn (max 10)
+- Momentum: Generated through combat/card effects (max 5)
+- Hand Size: 7 cards maximum
 
 ### Game State Model
-- Turn phase tracking (Deploy/Action/End)
-- Active player designation
-- Crisis event status
-- Synergy activation states
-- Game phase transitions
+```typescript
+interface GameState {
+  players: {[id: string]: PlayerState};
+  currentPhase: TurnPhase;
+  turnNumber: number;
+  activePlayer: string;
+  battlefield: BattlefieldGrid;
+  actionStack: GameAction[];
+}
+```
 
-File References:
-- `frontend/src/types/game.types.ts` - Core type definitions
-- `frontend/src/constants/mockCards.ts` - Card data structures
+### Turn Structure
+1. Draw Phase: Draw card
+2. Energy Phase: Gain energy
+3. Main Phase: Play cards/abilities  
+4. Combat Phase: Resolve battles
+5. End Phase: Cleanup effects
 
-The models are implemented primarily through TypeScript interfaces and constants, with mock data structures providing the initial game state representation for development and testing.
+## File Paths
+- `src/types/card.ts`: Card type definitions
+- `src/types/game.ts`: Core game state models
+- `src/models/battlefield.ts`: Battlefield grid implementation
+- `src/data/player-stats.ts`: Player statistics definitions
 
 $END$
 

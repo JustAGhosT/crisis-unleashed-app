@@ -1,55 +1,89 @@
 ---
-description: Documentation of core game mechanics and algorithms for turn-based card gameplay systems
-globs: 'frontend/src/features/battlefield/*','frontend/src/features/cards/*','frontend/src/components/game/*'
+description: Specifications for core game mechanics, faction abilities, combat resolution, and turn sequencing in Crisis Unleashed.
+globs: **/game/**,**/battle/**,**/cards/**,**/factions/**,**/types/game.types.ts
 alwaysApply: false
 ---
 
 
 # game-algorithms
 
-## Core Game Systems
+## Core Game Mechanics
 
-### Turn Management
-`frontend/src/features/battlefield/TurnManager.tsx`
-- Implements distinct turn phases: DEPLOY, ACTION, END
-- Manages turn transitions and phase-specific validations
-- Handles resource replenishment between turns
-Importance: 95
+### Turn Structure
+- Draw Phase: Draw 1 card (2 on first turn)
+- Energy Phase: Gain +1 max Energy (cap 10)
+- Main Phase: Play cards and abilities
+- Combat Phase: Resolve battles
+- End Phase: Cleanup and trigger effects
 
-### Card Deployment Logic 
-`frontend/src/features/cards/CardHand.tsx`
-- Validates card plays based on player energy availability
-- Enforces placement restrictions and targeting rules
-- Manages hand size limits and card draw sequencing
-Importance: 90
+### Resource Systems
+- Energy: Base +1/turn, cap 10
+- Momentum: Gained from combat wins and card plays, cap 5
+
+### Combat Resolution
+- Speed-based initiative order
+- Simultaneous damage resolution
+- Unit destruction at 0 health
+- Zone-specific combat rules
+- Keywords: Quick Attack, Overwhelm, Lifesteal, Shield
+
+## Faction Abilities
+
+### Solaris Nexus
+- Energy manipulation and reality editing
+- Predictive algorithm bonuses
+- Divine computation abilities
+
+### Umbral Eclipse  
+- Shadow manipulation
+- Information warfare tactics
+- Stealth unit deployment
+
+### Aeonic Dominion
+- Time manipulation mechanics
+- Temporal preservation abilities
+- Turn sequence alterations
+
+### Primordial Genesis
+- Evolution and growth systems
+- Adaptation mechanics
+- Overwhelming force abilities
+
+### Infernal Core
+- Sacrifice mechanics
+- Risk/reward abilities
+- Blood ritual enhancements
+
+### Neuralis Conclave
+- Mind control abilities
+- Collective consciousness bonuses
+- Psychic warfare tactics
+
+### Synthetic Directive
+- System optimization
+- Mechanical precision bonuses
+- Perfect calculation abilities
+
+## Card Systems
+
+### Card Types
+- Hero Cards: Unique abilities, one per deck
+- Unit Cards: Melee, Ranged, Siege, Flying
+- Action Cards: Instant, Ongoing, Equipment
+- Structure Cards: Buildings, Traps, Auras
 
 ### Battlefield Management
-`frontend/src/features/battlefield/Battlefield.tsx`
-- Controls unit placement across player/enemy zones
-- Manages battlefield grid state and zone interactions
-- Handles unit positioning validation
-Importance: 85
+- Distinct zones: Player, Enemy, Neutral
+- Zone-specific placement rules
+- Unit movement restrictions
+- Structure persistence rules
 
-### Game State Orchestration
-`frontend/src/components/game/GameInterface.tsx`
-- Coordinates overall game flow and phase transitions
-- Manages player resources (health, energy, momentum)
-- Synchronizes turn-based actions between players
-Importance: 92
-
-## Combat Systems
-
-### Unit Interaction
-- Manages valid target selection
-- Implements zone-based movement restrictions
-- Controls unit engagement rules
-Importance: 80
-
-### Resource Management
-- Tracks and updates player energy pools
-- Manages momentum accumulation/expenditure
-- Controls resource distribution per turn
-Importance: 75
+Relevant file paths:
+- `src/features/battlefield/Battlefield.tsx`
+- `src/types/game.types.ts`
+- `src/features/cards/CardHand.tsx`
+- `src/features/battlefield/TurnManager.tsx`
+- `backend/types/faction.py`
 
 $END$
 

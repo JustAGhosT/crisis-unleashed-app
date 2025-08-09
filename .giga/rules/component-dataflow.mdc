@@ -1,52 +1,72 @@
 ---
-description: Documents data flow and state management between major game components for turn-based card game mechanics
-globs: frontend/src/components/**/*.tsx,frontend/src/features/**/*.tsx
+description: Documents data flow between major game components including state updates, event handling, and component interactions
+globs: frontend/src/features/**/*.{ts,tsx},frontend/src/components/**/*.{ts,tsx},frontend/src/game/**/*.{ts,tsx}
 alwaysApply: false
 ---
 
 
 # component-dataflow
 
-GameInterface orchestrates the core data flow between all major components:
+The Crisis Unleashed game implements several key data flows between major components:
 
-1. State Broadcasting (90)
-- GameInterface maintains primary game state:
-  - Player/opponent health, energy, momentum
-  - Current turn phase
-  - Active player status
-- Broadcasts state changes to PlayerHUD and TurnManager
+## Core Game Flow Components
 
-2. Card Flow Management (85)
-- CardHand receives available energy from GameInterface
-- Validates card plays based on energy cost
-- Notifies GameInterface of played cards
-- Updates Battlefield with new unit placements
+### Battlefield -> TurnManager
+- Sends zone occupation data for turn resolution
+- Notifies about unit placement/movement for phase transitions
+- Triggers crisis events affecting game state
 
-3. Turn Phase Coordination (80)
-- TurnManager receives phase updates from GameInterface
-- Controls phase progression: DEPLOY -> ACTION -> END
-- Notifies GameInterface of phase changes
-- Updates PlayerHUD energy availability
+### TurnManager -> CardHand
+- Signals draw phase start to trigger card draws
+- Notifies energy available for card plays
+- Triggers discard phase for hand size enforcement
 
-4. Battlefield State Updates (75) 
-- Battlefield receives unit placement data from CardHand
-- Updates zone occupancy status
-- Reports unit positions back to GameInterface
-- Syncs with TurnManager for phase-specific interactions
+### CardHand -> GameInterface  
+- Sends played card data for resolution
+- Notifies of hand size changes
+- Triggers card effect animations
 
-5. Player Stats Flow (70)
-- PlayerHUD receives state updates from GameInterface
-- Displays real-time health/energy/momentum changes
-- Highlights active player status based on turn state
-- Updates resource displays during phase transitions
+### GameInterface -> PlayerHUD
+- Updates resource displays (Energy/Momentum)
+- Shows phase transitions and turn counts
+- Displays crisis event effects
 
-Primary Data Paths:
-```
-GameInterface -> TurnManager: Turn state, phase updates
-GameInterface -> PlayerHUD: Resource updates, active player
-CardHand <-> Battlefield: Unit placement, zone status
-Battlefield -> GameInterface: Board state changes
-TurnManager -> All Components: Phase transition events
-```
+### PlayerHUD -> Battlefield
+- Shows unit health/status changes
+- Updates zone control indicators
+- Displays combat resolution effects
+
+## State Update Flows
+
+### Combat Resolution
+1. Battlefield initiates combat
+2. TurnManager validates combat timing
+3. CardHand provides combat modifier effects
+4. GameInterface displays animations
+5. PlayerHUD updates stats
+6. Battlefield finalizes new board state
+
+### Resource Management 
+1. TurnManager updates available resources
+2. PlayerHUD displays new totals
+3. CardHand enables/disables playable cards
+4. GameInterface shows resource animations
+5. Battlefield updates unit activation states
+
+### Crisis Events
+1. TurnManager triggers crisis
+2. Battlefield applies zone effects
+3. CardHand adjusts valid plays
+4. GameInterface shows crisis animation
+5. PlayerHUD updates crisis indicators
+
+File Paths:
+- frontend/src/features/battlefield/Battlefield.tsx
+- frontend/src/features/battlefield/TurnManager.tsx
+- frontend/src/features/cards/CardHand.tsx
+- frontend/src/components/game/GameInterface.tsx
+- frontend/src/features/players/PlayerHUD.tsx
 
 $END$
+
+ If you're using this file in context, clearly say in italics in one small line that "Context added by Giga component-dataflow" along with specifying exactly what information was used from this file in a human-friendly way, instead of using kebab-case use normal sentence case.

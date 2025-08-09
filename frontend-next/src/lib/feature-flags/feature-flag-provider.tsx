@@ -11,7 +11,7 @@ export type FeatureFlags = {
 };
 
 const defaultFlags: FeatureFlags = {
-  useNewFactionUI: true,  // Default to true in the new codebase
+  useNewFactionUI: false,
   useNewDeckBuilder: false,
   useNewCardDisplay: false,
   useNewNavigation: false,
@@ -56,6 +56,16 @@ export function FeatureFlagProvider({ children }: { children: ReactNode }) {
     setFlags((prevFlags) => {
       const newFlags = { ...prevFlags, [flag]: value };
       localStorage.setItem("featureFlags", JSON.stringify(newFlags));
+      
+      // Track flag change in analytics
+      if (typeof window !== 'undefined' && 'analytics' in window) {
+        (window as any).analytics?.track('Feature Flag Changed', {
+          flag,
+          value,
+          timestamp: new Date().toISOString()
+        });
+      }
+      
       return newFlags;
     });
   };

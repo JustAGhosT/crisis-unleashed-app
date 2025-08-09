@@ -1,56 +1,78 @@
 ---
-description: Specifications for core game algorithms including battlefield management, card deployment, turn sequencing, and combat resolution
-globs: 
+description: Analyzes and documents core game mechanics, algorithms, and systems that define the unique gameplay elements
+globs: **/game/**,**/gameplay/**,**/mechanics/**,**/battle/**,**/cards/**,**/factions/**
 alwaysApply: false
 ---
 
 
 # game-algorithms
 
-## Core Game Systems
+## Core Systems
 
-### Turn Structure and Resource Management
-- **Draw Phase**: Players draw until reaching hand size limit
-- **Energy Phase**: Energy resets to maximum (10) plus modifiers
-- **Main Phase**: Players can deploy units, structures, and actions
-- **Combat Phase**: Combat resolution using initiative-based sequencing
-- **End Phase**: Effects resolve, momentum accumulates, crisis events trigger
+### Turn Sequence Engine
+- Phase-based turn management system:
+  - Draw Phase: Card drawing and resource regeneration
+  - Energy Phase: Energy point allocation 
+  - Main Phase: Card playing and ability activation
+  - Combat Phase: Attack declaration and resolution
+  - End Phase: Cleanup and effect resolution
 
-### Battlefield Management
-- Hexagonal grid system with 3 zones:
-  - Frontline (units engage in direct combat)
-  - Support (ranged units and structures)
-  - Reserve (protected reinforcement zone)
-- Zone control mechanics affect resource generation and card abilities
-- Line of sight calculations for ranged combat and abilities
+### Combat Resolution System
+- Initiative-based combat using unit stats and positioning
+- Multi-zone battlefield grid with specialized areas:
+  - Frontline/Backline zones
+  - Faction-specific territory bonuses
+  - Strategic control points
+- Simultaneous damage resolution with priority ordering
 
-### Combat Resolution
-- Initiative order determines unit activation sequence
-- Attack resolution includes:
-  - Base damage + modifiers
-  - Faction-specific combat abilities
-  - Zone control bonuses
-  - Structure effects
-  - Crisis event modifiers
+### Resource Management
+- Dual resource system:
+  - Energy: Primary resource for playing cards and abilities
+  - Momentum: Secondary resource gained through combat/actions
+- Progressive scaling with turn count
+- Faction-specific resource modifiers
 
 ### Card Deployment Logic
-- Resource cost validation (Energy/Momentum)
-- Zone placement restrictions
-- Faction alignment requirements
-- Synergy calculations between allied units
-- Crisis event impact assessment
+- Position validation based on:
+  - Zone restrictions (frontline/backline)
+  - Adjacency rules
+  - Faction territory requirements
+- Unit type restrictions:
+  - Heroes limited to 1 per deck
+  - Regular units max 3 copies
+  - Structure placement rules
 
-### Crisis Integration System
-- Dynamic events affect battlefield conditions
-- Zone control modifiers during crisis
-- Resource generation changes
-- Special combat rules during events
+## Faction Mechanics
 
-Relevant File Paths:
-- src/features/battlefield/Battlefield.tsx
-- src/features/battlefield/TurnManager.tsx
-- src/components/game/GameInterface.tsx
-- src/types/game.types.ts
+### Faction-Specific Algorithms
+- Solaris: Energy manipulation and prediction systems
+- Umbral: Stealth and information warfare mechanics
+- Neuralis: Mind control and psychological warfare
+- Aeonic: Time manipulation effects
+- Infernal: Sacrifice and power transfer systems
+- Primordial: Evolution and adaptation mechanics
+- Synthetic: Optimization and efficiency algorithms
+
+### Synergy System
+- Inter-faction ability combinations
+- Power scaling based on faction alignment
+- Territory control bonuses
+- Resource sharing mechanics
+
+## Crisis Event System
+- Dynamic event generation
+- Multi-faction impact calculations
+- Territorial control modifications
+- Resource distribution algorithms
+
+Relevant Files:
+- `frontend/src/features/battlefield/Battlefield.tsx`
+- `frontend/src/features/battlefield/TurnManager.tsx`
+- `frontend/src/types/game.types.ts`
+- `frontend/src/utils/factionUtils.ts`
+- `backend/types/faction.py`
+- `backend/services/game/combat_resolver.py`
+- `backend/services/game/turn_manager.py`
 
 $END$
 

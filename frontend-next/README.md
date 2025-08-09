@@ -223,16 +223,6 @@ NEXT_PUBLIC_BLOCKCHAIN_NETWORK=testnet
 | **Type Safety**    | Partial              | Complete                       |
 | **Feature Flags**  | Limited              | Comprehensive system           |
 
-| Feature         | Old (Vite + React) | New (Next.js 14)      |
-| --------------- | ------------------ | --------------------- |
-| **Routing**     | React Router       | App Router            |
-| **Styling**     | CSS Modules        | Tailwind + Shadcn     |
-| **State**       | React Context      | TanStack Query        |
-| **Forms**       | Manual validation  | React Hook Form + Zod |
-| **Build**       | Vite               | Next.js               |
-| **SSR**         | Client-only        | Server/Client hybrid  |
-| **Performance** | Good               | Excellent             |
-
 ## 🎮 **Game-Specific Features**
 
 ### **Faction System** ✅

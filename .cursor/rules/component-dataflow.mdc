@@ -1,57 +1,70 @@
 ---
-description: Documents data flow between game components for understanding state updates and component communication patterns
-globs: src/components/**,src/features/**,src/lib/**,src/services/**
+description: Documents data flow and state updates between major game components including Battlefield, CardHand, GameInterface, PlayerHUD and TurnManager
+globs: **/components/**/*.{ts,tsx},**/features/**/*.{ts,tsx},**/game/**/*.{ts,tsx}
 alwaysApply: false
 ---
 
 
-# component-dataflow
+# Component-Dataflow
 
-The core game components communicate through the following data flows:
+## Core Game State Flow
 
-### Battlefield <-> TurnManager
-- Battlefield receives current turn phase and active player from TurnManager
-- TurnManager updates battlefield state when turn phase changes
-- Combat resolution data flows from Battlefield to TurnManager for processing
+The game state flows between five major components that manage different aspects of gameplay:
+
+### Battlefield -> TurnManager
+- Sends unit position updates and combat results
+- Notifies when combat phase completes
+- Updates zone control status
+- Reports crisis event triggers
+
+### TurnManager -> PlayerHUD 
+- Updates current phase (Draw/Energy/Main/Combat/End)
+- Sends resource updates (Energy/Momentum)
+- Notifies valid action types for current phase
+- Triggers hero ability availability
+
+### CardHand -> GameInterface
+- Reports played card events
+- Updates hand size and composition
+- Sends targeting information for card effects
+- Notifies when cards are discarded
+
+### PlayerHUD -> Battlefield
+- Sends unit deployment commands
+- Initiates combat actions
+- Activates hero abilities
+- Triggers structure placement
+
+### GameInterface -> TurnManager
+- Sends player action confirmations
+- Reports turn completion
+- Initiates phase transitions
+- Processes crisis event responses
+
+## State Update Rules
+
+- Combat results must be processed before phase transitions
+- Resource updates flow from TurnManager to all components
+- Card effects resolve before unit actions
+- Hero abilities can interrupt normal phase flow
+- Crisis events take priority over standard actions
+
+## Component Dependencies
+
+```
+Battlefield <-> TurnManager <-> PlayerHUD
+     ^              ^             ^
+     |              |             |
+     v              v             v
+CardHand ------> GameInterface <---
+```
 
 File paths:
-```
-src/features/battlefield/Battlefield.tsx
-src/features/battlefield/TurnManager.tsx
-```
-
-### CardHand <-> PlayerHUD 
-- CardHand monitors player resources (energy, momentum) from PlayerHUD
-- Playable cards are highlighted/disabled based on resource availability
-- Playing a card updates resource values in PlayerHUD
-
-File paths:
-```
-src/features/cards/CardHand.tsx
-src/features/players/PlayerHUD.tsx
-```
-
-### GameInterface <-> Battlefield
-- GameInterface renders battlefield state updates
-- Unit placement/movement requests flow from GameInterface to Battlefield
-- Combat animations and effects triggered by Battlefield state changes
-
-File paths:
-```
-src/components/game/GameInterface.tsx 
-src/features/battlefield/Battlefield.tsx
-```
-
-### TurnManager <-> PlayerHUD
-- TurnManager controls resource refreshes at turn start
-- PlayerHUD updates momentum and energy based on turn phase
-- Hero ability activations flow from PlayerHUD to TurnManager
-
-Key workflows:
-- Turn phase transitions trigger cascading updates through components
-- Resource management flows from PlayerHUD to other components
-- Combat resolution involves coordination between multiple components
-- State changes propagate through component hierarchy
+- frontend/src/features/battlefield/Battlefield.tsx
+- frontend/src/features/battlefield/TurnManager.tsx 
+- frontend/src/features/cards/CardHand.tsx
+- frontend/src/components/game/GameInterface.tsx
+- frontend/src/features/players/PlayerHUD.tsx
 
 $END$
 

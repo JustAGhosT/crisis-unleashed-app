@@ -1,7 +1,7 @@
 import { PlayerId } from '@/types/game.types';
 import clsx from 'clsx';
-import React, { useCallback, useEffect, useState } from 'react';
-import { useTheme } from '@/theme/ThemeProvider';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import styles from './TurnManager.module.css';
 
 interface TurnManagerProps {
   currentTurn: number;
@@ -22,6 +22,7 @@ const TurnManager: React.FC<TurnManagerProps> = ({
 }) => {
   const isPlayerTurn = activePlayer === 'player1';
   const [timeRemaining, setTimeRemaining] = useState(105); // 1:45 in seconds
+  const progressRef = useRef<HTMLDivElement | null>(null);
   
   // Reset timer when turn changes
   useEffect(() => {
@@ -37,9 +38,17 @@ const TurnManager: React.FC<TurnManagerProps> = ({
     }, 1000);
     
     return () => clearInterval(timer);
-  }, [isPlayerTurn, currentTurn]);
+  }, [isPlayerTurn]);
+
+  // Apply CSS vars for phase progress without inline style prop
+  useEffect(() => {
+    const el = progressRef.current;
+    if (!el) return;
+    const progress = `${((currentPhaseIndex + 1) / phases.length) * 100}%`;
+    el.style.setProperty('--phase-progress', progress);
+    el.style.setProperty('--phase-opacity', isPlayerTurn ? '1' : '0.5');
+  }, [currentPhaseIndex, phases.length, isPlayerTurn]);
   
-  const { theme } = useTheme();
   const isLastPhase = currentPhaseIndex >= phases.length - 1;
   
   const formatTime = (seconds: number) => {
@@ -157,12 +166,12 @@ const TurnManager: React.FC<TurnManagerProps> = ({
           <div className="relative">
             {/* Progress bar */}
             <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-gradient-to-r from-primary to-secondary transition-all duration-500 ease-out"
-                style={{
-                  width: `${((currentPhaseIndex + 1) / phases.length) * 100}%`,
-                  opacity: isPlayerTurn ? 1 : 0.5,
-                }}
+              <div
+                className={clsx(
+                  styles.phaseProgress,
+                  'h-full bg-gradient-to-r from-primary to-secondary transition-all duration-500 ease-out'
+                )}
+                ref={progressRef}
               />
             </div>
             
