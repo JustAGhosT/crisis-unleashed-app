@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import { Inter as FontSans } from "next/font/google";
 import { Providers } from "@/components/providers";
 import { cn } from "@/lib/utils";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -11,10 +13,10 @@ const fontSans = FontSans({
 
 export const metadata: Metadata = {
   title: {
-    default: "Card Game",
-    template: "%s | Card Game",
+    default: "Crisis Unleashed",
+    template: "%s | Crisis Unleashed",
   },
-  description: "Strategic card game with unique factions",
+  description: "Strategic card game with unique factions battling in a dystopian future",
   icons: {
     icon: "/favicon.ico",
   },
@@ -35,7 +37,9 @@ export default function RootLayout({
       >
         <Providers>
           <div className="relative flex min-h-screen flex-col">
-            <main className="flex-1">{children}</main>
+            <Navbar />
+            <main className="flex-1 container mx-auto px-4 py-6">{children}</main>
+            <Footer />
           </div>
         </Providers>
       </body>

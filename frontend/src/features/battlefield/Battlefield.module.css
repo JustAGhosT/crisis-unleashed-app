@@ -13,8 +13,8 @@
   display: grid;
   gap: 0.5rem;
   /* Default to 5x3 if no size class applied */
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  grid-template-rows: repeat(3, minmax(5rem, 1fr));
+  grid-template-columns: repeat(var(--grid-cols, 5), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--grid-rows, 3), minmax(var(--cell-min-size, 5rem), 1fr));
   width: 100%;
   max-width: 64rem;
   margin: 0 auto;
@@ -23,18 +23,46 @@
 
 /* Grid size helpers (use with .grid) */
 /* Columns */
-.cols3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.cols4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.cols5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-.cols6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
-.cols7 { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.cols3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.cols4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.cols5 {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.cols6 {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.cols7 {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
 
 /* Rows */
-.rows2 { grid-template-rows: repeat(2, minmax(5rem, 1fr)); }
-.rows3 { grid-template-rows: repeat(3, minmax(5rem, 1fr)); }
-.rows4 { grid-template-rows: repeat(4, minmax(5rem, 1fr)); }
-.rows5 { grid-template-rows: repeat(5, minmax(5rem, 1fr)); }
-.rows6 { grid-template-rows: repeat(6, minmax(5rem, 1fr)); }
+.rows2 {
+  --grid-rows: 2;
+}
+
+.rows3 {
+  --grid-rows: 3;
+}
+
+.rows4 {
+  --grid-rows: 4;
+}
+
+.rows5 {
+  --grid-rows: 5;
+}
+
+.rows6 {
+  --grid-rows: 6;
+}
 
 /* Zone */
 .zone {

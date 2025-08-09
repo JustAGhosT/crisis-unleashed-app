@@ -1,8 +1,8 @@
-# Crisis Unleashed - Demo Readiness Plan
+# Crisis Unleashed - Comprehensive Implementation Plan
 
 ## Overview
 
-This document outlines the comprehensive plan to prepare the Crisis Unleashed board game interface for a live demo, with a focus on delivering a polished, engaging, and beginner-friendly experience that showcases the game's core mechanics and visual appeal.
+This document outlines the comprehensive plan for Crisis Unleashed, combining the board game interface demo preparation with the new Next.js application development that includes real-time game status monitoring. The focus is on delivering a polished, engaging, and beginner-friendly experience that showcases the game's core mechanics and visual appeal.
 
 ## Design Philosophy
 
@@ -13,19 +13,113 @@ This document outlines the comprehensive plan to prepare the Crisis Unleashed bo
 - **Progressive Disclosure**: Advanced features revealed as players become more comfortable
 - **Tactical Depth**: Clear visualization of synergies and crisis events for strategic play
 
-## Current State Analysis
+## Current Implementation Status
 
-This document provides a comprehensive, detailed plan to prepare the Crisis Unleashed board game interface for a live demo. The plan focuses on delivering a polished, engaging, and bug-free demo experience that showcases the game's core mechanics and visual appeal.
+### Completed Components
+- ✅ Basic Next.js application structure
+- ✅ Home page with game status display
+- ✅ Game status API endpoint (`/api/game-status`)
+- ✅ React Query integration for data fetching
 
-## Current State Analysis points
+### In-Progress Components
 
+- 🔄 Faction migration (see MIGRATION_PLAN.md)
+- 🔄 Feature flag system
+
+### Current State Analysis
 - **Frontend**: React/TypeScript with modular components
 - **Styling**: CSS Modules with global styles in index.css
 - **Core Components**: Battlefield, CardHand, OpponentHand, PlayerHUD, TurnManager
 - **Game State**: Managed via React state with mock data
 - **Accessibility**: Basic improvements in place (e.g., ARIA labels)
 
-## Demo Preparation Tasks
+## Next.js Application Development
+
+### 1. Core API Services (Priority: High)
+
+#### Game Status System
+- [x] Create mock game status API endpoint
+- [ ] Implement real-time status updates with WebSockets
+- [ ] Add status history tracking
+- [ ] Create status notification system
+- [ ] Implement server health metrics
+
+#### User Authentication
+
+- [ ] Implement authentication API endpoints
+- [ ] Create login/registration forms
+- [ ] Add session management
+- [ ] Implement role-based access control
+- [ ] Add wallet connection for blockchain integration
+
+#### Game Data Services
+- [ ] Complete faction data service migration
+- [ ] Implement card data service
+- [ ] Create deck management API
+- [ ] Add game history tracking
+- [ ] Implement user statistics service
+
+### 2. UI Components (Priority: High)
+
+#### Layout & Navigation
+
+- [ ] Create responsive layout with Navbar
+- [ ] Implement sidebar navigation
+- [ ] Add footer with game information
+- [ ] Create breadcrumb navigation
+- [ ] Implement mobile-friendly navigation drawer
+
+#### Dashboard Components
+- [ ] Create GameStatus component (extract from home page)
+- [ ] Implement user profile card
+- [ ] Add recent games list
+- [ ] Create statistics charts
+- [ ] Implement notification center
+
+#### Game Interface Components
+
+- [ ] Implement card browser with filters
+- [ ] Create deck builder interface
+- [ ] Add faction explorer
+- [ ] Implement game setup wizard
+- [ ] Create matchmaking interface
+
+### 3. Blockchain Integration (Priority: Medium)
+
+#### Wallet Connection
+
+- [ ] Implement wallet connection UI
+- [ ] Add transaction signing
+- [ ] Create wallet status indicator
+- [ ] Implement wallet switching
+- [ ] Add transaction history
+
+#### NFT Management
+- [ ] Create NFT gallery
+- [ ] Implement NFT minting interface
+- [ ] Add NFT transfer functionality
+- [ ] Create NFT detail view
+- [ ] Implement NFT marketplace
+
+### 4. Performance & Optimization (Priority: Medium)
+
+#### Frontend Optimization
+
+- [ ] Implement code splitting
+- [ ] Add image optimization
+- [ ] Create loading states and skeletons
+- [ ] Implement client-side caching
+- [ ] Add error boundaries
+
+#### API Optimization
+
+- [ ] Implement API request batching
+- [ ] Add API response caching
+- [ ] Create API rate limiting
+- [ ] Implement request compression
+- [ ] Add API monitoring
+
+## Board Game Interface Demo Preparation Tasks
 
 ### 1. Core Gameplay Functionality (Priority: High)
 
@@ -235,6 +329,20 @@ This document provides a comprehensive, detailed plan to prepare the Crisis Unle
 - [ ] Prepare backup demo scenarios
 - [ ] Create demo feedback form
 
+## Integration Plan
+
+### 1. Unified User Experience
+- [ ] Create consistent design system across Next.js app and game interface
+- [ ] Implement seamless transitions between web app and game
+- [ ] Add shared authentication between platforms
+- [ ] Create unified notification system
+
+### 2. Data Synchronization
+- [ ] Implement real-time game state updates to web app
+- [ ] Create game replay system in web app
+- [ ] Add cross-platform progression tracking
+- [ ] Implement shared leaderboards
+
 ## Timeline
 
 ### Phase 1: Core Systems & UI Foundation (2 weeks)
@@ -243,11 +351,13 @@ This document provides a comprehensive, detailed plan to prepare the Crisis Unle
   - Implement turn management and card systems
   - Set up battlefield and combat mechanics
   - Create basic UI components and layouts
+  - Complete API endpoints for Next.js app
 
 - **Week 2: Visual Identity**
   - Implement Holographic Command Console theme
   - Add core animations and feedback systems
   - Create tutorial framework
+  - Implement core UI components for Next.js app
 
 ### Phase 2: Advanced Features (2 weeks)
 
@@ -255,11 +365,13 @@ This document provides a comprehensive, detailed plan to prepare the Crisis Unle
   - Implement crisis event system
   - Add synergy visualization (Data-Link)
   - Create progressive disclosure UI
+  - Connect Next.js app with game interface
 
 - **Week 4: Polish & Optimization**
   - Performance optimization
   - Add visual effects and polish
   - Implement sound design and music
+  - Add authentication system for Next.js app
 
 ### Phase 3: Testing & Refinement (2 weeks)
 
@@ -267,11 +379,13 @@ This document provides a comprehensive, detailed plan to prepare the Crisis Unle
   - Unit and integration testing
   - Cross-browser/device testing
   - Performance benchmarking
+  - Implement wallet connection for blockchain features
 
 - **Week 6: Polish & Balance**
   - Game balance adjustments
   - Tutorial refinement
   - Accessibility improvements
+  - Add NFT management features
 
 ### Phase 4: Demo Preparation (2 weeks)
 
@@ -279,13 +393,27 @@ This document provides a comprehensive, detailed plan to prepare the Crisis Unle
   - Create demo scenarios
   - Implement demo mode
   - Build debug tools
+  - Complete cross-platform integration
 
 - **Week 8: Final Preparations**
   - Documentation
   - Demo materials
   - Dry runs and final adjustments
+  - Final UI polish and optimization
 
 ## Success Criteria
+
+### Next.js Application
+- Responsive, accessible UI across devices
+- Real-time game status updates
+- Seamless authentication
+- Comprehensive dashboard with user statistics
+
+### Game Interface
+- Smooth, intuitive gameplay
+- Clear visual feedback
+- Engaging tutorial for new players
+- Stable performance on target hardware
 
 ### Core Gameplay
 
@@ -314,6 +442,12 @@ This document provides a comprehensive, detailed plan to prepare the Crisis Unle
 - [ ] Backup plans for potential technical issues
 - [ ] Presenter notes and talking points
 
+### Integration
+- Unified user experience across platforms
+- Reliable data synchronization
+- Consistent design language
+- Seamless transitions between web and game
+
 ## Notes
 
 - Focus on vertical slice of most engaging gameplay
@@ -323,3 +457,5 @@ This document provides a comprehensive, detailed plan to prepare the Crisis Unle
 - Prepare for offline demo capability
 - Prepare answers to common technical questions
 - Test the demo setup in the actual presentation environment
+- Ensure the Next.js app can function independently if game interface is unavailable
+- Create fallback modes for blockchain features when network is unavailable

@@ -72,6 +72,82 @@ const factions: Faction[] = [
   // Add synthetic here if/when available
 ];
 
+// Faction metadata for UI styling and display
+export const factionMetadata = {
+  // Tailwind class maps per faction
+  textColorClasses: {
+    solaris: "text-yellow-400",
+    umbral: "text-purple-400",
+    neuralis: "text-cyan-400",
+    aeonic: "text-emerald-400",
+    infernal: "text-red-400",
+    primordial: "text-green-600",
+    synthetic: "text-gray-400", // placeholder for possible future faction
+  },
+  
+  bgColorClasses: {
+    solaris: "bg-yellow-400",
+    umbral: "bg-purple-400",
+    neuralis: "bg-cyan-400",
+    aeonic: "bg-emerald-400",
+    infernal: "bg-red-400",
+    primordial: "bg-green-600",
+    synthetic: "bg-gray-400", // placeholder for possible future faction
+  },
+  
+  // Gameplay characteristics
+  playStyles: {
+    solaris: "Aggressive, Control",
+    umbral: "Stealth, Sabotage",
+    neuralis: "Adaptive, Technical",
+    aeonic: "Combo, Control",
+    infernal: "Aggressive, Damage",
+    primordial: "Ramp, Swarm",
+    synthetic: "Technical, Adaptive",
+  },
+  
+  difficulties: {
+    solaris: "★★☆☆☆ (Beginner)",
+    umbral: "★★★☆☆ (Intermediate)",
+    neuralis: "★★★★☆ (Advanced)",
+    aeonic: "★★★★★ (Expert)",
+    infernal: "★★☆☆☆ (Beginner)",
+    primordial: "★★★☆☆ (Intermediate)",
+    synthetic: "★★★☆☆ (Intermediate)",
+  },
+  
+  synergies: {
+    solaris: "Strong with Infernal, weak against Umbral",
+    umbral: "Strong with Neuralis, weak against Primordial",
+    neuralis: "Strong with Aeonic, weak against Solaris",
+    aeonic: "Strong with Umbral, weak against Infernal",
+    infernal: "Strong with Solaris, weak against Primordial",
+    primordial: "Strong with Infernal, weak against Neuralis",
+    synthetic: "Strong with Neuralis, weak against Aeonic",
+  }
+};
+
+// Helper functions to get faction metadata
+export function getFactionTextColor(factionId: FactionId): string {
+  return factionMetadata.textColorClasses[factionId] || "";
+}
+
+export function getFactionBgColor(factionId: FactionId): string {
+  return factionMetadata.bgColorClasses[factionId] || "";
+}
+
+export function getFactionPlayStyle(factionId: FactionId): string {
+  return factionMetadata.playStyles[factionId] || "Unknown";
+}
+
+export function getFactionDifficulty(factionId: FactionId): string {
+  return factionMetadata.difficulties[factionId] || "Unknown";
+}
+
+export function getFactionSynergies(factionId: FactionId): string {
+  return factionMetadata.synergies[factionId] || "Unknown";
+}
+
 // Returns all factions
 export async function getFactions(): Promise<Faction[]> {
   return factions;

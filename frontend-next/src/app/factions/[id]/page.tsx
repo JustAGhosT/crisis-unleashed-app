@@ -1,59 +1,17 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
-import { fetchFactionById, getFactionIds } from '@/services/factionService';
+import { 
+  fetchFactionById, 
+  getFactionIds, 
+  getFactionTextColor,
+  getFactionBgColor,
+  getFactionPlayStyle,
+  getFactionDifficulty,
+  getFactionSynergies
+} from '@/services/factionService';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { FactionId } from '@/types/faction';
-
-// Tailwind class maps per faction
-const factionTextColorMap: Record<FactionId, string> = {
-  solaris: "text-yellow-400",
-  umbral: "text-purple-400",
-  neuralis: "text-cyan-400",
-  aeonic: "text-emerald-400",
-  infernal: "text-red-400",
-  primordial: "text-green-600",
-  synthetic: "text-gray-400", // placeholder for possible future faction
-};
-
-const factionBgColorMap: Record<FactionId, string> = {
-  solaris: "bg-yellow-400",
-  umbral: "bg-purple-400",
-  neuralis: "bg-cyan-400",
-  aeonic: "bg-emerald-400",
-  infernal: "bg-red-400",
-  primordial: "bg-green-600",
-  synthetic: "bg-gray-400", // placeholder for possible future faction
-};
-
-// Lookup maps for display
-const playStyles: Record<FactionId, string> = {
-  solaris: "Aggressive, Control",
-  umbral: "Stealth, Sabotage",
-  neuralis: "Adaptive, Technical",
-  aeonic: "Combo, Control",
-  infernal: "Aggressive, Damage",
-  primordial: "Ramp, Swarm",
-  synthetic: "Technical, Adaptive",
-};
-const difficulties: Record<FactionId, string> = {
-  solaris: "★★☆☆☆ (Beginner)",
-  umbral: "★★★☆☆ (Intermediate)",
-  neuralis: "★★★★☆ (Advanced)",
-  aeonic: "★★★★★ (Expert)",
-  infernal: "★★☆☆☆ (Beginner)",
-  primordial: "★★★☆☆ (Intermediate)",
-  synthetic: "★★★☆☆ (Intermediate)",
-};
-const synergies: Record<FactionId, string> = {
-  solaris: "Strong with Infernal, weak against Umbral",
-  umbral: "Strong with Neuralis, weak against Primordial",
-  neuralis: "Strong with Aeonic, weak against Solaris",
-  aeonic: "Strong with Umbral, weak against Infernal",
-  infernal: "Strong with Solaris, weak against Primordial",
-  primordial: "Strong with Infernal, weak against Neuralis",
-  synthetic: "Strong with Neuralis, weak against Aeonic",
-};
 
 export async function generateStaticParams() {
   const factionIds = await getFactionIds();
@@ -78,6 +36,14 @@ export default async function FactionPage({ params }: { params: { id: string } }
   if (!faction) {
     notFound();
   }
+  
+  // Get faction metadata from service
+  const textColorClass = getFactionTextColor(faction.id);
+  const bgColorClass = getFactionBgColor(faction.id);
+  const playStyle = getFactionPlayStyle(faction.id);
+  const difficulty = getFactionDifficulty(faction.id);
+  const synergy = getFactionSynergies(faction.id);
+  
   // Typescript non-null assertion safe due to notFound() guard
   return (
     <div className="container mx-auto py-8">
@@ -100,7 +66,7 @@ export default async function FactionPage({ params }: { params: { id: string } }
             />
           </div>
           <h1
-            className={`text-4xl font-bold drop-shadow-lg ${factionTextColorMap[faction.id] ?? ""}`}
+            className={`text-4xl font-bold drop-shadow-lg ${textColorClass}`}
           >
             {faction.name}
           </h1>
@@ -144,22 +110,22 @@ export default async function FactionPage({ params }: { params: { id: string } }
                   <h3 className="text-sm font-medium text-muted-foreground">Faction Color</h3>
                   <div className="mt-1 flex items-center">
                     <div
-                      className={`h-6 w-6 rounded-full mr-2 border ${factionBgColorMap[faction.id] ?? "bg-gray-300"}`}
+                      className={`h-6 w-6 rounded-full mr-2 border ${bgColorClass}`}
                     />
                     <span>{faction.colors.primary}</span>
                   </div>
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-muted-foreground">Play Style</h3>
-                  <p className="mt-1">{playStyles[faction.id] || "Unknown"}</p>
+                  <p className="mt-1">{playStyle}</p>
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-muted-foreground">Difficulty</h3>
-                  <p className="mt-1">{difficulties[faction.id] || "Unknown"}</p>
+                  <p className="mt-1">{difficulty}</p>
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-muted-foreground">Synergies</h3>
-                  <p className="mt-1">{synergies[faction.id] || "Unknown"}</p>
+                  <p className="mt-1">{synergy}</p>
                 </div>
               </div>
             </CardContent>

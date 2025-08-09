@@ -18,6 +18,12 @@ export interface GameStats {
   }>;
 }
 
+export interface MatchmakingStatus {
+  inQueue: boolean;
+  estimatedWaitTime?: number;
+  queuePosition?: number;
+}
+
 /**
  * Fetches the current game server status
  */
@@ -38,13 +44,17 @@ export function fetchGameStats() {
 
 /**
  * Fetches matchmaking status
+ * @param playerId The ID of the player to check status for
+ * @returns Promise with the player's matchmaking status
+ * @throws Error if playerId is empty or invalid
  */
-export function fetchMatchmakingStatus(playerId: string) {
-  return apiRequest<{
-    inQueue: boolean;
-    estimatedWaitTime?: number;
-    queuePosition?: number;
-  }>(() => 
-    apiClient.get(`/matchmaking/status/${playerId}`)
+export function fetchMatchmakingStatus(playerId: string): Promise<MatchmakingStatus> {
+  const safeId = encodeURIComponent(playerId.trim());
+  if (!safeId) {
+    return Promise.reject(new Error('playerId is required'));
+  }
+  
+  return apiRequest<MatchmakingStatus>(() => 
+    apiClient.get(`/matchmaking/status/${safeId}`)
   );
 }

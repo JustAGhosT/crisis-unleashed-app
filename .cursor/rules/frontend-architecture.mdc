@@ -21,7 +21,10 @@ description: Use when analyzing React architecture, component hierarchies, state
 - Battle system components for tactical grid-based gameplay 
 - Resource management system tracking Energy, Momentum, and Health
 - Turn phase controller managing Draw, Energy, Main, Combat, End phases
-
+  - GameInterface emits phase changes; TurnManager controls sequencing
+  - CardHand derives playable state from current phase and resources
+  - PlayerHUD subscribes to resource updates and action outcomes
+  
 2. **Deck Building System** 
 Importance Score: 95
 ```
@@ -42,15 +45,17 @@ Factions/
   └── MoodBoard (faction themes/aesthetics)
 ```
 
-4. **Card Game Interface**
-Importance Score: 85
-```
 GameInterface/
   ├── Battlefield (tactical grid)
   ├── PlayerHUD (resources/stats)
   ├── CardHand (held cards)
   └── TurnManager (phase control)
-```
+
+Dataflow:
+ - GameInterface -> PlayerHUD: resource and status updates
+ - CardHand -> TurnManager: play requests validated vs energy/momentum
+ - TurnManager -> CardHand: phase transitions affect playable cards
+ - Battlefield <-> PlayerHUD: unit placements update control zones and HUD
 
 ### State Management
 
@@ -79,18 +84,15 @@ Importance Score: 80
 
 1. **Holographic Interface System**
 Importance Score: 85
-- Faction-specific color schemes and effects
-- Dynamic grid overlays and glow effects
-- Responsive energy/momentum visualizations
-- Tactical grid highlight system
-
 2. **Card Interaction System**
 Importance Score: 80
+- Drag and drop card placement (standardize on dnd-kit)
+- Targeting system for abilities
+- Resource cost validation
+- Card preview and detail display
+- Input support: mouse, touch, keyboard (focus + ARIA)
+- Hit-testing: grid cell snapping and valid-target highlighting rules
 - Drag and drop card placement
 - Targeting system for abilities
 - Resource cost validation
 - Card preview and detail display
-
-$END$
-
- If you're using this file in context, clearly say in italics in one small line that "Context added by Giga frontend-architecture" along with specifying exactly what information was used from this file in a human-friendly way, instead of using kebab-case use normal sentence case.
