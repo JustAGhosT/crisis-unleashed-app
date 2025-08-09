@@ -6,7 +6,8 @@ import { Card, CardFilters as CardFiltersType } from '@/types/card';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Filter, Loader2 } from 'lucide-react';
+import { AlertCircle, Loader2 } from 'lucide-react';
+import { generateMockCards } from '@/services/__mocks__/cardService';
 
 // In a real implementation, these would come from a hook or API call
 // For this demo, we'll simulate it
@@ -21,49 +22,16 @@ const useCards = (
   const [totalPages, setTotalPages] = useState(1);
   
   useEffect(() => {
+    setFilters(getFiltersFromParams());
     const fetchCards = async () => {
       setLoading(true);
       try {
         // Simulate API request with timeout
         await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Generate mock cards - in real app this would come from API
-        const mockCards: Card[] = Array.from({ length: 20 }).map((_, i) => ({
-          id: `card-${page}-${i}`,
-          name: `Example Card ${page * 20 + i + 1}`,
-          description: 'This is a sample card description with some gameplay text.',
-          type: ['hero', 'unit', 'action', 'structure'][Math.floor(Math.random() * 4)] as any,
-          faction: ['solaris', 'umbral', 'aeonic', 'primordial', 'infernal', 'neuralis'][Math.floor(Math.random() * 6)] as any,
-          rarity: ['common', 'uncommon', 'rare', 'epic', 'legendary'][Math.floor(Math.random() * 5)] as any,
-          cost: Math.floor(Math.random() * 10),
-          attack: Math.floor(Math.random() * 10),
-          health: Math.floor(Math.random() * 10),
-          abilities: ['First Strike', 'Overwhelm', 'Shield', 'Flying'].slice(0, Math.floor(Math.random() * 3)),
-          energyCost: Math.floor(Math.random() * 5),
-          isActive: true,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        }));
-        
-        // Filter cards based on provided filters
-        let filteredCards = mockCards;
-        if (filters.faction) {
-          filteredCards = filteredCards.filter(card => card.faction === filters.faction);
-        }
-        if (filters.type) {
-          filteredCards = filteredCards.filter(card => card.type === filters.type);
-        }
-        if (filters.rarity) {
-          filteredCards = filteredCards.filter(card => card.rarity === filters.rarity);
-        }
-        if (filters.search) {
-          const searchLower = filters.search.toLowerCase();
-          filteredCards = filteredCards.filter(card => 
-            card.name.toLowerCase().includes(searchLower) || 
-            card.description.toLowerCase().includes(searchLower)
-          );
-        }
-        
+
+        // Use extracted mock service for generation + filtering
+        const filteredCards = generateMockCards(page, filters);
+
         setCards(filteredCards);
         setTotalCount(100); // Mock total
         setTotalPages(5); // Mock pages
@@ -98,17 +66,38 @@ export default function CardsPage() {
   // Extract filters from URL
   const getFiltersFromParams = (): CardFiltersType => {
     const filters: CardFiltersType = {};
-    if (searchParams.has('faction')) filters.faction = searchParams.get('faction') as any;
-    if (searchParams.has('type')) filters.type = searchParams.get('type') as any;
-    if (searchParams.has('rarity')) filters.rarity = searchParams.get('rarity') as any;
-    if (searchParams.has('search')) filters.search = searchParams.get('search') as string;
-    if (searchParams.has('costMin')) filters.costMin = parseInt(searchParams.get('costMin') as string, 10);
-    if (searchParams.has('costMax')) filters.costMax = parseInt(searchParams.get('costMax') as string, 10);
+
+    const getStr = (key: string) => {
+      const v = searchParams.get(key)?.trim();
+      return v ? v : undefined;
+    };
+
+    const getInt = (key: string) => {
+      const v = searchParams.get(key);
+      if (v == null || v.trim() === '') return undefined;
+      const n = Number.parseInt(v, 10);
+      return Number.isNaN(n) ? undefined : n;
+    };
+
+    const faction = getStr('faction');
+    const type = getStr('type');
+    const rarity = getStr('rarity');
+    const search = getStr('search');
+    const costMin = getInt('costMin');
+    const costMax = getInt('costMax');
+
+    if (faction) filters.faction = faction as any;
+    if (type) filters.type = type as any;
+    if (rarity) filters.rarity = rarity as any;
+    if (search) filters.search = search;
+    if (costMin !== undefined) filters.costMin = costMin;
+    if (costMax !== undefined) filters.costMax = costMax;
+
     return filters;
   };
   
   const [filters, setFilters] = useState<CardFiltersType>(getFiltersFromParams());
-  
+ 
   // Fetch cards data
   const { cards, loading, error, totalCount, totalPages } = useCards(page, filters);
   

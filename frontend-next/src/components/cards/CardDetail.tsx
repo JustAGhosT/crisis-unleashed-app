@@ -147,7 +147,7 @@ export const CardDetail: React.FC<CardDetailProps> = ({
             
             <p className="text-gray-200 mb-4">{card.description}</p>
             
-            {card.abilities.length > 0 && (
+            {card.abilities && card.abilities.length > 0 && (
               <div className="mb-4">
                 <h3 className="text-sm text-gray-300 mb-2">Abilities:</h3>
                 <div className="flex flex-wrap gap-2">
@@ -343,7 +343,7 @@ export const CardDetail: React.FC<CardDetailProps> = ({
                 <ul className="space-y-2 text-xs text-gray-300">
                   <li className="flex justify-between">
                     <span className="text-gray-400">Card ID:</span>
-                    <span className="font-mono">{card.id.substring(0, 8)}...</span>
+                    <span className="font-mono">{String(card.id).slice(0, 8)}…</span>
                   </li>
                   <li className="flex justify-between">
                     <span className="text-gray-400">Rarity:</span>

@@ -2,7 +2,7 @@
  * @deprecated - These functions are being migrated to frontend-next/src/services/factionService.ts
  * Please use the functions from frontend-next/src/services/factionService.ts instead.
  */
-import { Faction } from "frontend-next/src/types/faction";
+import { Faction } from "@/types/faction";
 
 // Mock faction data
 const factions: Faction[] = [

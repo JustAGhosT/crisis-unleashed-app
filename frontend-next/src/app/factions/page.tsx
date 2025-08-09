@@ -5,7 +5,7 @@
 import { FactionGridWrapper } from "@/components/factions/FactionGridWrapper";
 
 // Import directly from frontend-next where possible
-import { fetchFactions } from "frontend-next/src/services/factionService";
+import { fetchFactions } from "@/services/factionService";
 
 // Make this page static with revalidation every hour
 export const revalidate = 3600;

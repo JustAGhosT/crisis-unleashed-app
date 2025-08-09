@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { isValidRarity } from '@/lib/card-utils';
 import { cn, getFactionColorClass } from '@/lib/utils';
-import { Card as GameCardData } from '@/types/card';
+import { Card as GameCardData, CardRarity } from '@/types/card';
 import { Heart, Minus, Plus, Swords } from 'lucide-react';
 import Image from 'next/image';
 import React from 'react';
@@ -38,9 +38,18 @@ export const GameCard: React.FC<GameCardProps> = ({
   draggable = false,
 }) => {
   const sizeClasses = {
-    sm: 'w-32 h-44',
-    md: 'w-40 h-56',
-    lg: 'w-48 h-68',
+    sm: 'card-size-sm',
+    md: 'card-size-md',
+    lg: 'card-size-lg',
+  } as const;
+
+  // Map rarity to badge style tokens (avoid passing unsupported variant values)
+  const rarityBadgeClass: Record<CardRarity, string> = {
+    common: 'bg-gray-600 text-white border-transparent',
+    uncommon: 'bg-green-600 text-white border-transparent',
+    rare: 'bg-blue-600 text-white border-transparent',
+    epic: 'bg-purple-600 text-white border-transparent',
+    legendary: 'bg-amber-500 text-black border-transparent',
   };
 
   const handleCardClick = () => {
@@ -97,8 +106,8 @@ export const GameCard: React.FC<GameCardProps> = ({
 
           {/* Rarity Badge */}
           <Badge
-            variant={isValidRarity(card.rarity) ? card.rarity : "default"}
-            className="text-xs"
+            variant="outline"
+            className={cn('text-xs', rarityBadgeClass[card.rarity as CardRarity] || '')}
           >
             {card.rarity}
           </Badge>
@@ -114,15 +123,14 @@ export const GameCard: React.FC<GameCardProps> = ({
       </CardHeader>
 
       <CardContent className="p-2 pt-1 flex flex-col h-full">
-        {/* Card Image Placeholder */}
-        <div className="w-full h-20 bg-slate-700/50 rounded mb-2 flex items-center justify-center">
+        {/* Card Image */}
+        <div className="w-full h-20 bg-slate-700/50 rounded mb-2 relative overflow-hidden flex items-center justify-center">
           {card.imageUrl ? (
             <Image
               src={card.imageUrl}
               alt={card.name}
-              className="w-full h-full object-cover rounded"
-              width={100}
-              height={100}
+              fill
+              className="object-cover rounded"
             />
           ) : (
             <div className={cn(
@@ -154,7 +162,7 @@ export const GameCard: React.FC<GameCardProps> = ({
         </p>
 
         {/* Abilities */}
-        {card.abilities.length > 0 && (
+        {card.abilities && card.abilities.length > 0 && (
           <div className="mt-2">
             <div className="flex flex-wrap gap-1">
               {card.abilities.slice(0, 2).map((ability, index) => (

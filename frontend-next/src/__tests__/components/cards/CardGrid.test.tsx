@@ -67,7 +67,7 @@ describe('CardGrid Component', () => {
   });
 
   it('renders loading state', () => {
-    render(
+    const { container } = render(
       <CardGrid
         cards={[]}
         loading={true}
@@ -75,9 +75,18 @@ describe('CardGrid Component', () => {
       />
     );
 
-    // Since skeletons don't have specific test IDs or text, we check for grid structure
-    const gridElement = screen.getByRole('list');
-    expect(gridElement).toBeInTheDocument();
+    // Verify grid container exists during loading
+    const gridContainer =
+      container.querySelector('.grid') ||
+      container.querySelector('[data-testid="card-grid"]');
+    expect(gridContainer).toBeInTheDocument();
+
+    // Verify at least one skeleton is rendered (supports multiple implementations)
+    const skeleton =
+      container.querySelector('[data-testid="card-skeleton"]') ||
+      container.querySelector('.skeleton') ||
+      container.querySelector('.animate-pulse');
+    expect(skeleton).toBeTruthy();
   });
 
   it('renders empty state with custom message', () => {

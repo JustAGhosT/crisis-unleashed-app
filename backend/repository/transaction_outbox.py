@@ -68,25 +68,37 @@ class TransactionOutboxRepository:
         doc = await self.collection.find_one({"result.tx_hash": tx_hash})
         return OutboxEntry.from_dict(doc) if doc else None
 
-    async def mark_processing(self, outbox_id: str) -> Optional[OutboxEntry]:
-        """Mark entry as processing."""
+    async def mark_processing(
+        self,
+        outbox_id: str,
+        session: Optional[Any] = None,
+    ) -> Optional[OutboxEntry]:
+        """Mark entry as processing.
+
+        Uses an atomic update that only matches entries that are eligible for processing
+        and have not exceeded the maximum number of attempts.
+        """
         result = await self.collection.find_one_and_update(
             {
                 "_id": outbox_id,
-                "status": {"$in": [
-                    OutboxStatus.PENDING.value,
-                    OutboxStatus.RETRY.value,
-                    OutboxStatus.ERROR.value
-                ]}
+                "status": {
+                    "$in": [
+                        OutboxStatus.PENDING.value,
+                        OutboxStatus.RETRY.value,
+                        OutboxStatus.ERROR.value,
+                    ]
+                },
+                "$expr": {"$lt": ["$attempts", "$max_attempts"]},
             },
             {
                 "$set": {
                     "status": OutboxStatus.PROCESSING.value,
-                    "updated_at": datetime.utcnow()
+                    "updated_at": datetime.utcnow(),
                 },
-                "$inc": {"attempts": 1}
+                "$inc": {"attempts": 1},
             },
-            return_document=ReturnDocument.AFTER
+            return_document=ReturnDocument.AFTER,
+            session=session,
         )
         return OutboxEntry.from_dict(result) if result else None
 

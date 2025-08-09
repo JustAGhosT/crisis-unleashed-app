@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Card, Deck, DeckCard, DeckValidationResult, FactionId } from '@/types/card';
-import { CardService } from '@/services/cardService';
 import { useToast } from '@/components/ui/toast';
+import { CardService } from '@/services/cardService';
+import { ApiException } from '@/services/api';
+import { Card, Deck, DeckCard, DeckValidationResult, FactionId } from '@/types/card';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 interface UseDeckProps {
   initialDeck?: Deck;
@@ -24,6 +25,28 @@ export function useDeck({
   const [validationResult, setValidationResult] = useState<DeckValidationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+
+  // Prefer detailed error messages including backend payload when available
+  const getErrorMessage = useCallback((err: unknown, fallback: string) => {
+    // If axios error shape is present (before interceptor standardizes)
+    if (err && typeof err === 'object') {
+      const anyErr: any = err;
+      const data = anyErr?.response?.data;
+      if (data) {
+        if (typeof data === 'string') return data;
+        if (typeof data?.message === 'string') return data.message;
+        try { return JSON.stringify(data); } catch { /* ignore */ }
+      }
+    }
+    // If our standardized ApiException
+    if (err instanceof ApiException) {
+      const suffix = ` (status ${err.status}${err.code ? `, code ${err.code}` : ''})`;
+      return `${err.message}${suffix}`;
+    }
+    // Fallbacks
+    if (err instanceof Error) return err.message;
+    return fallback;
+  }, []);
 
   // Map for quick lookups
   const cardMap = useMemo(() => {
@@ -73,7 +96,7 @@ export function useDeck({
       
       setAvailableCards(cards);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to load available cards';
+      const errorMessage = getErrorMessage(err, 'Failed to load available cards');
       setError(errorMessage);
       toast({
         title: 'Error',
@@ -83,7 +106,7 @@ export function useDeck({
     } finally {
       setLoading(false);
     }
-  }, [factionId, deck?.faction, toast]);
+  }, [factionId, deck?.faction, toast, getErrorMessage]);
 
   // Add a card to the deck
   const addCard = useCallback((card: Card) => {
@@ -109,7 +132,7 @@ export function useDeck({
         const currentQuantity = updatedCards[existingCardIndex].quantity;
         
         // Check max allowed (usually 3, but heroes often limited to 1)
-        const maxAllowed = card.type === 'hero' ? 1 : 3;
+        const maxAllowed = getMaxCardQuantity(card);
         
         if (currentQuantity >= maxAllowed) {
           toast({
@@ -201,7 +224,7 @@ export function useDeck({
 
   // Get deck cards with full card data
   const deckCards = useMemo(() => {
-    if (!deck) return [];
+    if (!deck) return [] as { card: Card; quantity: number }[];
 
     return deck.cards
       .map(deckCard => {
@@ -224,7 +247,7 @@ export function useDeck({
     if (card.type === 'hero') return 1;
     
     // Some cards might have custom limits
-    if (card.abilities.includes('Unique')) return 1;
+    if (card.abilities?.includes('Unique')) return 1;
     
     // Default limit is 3 copies per card
     return 3;
@@ -237,12 +260,15 @@ export function useDeck({
 
   // Validate deck whenever it changes
   useEffect(() => {
-    if (!deck) return;
+    if (!deck) {
+      setValidationResult(null);
+      return;
+    }
 
     // Simple validation (real app would have more complex rules)
     const errors: string[] = [];
     const warnings: string[] = [];
-    
+
     // Check total cards (usually 40-60 range)
     if (totalCards < 40) {
       errors.push(`Deck must contain at least 40 cards (currently ${totalCards})`);
@@ -250,40 +276,43 @@ export function useDeck({
     if (totalCards > 60) {
       errors.push(`Deck cannot contain more than 60 cards (currently ${totalCards})`);
     }
-    
+
     // Check hero card count
     const heroCards = deckCards.filter(dc => dc.card.type === 'hero');
     if (heroCards.length === 0) {
       errors.push('Deck must contain at least one hero card');
     }
-    
-    // Check faction consistency
+
+    // Check faction consistency (limit total copies, not just unique cards)
     const nonFactionCards = deckCards.filter(dc => dc.card.faction !== deck.faction);
-    if (nonFactionCards.length > 5) {
-      errors.push(`Deck can only include up to 5 cards from other factions (currently ${nonFactionCards.length})`);
+    const offFactionCopies = nonFactionCards.reduce((s, dc) => s + dc.quantity, 0);
+    if (offFactionCopies > 5) {
+      errors.push(
+        `Deck can only include up to 5 off-faction copies (currently ${offFactionCopies})`
+      );
     }
-    
+
     // Calculate card type distribution
     const cardTypes = deckCards.reduce((acc, dc) => {
       acc[dc.card.type] = (acc[dc.card.type] || 0) + dc.quantity;
       return acc;
     }, {} as Record<string, number>);
-    
+
     // Calculate cost curve
     const costCurve = deckCards.reduce((acc, dc) => {
       acc[dc.card.cost] = (acc[dc.card.cost] || 0) + dc.quantity;
       return acc;
     }, {} as Record<number, number>);
-    
+
     // Warning for unbalanced cost curve
     const lowCostCards = Object.entries(costCurve)
       .filter(([cost]) => parseInt(cost) <= 3)
       .reduce((sum, [_, count]) => sum + count, 0);
-      
+
     if (lowCostCards < totalCards * 0.3) {
       warnings.push('Your deck has few low-cost cards, which may lead to slow starts');
     }
-    
+
     // Set validation result
     setValidationResult({
       isValid: errors.length === 0,
@@ -294,14 +323,14 @@ export function useDeck({
       unitCardCount: cardTypes['unit'] || 0,
       actionCardCount: cardTypes['action'] || 0,
       structureCardCount: cardTypes['structure'] || 0,
-      factionConsistency: nonFactionCards.length <= 5,
+      factionConsistency: offFactionCopies <= 5,
       energyCurveBalance: lowCostCards >= totalCards * 0.3,
       costCurve,
       factionSpecificRules: {
         // Faction-specific rule checks would go here
       },
     });
-    
+
   }, [deck, deckCards, totalCards]);
 
   return {

@@ -60,8 +60,9 @@ export const PlayerRegistrationForm: React.FC<PlayerRegistrationFormProps> = ({
 
   const selectedFaction = watch('preferredFaction');
   const factionOptions = getFactionOptions();
-  const [ setShowTermsModal] = React.useState(false);
-  const [ setShowPrivacyModal] = React.useState(false);
+  // Intentionally ignore state values until modals are rendered
+  const [, setShowTermsModal] = React.useState(false);
+  const [, setShowPrivacyModal] = React.useState(false);
 
   const handleFormSubmit = (data: PlayerRegistrationData) => {
     onSubmit(data);

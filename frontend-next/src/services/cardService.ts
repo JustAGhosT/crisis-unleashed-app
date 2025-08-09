@@ -14,7 +14,8 @@ export class CardService {
   static async searchCards(
     filters: CardFilters = {},
     page = 1,
-    pageSize = 20
+    pageSize = 20,
+    signal?: AbortSignal
   ): Promise<CardSearchResult> {
     try {
       const response = await apiClient.get('/cards/search', {
@@ -23,6 +24,7 @@ export class CardService {
           page,
           pageSize,
         },
+        signal,
       });
       return response.data;
     } catch (error: any) {
@@ -38,9 +40,9 @@ export class CardService {
   /**
    * Get user's card collection
    */
-  static async getUserCards(userId: string): Promise<UserCard[]> {
+  static async getUserCards(userId: string, signal?: AbortSignal): Promise<UserCard[]> {
     try {
-      const response = await apiClient.get(`/users/${userId}/cards`);
+      const response = await apiClient.get(`/users/${userId}/cards`, { signal });
       return response.data;
     } catch (error: any) {
       if (error.response?.status === 401 || error.response?.status === 403) {
@@ -54,9 +56,9 @@ export class CardService {
   /**
    * Get card details by ID
    */
-  static async getCardById(cardId: string): Promise<Card> {
+  static async getCardById(cardId: string, signal?: AbortSignal): Promise<Card> {
     try {
-      const response = await apiClient.get(`/cards/${cardId}`);
+      const response = await apiClient.get(`/cards/${cardId}`, { signal });
       return response.data;
     } catch (error: any) {
       throw new ApiException(
@@ -69,13 +71,17 @@ export class CardService {
   /**
    * Get all cards for a faction, paginated fetch with reasonable page limit
    */
-  static async getCardsByFaction(faction: FactionId, pageSize: number = 100): Promise<Card[]> {
+  static async getCardsByFaction(
+    faction: FactionId,
+    pageSize: number = 100,
+    signal?: AbortSignal
+  ): Promise<Card[]> {
     const allCards: Card[] = [];
     let page = 1;
     let hasMore = true;
     const SAFE_LIMIT = 250; // reasonable upper bound to avoid perf issues
     while (hasMore && (page - 1) * pageSize < SAFE_LIMIT) {
-      const result = await this.searchCards({ faction }, page, pageSize);
+      const result = await this.searchCards({ faction }, page, pageSize, signal);
       allCards.push(...result.cards);
       hasMore = result.cards.length === pageSize;
       page++;

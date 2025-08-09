@@ -1,9 +1,8 @@
-import React from 'react';
-import { render, screen } from '@testing-library/react';
 import HomePage from '@/app/page';
 import { useQuery } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useRouter } from 'next/navigation';
 
 // Mock the required modules
 jest.mock('@tanstack/react-query');
@@ -32,21 +31,21 @@ describe('HomePage Component', () => {
 
   it('renders the home page with game status', async () => {
     render(<HomePage />);
-    
+
     // Check heading
     expect(screen.getByText('Crisis Unleashed')).toBeInTheDocument();
-    
+
     // Check game status
     expect(screen.getByText('Crisis Unleashed - Ready to deploy!')).toBeInTheDocument();
-    
+
     // Check buttons
     expect(screen.getByText('Start Playing')).toBeInTheDocument();
     expect(screen.getByText('Build Deck')).toBeInTheDocument();
     expect(screen.getByText('View Factions')).toBeInTheDocument();
-    
+
     // Check faction grid is rendered
     expect(screen.getByTestId('faction-grid')).toBeInTheDocument();
-    
+
     // Check feature cards
     expect(screen.getByText('Strategic Combat')).toBeInTheDocument();
     expect(screen.getByText('Digital Ownership')).toBeInTheDocument();
@@ -59,9 +58,9 @@ describe('HomePage Component', () => {
       data: null,
       isLoading: true,
     });
-    
+
     render(<HomePage />);
-    
+
     expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
 
@@ -70,28 +69,25 @@ describe('HomePage Component', () => {
     (useRouter as jest.Mock).mockReturnValue({
       push: mockPush,
     });
-    
+
     render(<HomePage />);
-    
+
     const buildDeckButton = screen.getByText('Build Deck');
     await userEvent.click(buildDeckButton);
-    
+
     expect(mockPush).toHaveBeenCalledWith('/deck-builder');
   });
 
   it('shows fallback status when query fails', () => {
-    // Mock query with error handler being triggered
-    (useQuery as jest.Mock).mockImplementation(({ onError }) => {
-      // Trigger the onError callback
-      onError();
-      return {
-        data: { message: "System Online" },
-        isLoading: false,
-      };
+    (useQuery as jest.Mock).mockReturnValue({
+      data: null,
+      isLoading: false,
+      error: new Error('Network error'),
+      isError: true,
     });
-    
+
     render(<HomePage />);
-    
+
     expect(screen.getByText('System Online')).toBeInTheDocument();
   });
 });

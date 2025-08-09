@@ -1,16 +1,18 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CardGrid } from './CardGrid';
 import { CardFilters } from './CardFilters';
 import { CardDetail } from './CardDetail';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+// Fix import paths based on where components were installed
+import { Dialog, DialogContent } from '@/components/components/ui/dialog';
 import { Card as GameCardData, CardFilters as CardFiltersType, UserCard } from '@/types/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Pagination } from '@/components/ui/pagination';
 import { Button } from '@/components/ui/button';
-import { Heart, ArrowRight, Filter, Star, BookOpen } from 'lucide-react';
+import { Filter, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { CardTab, CardType, type CardTypeValue } from '@/constants/card-types';
 
 interface CardCollectionProps {
   cards: GameCardData[];
@@ -21,6 +23,7 @@ interface CardCollectionProps {
   onAddToDeck?: (card: GameCardData) => void;
   onApplyFilters?: (filters: CardFiltersType) => void;
   filters?: CardFiltersType;
+  // Keep this as it might be used by parent components
   totalCount?: number;
   currentPage?: number;
   totalPages?: number;
@@ -41,7 +44,8 @@ export const CardCollection: React.FC<CardCollectionProps> = ({
   onAddToDeck,
   onApplyFilters,
   filters = {},
-  totalCount = 0,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  totalCount = 0, // Added eslint disable comment for unused variable
   currentPage = 1,
   totalPages = 1,
   onPageChange,
@@ -51,10 +55,11 @@ export const CardCollection: React.FC<CardCollectionProps> = ({
   const [showFilters, setShowFilters] = useState(false);
 
   // Create a map of user cards for easy lookup
-  const userCardMap = new Map<string, UserCard>();
-  userCards.forEach(userCard => {
-    userCardMap.set(userCard.cardId, userCard);
-  });
+  const userCardMap = useMemo(() => {
+    const m = new Map<string, UserCard>();
+    userCards.forEach(u => m.set(u.cardId, u));
+    return m;
+  }, [userCards]);
 
   // Get quantity of a card in user's collection
   const getCardQuantity = (cardId: string): number => {
@@ -83,9 +88,9 @@ export const CardCollection: React.FC<CardCollectionProps> = ({
     ? Math.round((totalCollectedCards / totalUniqueCards) * 100) 
     : 0;
 
-  // Filter by card type
-  const getCardsByType = (type: string): GameCardData[] => {
-    if (type === 'all') return cards;
+  // Filter by card type (centralized constants)
+  const getCardsByType = (type: CardTypeValue): GameCardData[] => {
+    if (type === CardType.All) return cards;
     return cards.filter(card => card.type === type);
   };
 
@@ -149,20 +154,20 @@ export const CardCollection: React.FC<CardCollectionProps> = ({
       )}
       
       {/* Card Collection Tabs */}
-      <Tabs defaultValue="all" className="w-full">
+      <Tabs defaultValue={CardTab.All} className="w-full">
         <TabsList className="bg-slate-800/50 border border-slate-700 mb-6">
-          <TabsTrigger value="all" className="data-[state=active]:bg-slate-700">All Cards</TabsTrigger>
-          <TabsTrigger value="heroes" className="data-[state=active]:bg-slate-700">Heroes</TabsTrigger>
-          <TabsTrigger value="units" className="data-[state=active]:bg-slate-700">Units</TabsTrigger>
-          <TabsTrigger value="actions" className="data-[state=active]:bg-slate-700">Actions</TabsTrigger>
-          <TabsTrigger value="structures" className="data-[state=active]:bg-slate-700">Structures</TabsTrigger>
-          <TabsTrigger value="favorites" className="data-[state=active]:bg-slate-700">
+          <TabsTrigger value={CardTab.All} className="data-[state=active]:bg-slate-700">All Cards</TabsTrigger>
+          <TabsTrigger value={CardTab.Heroes} className="data-[state=active]:bg-slate-700">Heroes</TabsTrigger>
+          <TabsTrigger value={CardTab.Units} className="data-[state=active]:bg-slate-700">Units</TabsTrigger>
+          <TabsTrigger value={CardTab.Actions} className="data-[state=active]:bg-slate-700">Actions</TabsTrigger>
+          <TabsTrigger value={CardTab.Structures} className="data-[state=active]:bg-slate-700">Structures</TabsTrigger>
+          <TabsTrigger value={CardTab.Favorites} className="data-[state=active]:bg-slate-700">
             <Star className="w-4 h-4 mr-1" />
             Favorites
           </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="all">
+        <TabsContent value={CardTab.All}>
           <CardGrid
             cards={cards}
             loading={loading}
@@ -173,9 +178,9 @@ export const CardCollection: React.FC<CardCollectionProps> = ({
           />
         </TabsContent>
         
-        <TabsContent value="heroes">
+        <TabsContent value={CardTab.Heroes}>
           <CardGrid
-            cards={getCardsByType('hero')}
+            cards={getCardsByType(CardType.Hero)}
             loading={loading}
             onCardClick={handleCardClick}
             getQuantity={getCardQuantity}
@@ -184,9 +189,9 @@ export const CardCollection: React.FC<CardCollectionProps> = ({
           />
         </TabsContent>
         
-        <TabsContent value="units">
+        <TabsContent value={CardTab.Units}>
           <CardGrid
-            cards={getCardsByType('unit')}
+            cards={getCardsByType(CardType.Unit)}
             loading={loading}
             onCardClick={handleCardClick}
             getQuantity={getCardQuantity}
@@ -195,9 +200,9 @@ export const CardCollection: React.FC<CardCollectionProps> = ({
           />
         </TabsContent>
         
-        <TabsContent value="actions">
+        <TabsContent value={CardTab.Actions}>
           <CardGrid
-            cards={getCardsByType('action')}
+            cards={getCardsByType(CardType.Action)}
             loading={loading}
             onCardClick={handleCardClick}
             getQuantity={getCardQuantity}
@@ -206,9 +211,9 @@ export const CardCollection: React.FC<CardCollectionProps> = ({
           />
         </TabsContent>
         
-        <TabsContent value="structures">
+        <TabsContent value={CardTab.Structures}>
           <CardGrid
-            cards={getCardsByType('structure')}
+            cards={getCardsByType(CardType.Structure)}
             loading={loading}
             onCardClick={handleCardClick}
             getQuantity={getCardQuantity}
@@ -217,7 +222,7 @@ export const CardCollection: React.FC<CardCollectionProps> = ({
           />
         </TabsContent>
         
-        <TabsContent value="favorites">
+        <TabsContent value={CardTab.Favorites}>
           <CardGrid
             cards={getFavoriteCards()}
             loading={loading}
@@ -242,7 +247,7 @@ export const CardCollection: React.FC<CardCollectionProps> = ({
       
       {/* Card Detail Dialog */}
       {selectedCard && (
-        <Dialog open={!!selectedCard} onOpenChange={(open) => !open && setSelectedCard(null)}>
+        <Dialog open={!!selectedCard} onOpenChange={(open: boolean) => !open && setSelectedCard(null)}>
           <DialogContent className="max-w-4xl p-0 overflow-hidden">
             <CardDetail
               card={selectedCard}

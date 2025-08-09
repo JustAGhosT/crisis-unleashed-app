@@ -57,6 +57,26 @@ export function FeatureFlagProvider({ children }: { children: ReactNode }) {
       const newFlags = { ...prevFlags, [flag]: value };
       localStorage.setItem("featureFlags", JSON.stringify(newFlags));
       
+      // Immediately mirror to cookie so middleware can read it on next navigation
+      try {
+        const cookieValue = encodeURIComponent(JSON.stringify(newFlags));
+        const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
+        document.cookie = `featureFlags=${cookieValue}; Path=/; Max-Age=31536000; SameSite=Lax${secure}`;
+      } catch (e) {
+        console.error("Failed to sync feature flags cookie (client)", e);
+      }
+      
+      // Also notify server to persist cookie via Set-Cookie
+      // This ensures consistent attributes and covers edge cases
+      fetch("/api/feature-flags", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newFlags),
+        credentials: "include",
+      }).catch((e) => {
+        console.error("Failed to POST feature flags for cookie sync", e);
+      });
+      
       // Track flag change in analytics
       if (typeof window !== 'undefined' && 'analytics' in window) {
         (window as any).analytics?.track('Feature Flag Changed', {

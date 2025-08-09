@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Card } from '@/types/card';
 import { CardService } from '@/services/cardService';
 import { useToast } from '@/components/ui/toast';
@@ -22,30 +22,53 @@ export function useCardDetail({
   const [isFavorite, setIsFavorite] = useState(false);
   const [ownedQuantity, setOwnedQuantity] = useState(0);
   const { toast } = useToast();
+  const mountedRef = useRef(true);
+  const requestIdRef = useRef(0);
+  const controllerRef = useRef<AbortController | null>(null);
 
   // Fetch card data
   const fetchCard = useCallback(async () => {
-    if (!cardId) return;
-    
+    const reqId = ++requestIdRef.current;
+    // Abort any in-flight request and create a new controller
+    controllerRef.current?.abort();
+    const controller = new AbortController();
+    controllerRef.current = controller;
     setLoading(true);
     setError(null);
     
     try {
-      const result = await CardService.getCardById(cardId);
+      // If no cardId, reset state and exit gracefully without leaving loading true
+      if (!cardId) {
+        if (mountedRef.current && reqId === requestIdRef.current) {
+          setCard(null);
+          setIsFavorite(false);
+          setOwnedQuantity(0);
+        }
+        return;
+      }
+      const result = await CardService.getCardById(cardId, controller.signal);
+      if (!mountedRef.current || reqId !== requestIdRef.current) return;
       setCard(result);
       
       // If userId is provided, fetch user's card data
       if (userId) {
-        const userCards = await CardService.getUserCards(userId);
+        const userCards = await CardService.getUserCards(userId, controller.signal);
+        if (!mountedRef.current || reqId !== requestIdRef.current) return;
         const userCard = userCards.find(uc => uc.cardId === cardId);
         
         if (userCard) {
           setIsFavorite(userCard.isFavorite);
           setOwnedQuantity(userCard.quantity);
+        } else {
+          setIsFavorite(false);
+          setOwnedQuantity(0);
         }
       }
     } catch (err) {
+      // Ignore aborts
+      if (controller.signal.aborted) return;
       const errorMessage = err instanceof Error ? err.message : 'Failed to load card details';
+      if (!mountedRef.current || reqId !== requestIdRef.current) return;
       setError(errorMessage);
       toast({
         title: 'Error',
@@ -53,7 +76,9 @@ export function useCardDetail({
         variant: 'destructive',
       });
     } finally {
-      setLoading(false);
+      if (mountedRef.current && reqId === requestIdRef.current) {
+        setLoading(false);
+      }
     }
   }, [cardId, userId, toast]);
 
@@ -69,6 +94,7 @@ export function useCardDetail({
       console.log(`Toggling favorite status for card ${cardId} to ${newFavoriteStatus}`);
       
       // Update local state
+      if (!mountedRef.current) return;
       setIsFavorite(newFavoriteStatus);
       
       toast({
@@ -94,6 +120,7 @@ export function useCardDetail({
       // This would be a real API call in production
       console.log(`Adding card ${cardId} to deck ${deckId}`);
       
+      if (!mountedRef.current) return;
       toast({
         title: 'Card added',
         description: `${card.name} has been added to your deck.`,
@@ -111,6 +138,10 @@ export function useCardDetail({
   // Fetch data on initial load
   useEffect(() => {
     fetchCard();
+    return () => {
+      mountedRef.current = false;
+      controllerRef.current?.abort();
+    };
   }, [fetchCard]);
 
   return {

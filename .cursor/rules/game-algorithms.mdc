@@ -1,7 +1,12 @@
 ---
-description: Specifications for core game algorithms including battlefield management, card mechanics, turn sequencing and combat resolution
----
-
+description: Specifications for core game algorithms including battlefield management, card deployment, turn sequencing, and combat resolution
+globs: []
+# or, if you already know the target areas:
+# globs:
+#   - "frontend/src/features/battlefield/**/*.ts*"
+#   - "frontend/src/features/cards/**/*.ts*"
+#   - "frontend/src/components/**/*.tsx"
+alwaysApply: false
 
 # game-algorithms
 

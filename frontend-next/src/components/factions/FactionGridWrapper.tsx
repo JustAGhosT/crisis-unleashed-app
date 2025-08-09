@@ -1,9 +1,10 @@
 "use client";
 
+import { useMemo } from "react";
 import { useFeatureFlags } from "@/lib/feature-flags/feature-flag-provider";
-import { Faction } from "frontend-next/src/types/faction";
-import { FactionGrid } from "frontend-next/src/components/factions/FactionGrid";
-import { LegacyFactionGrid } from "frontend-next/src/components/legacy/LegacyFactionGrid";
+import { Faction, FactionId } from "@/types/faction";
+import { FactionGrid } from "@/components/factions/FactionGrid";
+import { LegacyFactionGrid } from "@/components/legacy/LegacyFactionGrid";
 
 // Define the old faction structure for proper typing
 interface OldFaction {
@@ -27,30 +28,47 @@ interface FactionGridWrapperProps {
 export function FactionGridWrapper({ factions }: FactionGridWrapperProps) {
   const { flags } = useFeatureFlags();
 
-  // Map the old faction structure to the new one
-  const adaptedFactions = factions.map(faction => ({
-    id: faction.id as any,
-    name: faction.name,
-    tagline: faction.description.split('.')[0] || '',
-    description: faction.description,
-    philosophy: 'Default philosophy',
-    strength: 'Default strength',
-    technology: 'Default technology',
-    mechanics: Array.isArray(faction.mechanics)
-      ? faction.mechanics.reduce((acc, mechanic) => ({ ...acc, [mechanic]: true }), {})
-      : {},
-    colors: {
-      primary: faction.color,
-      secondary: faction.color,
-      accent: faction.color
-    }
-  }));
+  // Map legacy mechanic strings to typed mechanic keys
+  const mechanicsKeyMap: Record<string, keyof Faction["mechanics"]> = {
+    energyManipulation: "energyManipulation",
+    stealth: "stealth",
+    mindControl: "mindControl",
+    timeWarp: "timeWarp",
+    adaptation: "adaptation",
+    sacrifice: "sacrifice",
+  };
+
+  // Map the old faction structure to the new one (memoized and typed)
+  const adaptedFactions = useMemo(() =>
+    factions.map<Faction>((faction) => ({
+      id: faction.id as FactionId,
+      name: faction.name,
+      tagline: faction.description.split('.')[0] || '',
+      description: faction.description,
+      philosophy: 'Default philosophy',
+      strength: 'Default strength',
+      technology: 'Default technology',
+      mechanics: Array.isArray(faction.mechanics)
+        ? faction.mechanics.reduce<Partial<Faction["mechanics"]>>((acc, m) => {
+            const key = mechanicsKeyMap[m];
+            if (key) acc[key] = true;
+            return acc;
+          }, {}) as Faction["mechanics"]
+        : {},
+      colors: {
+        primary: faction.color,
+        secondary: faction.color,
+        accent: faction.color,
+      },
+    })),
+    [factions]
+  );
 
   // Use the new implementation if the feature flag is enabled
-  if (flags.useNewFactionUI) {
-    return <FactionGrid factions={adaptedFactions as any} />;
+  if (flags?.useNewFactionUI) {
+    return <FactionGrid factions={adaptedFactions} />;
   }
 
   // Use the legacy implementation 
-  return <LegacyFactionGrid factions={adaptedFactions as any} />;
+  return <LegacyFactionGrid factions={adaptedFactions} />;
 }

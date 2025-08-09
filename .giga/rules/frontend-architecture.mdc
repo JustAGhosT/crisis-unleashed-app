@@ -1,43 +1,50 @@
 ---
-description: Frontend architecture specification for Crisis Unleashed card game, covering component hierarchy, state management, and UI/UX patterns
-globs: frontend/src/**/*.{ts,tsx},frontend/components/**/*.{ts,tsx},frontend-next/src/**/*.{ts,tsx}
-alwaysApply: false
+description: Specifies React component hierarchy, state management patterns, and UI/UX implementation for faction-based card game interface
 ---
 
 
 # frontend-architecture
 
-## Component Hierarchy
+Component Hierarchy
 
-### Faction System Components
-- `components/factions/FactionGrid.tsx`: Hexagonal grid layout for displaying 7 unique factions with connection lines indicating technological relationships
-- `components/factions/FactionCard.tsx`: Faction-specific cards with dynamic theming and visual effects based on faction technology 
-- `components/factions/TimelineSection.tsx`: Tracks faction emergence and technological development across three possible future paths
+1. Game Core Components
+- FactionPortal: Central game interface orchestrating faction interactions and game flow
+- GameInterface: Manages turn-based gameplay, resource systems, and battlefield state
+- Battlefield: Implements grid-based combat with zone control and positioning mechanics
 
-### Game Interface Components
-- `features/battlefield/Battlefield.tsx`: Grid-based combat system with distinct zones and faction-specific rules
-- `features/battlefield/TurnManager.tsx`: Three-phase turn structure with resource management
-- `features/cards/CardHand.tsx`: Hand management with faction-specific card interactions
+2. Faction System Components
+- FactionGrid: Displays 7 unique factions with distinct visual identities and mechanics
+- FactionCard: Renders faction-specific abilities, resource modifiers, and thematic elements 
+- FactionDetail: Manages detailed faction interactions and power calculations
 
-### Deck Building Components 
-- `components/deck-builder/DeckBuilder.tsx`: Implements complex deck building rules:
-  - Maximum 3 copies per card (1 for Hero cards)
-  - 30-50 cards per deck
-  - Maximum 2 factions per deck
-  - Hero card requirements
-  - Faction consistency validation
+3. Combat Mechanics
+Location: frontend/src/features/battlefield/
+- TurnManager: Orchestrates multi-phase turns with energy/momentum resource management
+- CardHand: Handles faction-specific card mechanics and energy cost validation
+- BattlefieldGrid: Manages unit placement, frontline/backline positioning, and zone control
 
-### State Management
-- Faction state: Manages active faction themes, technology levels, and integration paths
-- Game state: Tracks battlefield state, turn phases, and resource systems (Energy/Momentum)
-- Collection state: Manages card ownership, deck compositions, and faction progression
+4. Resource Management
+Location: frontend/src/features/players/
+- PlayerHUD: Tracks triple resource system (Health/Energy/Momentum)
+- ResourceCalculator: Handles faction-specific resource generation and cost modifiers
+- TurnPhaseManager: Controls resource regeneration and phase-based availability
 
-### UI/UX Implementation
-- Dynamic faction theming system adapting colors, effects, and animations
-- Hexagonal grid layout system for faction relationships
-- Responsive battlefield grid with zone-specific rules
-- Interactive card preview and detail system
-- Real-time resource and state tracking displays
+5. Faction-Specific UI Systems
+Location: frontend/src/components/factions/
+- SolarisInterface: Reality editing field visualization
+- UmbralInterface: Shadow manipulation mechanics
+- NeuralisInterface: Collective consciousness networking
+- AeonicInterface: Time manipulation effects
+- InfernalInterface: Blood sacrifice and dimensional rifting
+- PrimordialInterface: Evolution acceleration display
+- SyntheticInterface: Resource optimization visualization
+
+6. State Management
+- FactionThemeContext: Manages faction-specific visual and mechanical attributes
+- GameStateProvider: Coordinates battlefield state, turn phases, and resource systems
+- CombatResolver: Handles complex faction ability interactions and combat resolution
+
+The architecture implements unique game mechanics through a component hierarchy that maintains faction identity while enabling complex cross-faction interactions and resource management.
 
 $END$
 

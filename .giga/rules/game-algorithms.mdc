@@ -1,89 +1,58 @@
 ---
-description: Specifications for core game mechanics, faction abilities, combat resolution, and turn sequencing in Crisis Unleashed.
-globs: **/game/**,**/battle/**,**/cards/**,**/factions/**,**/types/game.types.ts
-alwaysApply: false
+description: Technical documentation for game algorithms and mechanics including battlefield management, card deployment logic, turn sequencing, and combat resolution.
 ---
 
 
 # game-algorithms
 
-## Core Game Mechanics
+Core Game Systems:
 
-### Turn Structure
-- Draw Phase: Draw 1 card (2 on first turn)
-- Energy Phase: Gain +1 max Energy (cap 10)
-- Main Phase: Play cards and abilities
-- Combat Phase: Resolve battles
-- End Phase: Cleanup and trigger effects
+1. Turn Sequence Engine
+Path: backend/types/faction.py
+- Phase management system: Draw → Energy → Main → Combat → End
+- Energy/Momentum dual resource model with phase-specific rules
+- Crisis event triggers and resolution between phases
 
-### Resource Systems
-- Energy: Base +1/turn, cap 10
-- Momentum: Gained from combat wins and card plays, cap 5
+2. Battlefield Management
+Path: frontend/src/features/battlefield/Battlefield.tsx
+- Dual-lane system with front/backline positioning
+- Zone control mechanics with territory influence
+- Unit positioning validation with faction-specific rules
 
-### Combat Resolution
-- Speed-based initiative order
-- Simultaneous damage resolution
-- Unit destruction at 0 health
-- Zone-specific combat rules
-- Keywords: Quick Attack, Overwhelm, Lifesteal, Shield
+3. Combat Resolution System
+Path: backend/types/faction.py
+- Initiative-based combat sequencing
+- Multi-step resolution: Pre-combat → Combat → Post-combat
+- Simultaneous damage application with death handling
+- Combat keywords: Quick Attack, Overwhelm, Lifesteal, Shield
 
-## Faction Abilities
+4. Faction Mechanics
+- Solaris: Predictive algorithm combat modifiers
+- Umbral: Stealth and information warfare
+- Neuralis: Mind control mechanics
+- Aeonic: Time manipulation abilities
+- Primordial: Growth and adaptation systems
+- Infernal: Sacrifice-based abilities
+- Synthetic: Resource optimization
 
-### Solaris Nexus
-- Energy manipulation and reality editing
-- Predictive algorithm bonuses
-- Divine computation abilities
+5. Card Deployment Logic
+Path: frontend/src/features/cards/CardHand.tsx
+- Cost validation against current energy pool
+- Position-based deployment restrictions
+- Faction alignment requirements
+- Hero card special deployment rules
 
-### Umbral Eclipse  
-- Shadow manipulation
-- Information warfare tactics
-- Stealth unit deployment
+6. Crisis Event System
+- Dynamic battlefield modifiers
+- Event trigger conditions and resolution
+- Cross-faction interaction modifiers
+- Resource pool modifications
 
-### Aeonic Dominion
-- Time manipulation mechanics
-- Temporal preservation abilities
-- Turn sequence alterations
-
-### Primordial Genesis
-- Evolution and growth systems
-- Adaptation mechanics
-- Overwhelming force abilities
-
-### Infernal Core
-- Sacrifice mechanics
-- Risk/reward abilities
-- Blood ritual enhancements
-
-### Neuralis Conclave
-- Mind control abilities
-- Collective consciousness bonuses
-- Psychic warfare tactics
-
-### Synthetic Directive
-- System optimization
-- Mechanical precision bonuses
-- Perfect calculation abilities
-
-## Card Systems
-
-### Card Types
-- Hero Cards: Unique abilities, one per deck
-- Unit Cards: Melee, Ranged, Siege, Flying
-- Action Cards: Instant, Ongoing, Equipment
-- Structure Cards: Buildings, Traps, Auras
-
-### Battlefield Management
-- Distinct zones: Player, Enemy, Neutral
-- Zone-specific placement rules
-- Unit movement restrictions
-- Structure persistence rules
-
-Relevant file paths:
-- `src/features/battlefield/Battlefield.tsx`
-- `src/types/game.types.ts`
-- `src/features/cards/CardHand.tsx`
-- `src/features/battlefield/TurnManager.tsx`
-- `backend/types/faction.py`
+7. Hero Progression
+- Level-based ability unlocks
+- Experience gain from combat actions
+- Faction-specific advancement paths
+- Ultimate ability requirements
 
 $END$
 

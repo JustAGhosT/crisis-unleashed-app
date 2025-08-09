@@ -20,15 +20,15 @@ export default function CardDetailPage() {
   // TODO: derive userId from authentication context/provider. Avoid hard-coded test IDs in production.
   const userId: string | undefined = undefined;
 
-  // Load user's decks (if authenticated) to select an explicit target deck
-  const safeUserId = userId ?? ""; // avoid casting undefined to string
-  const { data: userDecks } = useUserDecks(safeUserId, Boolean(userId));
+  // Load user's decks only when authenticated
+  const isAuthenticated = Boolean(userId);
+  const { data: userDecks } = useUserDecks(userId ?? "", isAuthenticated);
   const [selectedDeckId, setSelectedDeckId] = useState<string>('');
   useEffect(() => {
-    if (userDecks && userDecks.length > 0 && !selectedDeckId) {
+    if (isAuthenticated && userDecks && userDecks.length > 0 && !selectedDeckId) {
       setSelectedDeckId(userDecks[0].id);
     }
-  }, [userDecks, selectedDeckId]);
+  }, [isAuthenticated, userDecks, selectedDeckId]);
 
   const {
     card,

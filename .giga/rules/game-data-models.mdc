@@ -1,57 +1,84 @@
 ---
-description: Rules for modeling core game data structures including cards, battlefield, player stats, and state models
-globs: **/types/*.ts,**/models/*.ts,**/data/*.ts,**/state/*.ts
-alwaysApply: false
+description: Specification for core game data models including cards, battlefield, player stats, and state management
 ---
 
+# === USER INSTRUCTIONS ===
+- Layout: 5 × 6 hex grid divided into player zones
+- Zone Types: Backline (3 rows), Frontline (3 rows)
+- Unit Placement: Maximum 1 unit per hex
+- Movement Rules: Based on unit movement speed and hex adjacency (zone type may modify movement costs)
+# === END USER INSTRUCTIONS ===
 
 # game-data-models
 
-## Core Game Entities
+Core Game Entity Models:
 
-### Card Models
-- Card Types: Hero, Unit, Action, Structure
-- Combat Stats: Initiative, Range, Movement Speed
-- Resource Costs: Energy, Momentum 
-- Zone Restrictions: Backline/Frontline placement rules
-- Persistence Rules: Permanent vs temporary effects
+1. Card Model
+File: backend/types/faction.py
+```python
+class Card:
+    faction: FactionType 
+    rarity: CardRarity
+    energy_cost: int
+    momentum_cost: int
+    unit_type: UnitType
+    combat_stats: CombatStats
+    abilities: List[Ability]
+```
 
-### Battlefield Grid
-- Layout: 6x4 grid divided into player zones
-- Zone Types: Backline (2 rows), Frontline (2 rows)
-- Unit Placement: Maximum 1 unit per cell
-- Movement Rules: Based on unit movement speed and zone type
+2. Battlefield Grid
+File: frontend/src/types/game.types.ts
+```typescript
+interface Grid {
+    lanes: Lane[]
+    zones: Zone[] 
+    positions: Position[]
+    state: GridState
+}
+```
+- 3x3 grid system with specialized zones
+- Front/back line positioning rules
+- Zone control mechanics
 
-### Player Stats
-- Health Points: Starting at 30
-- Energy: Gained +1 per turn (max 10)
-- Momentum: Generated through combat/card effects (max 5)
-- Hand Size: 7 cards maximum
+3. Player Stats
+- Health (0-30)
+- Energy (0-10, regenerates per turn)
+- Momentum (0-5, combat-generated resource)
+- Special abilities based on faction alignment
 
-### Game State Model
+4. Game State
 ```typescript
 interface GameState {
-  players: {[id: string]: PlayerState};
-  currentPhase: TurnPhase;
-  turnNumber: number;
-  activePlayer: string;
-  battlefield: BattlefieldGrid;
-  actionStack: GameAction[];
+    turn: number
+    phase: TurnPhase
+    activePlayer: PlayerId
+    battlefield: Grid
+    hands: {[playerId: string]: Card[]}
+    resources: {[playerId: string]: Resources}
 }
 ```
 
-### Turn Structure
-1. Draw Phase: Draw card
-2. Energy Phase: Gain energy
-3. Main Phase: Play cards/abilities  
-4. Combat Phase: Resolve battles
-5. End Phase: Cleanup effects
+5. Faction-Specific Data Models:
+- Solaris: Energy manipulation stats
+- Umbral: Stealth mechanics tracking
+- Neuralis: Mind control duration tracking
+- Aeonic: Time manipulation counters
+- Primordial: Growth stage tracking
+- Infernal: Sacrifice value calculations
+- Synthetic: Optimization metrics
 
-## File Paths
-- `src/types/card.ts`: Card type definitions
-- `src/types/game.ts`: Core game state models
-- `src/models/battlefield.ts`: Battlefield grid implementation
-- `src/data/player-stats.ts`: Player statistics definitions
+Combat Resolution Model:
+- Initiative calculation system
+- Damage application order
+- Status effect processing queue
+- Death resolution handling
+- Zone control updates
+
+Resource Management Model:
+- Per-turn energy allocation
+- Momentum generation tracking
+- Special ability cost validation
+- Resource decay calculations
 
 $END$
 

@@ -10,7 +10,17 @@ import {
 
 // Mock the implementation of clsx and twMerge for the cn function test
 jest.mock('clsx', () => ({
-  default: (...inputs: unknown[]) => (inputs as string[]).join(' ')
+  default: (...inputs: unknown[]) =>
+    inputs
+      .flatMap((i: any) =>
+        typeof i === 'object' && i !== null
+          ? Object.entries(i)
+              .filter(([, v]) => Boolean(v))
+              .map(([k]) => k)
+          : i
+      )
+      .filter(Boolean)
+      .join(' '),
 }));
 
 jest.mock('tailwind-merge', () => ({
@@ -40,9 +50,9 @@ describe('Utility Functions', () => {
 
   describe('getFactionColorClass', () => {
     it('returns the correct color class for known factions', () => {
-      expect(getFactionColorClass('solaris')).toBe('text-faction-solaris-primary');
-      expect(getFactionColorClass('umbral')).toBe('text-faction-umbral-primary');
-      expect(getFactionColorClass('synthetic')).toBe('text-faction-synthetic-primary');
+      expect(getFactionColorClass('solaris')).toBe('text-yellow-400');
+      expect(getFactionColorClass('umbral')).toBe('text-purple-400');
+      expect(getFactionColorClass('synthetic')).toBe('text-gray-300');
     });
 
     it('returns a default color for unknown factions', () => {

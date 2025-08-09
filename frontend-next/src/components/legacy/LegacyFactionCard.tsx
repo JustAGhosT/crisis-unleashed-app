@@ -38,7 +38,9 @@ export function LegacyFactionCard({ faction }: LegacyFactionCardProps) {
         <h2 className={styles.title}>{faction.name}</h2>
       </div>
       <div className={styles.content}>
-        <p className={styles.description}>{faction.description}</p>
+        {faction.description && (
+          <p className={styles.description}>{faction.description}</p>
+        )}
         
         {faction.mechanics && (
           <div className={styles.mechanics}>
