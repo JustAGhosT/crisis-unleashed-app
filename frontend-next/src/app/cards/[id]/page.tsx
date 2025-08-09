@@ -6,16 +6,29 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCardDetail } from '@/hooks/useCardDetail';
+import { useUserDecks } from '@/hooks/useDecks';
 import { AlertCircle, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function CardDetailPage() {
-  const params = useParams();
-  const cardId = params.id as string;
+  const params = useParams<{ id?: string }>();
+  // Guard against malformed routes where params.id may be missing or not a string
+  const cardId = typeof params.id === 'string' ? params.id : '';
 
-  // Mock user ID - in a real app, this would come from authentication context
-  const userId = 'current-user';
+  // TODO: derive userId from authentication context/provider. Avoid hard-coded test IDs in production.
+  const userId: string | undefined = undefined;
+
+  // Load user's decks (if authenticated) to select an explicit target deck
+  const safeUserId = userId ?? ""; // avoid casting undefined to string
+  const { data: userDecks } = useUserDecks(safeUserId, Boolean(userId));
+  const [selectedDeckId, setSelectedDeckId] = useState<string>('');
+  useEffect(() => {
+    if (userDecks && userDecks.length > 0 && !selectedDeckId) {
+      setSelectedDeckId(userDecks[0].id);
+    }
+  }, [userDecks, selectedDeckId]);
 
   const {
     card,
@@ -30,10 +43,11 @@ export default function CardDetailPage() {
     userId,
   });
 
-  // Handle "Add to Deck" button click
+  // Handle "Add to Deck" button click using an explicit deck selection
   const handleAddToDeck = () => {
-    // In a real app, this might open a deck selector or use a default deck
-    addToDeck('default-deck');
+    if (selectedDeckId) {
+      addToDeck(selectedDeckId);
+    }
   };
 
   return (
@@ -56,7 +70,13 @@ export default function CardDetailPage() {
         </Alert>
       )}
 
-      {loading ? (
+      {!cardId ? (
+        <Alert className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Not Found</AlertTitle>
+          <AlertDescription>The card you&apos;re looking for does not exist or has an invalid URL.</AlertDescription>
+        </Alert>
+      ) : loading ? (
         <Card className="p-6">
           <div className="flex flex-col md:flex-row gap-6 animate-pulse">
             <div className="w-full md:w-1/3 aspect-[3/4] bg-slate-700 rounded-lg"></div>
@@ -72,13 +92,30 @@ export default function CardDetailPage() {
           </div>
         </Card>
       ) : card ? (
-        <CardDetail
-          card={card}
-          onAddToDeck={handleAddToDeck}
-          onToggleFavorite={toggleFavorite}
-          ownedQuantity={ownedQuantity}
-          isFavorite={isFavorite}
-        />
+        <>
+          {userId && userDecks && userDecks.length > 0 && (
+            <div className="mb-4 flex items-center gap-3">
+              <label htmlFor="deck-select" className="text-sm font-medium">Select deck</label>
+              <select
+                id="deck-select"
+                className="border rounded px-2 py-1 bg-background"
+                value={selectedDeckId}
+                onChange={(e) => setSelectedDeckId(e.target.value)}
+              >
+                {userDecks.map((d) => (
+                  <option key={d.id} value={d.id}>{d.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
+          <CardDetail
+            card={card}
+            onAddToDeck={handleAddToDeck}
+            onToggleFavorite={toggleFavorite}
+            ownedQuantity={ownedQuantity}
+            isFavorite={isFavorite}
+          />
+        </>
       ) : (
         <Alert className="mb-6">
           <AlertCircle className="h-4 w-4" />

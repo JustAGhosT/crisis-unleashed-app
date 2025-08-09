@@ -26,6 +26,38 @@ npm run test:watch
 npm test -- --coverage
 ```
 
+### Scripts in frontend-next/package.json
+
+The following test-related scripts are available in `frontend-next/package.json`:
+
+- `test`: Runs Jest once (`jest`).
+- `test:watch`: Runs Jest in watch mode (`jest --watch`).
+- `test:coverage`: Runs Jest with coverage (`jest --coverage`).
+
+Ensure you run these from the `frontend-next/` directory or use a package manager workspace command from the repo root that targets this package.
+
+### Jest configuration (example)
+
+Below is a minimal `jest.config.ts` aligned with Next.js and this project’s folder layout. Place it at the repo root if you run Jest from there, or adjust paths accordingly.
+
+```ts
+import nextJest from 'next/jest'
+
+const createJestConfig = nextJest({ dir: './frontend-next' })
+
+const customJestConfig = {
+  testEnvironment: 'jest-environment-jsdom',
+  setupFilesAfterEnv: ['<rootDir>/frontend-next/jest.setup.ts'],
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/frontend-next/src/$1',
+    '\\.(css|less|scss|sass)$': '<rootDir>/frontend-next/__mocks__/styleMock.js',
+    '\\.(jpg|jpeg|png|gif|webp|avif|svg)$': '<rootDir>/frontend-next/__mocks__/fileMock.js',
+  },
+}
+
+export default createJestConfig(customJestConfig)
+```
+
 ## Test Directory Structure
 
 Tests are organized in the `src/__tests__` directory with the following structure:
@@ -159,15 +191,33 @@ jest.mock('@/components/ComplexComponent', () => ({
 When testing components that use context, wrap them in the appropriate providers:
 
 ```tsx
-const wrapper = ({ children }) => (
-  <ThemeProvider>
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
-  </ThemeProvider>
-);
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ThemeProvider } from '@/components/theme-provider'
 
-const { result } = renderHook(() => useTheme(), { wrapper });
+// Create a shared QueryClient instance for tests
+export const queryClient = new QueryClient()
+
+// Fully-typed wrapper for render and renderHook utilities
+export const wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <ThemeProvider>
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  </ThemeProvider>
+)
+
+// Usage
+const { result } = renderHook(() => useTheme(), { wrapper })
+```
+
+#### Jest setup cleanup
+
+In `frontend-next/jest.setup.ts`, clear the QueryClient between tests to avoid cache bleed:
+
+```ts
+import { queryClient } from './test-utils' // wherever you export it from for tests
+
+afterEach(() => {
+  queryClient.clear()
+})
 ```
 
 ## Best Practices
@@ -221,4 +271,5 @@ expect(handleSubmit).toHaveBeenCalledWith({
   username: 'testuser',
   password: 'password',
 });
+
 ```

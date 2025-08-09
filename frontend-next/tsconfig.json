@@ -25,22 +25,22 @@
     "baseUrl": ".",
     "paths": {
       "@/components/*": [
-        "frontend-next/src/components/*"
+        "src/components/*"
       ],
       "@/lib/*": [
-        "frontend-next/src/lib/*"
+        "src/lib/*"
       ],
       "@/hooks/*": [
-        "frontend-next/src/hooks/*"
+        "src/hooks/*"
       ],
       "@/types/*": [
-        "frontend-next/src/types/*"
+        "src/types/*"
       ],
       "@/utils/*": [
-        "frontend-next/src/utils/*"
+        "src/utils/*"
       ],
       "@/*": [
-        "frontend-next/src/*"
+        "src/*"
       ]
     }
   },

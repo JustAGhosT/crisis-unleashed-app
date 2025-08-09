@@ -27,7 +27,6 @@ jest.mock('next/navigation', () => ({
   useRouter: () => ({
     push: jest.fn(),
     replace: jest.fn(),
-    prefetch: jest.fn(),
     back: jest.fn(),
     forward: jest.fn(),
     refresh: jest.fn(),
@@ -36,3 +35,8 @@ jest.mock('next/navigation', () => ({
   usePathname: () => '/',
   useSearchParams: () => new URLSearchParams(),
 }));
+
+// Reset all jest mocks between tests to avoid cross-test leakage
+beforeEach(() => {
+  jest.clearAllMocks();
+});

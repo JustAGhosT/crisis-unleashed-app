@@ -10,7 +10,7 @@ import {
 
 // Mock the implementation of clsx and twMerge for the cn function test
 jest.mock('clsx', () => ({
-  clsx: (...inputs: any[]) => inputs.join(' ')
+  default: (...inputs: unknown[]) => (inputs as string[]).join(' ')
 }));
 
 jest.mock('tailwind-merge', () => ({
@@ -21,9 +21,8 @@ describe('Utility Functions', () => {
   describe('cn function', () => {
     it('combines class names', () => {
       const result = cn('class1', 'class2', { class3: true, class4: false });
-      // Our mock implementation doesn't accurately reflect the real behavior
-      // Let's just check that the function returns a string
-      expect(typeof result).toBe('string');
+      // Assert actual merged output to catch regressions
+      expect(result).toBe('class1 class2 class3');
     });
   });
 

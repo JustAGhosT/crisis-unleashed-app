@@ -50,10 +50,14 @@ After all migration is complete:
 
 ## Migration Timeline
 
-- Data Service Migration: [DATE]
-- Page Migration: [DATE]
-- Feature Flag Provider Update: [DATE]
-- Final Cleanup: [DATE]
+- Data Service Migration: [DATE] (Owner: [NAME])
+- Page Migration: [DATE] (Owner: [NAME])
+- Feature Flag Provider Update: [DATE] (Owner: [NAME])
+- Final Cleanup: [DATE] (Owner: [NAME])
+
+## Rollback Plan
+
+- Criteria to rollback, steps to re-enable legacy UI, and data migration reversal steps
 
 ## Testing Plan
 

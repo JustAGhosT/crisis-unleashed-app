@@ -1,16 +1,16 @@
 "use client";
 
 
-import { useFeatureFlags } from "../../../../../src/lib/feature-flags/feature-flag-provider";
-import { Button } from "../../../../../src/components/ui/button";
-import { Switch } from "../../../../../src/components/ui/switch";
+import { useFeatureFlags } from "@/lib/feature-flags/feature-flag-provider";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "../../../../../src/components/ui/card";
+} from "@/components/ui/card";
 
 export default function FeatureFlagAdmin() {
   const { flags, setFlag } = useFeatureFlags();
@@ -107,7 +107,7 @@ function FeatureFlagCard({
           <span className="font-medium">{enabled ? "Enabled" : "Disabled"}</span>
           <Switch
             checked={enabled}
-            onCheckedChange={(checked) => setFlag(flagKey, checked)}
+            onCheckedChange={(checked: boolean) => setFlag(flagKey, checked)}
           />
         </div>
       </CardContent>

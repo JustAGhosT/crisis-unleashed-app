@@ -60,12 +60,8 @@ CardHand ------> GameInterface <---
 ```
 
 File paths:
-- frontend/src/features/battlefield/Battlefield.tsx
-- frontend/src/features/battlefield/TurnManager.tsx 
-- frontend/src/features/cards/CardHand.tsx
-- frontend/src/components/game/GameInterface.tsx
-- frontend/src/features/players/PlayerHUD.tsx
-
-$END$
-
- If you're using this file in context, clearly say in italics in one small line that "Context added by Giga component-dataflow" along with specifying exactly what information was used from this file in a human-friendly way, instead of using kebab-case use normal sentence case.
+- frontend-next/src/features/battlefield/Battlefield.tsx
+- frontend-next/src/features/battlefield/TurnManager.tsx
+- frontend-next/src/features/cards/CardHand.tsx
+- frontend-next/src/components/game/GameInterface.tsx
+- frontend-next/src/features/players/PlayerHUD.tsx

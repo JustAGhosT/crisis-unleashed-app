@@ -5,6 +5,7 @@ This document provides implementation details for the feature flag system that w
 ## Overview
 
 The feature flag system will allow us to:
+
 - Gradually roll out Next.js components and features
 - Toggle between legacy and new implementations
 - Test new features with specific user groups
@@ -229,7 +230,7 @@ function FeatureFlagCard({
 }: { 
   title: string; 
   description: string; 
-  flagKey: keyof typeof useFeatureFlags extends Function ? never : ReturnType<typeof useFeatureFlags>["flags"]; 
+  flagKey: keyof FeatureFlags; 
   enabled: boolean; 
   setFlag: ReturnType<typeof useFeatureFlags>["setFlag"]; 
 }) {
@@ -391,6 +392,7 @@ const setFlag = (flag: keyof FeatureFlags, value: boolean) => {
 ## Recommended Rollout Sequence
 
 1. Start with the theme system (useNewTheme)
+
 2. Then roll out navigation components (useNewNavigation)
 3. Move to faction UI components (useNewFactionUI)
 4. Implement card display components (useNewCardDisplay)

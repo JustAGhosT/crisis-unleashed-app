@@ -83,7 +83,8 @@ class TransactionOutboxRepository:
                 "$set": {
                     "status": OutboxStatus.PROCESSING.value,
                     "updated_at": datetime.utcnow()
-                }
+                },
+                "$inc": {"attempts": 1}
             },
             return_document=ReturnDocument.AFTER
         )

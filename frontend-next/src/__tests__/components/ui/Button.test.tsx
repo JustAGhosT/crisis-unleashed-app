@@ -26,14 +26,8 @@ describe('Button Component', () => {
     expect(button).toHaveClass('h-9');
   });
 
-  it('renders faction variant correctly', () => {
-    render(<Button variant="faction">Faction Button</Button>);
-    
-    const button = screen.getByRole('button', { name: /faction button/i });
-    expect(button).toHaveClass('bg-gradient-to-r');
-    expect(button).toHaveClass('from-purple-600');
-    expect(button).toHaveClass('to-pink-600');
-  });
+  // The "faction" variant has been removed from Button.
+  // If a themed variant is reintroduced later, add assertions here for that variant's classes/semantics.
 
   it('applies additional className', () => {
     render(<Button className="test-class">Custom Class</Button>);

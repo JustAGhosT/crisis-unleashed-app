@@ -101,9 +101,9 @@ describe('CardGrid Component', () => {
       />
     );
 
-    // Find and click the first card
-    const firstCard = screen.getByText('Test Card 1').closest('div[role="button"]');
-    fireEvent.click(firstCard!);
+    // Find and click the first card (query by role and accessible name)
+    const firstCard = screen.getByRole('button', { name: /test card 1/i });
+    fireEvent.click(firstCard);
 
     expect(mockCardClick).toHaveBeenCalledWith(mockCards[0]);
   });
@@ -152,16 +152,21 @@ describe('CardGrid Component', () => {
     );
 
     // The first card should be disabled
-    const cards = screen.getAllByRole('button');
-    expect(cards[0]).toHaveClass('opacity-50');
-    expect(cards[1]).not.toHaveClass('opacity-50');
+    const firstCard = screen.getByRole('button', { name: /test card 1/i });
+    const secondCard = screen.getByRole('button', { name: /test card 2/i });
+    // Prefer semantics over styling when possible
+    // If CardGrid sets aria-disabled for disabled cards, assert that:
+    // expect(firstCard).toHaveAttribute('aria-disabled', 'true');
+    // Otherwise, keep the visual check as a fallback:
+    expect(firstCard).toHaveClass('opacity-50');
+    expect(secondCard).not.toHaveClass('opacity-50');
 
     // Click the disabled card
-    fireEvent.click(cards[0]);
+    fireEvent.click(firstCard);
     expect(mockCardClick).not.toHaveBeenCalled();
 
     // Click the enabled card
-    fireEvent.click(cards[1]);
+    fireEvent.click(secondCard);
     expect(mockCardClick).toHaveBeenCalledWith(mockCards[1]);
   });
 
