@@ -30,30 +30,30 @@ const defaultFlags: FeatureFlags = {
   enableAIOpponent: false,
 };
 
-// Create context
+// Create context type
 interface FeatureFlagsContextType {
   flags: FeatureFlags;
   setFlag: (key: keyof FeatureFlags, value: boolean) => void;
   isLoading: boolean;
 }
 
-const FeatureFlagsContext = createContext<FeatureFlagsContextType>({
-  flags: defaultFlags,
-  setFlag: () => {},
-  isLoading: true,
-});
+// Create context
+export const FeatureFlagsContext = createContext<FeatureFlagsContextType | undefined>(undefined);
 
-// Provider component
+// Provider component props
 interface FeatureFlagsProviderProps {
   children: ReactNode;
 }
 
+// Provider component
 export function FeatureFlagsProvider({ children }: FeatureFlagsProviderProps) {
   const [flags, setFlags] = useState<FeatureFlags>(defaultFlags);
   const [isLoading, setIsLoading] = useState(true);
 
   // Load flags from API on mount
   useEffect(() => {
+    let isMounted = true;
+    
     async function loadFlags() {
       try {
         const response = await fetch('/api/feature-flags');
@@ -61,15 +61,23 @@ export function FeatureFlagsProvider({ children }: FeatureFlagsProviderProps) {
           throw new Error('Failed to load feature flags');
         }
         const data = await response.json();
-        setFlags(data);
+        if (isMounted) {
+          setFlags(data);
+          setIsLoading(false);
+        }
       } catch (error) {
         console.error('Error loading feature flags:', error);
-      } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     }
 
     loadFlags();
+    
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Function to update a single flag
@@ -98,18 +106,26 @@ export function FeatureFlagsProvider({ children }: FeatureFlagsProviderProps) {
     }
   };
 
+  const contextValue = {
+    flags,
+    setFlag,
+    isLoading,
+  };
+
   return (
-    <FeatureFlagsContext.Provider value={{ flags, setFlag, isLoading }}>
+    <FeatureFlagsContext.Provider value={contextValue}>
       {children}
     </FeatureFlagsContext.Provider>
   );
 }
 
 // Hook to use feature flags
-export function useFeatureFlags() {
+export function useFeatureFlags(): FeatureFlagsContextType {
   const context = useContext(FeatureFlagsContext);
+  
   if (context === undefined) {
     throw new Error('useFeatureFlags must be used within a FeatureFlagsProvider');
   }
+  
   return context;
 }

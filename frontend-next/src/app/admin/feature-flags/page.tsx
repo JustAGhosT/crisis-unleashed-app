@@ -13,37 +13,7 @@ import {
   DialogTrigger
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-
-// Feature Flag Card Component
-interface FeatureFlagCardProps {
-  title: string;
-  description: string;
-  flagKey: keyof FeatureFlags;
-  enabled: boolean;
-  setFlag: (key: keyof FeatureFlags, value: boolean) => void;
-}
-
-function FeatureFlagCard({ title, description, flagKey, enabled, setFlag }: FeatureFlagCardProps) {
-  return (
-    <div className="border rounded-lg p-4 shadow-sm">
-      <div className="flex justify-between items-start mb-2">
-        <h3 className="font-medium text-lg">{title}</h3>
-        <div className="flex items-center">
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              className="sr-only peer"
-              checked={enabled}
-              onChange={() => setFlag(flagKey, !enabled)}
-            />
-            <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-          </label>
-        </div>
-      </div>
-      <p className="text-sm text-muted-foreground">{description}</p>
-    </div>
-  );
-}
+import { FeatureFlagCard } from '@/components/admin/FeatureFlagCard';
 
 function AdminContent() {
   const { flags, setFlag } = useFeatureFlags();
@@ -98,6 +68,13 @@ function AdminContent() {
     }
   };
 
+  // Type-safe wrapper for setFlag to avoid type casting
+  const typeSafeSetFlag = (key: string, value: boolean) => {
+    if (key in flags) {
+      setFlag(key as keyof FeatureFlags, value);
+    }
+  };
+
   return (
     <div className="container mx-auto py-10">
       <h1 className="text-2xl font-bold mb-6">Feature Flag Administration</h1>
@@ -112,8 +89,8 @@ function AdminContent() {
             title={flag.title}
             description={flag.description}
             flagKey={flag.key as keyof FeatureFlags}
-            enabled={flags[flag.key as keyof FeatureFlags]}
-          setFlag={setFlag}
+            enabled={flags[flag.key as keyof FeatureFlags] ?? false}
+            setFlag={typeSafeSetFlag}
         />
         ))}
       </div>
@@ -128,8 +105,8 @@ function AdminContent() {
             title={flag.title}
             description={flag.description}
             flagKey={flag.key as keyof FeatureFlags}
-            enabled={flags[flag.key as keyof FeatureFlags]}
-            setFlag={setFlag}
+            enabled={flags[flag.key as keyof FeatureFlags] ?? false}
+            setFlag={typeSafeSetFlag}
           />
         ))}
       </div>

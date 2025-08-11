@@ -1,10 +1,25 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
-export async function GET(request: Request) {
+// Define the feature flags interface
+interface FeatureFlags {
+  useNewFactionUI: boolean;
+  useNewDeckBuilder: boolean;
+  useNewCardDisplay: boolean;
+  useNewNavigation: boolean;
+  useNewTheme: boolean;
+  enableAdvancedDeckAnalytics: boolean;
+  enableCardAnimations: boolean;
+  enableMultiplayerChat: boolean;
+  enableTournamentMode: boolean;
+  enableAIOpponent: boolean;
+  [key: string]: boolean; // Allow for dynamic keys
+}
+
+export async function GET() {
   try {
     // Default feature flags
-    const defaultFlags = {
+    const defaultFlags: FeatureFlags = {
       useNewFactionUI: false,
       useNewDeckBuilder: false,
       useNewCardDisplay: false,
@@ -18,7 +33,7 @@ export async function GET(request: Request) {
     };
 
     // Read flags from .env.local if available
-    const envFlags = {
+    const envFlags: Partial<FeatureFlags> = {
       useNewFactionUI: process.env.ENABLE_NEW_FACTION_UI === 'true',
       useNewDeckBuilder: process.env.ENABLE_NEW_DECK_BUILDER === 'true',
       useNewCardDisplay: process.env.ENABLE_NEW_CARD_DISPLAY === 'true',
@@ -32,7 +47,7 @@ export async function GET(request: Request) {
     };
 
     // Check for user-specific overrides in cookies
-    const userFlags = {};
+    const userFlags: Partial<FeatureFlags> = {};
     const flagCookies = cookies();
     
     for (const key of Object.keys(defaultFlags)) {

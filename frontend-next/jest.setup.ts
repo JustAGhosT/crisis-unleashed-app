@@ -2,6 +2,7 @@
 // If you delete this file, remove `setupFilesAfterEnv` from `jest.config.ts`
 
 import '@testing-library/jest-dom';
+import { ImageProps } from 'next/image';
 
 // Create a mockable router function that tests can override
 const useRouterMock = jest.fn().mockReturnValue({
@@ -72,10 +73,16 @@ jest.mock('next/navigation', () => ({
   notFound: notFoundMock,
 }));
 
+// Define a type for the Next.js Image props
+type NextImageProps = Omit<ImageProps, 'src'> & {
+  src: string | object;
+  alt?: string;
+};
+
 // Mock next/image without using JSX directly
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: function NextImage(props: any) {
+  default: function NextImage(props: NextImageProps) {
     // Instead of returning JSX directly, return a mock object
     // that Jest can serialize without requiring JSX transformation
     return {
