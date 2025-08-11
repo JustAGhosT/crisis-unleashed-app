@@ -5,11 +5,6 @@ export async function GET(request: Request) {
   try {
     // Default feature flags
     const defaultFlags = {
-      ENABLE_NEW_FACTION_UI: false,
-      ENABLE_NEW_DECK_BUILDER: false,
-      ENABLE_NEW_CARD_DISPLAY: false,
-      ENABLE_NEW_NAVIGATION: false,
-      ENABLE_NEW_THEME: false,
       useNewFactionUI: false,
       useNewDeckBuilder: false,
       useNewCardDisplay: false,
@@ -32,6 +27,8 @@ export async function GET(request: Request) {
       enableAdvancedDeckAnalytics: false,
       enableCardAnimations: false,
       enableMultiplayerChat: false,
+      enableTournamentMode: false,
+      enableAIOpponent: false,
     };
 
     // Check for user-specific overrides in cookies
@@ -57,6 +54,38 @@ export async function GET(request: Request) {
     console.error("Error in feature flags API:", error);
     return NextResponse.json(
       { error: "Failed to load feature flags" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const { key, value } = await request.json();
+    
+    // Validate input
+    if (typeof key !== 'string' || typeof value !== 'boolean') {
+      return NextResponse.json(
+        { error: "Invalid input. Expected {key: string, value: boolean}" },
+        { status: 400 }
+      );
+    }
+    
+    // Store in cookie
+    const cookieStore = cookies();
+    cookieStore.set(`flag_${key}`, value.toString(), {
+      path: '/',
+      maxAge: 60 * 60 * 24 * 30, // 30 days
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+    });
+    
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error updating feature flag:", error);
+    return NextResponse.json(
+      { error: "Failed to update feature flag" },
       { status: 500 }
     );
   }
