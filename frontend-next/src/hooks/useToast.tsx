@@ -1,3 +1,5 @@
+"use client";
+
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';

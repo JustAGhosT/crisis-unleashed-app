@@ -5,7 +5,9 @@
   "scripts": {
     "preinstall": "pnpm install --ignore-scripts",
     "postinstall": "echo \"Skipping postinstall to prevent infinite loop. Run 'pnpm install' in the frontend directory manually.\"",
-    "start": "concurrently -n \"BACKEND,FRONTEND\" -c \"bgBlue.bold,bgGreen.bold\" \"cd backend && .\\.venv\\Scripts\\Activate && python -m uvicorn server:app --reload\" \"cd frontend-next && pnpm dev\"",
+    "start": "concurrently -n \"BACKEND,FRONTEND\" -c \"bgBlue.bold,bgGreen.bold\" \"cd backend && powershell -File .\\start_server.ps1\" \"cd frontend-next && pnpm dev\"",
+    "start:backend": "cd backend && powershell -File .\\start_server.ps1",
+    "start:frontend": "cd frontend-next && pnpm dev",
     "build": "pnpm --filter frontend-next build",
     "test": "cd frontend-next && pnpm test",
     "test:watch": "cd frontend-next && pnpm test:watch",
