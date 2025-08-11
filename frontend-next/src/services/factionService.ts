@@ -69,7 +69,17 @@ const factions: Faction[] = [
     mechanics: { adaptation: true },
     colors: { primary: "#39A845", secondary: "#74E68C", accent: "#174F33" },
   },
-  // Add synthetic here if/when available
+  {
+    id: "synthetic",
+    name: "Synthetic Convergence",
+    tagline: "Self-evolving machines with perfect optimization.",
+    description: "Self-evolving machines that pursue perfect optimization through constant iteration and improvement.",
+    philosophy: "Efficiency through iteration, perfection through design.",
+    strength: "Self-replication, rapid adaptation, resource efficiency.",
+    technology: "Nanofabrication, modular components, distributed processing.",
+    mechanics: { selfReplication: true },
+    colors: { primary: "#9CA3AF", secondary: "#E5E7EB", accent: "#4B5563" },
+  },
 ];
 
 // Faction metadata for UI styling and display
@@ -82,7 +92,7 @@ export const factionMetadata = {
     aeonic: "text-emerald-400",
     infernal: "text-red-400",
     primordial: "text-green-600",
-    synthetic: "text-gray-400", // placeholder for possible future faction
+    synthetic: "text-gray-400",
   },
   
   bgColorClasses: {
@@ -92,7 +102,7 @@ export const factionMetadata = {
     aeonic: "bg-emerald-400",
     infernal: "bg-red-400",
     primordial: "bg-green-600",
-    synthetic: "bg-gray-400", // placeholder for possible future faction
+    synthetic: "bg-gray-400",
   },
   
   // Gameplay characteristics
@@ -164,14 +174,14 @@ export async function getFaction(id: FactionId): Promise<Faction | null> {
 }
 
 // API: Returns stats for a faction (backend)
-export function fetchFactionStats(factionId: string) {
+export function fetchFactionStats(factionId: FactionId) {
   return apiRequest<{
     winRate: number;
     pickRate: number;
     popularCards: string[];
     matchups: Record<string, number>;
   }>(() =>
-    apiClient.get(`/factions/${factionId}/stats`)
+    apiClient.get(`/factions/${encodeURIComponent(factionId)}/stats`)
   );
 }
 
@@ -182,4 +192,49 @@ export async function fetchFactionById(id: FactionId) {
     return { success: false, data: null };
   }
   return { success: true, data: faction };
+}
+
+// Utility function to get a faction's border color class
+export function getFactionBorderColor(factionId: FactionId): string {
+  const colorMap: Record<FactionId, string> = {
+    solaris: "border-yellow-400",
+    umbral: "border-purple-400",
+    neuralis: "border-cyan-400",
+    aeonic: "border-emerald-400",
+    infernal: "border-red-400",
+    primordial: "border-green-600",
+    synthetic: "border-gray-400",
+  };
+  
+  return colorMap[factionId] || "border-gray-300";
+}
+
+// Utility function to get a faction's hover color class
+export function getFactionHoverColor(factionId: FactionId): string {
+  const colorMap: Record<FactionId, string> = {
+    solaris: "hover:bg-yellow-100 dark:hover:bg-yellow-900/30",
+    umbral: "hover:bg-purple-100 dark:hover:bg-purple-900/30",
+    neuralis: "hover:bg-cyan-100 dark:hover:bg-cyan-900/30",
+    aeonic: "hover:bg-emerald-100 dark:hover:bg-emerald-900/30",
+    infernal: "hover:bg-red-100 dark:hover:bg-red-900/30",
+    primordial: "hover:bg-green-100 dark:hover:bg-green-900/30",
+    synthetic: "hover:bg-gray-100 dark:hover:bg-gray-800/50",
+  };
+  
+  return colorMap[factionId] || "hover:bg-gray-100 dark:hover:bg-gray-800/50";
+}
+
+// Get faction icon component name (for dynamic imports)
+export function getFactionIconName(factionId: FactionId): string {
+  const iconMap: Record<FactionId, string> = {
+    solaris: "SolarisIcon",
+    umbral: "UmbralIcon",
+    neuralis: "NeuralisIcon",
+    aeonic: "AeonicIcon",
+    infernal: "InfernalIcon",
+    primordial: "PrimordialIcon",
+    synthetic: "SyntheticIcon",
+  };
+  
+  return iconMap[factionId] || "DefaultFactionIcon";
 }

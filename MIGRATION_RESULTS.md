@@ -13,18 +13,21 @@ We've successfully migrated the faction-related components from the legacy codeb
 ## Key Improvements
 
 ### Enhanced Components
+
 - New components follow SOLID principles
 - Better TypeScript coverage with proper interfaces
 - Improved styling with Tailwind CSS and faction-specific themes
 - Proper loading and error states
 
 ### Improved Architecture
+
 - Clear separation of concerns between data fetching and presentation
 - Feature flag system for gradual migration
 - Type adapters for backward compatibility
 - Maintainable, scalable code structure
 
 ### Developer Experience
+
 - Consistent component patterns
 - Better documentation with JSDoc comments
 - Type safety throughout the codebase
@@ -51,24 +54,29 @@ We took a "delete and replace" approach rather than maintaining backward compati
 ## Files Migrated/Created
 
 ### Components
+
 - `frontend-next/src/components/factions/FactionCard.tsx`
 - `frontend-next/src/components/factions/FactionGrid.tsx`
 - `frontend-next/src/components/legacy/LegacyFactionCard.tsx`
 - `frontend-next/src/components/legacy/LegacyFactionGrid.tsx`
 
 ### Pages
+
 - `frontend-next/src/app/factions/page.tsx`
 - `frontend-next/src/app/factions/[id]/page.tsx`
 
 ### Services
+
 - `frontend-next/src/services/factionService.ts`
 
 ### Feature Flags
+
 - `frontend-next/src/lib/feature-flags/feature-flag-provider.tsx`
 - `frontend-next/src/app/api/feature-flags/route.ts`
 - `frontend-next/src/app/admin/feature-flags/page.tsx`
 
 ### Documentation
+
 - `frontend-next/MIGRATION_STATUS.md`
 - `src/MIGRATION_PLAN.md`
 - `src/MIGRATION_SUMMARY.md`

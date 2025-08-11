@@ -1,66 +1,126 @@
-import { NextResponse, NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { 
-  isAuthorized, 
-  parseCookieFlags, 
-  readEnvFlags, 
-  sanitizeFlags 
-} from "./utils";
-import { FeatureFlags } from "./types";
+import { FeatureFlags } from "@/lib/feature-flags/feature-flag-provider";
 
-// Ensure environment variable access and fresh responses for flag changes
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+// Default flags - should match the ones in feature-flag-provider.tsx
+const defaultFlags: FeatureFlags = {
+  useNewFactionUI: false,
+  useNewDeckBuilder: false,
+  useNewCardDisplay: false,
+  useNewNavigation: false,
+  useNewTheme: false,
+};
 
-// Avoid unused parameter warning by using underscore prefix
-export async function GET(_req: NextRequest) {
+// For demo purposes, we'll simulate different flag values for different user roles
+// In a real app, this would come from a database or external service
+const flagsByRole: Record<string, Partial<FeatureFlags>> = {
+  admin: {
+    useNewFactionUI: true,
+    useNewDeckBuilder: true,
+    useNewCardDisplay: true,
+    useNewNavigation: true,
+    useNewTheme: true,
+  },
+  developer: {
+    useNewFactionUI: true,
+    useNewDeckBuilder: true,
+    useNewCardDisplay: false,
+    useNewNavigation: true,
+    useNewTheme: true,
+  },
+  beta_tester: {
+    useNewFactionUI: true,
+    useNewDeckBuilder: false,
+    useNewCardDisplay: false,
+    useNewNavigation: false,
+    useNewTheme: true,
+  },
+  user: defaultFlags,
+};
+
+export async function GET(request: NextRequest) {
   try {
-    // Prefer cookie (client or admin UI may have set it). Fallback to env defaults.
-    const jar = cookies();
-    const featureCookie = jar.get("featureFlags");
+    // Check for existing flags in cookies
+    const cookieStore = cookies();
+    const flagsCookie = cookieStore.get("featureFlags");
 
-    let flags: FeatureFlags | null = parseCookieFlags(featureCookie?.value);
-    if (!flags) {
-      flags = readEnvFlags(process.env);
+    if (flagsCookie) {
+      try {
+        const parsedFlags = JSON.parse(decodeURIComponent(flagsCookie.value));
+        return NextResponse.json(parsedFlags);
+      } catch (e) {
+        console.error("Failed to parse feature flags cookie", e);
+      }
     }
 
-    const res = NextResponse.json(flags);
-    // Ensure cookie exists/updated with current flags
-    res.cookies.set("featureFlags", JSON.stringify(flags), {
+    // If no cookie exists, determine flags based on user role
+    // In a real app, you would get the user from a session/auth system
+    const userRole = request.cookies.get("userRole")?.value || "user";
+    
+    // Merge default flags with role-specific overrides
+    const flags = {
+      ...defaultFlags,
+      ...(flagsByRole[userRole] || {}),
+    };
+
+    // Set cookie for future requests
+    const response = NextResponse.json(flags);
+    response.cookies.set({
+      name: "featureFlags",
+      value: encodeURIComponent(JSON.stringify(flags)),
       path: "/",
-      httpOnly: false,
+      maxAge: 60 * 60 * 24 * 365, // 1 year
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 24 * 365,
     });
-    return res;
-  } catch (e) {
-    console.error("GET /api/feature-flags failed", e);
-    return NextResponse.json({ error: "Failed to load feature flags" }, { status: 500 });
+
+    return response;
+  } catch (error) {
+    console.error("Error in feature flags API:", error);
+    return NextResponse.json(defaultFlags, { status: 500 });
   }
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    if (!isAuthorized(req)) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const body = await request.json();
+    
+    // Validate the incoming data
+    const validFlags = Object.keys(defaultFlags);
+    const incomingFlags = Object.keys(body);
+    
+    // Check if all incoming flags are valid
+    const invalidFlags = incomingFlags.filter(flag => !validFlags.includes(flag));
+    if (invalidFlags.length > 0) {
+      return NextResponse.json(
+        { error: `Invalid flags: ${invalidFlags.join(", ")}` },
+        { status: 400 }
+      );
     }
-
-    const body = await req.json();
-    const incoming = sanitizeFlags(body);
-
-    const res = NextResponse.json({ ok: true, flags: incoming });
-    res.cookies.set("featureFlags", JSON.stringify(incoming), {
+    
+    // Merge with defaults to ensure all flags are present
+    const flags = { ...defaultFlags, ...body };
+    
+    // Set cookie for future requests
+    const response = NextResponse.json({ success: true, flags });
+    response.cookies.set({
+      name: "featureFlags",
+      value: encodeURIComponent(JSON.stringify(flags)),
       path: "/",
-      httpOnly: false,
+      maxAge: 60 * 60 * 24 * 365, // 1 year
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 24 * 365,
     });
-    return res;
-  } catch (e) {
-    console.error("POST /api/feature-flags failed", e);
-    return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+    
+    // In a real app, you might also persist these settings to a database
+    // await db.userSettings.update({ userId: user.id, featureFlags: flags });
+    
+    return response;
+  } catch (error) {
+    console.error("Error updating feature flags:", error);
+    return NextResponse.json(
+      { error: "Failed to update feature flags" },
+      { status: 500 }
+    );
   }
 }

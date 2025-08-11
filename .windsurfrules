@@ -1,3 +1,16 @@
+# === USER INSTRUCTIONS ===
+### Faction System
+  - Solaris: Energy manipulation and predictive algorithms
+  - Umbral: Stealth and information warfare
+  - Neuralis: Mind control and collective consciousness
+  - Aeonic: Time manipulation mechanics  
+  - Primordial: Growth and adaptation systems
+  - Infernal: Sacrifice-based risk/reward
+  - Synthetic: Optimization and self-replication
+### Card Game Engine
+### Blockchain Integration
+# === END USER INSTRUCTIONS ===
+
 
 # main-overview
 
@@ -10,45 +23,52 @@
 - Explain your OBSERVATIONS clearly, then provide REASONING to identify the exact issue. Add console logs when needed to gather more information.
 
 
-The system implements a faction-based digital card game with blockchain integration, organized around three core domains:
+The Crisis Unleashed project implements a complex digital card game with blockchain integration, organized around several core business domains:
 
-1. Faction System
-- Seven distinct factions with unique mechanics:
-  * Solaris: Energy manipulation and predictive algorithms
-  * Umbral: Stealth and information warfare
-  * Neuralis: Mind control and collective consciousness
-  * Aeonic: Time manipulation mechanics  
-  * Primordial: Growth and adaptation systems
-  * Infernal: Sacrifice-based risk/reward
-  * Synthetic: Optimization and self-replication
+## Core Game Systems (Importance: 95)
+- Turn-based gameplay with phase management
+- Resource systems (Energy/Momentum)
+- Crisis event system affecting gameplay state
+- Combat resolution with positioning mechanics
+- Located in: `frontend/src/features/battlefield/`
 
-2. Card Game Engine
-- Multi-resource management (Energy/Momentum)
-- Phase-based turn structure
-- Dual-lane battlefield system
-- Complex combat resolution with initiative and simultaneous damage
-- Faction-specific abilities and passive effects
+## Faction System (Importance: 90)
+Seven unique factions with distinct mechanics:
+- Solaris Nexus: Energy manipulation and prediction
+- Umbral Eclipse: Stealth and information warfare
+- Aeonic Dominion: Time manipulation
+- Primordial Genesis: Growth and adaptation
+- Infernal Core: Risk/reward sacrifice mechanics
+- Neuralis Conclave: Mind control abilities
+- Synthetic Directive: Mechanical optimization
+Located in: `frontend/src/data/factions/`
 
-3. Blockchain Integration
-- Multi-chain NFT operations (Ethereum/Etherlink)
-- Transaction outbox pattern for NFT minting/transfer
-- Cross-chain asset management
-- Network-specific confirmation strategies
-- Marketplace integration framework
+## Blockchain Integration (Importance: 85)
+- Transaction outbox pattern for NFT minting/trading
+- Multi-chain support (Ethereum/Etherlink)
+- Wallet integration and ownership verification
+Located in: `backend/services/blockchain_service.py`
 
-Key Implementation Areas:
+## Card Systems (Importance: 85)
+- Faction-specific card mechanics
+- Synergy visualization between cards
+- Card ownership as NFTs
+- Deck building with faction restrictions
+Located in: `frontend/src/features/cards/`
 
-Backend Services:
-- Transaction outbox handling (backend/repository/transaction_outbox.py)
-- Blockchain provider factory (backend/services/blockchain/provider_factory.py)
-- Faction game mechanics (backend/types/faction.py)
+## Feature Management (Importance: 80)
+- Progressive feature rollout system
+- Role-based feature access
+- Feature state persistence
+Located in: `frontend-next/src/lib/feature-flags/`
 
-Frontend Components:
-- Deck building system (frontend-next/src/components/deck-builder)
-- Faction-specific UI (frontend-next/src/components/factions)
-- Card collection management (frontend-next/src/components/cards)
+## Service Health Management (Importance: 75)
+- Critical service monitoring
+- Dependency-aware initialization
+- Real-time health status tracking
+Located in: `backend/services/health_manager.py`
 
-The system uses a feature flag system for progressive rollout of components, with specific emphasis on maintaining game balance across factions while handling complex blockchain state management.
+The system integrates these components through a service-oriented architecture, with the blockchain service handling NFT operations, the game service managing gameplay state, and the frontend providing faction-specific interfaces and mechanics.
 
 $END$
 

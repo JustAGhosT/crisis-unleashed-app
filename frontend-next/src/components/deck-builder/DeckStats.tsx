@@ -1,9 +1,10 @@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { isValidRarity } from '@/lib/card-utils';
+import { rarityBadgeClass } from '@/lib/ui-maps';
 import { cn } from '@/lib/utils';
 import { DeckStats as DeckStatsType, DeckValidationResult } from '@/types/card';
-import { AlertCircle, AlertTriangle, BarChart3, CheckCircle, Pie } from 'lucide-react';
+import { AlertCircle, AlertTriangle, BarChart3, CheckCircle, PieChart } from 'lucide-react';
 
 interface DeckStatsProps {
   stats: DeckStatsType;
@@ -118,7 +119,7 @@ export const DeckStats = ({
           {Object.keys(stats.typeDistribution).length > 0 && (
             <div>
               <h4 className="text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
-                <Pie className="w-4 h-4" />
+                <PieChart className="w-4 h-4" />
                 Card Types
               </h4>
               <div className="space-y-2">
@@ -138,7 +139,10 @@ export const DeckStats = ({
               <div className="space-y-2">
                 {Object.entries(stats.rarityDistribution).map(([rarity, count]) => (
                   <div key={rarity} className="flex justify-between items-center">
-                    <Badge variant={isValidRarity(rarity) ? rarity : "default"} className="text-xs">
+                    <Badge
+                      variant={isValidRarity(rarity) ? 'secondary' : 'default'}
+                      className={cn('text-xs', rarityBadgeClass(rarity))}
+                    >
                       {rarity}
                     </Badge>
                     <span className="text-sm text-white">{count}</span>
@@ -166,8 +170,8 @@ export const DeckStats = ({
                 </div>
                 <div className="flex-1 bg-slate-700 rounded-full h-6 overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-purple-500 to-blue-500 transition-all duration-300 flex items-center justify-center"
-                    style={{ width: `${Math.max(percentage, count > 0 ? 10 : 0)}%` }}
+                    className="h-full bg-gradient-to-r from-purple-500 to-blue-500 transition-all duration-300 flex items-center justify-center w-cost-bar"
+                    style={{ ['--cost-bar-w' as any]: `${Math.max(percentage, count > 0 ? 10 : 0)}%` }}
                   >
                     {count > 0 && (
                       <span className="text-xs font-medium text-white">

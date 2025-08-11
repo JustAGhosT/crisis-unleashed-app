@@ -1,58 +1,74 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from 'next/server';
 
-// Define routes that have new implementations
-const NEXT_ENABLED_ROUTES = [
-  '/factions',
+// Define protected routes that require authentication
+const protectedRoutes = [
+  '/profile',
   '/deck-builder',
-  '/cards',
+  '/game',
+  '/settings',
+];
+
+// Define routes that require admin role
+const adminRoutes = [
+  '/admin',
 ];
 
 export function middleware(request: NextRequest) {
-  // Check if the requested path is in the new routes list
   const { pathname } = request.nextUrl;
-  const matchesNewRoute = NEXT_ENABLED_ROUTES.some(route => 
-    pathname === route || pathname.startsWith(`${route}/`)
+  
+  // Check if the route is protected
+  const isProtectedRoute = protectedRoutes.some(route => 
+    pathname.startsWith(route)
   );
   
-  if (!matchesNewRoute) {
-    return NextResponse.next();
+  // Check if the route requires admin role
+  const isAdminRoute = adminRoutes.some(route => 
+    pathname.startsWith(route)
+  );
+  
+  // If it's not a protected route, allow the request
+  if (!isProtectedRoute && !isAdminRoute) {
+  return NextResponse.next();
+}
+
+  // Get the auth token from cookies
+  const authToken = request.cookies.get('auth_token');
+  
+  // If there's no auth token, redirect to login
+  if (!authToken?.value) {
+    const url = new URL('/login', request.url);
+    url.searchParams.set('from', pathname);
+    return NextResponse.redirect(url);
   }
   
-  // Check feature flags from cookies
-  const featureFlagsCookie = request.cookies.get('featureFlags');
-  let useNewUI = false;
-  
-  if (featureFlagsCookie) {
+  // For admin routes, check if the user has admin role
+  if (isAdminRoute) {
     try {
-      const flags = JSON.parse(featureFlagsCookie.value);
+      const { role } = JSON.parse(authToken.value);
       
-      // Determine which flag to check based on path
-      if (pathname.startsWith('/factions')) {
-        useNewUI = flags.useNewFactionUI;
-      } else if (pathname.startsWith('/deck-builder')) {
-        useNewUI = flags.useNewDeckBuilder;
-      } else if (pathname.startsWith('/cards')) {
-        useNewUI = flags.useNewCardDisplay;
+      if (role !== 'admin') {
+        // Redirect non-admin users to dashboard
+        return NextResponse.redirect(new URL('/dashboard', request.url));
       }
-    } catch (e) {
-      console.error('Failed to parse feature flags cookie', e);
+    } catch (error) {
+      // If there's an error parsing the token, redirect to login
+      const url = new URL('/login', request.url);
+      url.searchParams.set('from', pathname);
+      return NextResponse.redirect(url);
     }
   }
   
-  // If flag is not enabled, redirect to legacy app
-  if (!useNewUI) {
-    const legacyUrl = new URL('/legacy', request.url);
-    legacyUrl.pathname = pathname;
-    return NextResponse.rewrite(legacyUrl);
-  }
-  
+  // Allow the request
   return NextResponse.next();
 }
 
 export const config = {
   matcher: [
-    // Match all frontend routes except specific system paths
-    '/((?!_next/|api/|images/|favicon.ico|admin/|legacy/).*)' 
+    // Match all protected routes
+    '/profile/:path*',
+    '/deck-builder/:path*',
+    '/game/:path*',
+    '/settings/:path*',
+    '/admin/:path*',
   ],
 };

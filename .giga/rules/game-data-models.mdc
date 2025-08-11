@@ -1,5 +1,5 @@
 ---
-description: Specification for core game data models including cards, battlefield, player stats, and state management
+description: Specifies core game data models including cards, battlefield grid, player stats, and game state
 ---
 
 # === USER INSTRUCTIONS ===
@@ -11,74 +11,56 @@ description: Specification for core game data models including cards, battlefiel
 
 # game-data-models
 
-Core Game Entity Models:
+## Core Game Entities
 
-1. Card Model
-File: backend/types/faction.py
-```python
-class Card:
-    faction: FactionType 
-    rarity: CardRarity
-    energy_cost: int
-    momentum_cost: int
-    unit_type: UnitType
-    combat_stats: CombatStats
-    abilities: List[Ability]
-```
+### Card System (Score: 95)
+- Complex card type hierarchy with Heroes, Units, Actions, and Structures
+- Each card has faction alignment, energy cost, and special abilities
+- Cards can have battlefield positioning requirements and zone restrictions
+- Implements targeting rules and validation for card effects
 
-2. Battlefield Grid
-File: frontend/src/types/game.types.ts
-```typescript
-interface Grid {
-    lanes: Lane[]
-    zones: Zone[] 
-    positions: Position[]
-    state: GridState
-}
-```
-- 3x3 grid system with specialized zones
-- Front/back line positioning rules
-- Zone control mechanics
+### Battlefield Grid (Score: 90) 
+- Hexagonal grid system with distinct zones (player, opponent, neutral)
+- Position-based gameplay mechanics affecting card abilities
+- Zone control mechanics with territory ownership
+- Line of sight calculations for ranged abilities
 
-3. Player Stats
-- Health (0-30)
-- Energy (0-10, regenerates per turn)
-- Momentum (0-5, combat-generated resource)
-- Special abilities based on faction alignment
+### Player Stats (Score: 85)
+- Health system with base value and modifiers
+- Momentum resource that builds through strategic actions
+- Energy pool that refreshes each turn with faction-specific modifiers
+- Status effects tracking (buffs/debuffs)
 
-4. Game State
-```typescript
-interface GameState {
-    turn: number
-    phase: TurnPhase
-    activePlayer: PlayerId
-    battlefield: Grid
-    hands: {[playerId: string]: Card[]}
-    resources: {[playerId: string]: Resources}
-}
-```
+### Game State (Score: 90)
+- Tracks current game phase (Deploy/Action/End)
+- Maintains ordered card zones (deck, hand, field, grave)
+- Records action history for animation and undo
+- Crisis event status and active effects
 
-5. Faction-Specific Data Models:
-- Solaris: Energy manipulation stats
-- Umbral: Stealth mechanics tracking
-- Neuralis: Mind control duration tracking
-- Aeonic: Time manipulation counters
-- Primordial: Growth stage tracking
-- Infernal: Sacrifice value calculations
-- Synthetic: Optimization metrics
+### Faction Mechanics (Score: 95)
+- Seven unique factions with distinct abilities:
+  - Solaris: Energy manipulation and prediction
+  - Umbral: Stealth and information warfare
+  - Aeonic: Time manipulation and control
+  - Primordial: Growth and overwhelming force
+  - Infernal: High-risk sacrifice mechanics
+  - Neuralis: Mind control and influence
+  - Synthetic: Perfect optimization
 
-Combat Resolution Model:
-- Initiative calculation system
-- Damage application order
-- Status effect processing queue
-- Death resolution handling
-- Zone control updates
+### Resource Systems (Score: 85)  
+- Complex resource interplay between:
+  - Energy (spent to play cards)
+  - Momentum (built through actions)
+  - Health (victory condition)
+  - Zone control points
 
-Resource Management Model:
-- Per-turn energy allocation
-- Momentum generation tracking
-- Special ability cost validation
-- Resource decay calculations
+### Turn Structure (Score: 80)
+- Phased turn system:
+  - Draw Phase (deck interaction)
+  - Energy Phase (resource refresh)
+  - Main Phase (card playing)
+  - Combat Phase (attack resolution)
+  - End Phase (cleanup)
 
 $END$
 

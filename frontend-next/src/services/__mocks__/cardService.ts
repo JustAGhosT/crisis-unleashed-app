@@ -1,21 +1,29 @@
-import { Card, CardFilters as CardFiltersType } from "@/types/card";
+import { Card, CardFilters as CardFiltersType, CardType, CardRarity } from "@/types/card";
+import { FactionId } from "@/types/faction";
+
+// Helper function for type-safe random selection from a readonly array
+function pickRandom<T>(array: readonly T[]): T {
+  return array[Math.floor(Math.random() * array.length)];
+}
+
+// Define type-safe constants
+const CARD_TYPES: readonly CardType[] = ["hero", "unit", "action", "structure"];
+const FACTIONS: readonly FactionId[] = ["solaris", "umbral", "aeonic", "primordial", "infernal", "neuralis", "synthetic"];
+const RARITIES: readonly CardRarity[] = ["common", "uncommon", "rare", "epic", "legendary"];
+const ABILITIES: readonly string[] = ["First Strike", "Overwhelm", "Shield", "Flying", "Stealth", "Lifesteal", "Drain"];
 
 export function generateMockCards(page: number, filters: CardFiltersType): Card[] {
     const mockCards: Card[] = Array.from({ length: 20 }).map((_, i) => ({
         id: `card-${page}-${i}`,
         name: `Example Card ${page * 20 + i + 1}`,
         description: "This is a sample card description with some gameplay text.",
-        type: (["hero", "unit", "action", "structure"] as const)[Math.floor(Math.random() * 4)] as any,
-        faction: (["solaris", "umbral", "aeonic", "primordial", "infernal", "neuralis"] as const)[
-            Math.floor(Math.random() * 6)
-        ] as any,
-        rarity: (["common", "uncommon", "rare", "epic", "legendary"] as const)[
-            Math.floor(Math.random() * 5)
-        ] as any,
+        type: pickRandom(CARD_TYPES),
+        faction: pickRandom(FACTIONS),
+        rarity: pickRandom(RARITIES),
         cost: Math.floor(Math.random() * 10),
         attack: Math.floor(Math.random() * 10),
         health: Math.floor(Math.random() * 10),
-        abilities: ["First Strike", "Overwhelm", "Shield", "Flying"].slice(
+        abilities: ABILITIES.slice(
             0,
             Math.floor(Math.random() * 3)
         ),

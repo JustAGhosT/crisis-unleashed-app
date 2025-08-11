@@ -7,6 +7,9 @@ import {
   Card,
   CardType,
   CardRarity,
+  UnitType,
+  ActionType,
+  StructureType,
 } from '@/types/card';
 import { FactionId } from '@/types/faction';
 import { mockUserDecks, getMockDeckData } from '@/lib/DeckMockData';
@@ -162,8 +165,9 @@ export class DeckService {
       }
     }
 
+    let avgCost = 0;
     if (totalCards >= this.MIN_DECK_SIZE) {
-      const avgCost = this.calculateAverageCost(cards, deckCards);
+      avgCost = this.calculateAverageCost(cards, deckCards);
       if (avgCost > 4.5) {
         warnings.push('High average cost - consider adding cheaper cards');
       }
@@ -172,12 +176,47 @@ export class DeckService {
       }
     }
 
+    // Derive type counts
+    let heroCardCount = 0;
+    let unitCardCount = 0;
+    let actionCardCount = 0;
+    let structureCardCount = 0;
+    for (const dc of deckCards) {
+      const c = cardMap.get(dc.cardId);
+      if (!c) continue;
+      switch (c.type) {
+        case 'hero':
+          heroCardCount += dc.quantity; break;
+        case 'unit':
+          unitCardCount += dc.quantity; break;
+        case 'action':
+          actionCardCount += dc.quantity; break;
+        case 'structure':
+          structureCardCount += dc.quantity; break;
+      }
+    }
+
+    // Reuse factions set for consistency check (declared above in validation)
+    const factionConsistency = factions.size <= this.MAX_FACTIONS;
+
+    // Simple energy curve balance heuristic based on average cost range
+    const energyCurveBalance = avgCost >= 2.5 && avgCost <= 4.5;
+
+    const factionSpecificRules: { [rule: string]: boolean } = {};
+
     return {
       isValid: errors.length === 0,
       errors,
       warnings,
       cardCount: totalCards,
+      heroCardCount,
+      unitCardCount,
+      actionCardCount,
+      structureCardCount,
+      factionConsistency,
+      energyCurveBalance,
       costCurve,
+      factionSpecificRules,
     };
   }
 
@@ -188,8 +227,36 @@ export class DeckService {
     const cardMap = new Map(cards.map(card => [card.id, card]));
     let totalCards = 0;
     let totalCost = 0;
-    const typeDistribution: { [type in CardType]?: number } = {};
-    const rarityDistribution: { [rarity in CardRarity]?: number } = {};
+    // Initialize distributions to satisfy strict Record typings
+    const typeDistribution: Record<CardType, number> = {
+      hero: 0,
+      unit: 0,
+      action: 0,
+      structure: 0,
+    };
+    const unitTypeDistribution: Record<UnitType, number> = {
+      melee: 0,
+      ranged: 0,
+      siege: 0,
+      flying: 0,
+    };
+    const actionTypeDistribution: Record<ActionType, number> = {
+      instant: 0,
+      ongoing: 0,
+      equipment: 0,
+    };
+    const structureTypeDistribution: Record<StructureType, number> = {
+      building: 0,
+      trap: 0,
+      aura: 0,
+    };
+    const rarityDistribution: Record<CardRarity, number> = {
+      common: 0,
+      uncommon: 0,
+      rare: 0,
+      epic: 0,
+      legendary: 0,
+    };
     const costCurve: { [cost: number]: number } = {};
 
     for (const deckCard of deckCards) {
@@ -197,18 +264,46 @@ export class DeckService {
       if (!card) continue;
       totalCards += deckCard.quantity;
       totalCost += card.cost * deckCard.quantity;
-      typeDistribution[card.type] =
-        (typeDistribution[card.type] || 0) + deckCard.quantity;
-      rarityDistribution[card.rarity] =
-        (rarityDistribution[card.rarity] || 0) + deckCard.quantity;
+      typeDistribution[card.type] = typeDistribution[card.type] + deckCard.quantity;
+      // Track sub-type distributions where applicable
+      if (card.type === 'unit' && card.unitType) {
+        unitTypeDistribution[card.unitType] = unitTypeDistribution[card.unitType] + deckCard.quantity;
+      }
+      if (card.type === 'action' && card.actionType) {
+        actionTypeDistribution[card.actionType] = actionTypeDistribution[card.actionType] + deckCard.quantity;
+      }
+      if (card.type === 'structure' && card.structureType) {
+        structureTypeDistribution[card.structureType] = structureTypeDistribution[card.structureType] + deckCard.quantity;
+      }
+      rarityDistribution[card.rarity] = rarityDistribution[card.rarity] + deckCard.quantity;
       costCurve[card.cost] = (costCurve[card.cost] || 0) + deckCard.quantity;
     }
+    // Basic derived stats with defaults when not computable
+    const averageCost = totalCards > 0 ? totalCost / totalCards : 0;
+    const averageInitiative = 0;
+    const frontlineUnitCount = 0;
+    const backlineUnitCount = 0;
+    const rangedUnitCount = unitTypeDistribution.ranged;
+    const flyingUnitCount = unitTypeDistribution.flying;
+    const energyCurve: { [cost: number]: number } = {};
+    const momentumRequirements: { [cost: number]: number } = {};
+
     return {
       totalCards,
-      averageCost: totalCards > 0 ? totalCost / totalCards : 0,
+      averageCost,
+      averageInitiative,
+      frontlineUnitCount,
+      backlineUnitCount,
+      rangedUnitCount,
+      flyingUnitCount,
       typeDistribution,
+      unitTypeDistribution,
+      actionTypeDistribution,
+      structureTypeDistribution,
       rarityDistribution,
       costCurve,
+      energyCurve,
+      momentumRequirements,
     };
   }
 

@@ -22,7 +22,6 @@ const useCards = (
   const [totalPages, setTotalPages] = useState(1);
   
   useEffect(() => {
-    setFilters(getFiltersFromParams());
     const fetchCards = async () => {
       setLoading(true);
       try {

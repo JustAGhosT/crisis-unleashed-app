@@ -1,58 +1,53 @@
 ---
-description: Technical documentation for game algorithms and mechanics including battlefield management, card deployment logic, turn sequencing, and combat resolution.
+description: Core game algorithms and mechanics including card deployment, turn management, and combat resolution.
 ---
 
 
 # game-algorithms
 
-Core Game Systems:
+## Turn Management
+- Phase-based turn system with Draw, Energy, Main, Combat and End phases
+- Resource resets and card draws occur at specific phase transitions
+- Each phase has unique allowed actions and restrictions
+- Location: `frontend/src/features/battlefield/TurnManager.tsx`
+- Importance: 90
 
-1. Turn Sequence Engine
-Path: backend/types/faction.py
-- Phase management system: Draw → Energy → Main → Combat → End
-- Energy/Momentum dual resource model with phase-specific rules
-- Crisis event triggers and resolution between phases
+## Battlefield Management 
+- Hexagonal grid-based positioning system with controlled territories
+- Zone control mechanics affect unit placement and movement
+- Position-based combat with line of sight calculations
+- Location: `frontend/src/features/battlefield/Battlefield.tsx`
+- Importance: 85
 
-2. Battlefield Management
-Path: frontend/src/features/battlefield/Battlefield.tsx
-- Dual-lane system with front/backline positioning
-- Zone control mechanics with territory influence
-- Unit positioning validation with faction-specific rules
+## Crisis Events
+- Dynamic events that modify battlefield conditions
+- Visual impact indicators and resolution mechanics
+- Integration with faction abilities and resource systems
+- Location: `frontend/src/components/game/CrisisEvent.tsx`
+- Importance: 80
 
-3. Combat Resolution System
-Path: backend/types/faction.py
-- Initiative-based combat sequencing
-- Multi-step resolution: Pre-combat → Combat → Post-combat
-- Simultaneous damage application with death handling
-- Combat keywords: Quick Attack, Overwhelm, Lifesteal, Shield
+## Combat Resolution
+- Initiative-based combat ordering
+- Range and zone-based attack calculations  
+- Combat keywords like Quick Attack, Overwhelm, Shield
+- Card synergy calculations during combat
+- Location: `frontend/src/features/battlefield/CombatResolver.tsx`
+- Importance: 85
 
-4. Faction Mechanics
-- Solaris: Predictive algorithm combat modifiers
-- Umbral: Stealth and information warfare
-- Neuralis: Mind control mechanics
-- Aeonic: Time manipulation abilities
-- Primordial: Growth and adaptation systems
-- Infernal: Sacrifice-based abilities
-- Synthetic: Resource optimization
+## Card Deployment
+- Resource cost validation (energy/momentum)
+- Placement zone restrictions
+- Faction-specific deployment rules
+- Synergy visualization for card combinations
+- Location: `frontend/src/features/cards/CardDeployer.tsx`
+- Importance: 80
 
-5. Card Deployment Logic
-Path: frontend/src/features/cards/CardHand.tsx
-- Cost validation against current energy pool
-- Position-based deployment restrictions
-- Faction alignment requirements
-- Hero card special deployment rules
-
-6. Crisis Event System
-- Dynamic battlefield modifiers
-- Event trigger conditions and resolution
-- Cross-faction interaction modifiers
-- Resource pool modifications
-
-7. Hero Progression
-- Level-based ability unlocks
-- Experience gain from combat actions
-- Faction-specific advancement paths
-- Ultimate ability requirements
+## Faction Mechanics
+- Unique faction abilities and passive effects
+- Faction-specific resource manipulation
+- Inter-faction synergy calculations
+- Location: `frontend/src/features/factions/FactionAbilities.tsx`
+- Importance: 90
 
 $END$
 

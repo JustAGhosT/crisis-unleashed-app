@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { isValidRarity } from '@/lib/card-utils';
 import { cn } from '@/lib/utils';
 import { DeckCard, Card as GameCardData } from '@/types/card';
+import { rarityBadgeClass } from '@/lib/ui-maps';
 import { Grid, List, Save, Trash2 } from 'lucide-react';
 import React from 'react';
 
@@ -199,8 +200,8 @@ export const DeckList: React.FC<DeckListProps> = ({
                         <div className="flex items-center gap-2">
                           <span className="font-medium text-white">{card.name}</span>
                           <Badge
-                            variant={isValidRarity(card.rarity) ? card.rarity : "default"}
-                            className="text-xs"
+                            variant={isValidRarity(card.rarity) ? 'secondary' : 'default'}
+                            className={cn('text-xs', rarityBadgeClass(card.rarity))}
                           >
                             {card.rarity}
                           </Badge>

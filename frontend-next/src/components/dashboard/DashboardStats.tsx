@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { ArrowUpIcon, ArrowDownIcon } from "@heroicons/react/24/solid";
+import { ArrowUp, ArrowDown } from "lucide-react";
 
 // Mock data fetcher - replace with actual API call
 const fetchStats = async () => {
@@ -90,9 +90,9 @@ function StatCard({ title, value, subtitle, trend, trendValue }: StatCardProps) 
             trend === "up" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
           }`}>
             {trend === "up" ? (
-              <ArrowUpIcon className="w-3 h-3 mr-1" />
+              <ArrowUp className="w-3 h-3 mr-1" />
             ) : (
-              <ArrowDownIcon className="w-3 h-3 mr-1" />
+              <ArrowDown className="w-3 h-3 mr-1" />
             )}
             {trendValue}
           </span>

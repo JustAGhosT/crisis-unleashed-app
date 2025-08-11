@@ -1,10 +1,15 @@
 import "@/styles/globals.css";
 import type { Metadata } from "next";
 import { Inter as FontSans } from "next/font/google";
+import { AuthProvider } from '@/lib/auth/AuthContext';
+import { FeatureFlagProvider } from '@/lib/feature-flags/feature-flag-provider';
+import { QueryProvider } from '@/lib/query-provider';
 import { Providers } from "@/components/providers";
 import { cn } from "@/lib/utils";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import FeatureFlagIndicator from "@/components/feature-flags/FeatureFlagIndicator";
+import { ThemeProvider } from "@/lib/theme/theme-provider";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -35,13 +40,27 @@ export default function RootLayout({
           fontSans.variable
         )}
       >
-        <Providers>
-          <div className="relative flex min-h-screen flex-col">
-            <Navbar />
-            <main className="flex-1 container mx-auto px-4 py-6">{children}</main>
-            <Footer />
-          </div>
-        </Providers>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <QueryProvider>
+            <AuthProvider>
+              <FeatureFlagProvider>
+                <Providers>
+                  <div className="relative flex min-h-screen flex-col">
+                    <Navbar />
+                    <main className="flex-1 container mx-auto px-4 py-6">{children}</main>
+                    <Footer />
+                    <FeatureFlagIndicator />
+                  </div>
+                </Providers>
+              </FeatureFlagProvider>
+            </AuthProvider>
+          </QueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

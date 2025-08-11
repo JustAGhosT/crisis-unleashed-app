@@ -26,6 +26,7 @@ export interface Faction {
     timeWarp?: boolean; // Aeonic
     adaptation?: boolean; // Primordial
     sacrifice?: boolean; // Infernal
+    selfReplication?: boolean; // Synthetic
     // Add structured numeric configs if/when available
   };
 

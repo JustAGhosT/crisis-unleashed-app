@@ -115,3 +115,8 @@
     @apply animate-glow;
   }
 }
+
+@layer utilities {
+  /* Utility to apply width from a CSS variable (Option A) */
+  .w-cost-bar { width: var(--cost-bar-w); }
+}

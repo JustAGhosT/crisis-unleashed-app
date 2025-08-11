@@ -4,7 +4,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { GameCard } from '@/components/cards/GameCard';
 import { CardFilters } from '@/components/cards/CardFilters';
@@ -252,10 +251,11 @@ export const DeckBuilder: React.FC<DeckBuilderProps> = ({
                 <form onSubmit={handleSaveDeck} className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-1">
+                      <label htmlFor="deck-name" className="block text-sm font-medium text-gray-300 mb-1">
                         Deck Name *
                       </label>
                       <Input
+                        id="deck-name"
                         {...register('name')}
                         placeholder="My Awesome Deck"
                         className="bg-slate-700 border-slate-600 text-white"
@@ -266,30 +266,25 @@ export const DeckBuilder: React.FC<DeckBuilderProps> = ({
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-1">
-                        Primary Faction
-                      </label>
+                      <label htmlFor="primary-faction" className="block text-sm font-medium text-gray-300 mb-1">Primary Faction</label>
                       <Controller
                         name="faction"
                         control={control}
                         render={({ field }) => (
-                          <Select
-                            value={field.value || ''}
-                            onValueChange={field.onChange}
-                            className="bg-slate-700 border-slate-600 text-white"
+                          <select
+                            id="primary-faction"
+                            value={field.value ?? ''}
+                            onChange={(e) => field.onChange((e.target.value || undefined) as any)}
+                            className="w-full rounded-md border px-3 py-2 bg-slate-700 border-slate-600 text-white"
+                            title="Primary Faction"
                           >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Auto-detect" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="">Auto-detect</SelectItem>
-                              {getFactionOptions().map((faction) => (
-                                <SelectItem key={faction.value} value={faction.value}>
-                                  {faction.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                            <option value="">Auto-detect</option>
+                            {getFactionOptions().map((faction) => (
+                              <option key={faction.value} value={faction.value}>
+                                {faction.label}
+                              </option>
+                            ))}
+                          </select>
                         )}
                       />
                     </div>

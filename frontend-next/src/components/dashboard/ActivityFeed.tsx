@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { CalendarIcon, TrophyIcon, UserGroupIcon, CreditCardIcon, SparklesIcon } from "@heroicons/react/24/outline";
+import { Calendar, Trophy, Users, CreditCard, Sparkles } from "lucide-react";
 
 // Types for activity data
 type ActivityType = "game" | "reward" | "friend" | "purchase" | "achievement";
@@ -100,17 +100,17 @@ export default function ActivityFeed() {
   const getActivityIcon = (type: ActivityType) => {
     switch (type) {
       case "game":
-        return <TrophyIcon className="h-6 w-6 text-purple-500" />;
+        return <Trophy className="h-6 w-6 text-purple-500" />;
       case "reward":
-        return <SparklesIcon className="h-6 w-6 text-yellow-500" />;
+        return <Sparkles className="h-6 w-6 text-yellow-500" />;
       case "friend":
-        return <UserGroupIcon className="h-6 w-6 text-blue-500" />;
+        return <Users className="h-6 w-6 text-blue-500" />;
       case "purchase":
-        return <CreditCardIcon className="h-6 w-6 text-green-500" />;
+        return <CreditCard className="h-6 w-6 text-green-500" />;
       case "achievement":
-        return <TrophyIcon className="h-6 w-6 text-red-500" />;
+        return <Trophy className="h-6 w-6 text-red-500" />;
       default:
-        return <CalendarIcon className="h-6 w-6 text-gray-500" />;
+        return <Calendar className="h-6 w-6 text-gray-500" />;
     }
   };
 

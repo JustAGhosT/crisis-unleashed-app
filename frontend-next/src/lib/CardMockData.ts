@@ -246,4 +246,9 @@ export class CardMockData {
       // ...add more for strong test coverage
     ];
   }
+
+  /** Retrieve a single mock card by its id */
+  static getMockCardById(cardId: string): Card | undefined {
+    return this.mockCards.find(c => c.id === cardId);
+  }
 }

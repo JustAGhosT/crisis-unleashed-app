@@ -1,7 +1,8 @@
 import { useToast } from '@/components/ui/toast';
 import { CardService } from '@/services/cardService';
 import { ApiException } from '@/services/api';
-import { Card, Deck, DeckCard, DeckValidationResult, FactionId } from '@/types/card';
+import { Card, Deck, DeckCard, DeckValidationResult } from '@/types/card';
+import { FactionId } from '@/types/faction';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 interface UseDeckProps {

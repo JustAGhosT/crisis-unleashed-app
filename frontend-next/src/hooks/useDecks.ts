@@ -42,7 +42,11 @@ export function useCreateDeck() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  return useMutation({
+  return useMutation<
+    Deck,
+    Error,
+    Omit<Deck, 'id' | 'createdAt' | 'updatedAt'>
+  >({
     mutationFn: createDeckService,
     onSuccess: (newDeck) => {
       toast({

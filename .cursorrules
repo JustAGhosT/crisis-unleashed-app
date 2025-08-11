@@ -10,66 +10,71 @@
 - Explain your OBSERVATIONS clearly, then provide REASONING to identify the exact issue. Add console logs when needed to gather more information.
 
 
-## Core Business Systems
+Crisis Unleashed implements a complex card game system with faction-based mechanics, blockchain integration, and multi-resource management. The core business logic is organized into several key systems:
 
-### Game Mechanics Engine
-- Complex turn-based system with phases: Draw, Energy, Main, Combat, End
-- Resource management (Energy/Momentum dual system)
-- Battlefield grid system with zone control mechanics
-- Combat resolution with faction-specific modifiers
+### Core Game Systems (Score: 90)
+- Turn-based gameplay with distinct phases (Deploy/Action/End)
+- Multi-resource management (Energy, Momentum)
+- Card drawing and playing mechanics with validation
+- Combat resolution on a grid-based battlefield
+- Crisis event system affecting gameplay
 
-File paths:
-```
-frontend/src/features/battlefield/Battlefield.tsx
-frontend/src/features/battlefield/TurnManager.tsx
-```
+**Key Files:**
+- `plans/board-game-interface.md`
+- `plans/overview.md`
+- `backend/types/faction.py`
 
-### Faction System
-- Seven unique factions with distinct mechanics and abilities
-- Faction-specific resource manipulation and combat rules
-- Technology integration system affecting universal program outcomes
-- Cross-faction interaction rules and synthesis mechanics
+### Faction Mechanics (Score: 85)
+Seven unique factions with distinct mechanics:
+- Solaris: Energy manipulation
+- Umbral: Stealth mechanics  
+- Neuralis: Mind control
+- Aeonic: Time manipulation
+- Primordial: Growth/adaptation
+- Infernal: Sacrifice mechanics
+- Synthetic: Mechanical precision
 
-File paths:
-```
-frontend/src/utils/factionUtils.ts
-frontend/src/theme/factionThemes.ts
-```
+**Key Files:**
+- `frontend/src/data/factions/index.ts`
+- `backend/types/faction.py`
 
-### Blockchain Integration
-- Transaction outbox pattern for database-blockchain consistency
-- Multi-chain support (Ethereum, Etherlink) with provider abstraction
-- NFT minting and transfer operations with faction-specific metadata
-- Marketplace operations with blockchain-specific implementations
+### Blockchain Integration (Score: 85)
+- Transaction outbox pattern for NFT operations
+- Multi-chain support (Etherlink, Ethereum, Solana)
+- NFT minting and transfer operations
+- Marketplace functionality
 
-File paths:
-```
-backend/services/blockchain_service.py
-backend/repository/transaction_outbox.py
-```
+**Key Files:**
+- `backend/services/blockchain_service.py`
+- `backend/repository/transaction_outbox.py`
 
-### Service Health Management
-- Critical service dependency resolution
-- Fail-fast initialization for essential services
-- Continuous health monitoring with status reporting
-- Service availability validation with dependency checks
+### Deck Building System (Score: 80)
+- Faction-specific deck validation
+- Card synergy analysis
+- Deck statistics calculation
+- Advanced filtering system
 
-File paths:
-```
-backend/services/health_manager.py
-```
+**Key Files:**
+- `frontend-next/src/services/deckService.ts`
+- `frontend-next/src/components/deck-builder/DeckBuilder.tsx`
 
-### Feature Flag System
-- Progressive rollout of new components
-- Faction-specific feature toggling
-- User-group based feature activation
-- Analytics tracking for feature adoption
+### Service Health Management (Score: 75)
+- Service dependency tracking
+- Continuous health monitoring
+- Fail-fast initialization
+- Critical service status tracking
 
-File paths:
-```
-frontend-next/src/lib/feature-flags/feature-flag-provider.tsx
-frontend-next/middleware.ts
-```
+**Key Files:**
+- `backend/services/health_manager.py`
+
+### Feature Flag System (Score: 70)
+- Progressive feature rollout
+- Feature status persistence
+- Middleware route control
+- Admin interface for flag management
+
+**Key Files:**
+- `frontend-next/src/lib/feature-flags/feature-flag-provider.tsx`
 
 $END$
 

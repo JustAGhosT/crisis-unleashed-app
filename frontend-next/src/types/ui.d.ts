@@ -1,30 +1,30 @@
 declare module '@/components/ui/alert' {
-  import { ComponentPropsWithoutRef, ElementRef, forwardRef } from 'react';
-  import { VariantProps } from 'class-variance-authority';
+  import type { ForwardRefExoticComponent, HTMLAttributes, RefAttributes } from 'react';
+  import type { VariantProps } from 'class-variance-authority';
 
-  const Alert: React.ForwardRefExoticComponent<
-    React.HTMLAttributes<HTMLDivElement> &
+  const Alert: ForwardRefExoticComponent<
+    HTMLAttributes<HTMLDivElement> &
       VariantProps<(props?: Record<string, unknown>) => string> &
-      React.RefAttributes<HTMLDivElement>
+      RefAttributes<HTMLDivElement>
   >;
 
-  const AlertTitle: React.ForwardRefExoticComponent<
-    React.HTMLAttributes<HTMLHeadingElement> &
-      React.RefAttributes<HTMLParagraphElement>
+  const AlertTitle: ForwardRefExoticComponent<
+    HTMLAttributes<HTMLHeadingElement> &
+      RefAttributes<HTMLHeadingElement>
   >;
 
-  const AlertDescription: React.ForwardRefExoticComponent<
-    React.HTMLAttributes<HTMLParagraphElement> &
-      React.RefAttributes<HTMLParagraphElement>
+  const AlertDescription: ForwardRefExoticComponent<
+    HTMLAttributes<HTMLParagraphElement> &
+      RefAttributes<HTMLParagraphElement>
   >;
 
   export { Alert, AlertTitle, AlertDescription };
 }
 
 declare module '@/components/ui/skeleton' {
-  import React from 'react';
+  import type { HTMLAttributes } from 'react';
 
-  function Skeleton(props: React.HTMLAttributes<HTMLDivElement>): JSX.Element;
+  function Skeleton(props: HTMLAttributes<HTMLDivElement>): JSX.Element;
 
   export { Skeleton };
 }

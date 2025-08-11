@@ -26,48 +26,128 @@ const FeatureFlagContext = createContext<{
   setFlag: () => {},
 });
 
+// Helper function to safely check if localStorage is available
+const isLocalStorageAvailable = (): boolean => {
+  try {
+    const testKey = '__test__';
+    localStorage.setItem(testKey, testKey);
+    localStorage.removeItem(testKey);
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
+
+// Helper to safely parse JSON with type validation
+const safeParseFlags = (json: string): FeatureFlags | null => {
+  try {
+    const parsed = JSON.parse(json);
+    
+    // Basic validation to ensure it's a FeatureFlags object
+    const requiredKeys = Object.keys(defaultFlags);
+    const hasAllKeys = requiredKeys.every(key => typeof parsed[key] === 'boolean');
+    
+    if (hasAllKeys) {
+      return parsed as FeatureFlags;
+    }
+    
+    console.warn("Stored feature flags missing required keys or have wrong types");
+    return null;
+  } catch (e) {
+    console.error("Failed to parse stored feature flags", e);
+    return null;
+  }
+};
+
 export function FeatureFlagProvider({ children }: { children: ReactNode }) {
   const [flags, setFlags] = useState<FeatureFlags>(defaultFlags);
+  const [storageAvailable, setStorageAvailable] = useState<boolean | null>(null);
 
+  // Check if localStorage is available once on mount
   useEffect(() => {
-    // Load flags from local storage on client side
-    const storedFlags = localStorage.getItem("featureFlags");
-    if (storedFlags) {
-      try {
-        setFlags(JSON.parse(storedFlags));
-      } catch (e) {
-        console.error("Failed to parse stored feature flags", e);
-      }
-    } else {
-      // Fetch from API
+    setStorageAvailable(isLocalStorageAvailable());
+  }, []);
+
+  // Load feature flags
+  useEffect(() => {
+    // Skip if we haven't checked storage availability yet
+    if (storageAvailable === null) return;
+
+    const fetchFromApi = () => {
+      console.log("Fetching feature flags from API");
       fetch("/api/feature-flags")
-        .then((res) => res.json())
+        .then((res) => {
+          if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+          return res.json();
+        })
         .then((data) => {
           setFlags(data);
-          localStorage.setItem("featureFlags", JSON.stringify(data));
+          
+          // Only try to save to localStorage if it's available
+          if (storageAvailable) {
+            try {
+              localStorage.setItem("featureFlags", JSON.stringify(data));
+            } catch (e) {
+              console.error("Failed to save feature flags to localStorage", e);
+            }
+          }
         })
         .catch((error) => {
-          console.error("Failed to fetch feature flags", error);
+          console.error("Failed to fetch feature flags from API", error);
         });
+    };
+
+    // Try to load from localStorage first if available
+    let loadedFromStorage = false;
+    
+    if (storageAvailable) {
+      try {
+        const storedFlags = localStorage.getItem("featureFlags");
+        
+        if (storedFlags) {
+          // Safely parse and validate the stored flags
+          const parsedFlags = safeParseFlags(storedFlags);
+          
+          if (parsedFlags) {
+            setFlags(parsedFlags);
+            loadedFromStorage = true;
+            console.log("Loaded feature flags from localStorage");
+          }
+        }
+      } catch (e) {
+        console.error("Failed to access localStorage", e);
+      }
     }
-  }, []);
+    
+    // Only fetch from API if we couldn't load valid flags from localStorage
+    if (!loadedFromStorage) {
+      fetchFromApi();
+    }
+  }, [storageAvailable]);
 
   const setFlag = (flag: keyof FeatureFlags, value: boolean) => {
     setFlags((prevFlags) => {
       const newFlags = { ...prevFlags, [flag]: value };
-      localStorage.setItem("featureFlags", JSON.stringify(newFlags));
       
-      // Immediately mirror to cookie so middleware can read it on next navigation
+      // Only try localStorage operations if it's available
+      if (storageAvailable) {
+        try {
+          localStorage.setItem("featureFlags", JSON.stringify(newFlags));
+        } catch (e) {
+          console.error("Failed to save feature flags to localStorage", e);
+        }
+      }
+      
       try {
+        // Set cookie for middleware/SSR access
         const cookieValue = encodeURIComponent(JSON.stringify(newFlags));
         const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
         document.cookie = `featureFlags=${cookieValue}; Path=/; Max-Age=31536000; SameSite=Lax${secure}`;
       } catch (e) {
-        console.error("Failed to sync feature flags cookie (client)", e);
+        console.error("Failed to set feature flags cookie", e);
       }
       
-      // Also notify server to persist cookie via Set-Cookie
-      // This ensures consistent attributes and covers edge cases
+      // Notify server to persist cookie via Set-Cookie
       fetch("/api/feature-flags", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -78,12 +158,16 @@ export function FeatureFlagProvider({ children }: { children: ReactNode }) {
       });
       
       // Track flag change in analytics
-      if (typeof window !== 'undefined' && 'analytics' in window) {
-        (window as any).analytics?.track('Feature Flag Changed', {
-          flag,
-          value,
-          timestamp: new Date().toISOString()
-        });
+      try {
+        if (typeof window !== 'undefined' && 'analytics' in window) {
+          (window as any).analytics?.track('Feature Flag Changed', {
+            flag,
+            value,
+            timestamp: new Date().toISOString()
+          });
+        }
+      } catch (e) {
+        console.error("Failed to track feature flag change", e);
       }
       
       return newFlags;

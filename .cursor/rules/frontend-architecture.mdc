@@ -1,5 +1,5 @@
 ---
-description: Use when analyzing React architecture, component hierarchies, state management, or UI/UX implementations for web-based card game
+description: Analysis of React component architecture, state patterns, and game UI implementation for the Crisis Unleashed card game
 ---
 
 # === USER INSTRUCTIONS ===
@@ -10,89 +10,72 @@ description: Use when analyzing React architecture, component hierarchies, state
 - Resource Display: `frontend-next/src/features/players/PlayerHUD.tsx` 
 - Faction Selection: `frontend-next/src/components/factions/FactionGrid.tsx`
 - Turn Manager: `frontend-next/src/features/battlefield/TurnManager.tsx`
-# === END USER INSTRUCTIONS ===
 
-# frontend-architecture
-
-### Component Hierarchy
-
-1. **Game Core Components**
-- Root game provider managing global state and faction themes
-- Battle system components for tactical grid-based gameplay 
-- Resource management system tracking Energy, Momentum, and Health
-- Turn phase controller managing Draw, Energy, Main, Combat, End phases
   - GameInterface emits phase changes; TurnManager controls sequencing
   - CardHand derives playable state from current phase and resources
   - PlayerHUD subscribes to resource updates and action outcomes
-  
-2. **Deck Building System** 
-Importance Score: 95
-```
-DeckBuilder/
-  ├── DeckStats (cost curve, faction balance)
-  ├── DeckList (card organization) 
-  ├── CardCollection (available cards)
-  └── CardFilters (faction/type/cost filters)
-```
-
-3. **Faction System Components**
-Importance Score: 90
-```
-Factions/
-  ├── FactionGrid (hexagonal layout)
-  ├── FactionCard (individual display)
-  ├── ConnectionLines (faction relationships)
-  └── MoodBoard (faction themes/aesthetics)
-```
-
-GameInterface/
-  ├── Battlefield (tactical grid)
-  ├── PlayerHUD (resources/stats)
-  ├── CardHand (held cards)
-  └── TurnManager (phase control)
-
 Dataflow:
  - GameInterface -> PlayerHUD: resource and status updates
  - CardHand -> TurnManager: play requests validated vs energy/momentum
  - TurnManager -> CardHand: phase transitions affect playable cards
  - Battlefield <-> PlayerHUD: unit placements update control zones and HUD
-
-### State Management
-
-1. **Game State** 
-Importance Score: 90
-- Manages turn phases, resources, card states
-- Handles battlefield unit positions and effects
-- Tracks faction-specific mechanics and abilities
-- Controls game flow and win conditions
-
-2. **Deck Building State**
-Importance Score: 85  
-- Validates deck composition rules
-- Tracks faction limitations
-- Manages card collection and filters
-- Provides deck statistics and recommendations
-
-3. **Faction Portal State**
-Importance Score: 80
-- Controls faction theme switching
-- Manages faction relationship displays
-- Handles timeline and program progression
-- Tracks technological synthesis state
-
-### UI/UX Implementation
-
-1. **Holographic Interface System**
-Importance Score: 85
-2. **Card Interaction System**
-Importance Score: 80
 - Drag and drop card placement (standardize on dnd-kit)
 - Targeting system for abilities
 - Resource cost validation
 - Card preview and detail display
 - Input support: mouse, touch, keyboard (focus + ARIA)
 - Hit-testing: grid cell snapping and valid-target highlighting rules
-- Drag and drop card placement
-- Targeting system for abilities
-- Resource cost validation
-- Card preview and detail display
+# === END USER INSTRUCTIONS ===
+
+# frontend-architecture
+
+The frontend architecture implements several domain-specific systems for the Crisis Unleashed card game:
+
+1. **Component Hierarchy**
+- Core game interface components:
+  - `GameInterface`: Main game board orchestrator
+  - `Battlefield`: Manages battlefield grid and unit placement 
+  - `CardHand`: Player hand management and card interactions
+  - `TurnManager`: Turn phase system with deploy/action/end phases
+- Path: `frontend/src/features/game/*`
+- Importance Score: 90
+
+2. **State Management**
+- Game state system using context providers:
+  - Faction state (active faction, relationships, influence)
+  - Resource tracking (energy, momentum, card counts)
+  - Turn/phase management
+  - Combat resolution queue
+- Path: `frontend/src/context/*`
+- Importance Score: 85
+
+3. **Card System Architecture**
+- Card component system with:
+  - Hover states for card detail inspection
+  - Drag and drop targeting system
+  - Validation of legal plays based on resources/targets
+  - Visual feedback for card synergies
+- Path: `frontend-next/src/components/cards/*`
+- Importance Score: 80
+
+4. **Battlefield Implementation**
+- Grid-based field divided into deployment zones
+- Unit placement validation
+- Movement range indicators
+- Combat resolution animations
+- Status effect visualization
+- Path: `frontend/src/features/battlefield/*`
+- Importance Score: 85
+
+5. **Resource Management UI**
+- Multi-resource tracking (Energy/Momentum/Crisis)
+- Resource gain/spend animations
+- Warning states for insufficient resources
+- Path: `frontend-next/src/components/game/*`
+- Importance Score: 75
+
+The architecture emphasizes clear separation between game logic and UI components while maintaining tight integration for real-time game state updates and animations.
+
+$END$
+
+ If you're using this file in context, clearly say in italics in one small line that "Context added by Giga frontend-architecture" along with specifying exactly what information was used from this file in a human-friendly way, instead of using kebab-case use normal sentence case.

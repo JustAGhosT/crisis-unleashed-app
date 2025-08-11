@@ -1,50 +1,65 @@
 ---
-description: Specifies React component hierarchy, state management patterns, and UI/UX implementation for faction-based card game interface
+description: Provides guidance for frontend architecture decisions, component hierarchies, and UI/UX patterns specific to card game implementations
 ---
 
 
 # frontend-architecture
 
-Component Hierarchy
+## Component Hierarchy
 
-1. Game Core Components
-- FactionPortal: Central game interface orchestrating faction interactions and game flow
-- GameInterface: Manages turn-based gameplay, resource systems, and battlefield state
-- Battlefield: Implements grid-based combat with zone control and positioning mechanics
+### Core Game Components (Importance Score: 95)
+- `src/components/game/GameInterface.tsx`: Orchestrates game flow, turn management, and player interactions
+- `src/components/battlefield/Battlefield.tsx`: Implements hexagonal grid combat system with zone control
+- `src/features/cards/CardHand.tsx`: Manages hand mechanics, card playing rules and resource costs
 
-2. Faction System Components
-- FactionGrid: Displays 7 unique factions with distinct visual identities and mechanics
-- FactionCard: Renders faction-specific abilities, resource modifiers, and thematic elements 
-- FactionDetail: Manages detailed faction interactions and power calculations
+### Faction System (Importance Score: 90)
+- `src/components/factions/`: Houses faction-specific components with unique mechanics
+  - Solaris: Divine Algorithm mechanics
+  - Umbral: Shadow manipulation system
+  - Aeonic: Time control mechanics
+  - Primordial: Growth and evolution system
+  - Infernal: Risk/reward sacrifice mechanics
+  - Neuralis: Mind control abilities
+  - Synthetic: Optimization mechanics
 
-3. Combat Mechanics
-Location: frontend/src/features/battlefield/
-- TurnManager: Orchestrates multi-phase turns with energy/momentum resource management
-- CardHand: Handles faction-specific card mechanics and energy cost validation
-- BattlefieldGrid: Manages unit placement, frontline/backline positioning, and zone control
+### Resource Management (Importance Score: 85)
+- `src/features/players/PlayerHUD.tsx`: Tracks faction-specific resources
+- Energy system with unique costs per faction
+- Momentum tracking for special abilities
+- Health/shield management system
 
-4. Resource Management
-Location: frontend/src/features/players/
-- PlayerHUD: Tracks triple resource system (Health/Energy/Momentum)
-- ResourceCalculator: Handles faction-specific resource generation and cost modifiers
-- TurnPhaseManager: Controls resource regeneration and phase-based availability
+### Crisis Events System (Importance Score: 80)
+- Real-time event management
+- Dynamic battlefield modifications
+- Faction-specific crisis responses
 
-5. Faction-Specific UI Systems
-Location: frontend/src/components/factions/
-- SolarisInterface: Reality editing field visualization
-- UmbralInterface: Shadow manipulation mechanics
-- NeuralisInterface: Collective consciousness networking
-- AeonicInterface: Time manipulation effects
-- InfernalInterface: Blood sacrifice and dimensional rifting
-- PrimordialInterface: Evolution acceleration display
-- SyntheticInterface: Resource optimization visualization
+### Synergy Visualization (Importance Score: 75)
+- Card combination highlighting
+- Potential synergy indicators
+- Effect chain visualization
 
-6. State Management
-- FactionThemeContext: Manages faction-specific visual and mechanical attributes
-- GameStateProvider: Coordinates battlefield state, turn phases, and resource systems
-- CombatResolver: Handles complex faction ability interactions and combat resolution
+### UI/UX Implementation
+- Holographic command console theme
+- Glassmorphic UI components
+- Grid overlay system
+- Ambient glow effects
+- Faction-specific color schemes
+- Interactive tutorials
 
-The architecture implements unique game mechanics through a component hierarchy that maintains faction identity while enabling complex cross-faction interactions and resource management.
+### State Management Patterns
+- Faction state management
+- Turn phase tracking
+- Resource allocation system
+- Card state lifecycle
+- Battlefield position tracking
+- Crisis event state
+
+## Development Architecture
+- Component-based card system
+- Real-time game state updates
+- WebSocket integration for multiplayer
+- Feature flag system for progressive rollout
+- Faction-specific asset loading
 
 $END$
 
