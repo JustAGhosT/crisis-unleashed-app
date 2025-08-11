@@ -85,3 +85,18 @@
 - Real-time game status updates
 - Seamless authentication
 - Comprehensive dashboard with user statistics
+
+### Measurable Metrics (p75/p95 targets)
+- Web Vitals (mobile RUM):
+  - LCP p75 ≤ 2.5s
+  - INP p75 ≤ 200ms
+  - CLS ≤ 0.1
+- Real-time status latency: p95 ≤ 500ms from server event to client UI render.
+- Auth flow reliability: ≥ 99.5% successful sign-ins; < 1% CSRF/failed nonce events.
+- Dashboard performance:
+  - SSR TTFB p95 ≤ 500ms
+  - Paginated server-side data fetch p95 ≤ 300ms
+
+Notes:
+- Track via Next.js instrumentation + RUM (e.g., Web Vitals API) and backend tracing.
+- Define SLOs in dashboards; alert at 20% budget consumption.

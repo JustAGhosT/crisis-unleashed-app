@@ -9,12 +9,15 @@ import { GameCard } from '@/components/cards/GameCard';
 import { CardFilters } from '@/components/cards/CardFilters';
 import { DeckList } from './DeckList';
 import { DeckStats } from './DeckStats';
-import { useCardSearch, useUserCards } from '@/hooks/useCards';
+import { useCardSearch } from '@/hooks/useCardSearch';
+import { useUserCards } from '@/hooks/useUserCards';
 import { useCreateDeck, useUpdateDeck, useDeckValidation } from '@/hooks/useDecks';
 import { CardFilters as CardFiltersType, DeckCard, Card as GameCardData } from '@/types/card';
 import { FactionId, FACTION_IDS } from '@/types/faction';
 import { getFactionOptions } from '@/data/factions';
-import { cn } from '@/lib/utils';
+function cx(...classes: Array<string | false | null | undefined>) {
+  return classes.filter(Boolean).join(' ');
+}
 import { Plus, Save, Loader2, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/useToast';
 

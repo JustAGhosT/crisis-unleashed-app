@@ -1,8 +1,10 @@
+  const genId = () => (globalThis.crypto && 'randomUUID' in globalThis.crypto
+    ? (globalThis.crypto as Crypto).randomUUID()
+    : Math.random().toString(36).slice(2));
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Deck, Card } from '@/types/deck';
-import { v4 as uuidv4 } from 'uuid';
 
 // Sample cards for demonstration
 import { sampleCards } from './sample-cards';
@@ -53,7 +55,7 @@ export function DeckBuilderProvider({ children, initialDeck }: DeckBuilderProvid
     // Clone the card and add a unique instanceId
     const cardWithId: Card = {
       ...card,
-      instanceId: uuidv4()
+      instanceId: genId()
     };
     
     setDeck(prevDeck => ({
@@ -85,7 +87,7 @@ export function DeckBuilderProvider({ children, initialDeck }: DeckBuilderProvid
   const saveDeck = (name: string, description: string) => {
     setDeck(prevDeck => ({
       ...prevDeck,
-      id: prevDeck.id || uuidv4(),
+      id: prevDeck.id || genId(),
       name,
       description,
       updatedAt: new Date().toISOString(),

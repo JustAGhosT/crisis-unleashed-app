@@ -9,8 +9,8 @@ This document provides a detailed mapping of routes from the current React Route
 | `/` | `app/page.tsx` | Static | None |
 | `/factions` | `app/factions/page.tsx` | Static/SSG | None |
 | `/factions/:id` | `app/factions/[id]/page.tsx` | Dynamic | `id`: Faction identifier |
-| `/deck-builder` | `app/deck-builder/page.tsx` | Client | None |
-| `/deck-builder/:deckId` | `app/deck-builder/[deckId]/page.tsx` | Dynamic | `deckId`: Deck identifier |
+| `/deck-builder` | `app/deck-builder/page.tsx` | Protected | None |
+| `/deck-builder/:deckId` | `app/deck-builder/[deckId]/page.tsx` | Protected | `deckId`: Deck identifier |
 | `/cards` | `app/cards/page.tsx` | Static/SSG | None |
 | `/cards/:id` | `app/cards/[id]/page.tsx` | Dynamic | `id`: Card identifier |
 | `/profile` | `app/profile/page.tsx` | Protected | None |

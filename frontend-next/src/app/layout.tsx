@@ -10,6 +10,8 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import FeatureFlagIndicator from "@/components/feature-flags/FeatureFlagIndicator";
 import { ThemeProvider } from "@/lib/theme/theme-provider";
+import { RUMInit } from "@/components/observability/RUMInit";
+import { ToastProvider } from "@/hooks/useToast";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -46,20 +48,23 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <QueryProvider>
-            <AuthProvider>
-              <FeatureFlagProvider>
-                <Providers>
-                  <div className="relative flex min-h-screen flex-col">
-                    <Navbar />
-                    <main className="flex-1 container mx-auto px-4 py-6">{children}</main>
-                    <Footer />
-                    <FeatureFlagIndicator />
-                  </div>
-                </Providers>
-              </FeatureFlagProvider>
-            </AuthProvider>
-          </QueryProvider>
+          <ToastProvider>
+            <QueryProvider>
+              <AuthProvider>
+                <FeatureFlagProvider>
+                  <Providers>
+                    <div className="relative flex min-h-screen flex-col">
+                      <Navbar />
+                      <main className="flex-1 container mx-auto px-4 py-6">{children}</main>
+                      <Footer />
+                      <FeatureFlagIndicator />
+                      <RUMInit />
+                    </div>
+                  </Providers>
+                </FeatureFlagProvider>
+              </AuthProvider>
+            </QueryProvider>
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>

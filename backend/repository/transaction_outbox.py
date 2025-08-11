@@ -3,7 +3,7 @@ Transaction Outbox Pattern for blockchain-database consistency.
 """
 import logging
 from typing import Any, Dict, List, Optional
-from datetime import datetime
+from datetime import datetime, timedelta
 from pymongo import ReturnDocument
 
 from .outbox_models import OutboxEntry, OutboxStatus, OutboxType
@@ -181,7 +181,8 @@ class TransactionOutboxRepository:
 
     async def count_entries_by_status(self, status: OutboxStatus) -> int:
         """Count entries by status."""
-        return await self.collection.count_documents({"status": status.value})
+        count = await self.collection.count_documents({"status": status.value})
+        return int(count)
 
     async def get_processing_stats(self) -> Dict[str, int]:
         """Get processing statistics."""
@@ -202,14 +203,13 @@ class TransactionOutboxRepository:
 
     async def cleanup_completed_entries(self, days_old: int = 30) -> int:
         """Clean up old completed entries."""
-        from datetime import timedelta
         cutoff_date = datetime.utcnow() - timedelta(days=days_old)
         result = await self.collection.delete_many({
             "status": OutboxStatus.COMPLETED.value,
             "processed_at": {"$lt": cutoff_date}
         })
         logger.info(f"Cleaned up {result.deleted_count} completed entries older than {days_old} days")
-        return result.deleted_count
+        return int(result.deleted_count)
 
     async def retry_entry(self, outbox_id: str) -> Optional[OutboxEntry]:
         """Reset an entry for retry."""

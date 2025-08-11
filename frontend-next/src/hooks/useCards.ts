@@ -1,4 +1,4 @@
-import { useToast } from '@/components/ui/toast';
+import { useToast } from '@/hooks/useToast';
 import { CardService } from '@/services/cardService';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, CardFilters, UserCard } from '@/types/card';

@@ -3,7 +3,10 @@
 import React, { forwardRef } from 'react';
 import { FormField, FormFieldProps } from './FormField';
 import { Slider } from '@/components/ui/slider';
-import { cn } from '@/lib/utils';
+
+function cx(...classes: Array<string | false | null | undefined>) {
+  return classes.filter(Boolean).join(' ');
+}
 
 export interface SliderInputProps extends Omit<FormFieldProps, 'children'> {
   value?: number[];
@@ -70,7 +73,7 @@ export const SliderInput = forwardRef<HTMLSpanElement, SliderInputProps>(({
               {formatValue(min)}
             </span>
             <span 
-              className={cn(
+              className={cx(
                 "text-sm font-medium",
                 hasError ? "text-red-500 dark:text-red-400" : "text-gray-900 dark:text-white",
                 valueDisplayClassName
@@ -93,7 +96,7 @@ export const SliderInput = forwardRef<HTMLSpanElement, SliderInputProps>(({
           max={max}
           step={step}
           disabled={disabled}
-          className={cn(
+          className={cx(
             hasError && "text-red-500 dark:text-red-400",
             disabled && "opacity-60 cursor-not-allowed",
             sliderClassName

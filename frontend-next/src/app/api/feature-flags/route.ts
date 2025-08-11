@@ -1,39 +1,46 @@
-import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { FeatureFlags } from "@/lib/feature-flags/feature-flag-provider";
-
 // Default flags - should match the ones in feature-flag-provider.tsx
 const defaultFlags: FeatureFlags = {
-  useNewFactionUI: false,
-  useNewDeckBuilder: false,
-  useNewCardDisplay: false,
-  useNewNavigation: false,
-  useNewTheme: false,
+  // Migration flags (set to true by default)
+  useNewFactionUI: true,
+  useNewDeckBuilder: true,
+  useNewCardDisplay: true,
+  useNewNavigation: true,
+  useNewTheme: true,
+  
+  // New feature flags
+  enableAdvancedDeckAnalytics: false,
+  enableCardAnimations: true,
+  enableMultiplayerChat: false,
+  enableTournamentMode: false,
+  enableAIOpponent: false,
 };
 
 // For demo purposes, we'll simulate different flag values for different user roles
 // In a real app, this would come from a database or external service
 const flagsByRole: Record<string, Partial<FeatureFlags>> = {
   admin: {
-    useNewFactionUI: true,
-    useNewDeckBuilder: true,
-    useNewCardDisplay: true,
-    useNewNavigation: true,
-    useNewTheme: true,
+    // Admins get all features
+    enableAdvancedDeckAnalytics: true,
+    enableCardAnimations: true,
+    enableMultiplayerChat: true,
+    enableTournamentMode: true,
+    enableAIOpponent: true,
   },
   developer: {
-    useNewFactionUI: true,
-    useNewDeckBuilder: true,
-    useNewCardDisplay: false,
-    useNewNavigation: true,
-    useNewTheme: true,
+    // Developers get most features
+    enableAdvancedDeckAnalytics: true,
+    enableCardAnimations: true,
+    enableMultiplayerChat: true,
+    enableTournamentMode: false,
+    enableAIOpponent: true,
   },
   beta_tester: {
-    useNewFactionUI: true,
-    useNewDeckBuilder: false,
-    useNewCardDisplay: false,
-    useNewNavigation: false,
-    useNewTheme: true,
+    // Beta testers get some features
+    enableAdvancedDeckAnalytics: true,
+    enableCardAnimations: true,
+    enableMultiplayerChat: false,
+    enableTournamentMode: false,
+    enableAIOpponent: false,
   },
   user: defaultFlags,
 };

@@ -24,7 +24,7 @@ def generate_secret_key(length: int = 64) -> str:
     return secrets.token_hex(length // 2)
 
 
-def main():
+def main() -> None:
     """Main function to generate and display a secret key."""
     print("CRISIS UNLEASHED BACKEND - SECRET KEY GENERATOR")
     print("=" * 50)

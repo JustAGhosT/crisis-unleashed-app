@@ -1,0 +1,112 @@
+:root {}
+
+.progress {
+  /* container styling is handled by Tailwind classes in TSX */
+}
+
+.progressBar {
+  width: 0%;
+}
+
+/* Width rules based on aria-valuenow on the container */
+.progress[aria-valuenow="0"] .progressBar { width: 0%; }
+.progress[aria-valuenow="1"] .progressBar { width: 1%; }
+.progress[aria-valuenow="2"] .progressBar { width: 2%; }
+.progress[aria-valuenow="3"] .progressBar { width: 3%; }
+.progress[aria-valuenow="4"] .progressBar { width: 4%; }
+.progress[aria-valuenow="5"] .progressBar { width: 5%; }
+.progress[aria-valuenow="6"] .progressBar { width: 6%; }
+.progress[aria-valuenow="7"] .progressBar { width: 7%; }
+.progress[aria-valuenow="8"] .progressBar { width: 8%; }
+.progress[aria-valuenow="9"] .progressBar { width: 9%; }
+.progress[aria-valuenow="10"] .progressBar { width: 10%; }
+.progress[aria-valuenow="11"] .progressBar { width: 11%; }
+.progress[aria-valuenow="12"] .progressBar { width: 12%; }
+.progress[aria-valuenow="13"] .progressBar { width: 13%; }
+.progress[aria-valuenow="14"] .progressBar { width: 14%; }
+.progress[aria-valuenow="15"] .progressBar { width: 15%; }
+.progress[aria-valuenow="16"] .progressBar { width: 16%; }
+.progress[aria-valuenow="17"] .progressBar { width: 17%; }
+.progress[aria-valuenow="18"] .progressBar { width: 18%; }
+.progress[aria-valuenow="19"] .progressBar { width: 19%; }
+.progress[aria-valuenow="20"] .progressBar { width: 20%; }
+.progress[aria-valuenow="21"] .progressBar { width: 21%; }
+.progress[aria-valuenow="22"] .progressBar { width: 22%; }
+.progress[aria-valuenow="23"] .progressBar { width: 23%; }
+.progress[aria-valuenow="24"] .progressBar { width: 24%; }
+.progress[aria-valuenow="25"] .progressBar { width: 25%; }
+.progress[aria-valuenow="26"] .progressBar { width: 26%; }
+.progress[aria-valuenow="27"] .progressBar { width: 27%; }
+.progress[aria-valuenow="28"] .progressBar { width: 28%; }
+.progress[aria-valuenow="29"] .progressBar { width: 29%; }
+.progress[aria-valuenow="30"] .progressBar { width: 30%; }
+.progress[aria-valuenow="31"] .progressBar { width: 31%; }
+.progress[aria-valuenow="32"] .progressBar { width: 32%; }
+.progress[aria-valuenow="33"] .progressBar { width: 33%; }
+.progress[aria-valuenow="34"] .progressBar { width: 34%; }
+.progress[aria-valuenow="35"] .progressBar { width: 35%; }
+.progress[aria-valuenow="36"] .progressBar { width: 36%; }
+.progress[aria-valuenow="37"] .progressBar { width: 37%; }
+.progress[aria-valuenow="38"] .progressBar { width: 38%; }
+.progress[aria-valuenow="39"] .progressBar { width: 39%; }
+.progress[aria-valuenow="40"] .progressBar { width: 40%; }
+.progress[aria-valuenow="41"] .progressBar { width: 41%; }
+.progress[aria-valuenow="42"] .progressBar { width: 42%; }
+.progress[aria-valuenow="43"] .progressBar { width: 43%; }
+.progress[aria-valuenow="44"] .progressBar { width: 44%; }
+.progress[aria-valuenow="45"] .progressBar { width: 45%; }
+.progress[aria-valuenow="46"] .progressBar { width: 46%; }
+.progress[aria-valuenow="47"] .progressBar { width: 47%; }
+.progress[aria-valuenow="48"] .progressBar { width: 48%; }
+.progress[aria-valuenow="49"] .progressBar { width: 49%; }
+.progress[aria-valuenow="50"] .progressBar { width: 50%; }
+.progress[aria-valuenow="51"] .progressBar { width: 51%; }
+.progress[aria-valuenow="52"] .progressBar { width: 52%; }
+.progress[aria-valuenow="53"] .progressBar { width: 53%; }
+.progress[aria-valuenow="54"] .progressBar { width: 54%; }
+.progress[aria-valuenow="55"] .progressBar { width: 55%; }
+.progress[aria-valuenow="56"] .progressBar { width: 56%; }
+.progress[aria-valuenow="57"] .progressBar { width: 57%; }
+.progress[aria-valuenow="58"] .progressBar { width: 58%; }
+.progress[aria-valuenow="59"] .progressBar { width: 59%; }
+.progress[aria-valuenow="60"] .progressBar { width: 60%; }
+.progress[aria-valuenow="61"] .progressBar { width: 61%; }
+.progress[aria-valuenow="62"] .progressBar { width: 62%; }
+.progress[aria-valuenow="63"] .progressBar { width: 63%; }
+.progress[aria-valuenow="64"] .progressBar { width: 64%; }
+.progress[aria-valuenow="65"] .progressBar { width: 65%; }
+.progress[aria-valuenow="66"] .progressBar { width: 66%; }
+.progress[aria-valuenow="67"] .progressBar { width: 67%; }
+.progress[aria-valuenow="68"] .progressBar { width: 68%; }
+.progress[aria-valuenow="69"] .progressBar { width: 69%; }
+.progress[aria-valuenow="70"] .progressBar { width: 70%; }
+.progress[aria-valuenow="71"] .progressBar { width: 71%; }
+.progress[aria-valuenow="72"] .progressBar { width: 72%; }
+.progress[aria-valuenow="73"] .progressBar { width: 73%; }
+.progress[aria-valuenow="74"] .progressBar { width: 74%; }
+.progress[aria-valuenow="75"] .progressBar { width: 75%; }
+.progress[aria-valuenow="76"] .progressBar { width: 76%; }
+.progress[aria-valuenow="77"] .progressBar { width: 77%; }
+.progress[aria-valuenow="78"] .progressBar { width: 78%; }
+.progress[aria-valuenow="79"] .progressBar { width: 79%; }
+.progress[aria-valuenow="80"] .progressBar { width: 80%; }
+.progress[aria-valuenow="81"] .progressBar { width: 81%; }
+.progress[aria-valuenow="82"] .progressBar { width: 82%; }
+.progress[aria-valuenow="83"] .progressBar { width: 83%; }
+.progress[aria-valuenow="84"] .progressBar { width: 84%; }
+.progress[aria-valuenow="85"] .progressBar { width: 85%; }
+.progress[aria-valuenow="86"] .progressBar { width: 86%; }
+.progress[aria-valuenow="87"] .progressBar { width: 87%; }
+.progress[aria-valuenow="88"] .progressBar { width: 88%; }
+.progress[aria-valuenow="89"] .progressBar { width: 89%; }
+.progress[aria-valuenow="90"] .progressBar { width: 90%; }
+.progress[aria-valuenow="91"] .progressBar { width: 91%; }
+.progress[aria-valuenow="92"] .progressBar { width: 92%; }
+.progress[aria-valuenow="93"] .progressBar { width: 93%; }
+.progress[aria-valuenow="94"] .progressBar { width: 94%; }
+.progress[aria-valuenow="95"] .progressBar { width: 95%; }
+.progress[aria-valuenow="96"] .progressBar { width: 96%; }
+.progress[aria-valuenow="97"] .progressBar { width: 97%; }
+.progress[aria-valuenow="98"] .progressBar { width: 98%; }
+.progress[aria-valuenow="99"] .progressBar { width: 99%; }
+.progress[aria-valuenow="100"] .progressBar { width: 100%; }

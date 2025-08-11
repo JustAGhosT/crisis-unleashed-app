@@ -11,8 +11,6 @@ globs: []
 #   - "frontend/src/features/cards/**/*.ts*"
 #   - "frontend/src/components/**/*.tsx"
 alwaysApply: false
-- Tracks crisis progress/state and propagates resource impacts to players
-$END$
 # === END USER INSTRUCTIONS ===
 
 # game-algorithms

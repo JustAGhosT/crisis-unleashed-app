@@ -22,7 +22,7 @@ async def get_health_manager(request: Request) -> ServiceHealthManager:
     from ..server import health_manager
     return health_manager
 
-async def get_blockchain_service(health_manager: ServiceHealthManager = Depends(get_health_manager)):
+async def get_blockchain_service(health_manager: ServiceHealthManager = Depends(get_health_manager)) -> Any:
     """Dependency to get blockchain service with availability check."""
     try:
         return health_manager.get_service("blockchain_service")
@@ -37,7 +37,7 @@ async def get_blockchain_service(health_manager: ServiceHealthManager = Depends(
             }
         )
 
-async def get_outbox_processor(health_manager: ServiceHealthManager = Depends(get_health_manager)):
+async def get_outbox_processor(health_manager: ServiceHealthManager = Depends(get_health_manager)) -> Any:
     """Dependency to get outbox processor with availability check."""
     try:
         return health_manager.get_service("outbox_processor")
@@ -117,14 +117,14 @@ class MintRequest(BaseModel):
     )
 
     @validator("blockchain")
-    def validate_blockchain(cls, v):
+    def validate_blockchain(cls, v: str) -> str:
         allowed = get_supported_network_names()
         if v not in allowed:
             raise ValueError(f"Blockchain network must be one of: {allowed}")
         return v
 
     @validator("wallet_address")
-    def validate_wallet_address(cls, v, values):
+    def validate_wallet_address(cls, v: str, values: Dict[str, Any]) -> str:
         network_name = values.get("blockchain")
         if network_name:
             return validate_wallet_address_format(v, network_name, "wallet_address")
@@ -145,14 +145,14 @@ class TransferRequest(BaseModel):
         return v
 
     @validator("from_address", "to_address")
-    def validate_wallet_addresses(cls, v, values):
+    def validate_wallet_addresses(cls, v: str, values: Dict[str, Any]) -> str:
         network_name = values.get("blockchain")
         if network_name:
             return validate_wallet_address_format(v, network_name)
         return v
 
     @validator("token_id")
-    def validate_token_id(cls, v):
+    def validate_token_id(cls, v: str) -> str:
         if not v or not v.strip():
             raise ValueError("Token ID cannot be empty")
         return v.strip()
@@ -184,7 +184,7 @@ async def mint_card(
     request: MintRequest,
     blockchain_service=Depends(get_blockchain_service),
     outbox_processor=Depends(get_outbox_processor)
-):
+) -> OperationResponse:
     """
     Mint a card as NFT using the transaction outbox pattern.
 
@@ -219,7 +219,7 @@ async def transfer_nft(
     request: TransferRequest,
     blockchain_service=Depends(get_blockchain_service),
     outbox_processor=Depends(get_outbox_processor)
-):
+) -> OperationResponse:
     """
     Transfer an NFT using the transaction outbox pattern.
     """
@@ -244,7 +244,7 @@ async def transfer_nft(
 
 
 @router.get("/status/{outbox_id}", response_model=StatusResponse)
-async def get_operation_status(outbox_id: str):
+async def get_operation_status(outbox_id: str) -> StatusResponse:
     """
     Get the status of a blockchain operation.
 
@@ -279,7 +279,7 @@ async def list_operations(
         default=50, ge=1, le=100, description="Maximum number of results"
     ),
     offset: int = Query(default=0, ge=0, description="Number of results to skip"),
-):
+) -> List[StatusResponse]:
     """
     List blockchain operations with optional filtering.
 
@@ -310,7 +310,7 @@ async def list_operations(
 
 
 @router.post("/operations/{outbox_id}/retry")
-async def retry_operation(outbox_id: str):
+async def retry_operation(outbox_id: str) -> Dict[str, str]:
     """
     Manually retry a failed operation.
 
@@ -334,7 +334,7 @@ async def retry_operation(outbox_id: str):
 async def get_blockchain_health(
     blockchain_service=Depends(get_blockchain_service),
     health_manager: ServiceHealthManager = Depends(get_health_manager)
-):
+) -> Dict[str, Any]:
     """
     Get health status of blockchain connections and processing.
 
@@ -408,7 +408,7 @@ async def get_blockchain_health(
 
 
 @router.get("/networks")
-async def get_supported_networks():
+async def get_supported_networks() -> Dict[str, Any]:
     """
     Get information about supported blockchain networks.
     """
@@ -457,7 +457,7 @@ async def get_supported_networks():
 
 
 @router.get("/operations/stats")
-async def get_operations_stats():
+async def get_operations_stats() -> Dict[str, Any]:
     """
     Get operation statistics grouped by status.
 
@@ -496,7 +496,7 @@ async def get_failed_operations(
     limit: int = Query(
         default=50, ge=1, le=100, description="Maximum number of results"
     )
-):
+) -> List[StatusResponse]:
     """
     Get operations that have failed or need manual review.
 

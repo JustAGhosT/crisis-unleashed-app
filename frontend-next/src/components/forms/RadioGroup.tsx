@@ -4,7 +4,10 @@ import React, { forwardRef } from 'react';
 import { FormField, FormFieldProps } from './FormField';
 import { RadioGroup as UIRadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { cn } from '@/lib/utils';
+
+function cx(...classes: Array<string | false | null | undefined>) {
+  return classes.filter(Boolean).join(' ');
+}
 
 export interface RadioOption {
   value: string;
@@ -61,9 +64,7 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps>(({
     >
       <UIRadioGroup
         ref={ref}
-        value={value}
-        onValueChange={onChange}
-        className={cn(
+        className={cx(
           orientation === 'horizontal' ? "flex flex-row space-x-4" : "flex flex-col space-y-3",
           hasError && "text-red-500 dark:text-red-400"
         )}
@@ -75,8 +76,10 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps>(({
             <RadioGroupItem
               id={`${id}-${option.value}`}
               value={option.value}
+              checked={value === option.value}
+              onChange={() => onChange?.(option.value)}
               disabled={option.disabled}
-              className={cn(
+              className={cx(
                 hasError && "border-red-500 text-red-500 focus:ring-red-500 dark:border-red-400",
                 option.disabled && "opacity-60 cursor-not-allowed",
                 radioClassName
@@ -85,7 +88,7 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps>(({
             <div className="ml-2">
               <Label
                 htmlFor={`${id}-${option.value}`}
-                className={cn(
+                className={cx(
                   "font-medium text-gray-700 dark:text-gray-200",
                   option.disabled && "opacity-60 cursor-not-allowed",
                   radioLabelClassName
@@ -95,7 +98,7 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps>(({
               </Label>
               {option.description && (
                 <p
-                  className={cn(
+                  className={cx(
                     "text-sm text-gray-500 dark:text-gray-400",
                     radioDescriptionClassName
                   )}

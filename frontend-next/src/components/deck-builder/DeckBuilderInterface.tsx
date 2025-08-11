@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/useToast';
 import DeckEditorPanel from './DeckEditorPanel';
 import CardBrowserPanel from './CardBrowserPanel';
 import DeckStatsPanel from './DeckStatsPanel';

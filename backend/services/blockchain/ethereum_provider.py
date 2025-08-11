@@ -3,21 +3,24 @@ Ethereum blockchain provider implementation.
 """
 import asyncio
 import logging
-from typing import Any, Dict, Optional, Tuple
+import importlib
+from typing import Any, Dict, Optional, Tuple, TYPE_CHECKING
 
-try:
-    from web3 import Web3  # type: ignore
-    from web3.contract import Contract  # type: ignore
-    from web3.exceptions import TransactionNotFound  # type: ignore
+# Determine web3 availability without binding names that conflict for typing
+try:  # pragma: no cover - import detection only
+    importlib.import_module("web3")
     WEB3_AVAILABLE = True
-except ImportError:
+except Exception:  # pragma: no cover
     WEB3_AVAILABLE = False
-    # Import our mock types for type checking
+    # Runtime fallback: use mock exception type name for error handling
     from ...types.web3_types import (
-        MockWeb3 as Web3,
-        MockContract as Contract,
-        MockTransactionNotFound as TransactionNotFound
+        MockTransactionNotFound as TransactionNotFound,
     )
+
+if TYPE_CHECKING:  # typing-only imports for better hints
+    from web3 import Web3 as _RealWeb3  # noqa: F401
+    from web3.contract import Contract as _RealContract  # noqa: F401
+    from web3.exceptions import TransactionNotFound as _RealTransactionNotFound  # noqa: F401
 
 from .base_provider import BaseBlockchainProvider
 
@@ -48,10 +51,12 @@ class EthereumProvider(BaseBlockchainProvider):
             return False
 
         try:
-            self.web3 = Web3(Web3.HTTPProvider(self.rpc_url))
+            web3_mod = importlib.import_module("web3")
+            self.web3 = web3_mod.Web3(web3_mod.HTTPProvider(self.rpc_url))
 
             # Test connection
-            is_connected = await asyncio.to_thread(self.web3.is_connected)
+            is_connected_any = await asyncio.to_thread(self.web3.is_connected)
+            is_connected = bool(is_connected_any)
 
             if is_connected and self.contract_address:
                 self.contract = self.web3.eth.contract(
@@ -71,7 +76,8 @@ class EthereumProvider(BaseBlockchainProvider):
             return False
 
         try:
-            return await asyncio.to_thread(self.web3.is_connected)
+            result = await asyncio.to_thread(self.web3.is_connected)
+            return bool(result)
         except Exception:
             return False
 

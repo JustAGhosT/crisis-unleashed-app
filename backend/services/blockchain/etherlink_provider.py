@@ -3,24 +3,30 @@ Etherlink blockchain provider implementation.
 """
 import asyncio
 import logging
-from typing import Any, Dict, Optional, Tuple
+import importlib
+from typing import Any, Dict, Optional, Tuple, TYPE_CHECKING
 
-try:
-    from web3 import Web3  # type: ignore
-    from web3.contract import Contract  # type: ignore
-    from web3.exceptions import TransactionNotFound, TimeExhausted  # type: ignore
-    from web3.types import TxReceipt  # type: ignore
+# Determine web3 availability without binding names for typing
+try:  # pragma: no cover - import detection
+    importlib.import_module("web3")
     WEB3_AVAILABLE = True
-except ImportError:
+except Exception:  # pragma: no cover
     WEB3_AVAILABLE = False
-    # Import our mock types for type checking
+    # Runtime fallback: use mocks under distinct names
     from ...types.web3_types import (
-        MockWeb3 as Web3,
-        MockContract as Contract, 
         MockTransactionNotFound as TransactionNotFound,
         MockTimeExhausted as TimeExhausted,
-        TxReceiptType as TxReceipt
+        TxReceiptType as TxReceipt,
     )
+
+if TYPE_CHECKING:  # typing-only imports for editors/mypy context
+    from web3 import Web3 as _RealWeb3  # noqa: F401
+    from web3.contract import Contract as _RealContract  # noqa: F401
+    from web3.exceptions import (
+        TransactionNotFound as _RealTransactionNotFound,  # noqa: F401
+        TimeExhausted as _RealTimeExhausted,  # noqa: F401
+    )
+    from web3.types import TxReceipt as _RealTxReceipt  # noqa: F401
 
 from .base_provider import BaseBlockchainProvider
 
@@ -52,7 +58,9 @@ class EtherlinkProvider(BaseBlockchainProvider):
             return False
         
         try:
-            self.web3 = Web3(Web3.HTTPProvider(self.rpc_url))
+            # Dynamically import web3 to avoid type conflicts
+            web3_mod = importlib.import_module("web3")
+            self.web3 = web3_mod.Web3(web3_mod.HTTPProvider(self.rpc_url))
             
             # Test connection
             await asyncio.to_thread(self.web3.is_connected)

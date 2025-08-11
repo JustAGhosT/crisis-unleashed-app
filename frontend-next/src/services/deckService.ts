@@ -11,7 +11,6 @@ import {
   ActionType,
   StructureType,
 } from '@/types/card';
-import { FactionId } from '@/types/faction';
 import { mockUserDecks, getMockDeckData } from '@/lib/DeckMockData';
 
 // Helper function to check if we're in production server environment

@@ -1,9 +1,11 @@
 "use client";
 
-import React, { forwardRef, useState, useRef, InputHTMLAttributes } from 'react';
+import React, { forwardRef, useState, useRef, useImperativeHandle, InputHTMLAttributes } from 'react';
 import { FormField, FormFieldProps } from './FormField';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+function cx(...classes: Array<string | false | null | undefined>) {
+  return classes.filter(Boolean).join(' ');
+}
 
 export interface FileInputProps extends Omit<FormFieldProps, 'children'>,
   Omit<InputHTMLAttributes<HTMLInputElement>, 'id' | 'type' | 'onChange'> {
@@ -55,6 +57,9 @@ export const FileInput = forwardRef<HTMLInputElement, FileInputProps>(({
   const [fileError, setFileError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const hasError = !!error || !!fileError;
+  
+  // Expose the internal input element to parent refs (non-null assertion is safe at usage time)
+  useImperativeHandle(ref, () => inputRef.current!);
   
   const handleFileChange = (files: FileList | null) => {
     if (!files) return;
@@ -123,7 +128,7 @@ export const FileInput = forwardRef<HTMLInputElement, FileInputProps>(({
       id={id}
       label={label}
       description={description}
-      error={error || fileError}
+      error={(error ?? fileError) ?? undefined}
       required={required}
       className={className}
       labelClassName={labelClassName}
@@ -131,7 +136,7 @@ export const FileInput = forwardRef<HTMLInputElement, FileInputProps>(({
       errorClassName={errorClassName}
     >
       <div
-        className={cn(
+        className={cx(
           "border-2 border-dashed rounded-md p-4",
           dragActive ? "border-blue-400 bg-blue-50 dark:border-blue-500 dark:bg-blue-900/20" : 
             "border-gray-300 dark:border-gray-700",
@@ -144,34 +149,32 @@ export const FileInput = forwardRef<HTMLInputElement, FileInputProps>(({
         onDragOver={handleDrag}
         onDrop={handleDrop}
       >
-        <input
+        {(() => {
+          const ariaProps = hasError
+            ? ({ 'aria-invalid': true as const, 'aria-describedby': `${id}-error` } as const)
+            : ({} as const);
+          return (
+            <input
           id={id}
-          ref={(node) => {
-            // Handle both refs
-            if (typeof ref === 'function') {
-              ref(node);
-            } else if (ref) {
-              ref.current = node;
-            }
-            inputRef.current = node;
-          }}
+          ref={inputRef}
           type="file"
           accept={accept}
           multiple={multiple}
           onChange={(e) => handleFileChange(e.target.files)}
           className="sr-only"
           disabled={disabled}
-          aria-invalid={hasError ? 'true' : 'false'}
-          aria-describedby={hasError ? `${id}-error` : undefined}
+          {...ariaProps}
           {...props}
         />
+          );
+        })()}
         
         <div className="text-center">
           <Button
             type="button"
             onClick={handleButtonClick}
             disabled={disabled}
-            className={cn(
+            className={cx(
               "mb-2",
               buttonClassName
             )}
@@ -192,7 +195,7 @@ export const FileInput = forwardRef<HTMLInputElement, FileInputProps>(({
       </div>
       
       {showSelectedFiles && selectedFiles.length > 0 && (
-        <ul className={cn("mt-2 space-y-1", fileListClassName)}>
+        <ul className={cx("mt-2 space-y-1", fileListClassName)}>
           {selectedFiles.map((file, index) => (
             <li key={index} className="flex items-center justify-between text-sm">
               <div className="flex items-center">

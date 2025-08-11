@@ -3,19 +3,35 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 export type FeatureFlags = {
+  // Keep existing flags for backward compatibility
   useNewFactionUI: boolean;
   useNewDeckBuilder: boolean;
   useNewCardDisplay: boolean;
   useNewNavigation: boolean;
   useNewTheme: boolean;
+
+  // Add new feature flags for future features
+  enableAdvancedDeckAnalytics: boolean;
+  enableCardAnimations: boolean;
+  enableMultiplayerChat: boolean;
+  enableTournamentMode: boolean;
+  enableAIOpponent: boolean;
 };
 
 const defaultFlags: FeatureFlags = {
-  useNewFactionUI: false,
-  useNewDeckBuilder: false,
-  useNewCardDisplay: false,
-  useNewNavigation: false,
-  useNewTheme: false,
+  // Set existing flags to true since migration is complete
+  useNewFactionUI: true,
+  useNewDeckBuilder: true,
+  useNewCardDisplay: true,
+  useNewNavigation: true,
+  useNewTheme: true,
+
+  // Set new feature flags to false by default
+  enableAdvancedDeckAnalytics: false,
+  enableCardAnimations: true,
+  enableMultiplayerChat: false,
+  enableTournamentMode: false,
+  enableAIOpponent: false,
 };
 
 const FeatureFlagContext = createContext<{

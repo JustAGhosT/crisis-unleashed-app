@@ -50,9 +50,9 @@ describe('Utility Functions', () => {
 
   describe('getFactionColorClass', () => {
     it('returns the correct color class for known factions', () => {
-      expect(getFactionColorClass('solaris')).toBe('text-yellow-400');
-      expect(getFactionColorClass('umbral')).toBe('text-purple-400');
-      expect(getFactionColorClass('synthetic')).toBe('text-gray-300');
+      expect(getFactionColorClass('solaris')).toBe('text-faction-solaris-primary');
+      expect(getFactionColorClass('umbral')).toBe('text-faction-umbral-primary');
+      expect(getFactionColorClass('synthetic')).toBe('text-faction-synthetic-primary');
     });
 
     it('returns a default color for unknown factions', () => {

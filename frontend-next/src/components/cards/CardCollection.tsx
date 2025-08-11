@@ -4,14 +4,16 @@ import { CardGrid } from './CardGrid';
 import { CardFilters } from './CardFilters';
 import { CardDetail } from './CardDetail';
 // Fix import paths based on where components were installed
-import { Dialog, DialogContent } from '@/components/components/ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Card as GameCardData, CardFilters as CardFiltersType, UserCard } from '@/types/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Pagination } from '@/components/ui/pagination';
 import { Button } from '@/components/ui/button';
 import { Filter, Star } from 'lucide-react';
-import { cn } from '@/lib/utils';
+function cx(...classes: Array<string | false | null | undefined>) {
+  return classes.filter(Boolean).join(' ');
+}
 import { CardTab, CardType, type CardTypeValue } from '@/constants/card-types';
 
 interface CardCollectionProps {
@@ -103,7 +105,7 @@ export const CardCollection: React.FC<CardCollectionProps> = ({
   };
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cx('space-y-6', className)}>
       {/* Collection Header */}
       <Card className="bg-slate-800/50 border-slate-600">
         <CardHeader className="pb-3">

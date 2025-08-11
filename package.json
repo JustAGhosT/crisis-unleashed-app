@@ -5,15 +5,18 @@
   "scripts": {
     "preinstall": "pnpm install --ignore-scripts",
     "postinstall": "echo \"Skipping postinstall to prevent infinite loop. Run 'pnpm install' in the frontend directory manually.\"",
-    "start": "concurrently -n \"BACKEND,FRONTEND\" -c \"bgBlue.bold,bgGreen.bold\" \"cd backend && .\\.venv\\Scripts\\Activate && python -m uvicorn server:app --reload\" \"cd frontend && pnpm start\"",
-    "build": "pnpm --filter frontend build",
-    "test": "pnpm --filter frontend test",
-    "lint": "eslint . --ext .js,.jsx",
-    "format": "prettier --write \"**/*.{js,jsx,json,md}\"",
-    "setup": "cd frontend && pnpm install"
+    "start": "concurrently -n \"BACKEND,FRONTEND\" -c \"bgBlue.bold,bgGreen.bold\" \"cd backend && .\\.venv\\Scripts\\Activate && python -m uvicorn server:app --reload\" \"cd frontend-next && pnpm dev\"",
+    "build": "pnpm --filter frontend-next build",
+    "test": "cd frontend-next && pnpm test",
+    "test:watch": "cd frontend-next && pnpm test:watch",
+    "test:coverage": "cd frontend-next && pnpm test:coverage",
+    "lint": "pnpm --filter frontend-next lint",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
+    "setup": "cd frontend-next && pnpm install"
   },
   "workspaces": [
     "frontend",
+    "frontend-next",
     "backend"
   ],
   "devDependencies": {

@@ -151,7 +151,7 @@ class BlockchainService:
         return self.providers[blockchain]
 
     async def mint_nft(
-        self, blockchain: str, recipient: str, card_id: str, **metadata
+        self, blockchain: str, recipient: str, card_id: str, **metadata: Any
     ) -> Tuple[str, Dict[str, Any]]:
         """
         Mint an NFT on the specified blockchain.
@@ -305,26 +305,3 @@ class BlockchainService:
             return health["status"] in ["healthy", "degraded"] and health["healthy_providers"] > 0
         except Exception:
             return False
-        """
-        Perform health check on all blockchain providers.
-
-        Returns:
-            Health status for each blockchain
-        """
-        health_status = {}
-
-        for blockchain, provider in self.providers.items():
-            try:
-                is_connected = await provider.is_connected()
-                health_status[blockchain] = {
-                    "status": "healthy" if is_connected else "disconnected",
-                    "connected": is_connected,
-                }
-            except Exception as e:
-                health_status[blockchain] = {
-                    "status": "error",
-                    "connected": False,
-                    "error": str(e),
-                }
-
-        return health_status

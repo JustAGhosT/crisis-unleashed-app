@@ -1,4 +1,4 @@
-import { DeckService, createDeck as createDeckService } from '@/services/deckService';
+import { DeckService } from '@/services/deckService';
 import { Deck, DeckCard, Card } from '@/types/card';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/useToast';
@@ -47,7 +47,7 @@ export function useCreateDeck() {
     Error,
     Omit<Deck, 'id' | 'createdAt' | 'updatedAt'>
   >({
-    mutationFn: createDeckService,
+    mutationFn: (data) => DeckService.createDeck(data),
     onSuccess: (newDeck) => {
       toast({
         title: 'Deck created!',

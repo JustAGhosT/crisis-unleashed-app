@@ -18,7 +18,7 @@ import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import List, Optional, Any
 import uuid
 import sys
 from datetime import datetime
@@ -39,7 +39,7 @@ load_dotenv(ROOT_DIR / ".env")
 settings = get_settings()
 
 # MongoDB connection
-client = AsyncIOMotorClient(settings.mongo_url)
+client: AsyncIOMotorClient = AsyncIOMotorClient(settings.mongo_url)
 db = client[settings.database_name]
 
 # Global services and health manager
@@ -76,7 +76,7 @@ async def root() -> dict[str, str]:
 
 
 @api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
+async def create_status_check(input: StatusCheckCreate) -> StatusCheck:
     status_dict = input.dict()
     status_obj = StatusCheck(**status_dict)
     _ = await db.status_checks.insert_one(status_obj.dict())
@@ -118,7 +118,7 @@ logger = logging.getLogger(__name__)
 
 
 @app.on_event("startup")
-async def startup_event():
+async def startup_event() -> None:
     """Initialize services on application startup with fail-fast behavior."""
     global blockchain_service, outbox_processor
 
@@ -206,7 +206,7 @@ async def startup_event():
 
 
 @app.on_event("shutdown")
-async def shutdown_event():
+async def shutdown_event() -> None:
     """Cleanup on application shutdown."""
     global outbox_processor, health_manager
 
@@ -234,7 +234,7 @@ async def shutdown_event():
 
 # Add health check endpoint
 @api_router.get("/health")
-async def health_check():
+async def health_check() -> JSONResponse:
     """
     Application health check endpoint.
     
@@ -277,7 +277,7 @@ async def health_check():
 
 # Add service status endpoint  
 @api_router.get("/services/status")
-async def get_service_status():
+async def get_service_status() -> dict[str, Any]:
     """Get detailed status of individual services."""
     try:
         return await health_manager.get_health_status()

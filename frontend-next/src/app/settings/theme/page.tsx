@@ -2,14 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
-import { useFeatureFlag } from "@/lib/feature-flags/useFeatureFlag";
 import { FeatureGate } from "@/components/feature-flags/FeatureGate";
 import Link from "next/link";
 
 export default function ThemeSettingsPage() {
   const { theme, setTheme, systemTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const isNewThemeEnabled = useFeatureFlag("useNewTheme");
   
   // Avoid hydration mismatch
   useEffect(() => {
@@ -55,7 +53,7 @@ export default function ThemeSettingsPage() {
           <div className="mb-8">
             <h3 className="text-lg font-medium mb-3 dark:text-white">Current Theme</h3>
             <p className="text-gray-600 dark:text-gray-300 mb-2">
-              You're currently using the <span className="font-semibold">{currentTheme}</span> theme.
+              You&#39;re currently using the <span className="font-semibold">{currentTheme}</span> theme.
             </p>
           </div>
           
@@ -126,7 +124,7 @@ export default function ThemeSettingsPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-medium dark:text-white">Reduced Motion</h3>
+                <h3 id="reduced-motion-label" className="font-medium dark:text-white">Reduced Motion</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-300">Minimize animations throughout the interface</p>
               </div>
               <div className="relative inline-block w-10 mr-2 align-middle select-none">
@@ -135,6 +133,7 @@ export default function ThemeSettingsPage() {
                   id="reduced-motion" 
                   name="reduced-motion" 
                   className="sr-only"
+                  aria-labelledby="reduced-motion-label"
                 />
                 <label 
                   htmlFor="reduced-motion"
@@ -147,7 +146,7 @@ export default function ThemeSettingsPage() {
             
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-medium dark:text-white">High Contrast</h3>
+                <h3 id="high-contrast-label" className="font-medium dark:text-white">High Contrast</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-300">Increase contrast for better readability</p>
               </div>
               <div className="relative inline-block w-10 mr-2 align-middle select-none">
@@ -156,6 +155,7 @@ export default function ThemeSettingsPage() {
                   id="high-contrast" 
                   name="high-contrast" 
                   className="sr-only"
+                  aria-labelledby="high-contrast-label"
                 />
                 <label 
                   htmlFor="high-contrast"

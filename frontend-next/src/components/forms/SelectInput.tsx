@@ -43,6 +43,9 @@ export const SelectInput = forwardRef<HTMLSelectElement, SelectInputProps>(({
   itemClassName,
 }, ref) => {
   const hasError = !!error;
+  const ariaProps = hasError
+    ? ({ 'aria-invalid': true as const, 'aria-describedby': `${id}-error` as const } as const)
+    : ({} as const);
   
   return (
     <FormField
@@ -68,8 +71,7 @@ export const SelectInput = forwardRef<HTMLSelectElement, SelectInputProps>(({
           disabled && "opacity-60 cursor-not-allowed",
           selectClassName
         )}
-        aria-invalid={hasError}
-        aria-describedby={hasError ? `${id}-error` : undefined}
+        {...ariaProps}
         title={label}
       >
         <option value="" disabled>{placeholder}</option>

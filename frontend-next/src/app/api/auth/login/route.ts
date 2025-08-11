@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import jwt from 'jsonwebtoken';
 
 // In a real application, you would use a database and proper password hashing
 const MOCK_USERS = [
@@ -55,9 +56,28 @@ export async function POST(request: NextRequest) {
 
     // Set authentication cookie
     const oneWeek = 7 * 24 * 60 * 60 * 1000;
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      console.error('JWT_SECRET is not set');
+      return NextResponse.json(
+        { error: 'Server misconfiguration: missing JWT secret' },
+        { status: 500 }
+      );
+    }
+
+    const token = jwt.sign(
+      { sub: user.id, role: user.role },
+      secret,
+      {
+        algorithm: 'HS256',
+        expiresIn: '7d',
+        issuer: 'crisis-unleashed',
+        audience: 'crisis-unleashed-client',
+      }
+    );
     cookies().set({
       name: 'auth_token',
-      value: JSON.stringify({ userId: user.id, role: user.role }),
+      value: token,
       httpOnly: true,
       path: '/',
       expires: Date.now() + oneWeek,

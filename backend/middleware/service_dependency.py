@@ -6,7 +6,9 @@ Ensures services are available before processing requests that depend on them.
 from fastapi import Request, HTTPException, status
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
-from typing import Optional
+from typing import Optional, Awaitable, Callable
+from starlette.types import ASGIApp
+from starlette.responses import Response
 import logging
 
 from ..services.health_manager import ServiceHealthManager, CriticalServiceException
@@ -22,7 +24,7 @@ class ServiceDependencyMiddleware(BaseHTTPMiddleware):
     their required services are unavailable, providing clear error messages.
     """
     
-    def __init__(self, app, health_manager: ServiceHealthManager):
+    def __init__(self, app: ASGIApp, health_manager: ServiceHealthManager):
         super().__init__(app)
         self.health_manager = health_manager
         
@@ -36,7 +38,7 @@ class ServiceDependencyMiddleware(BaseHTTPMiddleware):
             "/api/blockchain/health": ["blockchain_service", "outbox_processor"],
         }
     
-    async def dispatch(self, request: Request, call_next):
+    async def dispatch(self, request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
         """Check service dependencies before processing request."""
         
         # Skip health check endpoints to avoid circular dependencies

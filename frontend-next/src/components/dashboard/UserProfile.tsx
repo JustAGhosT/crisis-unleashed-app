@@ -3,6 +3,10 @@
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
+import styles from "./UserProfile.module.css";
+import type { CSSProperties } from "react";
+
+type CSSVars = CSSProperties & Record<string, string | number>;
 
 // Types for user profile data
 interface UserProfileData {
@@ -113,11 +117,11 @@ export default function UserProfile() {
             <span>XP: {profile.experience.current.toLocaleString()}</span>
             <span>{profile.experience.next.toLocaleString()}</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2.5">
-            <div 
-              className="bg-blue-600 h-2.5 rounded-full" 
-              style={{ width: `${experiencePercentage}%` }}
-            ></div>
+          <div
+            className={`w-full bg-gray-200 rounded-full h-2.5 ${styles.xpTrack}`}
+            style={{ '--xp-pct': `${experiencePercentage}%` } as CSSVars}
+          >
+            <div className={`bg-blue-600 h-2.5 rounded-full ${styles.xpBar}`}></div>
           </div>
           <p className="text-xs text-gray-500 mt-1 text-center">
             {profile.experience.next - profile.experience.current} XP to level {profile.level + 1}

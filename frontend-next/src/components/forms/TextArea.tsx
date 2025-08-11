@@ -3,7 +3,10 @@
 import React, { forwardRef, TextareaHTMLAttributes } from 'react';
 import { FormField, FormFieldProps } from './FormField';
 import { Textarea } from '@/components/ui/textarea';
-import { cn } from '@/lib/utils';
+
+function cx(...classes: Array<string | false | null | undefined>) {
+  return classes.filter(Boolean).join(' ');
+}
 
 export interface TextAreaProps extends Omit<FormFieldProps, 'children'>,
   Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'id'> {
@@ -60,7 +63,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(({
           maxLength={maxLength}
           aria-invalid={hasError ? 'true' : 'false'}
           aria-describedby={hasError ? `${id}-error` : undefined}
-          className={cn(
+          className={cx(
             "resize-y",
             hasError && "border-red-500 focus:ring-red-500 focus:border-red-500 dark:border-red-400",
             "dark:bg-gray-800 dark:border-gray-700 dark:text-white",
@@ -76,7 +79,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(({
         {showCharacterCount && maxLength && (
           <div className="flex justify-end">
             <span 
-              className={cn(
+              className={cx(
                 "text-xs",
                 isAtLimit ? "text-red-500 dark:text-red-400" : 
                   isNearLimit ? "text-amber-500 dark:text-amber-400" : 

@@ -22,8 +22,8 @@ We've successfully migrated the faction-related components from the legacy codeb
 ### Improved Architecture
 
 - Clear separation of concerns between data fetching and presentation
-- Feature flag system for gradual migration
-- Type adapters for backward compatibility
+- Phased migration approach with feature flags for controlled cutover
+- Temporary adapters during transition phase
 - Maintainable, scalable code structure
 
 ### Developer Experience
@@ -35,14 +35,17 @@ We've successfully migrated the faction-related components from the legacy codeb
 
 ## Migration Approach
 
-We took a "delete and replace" approach rather than maintaining backward compatibility:
+We took a phased "replace and delete" approach:
 
 1. Created new components in frontend-next with enhanced functionality
-2. Added feature flag system to control rollout
-3. Updated or created migration adapter components
-4. Deleted old components from the src directory
-5. Updated references to point to the new components
-6. Created documentation for the migration
+2. Added feature flags to control visibility during development and testing
+3. Used temporary adapters during the transition phase
+4. Tested thoroughly in isolated environments
+5. Performed complete cutover by removing old components
+6. Deleted legacy components after successful cutover
+7. Removed adapters and simplified flag usage after migration
+
+This approach allowed us to develop and test in isolation, then perform a clean cutover rather than maintaining long-term backward compatibility. Feature flags were used primarily for development and testing control, not for production rollback capability.
 
 ## What's Next
 
@@ -91,4 +94,4 @@ We took a "delete and replace" approach rather than maintaining backward compati
 
 ## Conclusion
 
-The migration of faction components represents a significant step forward in our move to the Next.js architecture. The new components are more maintainable, better typed, and follow modern React patterns. The feature flag system allows for a gradual rollout, minimizing disruption to users while allowing teams to adapt to the new codebase.
+The migration of faction components represents a significant step forward in our move to the Next.js architecture. The new components are more maintainable, better typed, and follow modern React patterns. Our phased approach with temporary adapters and feature flags during development allowed us to make a clean transition while minimizing risk.

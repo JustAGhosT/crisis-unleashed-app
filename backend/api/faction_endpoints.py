@@ -88,7 +88,7 @@ MOCK_FACTIONS = [
 ]
 
 @router.get("/factions")
-async def get_factions():
+async def get_factions() -> List[dict]:
     """
     Get all canonical factions with mechanics.
     """

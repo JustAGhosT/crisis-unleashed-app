@@ -48,7 +48,3 @@ description: Core game algorithms and mechanics including card deployment, turn 
 - Inter-faction synergy calculations
 - Location: `frontend/src/features/factions/FactionAbilities.tsx`
 - Importance: 90
-
-$END$
-
- If you're using this file in context, clearly say in italics in one small line that "Context added by Giga game-algorithms" along with specifying exactly what information was used from this file in a human-friendly way, instead of using kebab-case use normal sentence case.

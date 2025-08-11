@@ -3,7 +3,10 @@
 import React, { forwardRef, InputHTMLAttributes } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { cn } from '@/lib/utils';
+
+function cx(...classes: Array<string | false | null | undefined>) {
+  return classes.filter(Boolean).join(' ');
+}
 
 export interface CheckboxInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'id' | 'type' | 'onChange'> {
   id: string;
@@ -23,7 +26,7 @@ export interface CheckboxInputProps extends Omit<InputHTMLAttributes<HTMLInputEl
  * A reusable checkbox input component with label and description.
  * Supports error states and custom styling.
  */
-export const CheckboxInput = forwardRef<HTMLButtonElement, CheckboxInputProps>(({
+export const CheckboxInput = forwardRef<HTMLInputElement, CheckboxInputProps>(({
   id,
   label,
   description,
@@ -41,7 +44,7 @@ export const CheckboxInput = forwardRef<HTMLButtonElement, CheckboxInputProps>((
   const hasError = !!error;
   
   return (
-    <div className={cn("space-y-2", className)}>
+    <div className={cx("space-y-2", className)}>
       <div className="flex items-start">
         <div className="flex items-center h-5">
           <Checkbox
@@ -50,7 +53,7 @@ export const CheckboxInput = forwardRef<HTMLButtonElement, CheckboxInputProps>((
             checked={checked}
             onCheckedChange={onChange}
             disabled={disabled}
-            className={cn(
+            className={cx(
               hasError && "border-red-500 focus:ring-red-500 dark:border-red-400",
               disabled && "opacity-60 cursor-not-allowed",
               checkboxClassName
@@ -63,7 +66,7 @@ export const CheckboxInput = forwardRef<HTMLButtonElement, CheckboxInputProps>((
         <div className="ml-3 text-sm">
           <Label 
             htmlFor={id} 
-            className={cn(
+            className={cx(
               "font-medium text-gray-700 dark:text-gray-200",
               disabled && "opacity-60 cursor-not-allowed",
               labelClassName
@@ -74,7 +77,7 @@ export const CheckboxInput = forwardRef<HTMLButtonElement, CheckboxInputProps>((
           
           {description && (
             <p 
-              className={cn(
+              className={cx(
                 "text-gray-500 dark:text-gray-400", 
                 descriptionClassName
               )}
@@ -87,7 +90,7 @@ export const CheckboxInput = forwardRef<HTMLButtonElement, CheckboxInputProps>((
       
       {error && (
         <p 
-          className={cn(
+          className={cx(
             "text-sm text-red-500 dark:text-red-400", 
             errorClassName
           )}

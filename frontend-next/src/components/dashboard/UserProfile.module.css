@@ -1,0 +1,7 @@
+.xpTrack {
+  /* container for XP bar; variable scope */
+}
+
+.xpBar {
+  width: var(--xp-pct);
+}

@@ -3,7 +3,7 @@ Blockchain Handler for processing outbox entries.
 """
 
 import logging
-from typing import Any, Dict, List
+from typing import Any, Dict, List, TypedDict
 
 from ..repository import (
     TransactionOutboxRepository,
@@ -13,6 +13,13 @@ from ..repository import (
 from .blockchain_service import BlockchainService
 
 logger = logging.getLogger(__name__)
+
+
+class ErrorItem(TypedDict):
+    """Type definition for error items in processing results."""
+
+    entry_id: str
+    error: str
 
 
 class BlockchainHandler:
@@ -38,7 +45,7 @@ class BlockchainHandler:
         total_processed = 0
         successful = 0
         failed = 0
-        errors: List[Dict[str, Any]] = []  # or Dict[str, Union[int, str]]
+        errors: List[ErrorItem] = []
         for entry in entries:
             try:
                 await self._process_entry(entry)

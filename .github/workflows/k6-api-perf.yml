@@ -1,0 +1,27 @@
+name: k6 API Performance
+
+on:
+  workflow_dispatch:
+    inputs:
+      apiBaseUrl:
+        description: 'API base URL (e.g., https://api.example.com)'
+        required: true
+        type: string
+
+jobs:
+  k6:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup k6
+        uses: grafana/setup-k6-action@v1
+        with:
+          version: '0.49.0'
+
+      - name: Run tests
+        env:
+          API_BASE_URL: ${{ inputs.apiBaseUrl }}
+        run: |
+          k6 run ./perf/k6/api-latency.js

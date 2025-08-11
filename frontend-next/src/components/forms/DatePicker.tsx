@@ -5,9 +5,13 @@ import { FormField, FormFieldProps } from './FormField';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
+
+// minimal class merge to avoid cn dependency
+function cx(...classes: Array<string | false | null | undefined>) {
+  return classes.filter(Boolean).join(' ');
+}
 
 export interface DatePickerProps extends Omit<FormFieldProps, 'children'> {
   value?: Date;
@@ -66,7 +70,7 @@ export const DatePicker = forwardRef<HTMLButtonElement, DatePickerProps>(({
             ref={ref}
             variant="outline"
             disabled={disabled}
-            className={cn(
+            className={cx(
               "w-full justify-start text-left font-normal",
               !value && "text-muted-foreground",
               hasError && "border-red-500 focus:ring-red-500 focus:border-red-500 dark:border-red-400",
@@ -92,7 +96,7 @@ export const DatePicker = forwardRef<HTMLButtonElement, DatePickerProps>(({
               return isBeforeMin || isAfterMax;
             })}
             initialFocus
-            className={cn(
+            className={cx(
               "dark:bg-gray-800 dark:text-white",
               calendarClassName
             )}
