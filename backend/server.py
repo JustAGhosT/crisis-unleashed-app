@@ -39,8 +39,8 @@ load_dotenv(ROOT_DIR / ".env")
 settings = get_settings()
 
 # MongoDB connection
-client: AsyncIOMotorClient = AsyncIOMotorClient(settings.mongo_url)
-db = client[settings.database_name]
+client = AsyncIOMotorClient(settings.mongo_url)  # type: ignore
+db = client[settings.database_name]  # type: ignore
 
 # Global services and health manager
 blockchain_service: Optional[BlockchainService] = None
@@ -223,7 +223,7 @@ async def shutdown_event() -> None:
             logger.info("Outbox processor stopped")
 
         # Close database connection
-        client.close()
+        await client.close()  # type: ignore
         logger.info("Database connection closed")
 
         logger.info("🛑 Crisis Unleashed Backend shut down successfully!")

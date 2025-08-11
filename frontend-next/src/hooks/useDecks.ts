@@ -72,6 +72,12 @@ export function useCreateDeck() {
   });
 }
 
+// Define a type for the update deck mutation context
+interface UpdateDeckContext {
+  previousDeck: Deck | undefined;
+  deckId: string;
+}
+
 /**
  * Mutation hook for updating a deck
  */
@@ -79,18 +85,28 @@ export function useUpdateDeck() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  return useMutation({
-    mutationFn: ({ deckId, updates }: { deckId: string; updates: Partial<Deck> }) =>
+  return useMutation<
+    Deck,
+    Error,
+    { deckId: string; updates: Partial<Deck> },
+    UpdateDeckContext
+  >({
+    mutationFn: ({ deckId, updates }) =>
       DeckService.updateDeck(deckId, updates),
     onMutate: async ({ deckId, updates }) => {
       await queryClient.cancelQueries({ queryKey: deckQueryKeys.deck(deckId) });
-      const previousDeck = queryClient.getQueryData(deckQueryKeys.deck(deckId));
+      
+      // Get the previous deck data with proper type casting
+      const previousDeck = queryClient.getQueryData<Deck>(deckQueryKeys.deck(deckId));
+      
+      // Update the deck in the cache
       queryClient.setQueryData(deckQueryKeys.deck(deckId), (old: Deck | undefined) =>
         old ? { ...old, ...updates, updatedAt: new Date().toISOString() } : old
       );
+      
       return { previousDeck, deckId };
     },
-    onError: (error: any, variables, context) => {
+    onError: (error: Error, variables, context) => {
       if (context?.previousDeck) {
         queryClient.setQueryData(
           deckQueryKeys.deck(context.deckId),
@@ -110,6 +126,11 @@ export function useUpdateDeck() {
   });
 }
 
+// Define a type for the delete deck mutation context
+interface DeleteDeckContext {
+  deck: Deck | undefined;
+}
+
 /**
  * Mutation hook for deleting a deck
  */
@@ -117,10 +138,12 @@ export function useDeleteDeck() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  return useMutation({
+  return useMutation<void, Error, string, DeleteDeckContext>({
     mutationFn: DeckService.deleteDeck,
     onMutate: async (deckId: string) => {
-      const deck = queryClient.getQueryData(deckQueryKeys.deck(deckId)) as Deck | undefined;
+      // Get the deck with proper type casting
+      const deck = queryClient.getQueryData<Deck>(deckQueryKeys.deck(deckId));
+      
       if (deck) {
         queryClient.setQueryData(
           deckQueryKeys.userDecks(deck.userId),
@@ -131,7 +154,7 @@ export function useDeleteDeck() {
       }
       return { deck };
     },
-    onError: (error, deckId: string, context) => {
+    onError: (error: Error, deckId: string, context) => {
       if (context?.deck) {
         queryClient.setQueryData(deckQueryKeys.deck(deckId), context.deck);
         queryClient.setQueryData(

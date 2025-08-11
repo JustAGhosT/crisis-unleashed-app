@@ -2,20 +2,41 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { Card as CardType } from '@/types/deck';
+import { Card as CardType } from '@/types/card';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+// Tooltips component not available in this project; using simple title attributes instead
 
 interface CardItemProps {
   card: CardType;
-  onAdd: () => void;
-  canAdd: boolean;
-  copiesInDeck: number;
+  onAdd?: () => void;
+  onRemove?: () => void;
+  showAddButton?: boolean;
+  showRemoveButton?: boolean;
+  copiesInDeck?: number;
+  maxCopies?: number;
+  className?: string;
+  size?: 'sm' | 'md' | 'lg';
 }
 
-export default function CardItem({ card, onAdd, canAdd, copiesInDeck }: CardItemProps) {
+export function CardItem({ 
+  card, 
+  onAdd, 
+  onRemove,
+  showAddButton = false,
+  showRemoveButton = false,
+  copiesInDeck = 0,
+  maxCopies = 3,
+  className,
+  size = 'md'
+}: CardItemProps) {
+  const canAdd = Boolean(onAdd) && copiesInDeck < maxCopies;
+  const sizeClasses = {
+    sm: 'w-32 h-48',
+    md: 'w-40 h-60',
+    lg: 'w-48 h-72'
+  }[size];
   const [isHovered, setIsHovered] = useState(false);
   
   // Get color class based on card rarity
@@ -34,30 +55,62 @@ export default function CardItem({ card, onAdd, canAdd, copiesInDeck }: CardItem
         return 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800';
     }
   };
+
+  // Get faction color class
+  const getFactionColorClass = (faction: string = 'neutral') => {
+    const base = 'text-xs font-medium px-2 py-0.5 rounded-full';
+    switch (faction.toLowerCase()) {
+      case 'solaris-nexus':
+        return `${base} bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300`;
+      case 'umbral-eclipse':
+        return `${base} bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300`;
+      case 'aeonic-dominion':
+        return `${base} bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300`;
+      case 'primordial-genesis':
+        return `${base} bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300`;
+      case 'infernal-core':
+        return `${base} bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300`;
+      case 'neuralis-conclave':
+        return `${base} bg-pink-100 text-pink-800 dark:bg-pink-900/50 dark:text-pink-300`;
+      case 'synthetic-directive':
+        return `${base} bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300`;
+      default:
+        return `${base} bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300`;
+    }
+  };
   
   // Get the reason why a card can't be added
   const getAddDisabledReason = () => {
-    if (copiesInDeck >= (card.isUnique ? 1 : 3)) {
-      return `Maximum copies (${card.isUnique ? 1 : 3}) already in deck`;
-    }
-    if (card.faction && card.faction !== 'Neutral') {
-      return `Card belongs to a different faction`;
+    if (copiesInDeck >= maxCopies) {
+      return `Maximum copies (${maxCopies}) already in deck`;
     }
     return 'Deck is full';
   };
 
+  const handleAddClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onAdd && canAdd) onAdd();
+  };
+
+  const handleRemoveClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onRemove) onRemove();
+  };
+
   return (
-    <div 
+    <div
       className={cn(
-        "relative rounded-lg border overflow-hidden transition-all",
+        'relative rounded-lg overflow-hidden transition-all duration-200 hover:shadow-lg hover:-translate-y-1',
         getRarityColorClass(card.rarity),
-        isHovered && "shadow-md"
+        isHovered && 'shadow-md',
+        className
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
+      
       {/* Card image */}
-      <div className="relative h-40 w-full bg-gray-200 dark:bg-gray-700">
+      <div className={cn('relative overflow-hidden bg-gray-200 dark:bg-gray-700 rounded-t-lg', sizeClasses)}>
         {card.imageUrl ? (
           <Image
             src={card.imageUrl}
@@ -80,21 +133,19 @@ export default function CardItem({ card, onAdd, canAdd, copiesInDeck }: CardItem
         <div className="absolute top-2 left-2 right-2 flex justify-between">
           {/* Faction badge */}
           {card.faction && (
-            <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-black/60 text-white">
-              {card.faction}
-            </span>
+            <span className={getFactionColorClass(String(card.faction))}>{card.faction}</span>
           )}
           
-          {/* Cost/Power badges */}
+          {/* Cost/Attack badges */}
           <div className="flex space-x-1">
             {card.cost !== undefined && (
               <span className="inline-flex items-center justify-center bg-blue-600 text-white rounded-full w-6 h-6 text-xs font-bold">
                 {card.cost}
               </span>
             )}
-            {card.power !== undefined && (
+            {card.attack !== undefined && (
               <span className="inline-flex items-center justify-center bg-red-600 text-white rounded-full w-6 h-6 text-xs font-bold">
-                {card.power}
+                {card.attack}
               </span>
             )}
           </div>
@@ -109,11 +160,11 @@ export default function CardItem({ card, onAdd, canAdd, copiesInDeck }: CardItem
           </div>
         )}
         
-        {/* Unique badge */}
-        {card.isUnique && (
+        {/* Copies badge */}
+        {copiesInDeck > 0 && (
           <div className="absolute bottom-2 right-2">
-            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-amber-600 text-white">
-              Unique
+            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-black/60 text-white">
+              x{copiesInDeck}
             </span>
           </div>
         )}
@@ -127,45 +178,36 @@ export default function CardItem({ card, onAdd, canAdd, copiesInDeck }: CardItem
           </h3>
         </div>
         <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-          {card.type} {card.subtype && `- ${card.subtype}`}
+          {card.type}
+          {card.unitType && ` · ${card.unitType}`}
+          {card.actionType && ` · ${card.actionType}`}
+          {card.structureType && ` · ${card.structureType}`}
         </p>
         
-        {/* Card text - truncated */}
-        {card.text && (
+        {/* Card description - truncated */}
+        {card.description && (
           <p className="text-xs text-gray-700 dark:text-gray-300 line-clamp-2">
-            {card.text}
+            {card.description}
           </p>
         )}
       </div>
       
-      {/* Add button */}
+      {/* Actions */}
       <div className="p-3 pt-0 flex justify-between items-center">
-        <span className="text-xs text-gray-500 dark:text-gray-400">
-          {copiesInDeck} / {card.isUnique ? 1 : 3}
-        </span>
-        
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span>
-                <Button
-                  size="sm"
-                  onClick={onAdd}
-                  disabled={!canAdd}
-                  className="flex items-center gap-1"
-                >
-                  <Plus className="h-4 w-4" />
-                  Add
-                </Button>
-              </span>
-            </TooltipTrigger>
-            {!canAdd && (
-              <TooltipContent>
-                <p>{getAddDisabledReason()}</p>
-              </TooltipContent>
-            )}
-          </Tooltip>
-        </TooltipProvider>
+        <span className="text-xs text-gray-500 dark:text-gray-400">{copiesInDeck} / {maxCopies}</span>
+        <div className="flex items-center gap-2">
+          {showRemoveButton && onRemove && (
+            <Button variant="destructive" size="sm" onClick={handleRemoveClick} title="Remove from deck">
+              <X className="h-4 w-4" />
+            </Button>
+          )}
+          {showAddButton && onAdd && (
+            <Button size="sm" onClick={handleAddClick} disabled={!canAdd} title={canAdd ? 'Add to deck' : getAddDisabledReason()}>
+              <Plus className="h-4 w-4" />
+              <span className="ml-1">Add</span>
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );

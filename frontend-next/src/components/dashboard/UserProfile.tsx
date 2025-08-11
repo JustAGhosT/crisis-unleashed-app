@@ -4,9 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
 import styles from "./UserProfile.module.css";
-import type { CSSProperties } from "react";
-
-type CSSVars = CSSProperties & Record<string, string | number>;
+ 
 
 // Types for user profile data
 interface UserProfileData {
@@ -119,7 +117,11 @@ export default function UserProfile() {
           </div>
           <div
             className={`w-full bg-gray-200 rounded-full h-2.5 ${styles.xpTrack}`}
-            style={{ '--xp-pct': `${experiencePercentage}%` } as CSSVars}
+            ref={(el) => {
+              if (el) {
+                el.style.setProperty('--xp-pct', `${experiencePercentage}%`);
+              }
+            }}
           >
             <div className={`bg-blue-600 h-2.5 rounded-full ${styles.xpBar}`}></div>
           </div>

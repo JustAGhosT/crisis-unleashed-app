@@ -5,9 +5,7 @@ import { rarityBadgeClass } from '@/lib/ui-maps';
 import { cn } from '@/lib/utils';
 import { DeckStats as DeckStatsType, DeckValidationResult } from '@/types/card';
 import { AlertCircle, AlertTriangle, BarChart3, CheckCircle, PieChart } from 'lucide-react';
-import type { CSSProperties } from 'react';
-
-type CSSVars = CSSProperties & Record<string, string | number>;
+ 
 
 interface DeckStatsProps {
   stats: DeckStatsType;
@@ -173,7 +171,12 @@ export const DeckStats = ({
                 </div>
                 <div
                   className="flex-1 bg-slate-700 rounded-full h-6 overflow-hidden"
-                  style={{ '--cost-bar-w': `${Math.max(percentage, count > 0 ? 10 : 0)}%` } as CSSVars}
+                  ref={(el) => {
+                    if (el) {
+                      const pct = Math.max(percentage, count > 0 ? 10 : 0);
+                      el.style.setProperty('--cost-bar-w', `${pct}%`);
+                    }
+                  }}
                 >
                   <div
                     className="h-full bg-gradient-to-r from-purple-500 to-blue-500 transition-all duration-300 flex items-center justify-center w-cost-bar"
