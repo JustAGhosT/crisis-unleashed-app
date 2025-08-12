@@ -1,6 +1,6 @@
 import React, { createContext, useContext, ReactNode, useState } from 'react';
 import { Faction } from '@/types/game.types';
-import { factionThemes, getFactionTheme, FactionTheme } from '@/theme/factionThemes';
+import { getFactionTheme, FactionTheme } from '@/theme/factionThemes';
 
 type FactionThemeContextType = {
   currentTheme: FactionTheme;

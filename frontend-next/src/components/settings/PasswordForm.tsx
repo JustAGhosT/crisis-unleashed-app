@@ -39,7 +39,7 @@ export function PasswordForm({ onSuccess, onError }: PasswordFormProps) {
     resolver: zodResolver(passwordSchema),
   });
 
-  const onSubmit = async (_formData: PasswordFormData) => {
+  const onSubmit = async () => {
     try {
       // In a real app, this would be an API call to change the password
       await new Promise(resolve => setTimeout(resolve, 1000));

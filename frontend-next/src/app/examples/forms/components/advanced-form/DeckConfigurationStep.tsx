@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { z } from 'zod';
 import { CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { TextInput, TextArea, SelectInput, SwitchInput, CheckboxInput } from '@/components/forms';
+import { TextInput, TextArea, SelectInput, SwitchInput } from '@/components/forms';
 import { AdvancedFormData } from '../AdvancedFormExample';
 import { Plus, X } from 'lucide-react';
 
@@ -13,7 +13,6 @@ interface DeckConfigurationStepProps {
   updateFormData: (data: Partial<AdvancedFormData>) => void;
   onNext: (isValid: boolean) => void;
   onBack: () => void;
-  hasValidationError: boolean;
 }
 
 // Define validation schema for this step
@@ -38,8 +37,7 @@ export default function DeckConfigurationStep({
   formData,
   updateFormData,
   onNext,
-  onBack,
-  hasValidationError
+  onBack
 }: DeckConfigurationStepProps) {
   // Local validation errors
   const [errors, setErrors] = useState<Record<string, string>>({});

@@ -1,5 +1,5 @@
 ---
-description: Documents component data flow for game systems requiring coordinated state updates and event handling between UI components
+description: Documents data flow between major game components including state updates and component interaction patterns
 ---
 
 # === USER INSTRUCTIONS ===
@@ -8,59 +8,55 @@ globs: frontend-next/src/**/*.{ts,tsx},frontend/src/features/**/*.{ts,tsx},front
 
 # component-dataflow
 
-### Core Game Components Data Flow
+Core Game Component Interactions:
 
-#### Battlefield -> TurnManager
-- Sends zone control updates and unit position changes
-- Notifies when combat phases complete
-- Triggers crisis event effects on battlefield state
+1. Battlefield → CardHand Flow
+Path: frontend/src/features/battlefield/Battlefield.tsx
+- Emits zone targeting events for card placement
+- Provides zone availability status
+- Sends battlefield state updates on card play
+- Receives card play intent from CardHand
+- Updates zone control status after card resolution
 
-#### CardHand -> PlayerHUD
-- Reports card play attempts and resource costs
-- Updates hand size and remaining deck count
-- Sends synergy activation events
+2. CardHand → PlayerHUD Flow
+Path: frontend/src/features/cards/CardHand.tsx
+- Sends energy cost validation requests
+- Emits card selection events
+- Receives energy availability status
+- Updates hand state on card play
+- Tracks card hover/preview states
 
-#### TurnManager -> GameInterface
-- Broadcasts current phase and active player
-- Sends turn timer updates
-- Triggers end-of-turn effects and resets
+3. GameInterface → TurnManager Flow
+Path: frontend/src/components/game/GameInterface.tsx
+- Controls phase transitions
+- Manages initiative sequence
+- Emits turn events
+- Updates global game state
+- Handles crisis event triggers
 
-#### PlayerHUD -> Battlefield
-- Transmits resource availability for unit deployment
-- Updates zone control indicators
-- Sends faction-specific ability activations
+4. PlayerHUD → Battlefield Flow
+Path: frontend/src/features/players/PlayerHUD.tsx
+- Tracks zone control points
+- Updates resource pools
+- Emits combat phase readiness
+- Manages player status effects
+- Syncs battlefield position data
 
-### State Update Patterns
+5. TurnManager State Broadcasting
+Path: frontend/src/features/battlefield/TurnManager.tsx
+- Emits phase change events
+- Updates all component states on turn transition
+- Manages crisis event resolution flow
+- Controls combat sequence timing
+- Handles end-of-turn cleanup
 
-#### Crisis Event Propagation
-- CrisisManager broadcasts event to all components
-- Battlefield updates terrain effects
-- PlayerHUD adjusts resource generation
-- CardHand modifies card costs/effects
+Key Data Flows:
+- Card Play Sequence: CardHand → PlayerHUD → Battlefield
+- Combat Resolution: Battlefield → TurnManager → PlayerHUD
+- Resource Management: PlayerHUD → CardHand → GameInterface
+- Crisis Events: TurnManager → Battlefield → PlayerHUD
 
-#### Synergy System
-- CardHand detects potential synergies
-- GameInterface highlights valid targets
-- Battlefield shows connection lines
-- PlayerHUD updates combo counters
-
-#### Turn Phase Transitions
-- TurnManager initiates phase change
-- All components receive phase update
-- Components enable/disable valid actions
-- Resource systems apply phase-specific updates
-
-### Component Communication Channels
-
-#### Direct Updates
-- Battlefield -> PlayerHUD: Zone control changes
-- CardHand -> TurnManager: Card play attempts
-- PlayerHUD -> GameInterface: Resource updates
-
-#### Event Broadcasting
-- Crisis events to all components
-- Phase changes from TurnManager
-- Synergy activations from CardHand
+The component interaction system heavily focuses on maintaining game state consistency across the faction-based card game mechanics, with particular emphasis on zone control and resource management.
 
 $END$
 

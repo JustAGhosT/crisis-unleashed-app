@@ -114,7 +114,7 @@ const TimelinePage: React.FC = () => {
             <div className={styles.factionEmergence} data-faction="aeonic">
               <div className={styles.factionIcon}></div>
               <h3>Aeonic Dominion</h3>
-              <p>Masters time to preserve reality's continuity</p>
+              <p>Masters time to preserve reality&apos;s continuity</p>
             </div>
             
             <div className={styles.factionEmergence} data-faction="infernal">
@@ -172,7 +172,7 @@ const TimelinePage: React.FC = () => {
               
               <div className={styles.quoteContainer}>
                 <blockquote className={styles.quote}>
-                  "We stand at the threshold of transformation. What lies beyond depends not on grand armies or vast powers, but on understanding. Seven fragments of one truth, seven paths to one destination. Unite them, and we transcend. Divide them, and we perish. The choice, as always, remains ours."
+                  &quot;We stand at the threshold of transformation. What lies beyond depends not on grand armies or vast powers, but on understanding. Seven fragments of one truth, seven paths to one destination. Unite them, and we transcend. Divide them, and we perish. The choice, as always, remains ours.&quot;
                   <cite>Anonymous transmission, origin unknown</cite>
                 </blockquote>
               </div>

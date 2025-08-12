@@ -10,17 +10,17 @@ import {
 
 // Mock the implementation of clsx and twMerge for the cn function test
 jest.mock('clsx', () => ({
-  default: (...inputs: unknown[]) =>
-    inputs
-      .flatMap((i: any) =>
-        typeof i === 'object' && i !== null
-          ? Object.entries(i)
-              .filter(([, v]) => Boolean(v))
-              .map(([k]) => k)
-          : i
-      )
-      .filter(Boolean)
-      .join(' '),
+  default: (...inputs: unknown[]) => {
+    const flattened = inputs.flatMap((i: unknown) => {
+      if (typeof i === 'object' && i !== null) {
+        return Object.entries(i as Record<string, unknown>)
+          .filter(([, v]) => Boolean(v))
+          .map(([k]) => k);
+      }
+      return i as unknown;
+    });
+    return flattened.filter(Boolean).join(' ');
+  },
 }));
 
 jest.mock('tailwind-merge', () => ({

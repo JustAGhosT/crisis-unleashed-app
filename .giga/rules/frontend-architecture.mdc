@@ -1,65 +1,90 @@
 ---
-description: Provides guidance for frontend architecture decisions, component hierarchies, and UI/UX patterns specific to card game implementations
+description: Specifies frontend architecture patterns for a faction-based card game with complex state management and UI interactions
 ---
 
 
 # frontend-architecture
 
-## Component Hierarchy
+Frontend Component Hierarchy (Importance: 85/100)
 
-### Core Game Components (Importance Score: 95)
-- `src/components/game/GameInterface.tsx`: Orchestrates game flow, turn management, and player interactions
-- `src/components/battlefield/Battlefield.tsx`: Implements hexagonal grid combat system with zone control
-- `src/features/cards/CardHand.tsx`: Manages hand mechanics, card playing rules and resource costs
+1. Game State Management Layer
+Path: `frontend-next/src/lib/game-state/`
+- Manages dual resource system (Energy/Momentum)
+- Tracks faction-specific power states
+- Handles turn phase transitions
+- Crisis event state management
 
-### Faction System (Importance Score: 90)
-- `src/components/factions/`: Houses faction-specific components with unique mechanics
-  - Solaris: Divine Algorithm mechanics
-  - Umbral: Shadow manipulation system
-  - Aeonic: Time control mechanics
-  - Primordial: Growth and evolution system
-  - Infernal: Risk/reward sacrifice mechanics
-  - Neuralis: Mind control abilities
-  - Synthetic: Optimization mechanics
+2. Faction System Components
+Path: `frontend-next/src/components/factions/`
+- Implements 7 unique faction UIs with distinct visual languages
+- Faction-specific card display rules
+- Cross-faction synergy visualization
+- Dynamic power state indicators
 
-### Resource Management (Importance Score: 85)
-- `src/features/players/PlayerHUD.tsx`: Tracks faction-specific resources
-- Energy system with unique costs per faction
-- Momentum tracking for special abilities
-- Health/shield management system
+3. Deck Building Interface
+Path: `frontend-next/src/components/deck-builder/`
+- Real-time deck validation against faction rules
+- Energy curve visualization
+- Synergy highlighting system
+- Faction mixing restrictions UI
 
-### Crisis Events System (Importance Score: 80)
-- Real-time event management
-- Dynamic battlefield modifications
-- Faction-specific crisis responses
+4. Battle Interface Components
+Path: `frontend-next/src/features/battlefield/`
+- Zone-based unit placement system
+- Crisis event visualization
+- Resource state management
+- Multi-phase turn indicator
 
-### Synergy Visualization (Importance Score: 75)
-- Card combination highlighting
-- Potential synergy indicators
-- Effect chain visualization
+5. Card Display System
+Path: `frontend-next/src/components/cards/`
+- Dynamic card state visualization
+- Faction-specific styling rules
+- Power/synergy indicators
+- Resource cost display
 
-### UI/UX Implementation
-- Holographic command console theme
-- Glassmorphic UI components
-- Grid overlay system
-- Ambient glow effects
-- Faction-specific color schemes
-- Interactive tutorials
+State Management Patterns:
 
-### State Management Patterns
-- Faction state management
-- Turn phase tracking
-- Resource allocation system
-- Card state lifecycle
-- Battlefield position tracking
-- Crisis event state
+1. Resource Management
+- Dual tracking of Energy (0-10) and Momentum (0-5)
+- Faction-specific resource generation rules
+- Crisis event impact on resource states
 
-## Development Architecture
-- Component-based card system
-- Real-time game state updates
-- WebSocket integration for multiplayer
-- Feature flag system for progressive rollout
-- Faction-specific asset loading
+2. Turn Phase Management
+- Draw → Energy → Main → Combat → End
+- Phase-specific action validation
+- Crisis event integration points
+
+3. Battlefield State
+- Zone control tracking
+- Unit positioning rules
+- Line of sight calculations
+- Crisis event modifications
+
+4. Synergy System
+- Real-time synergy detection
+- Cross-faction interaction validation
+- Power state calculations
+- Data-Link visualization
+
+UI/UX Implementation:
+
+1. Faction Theming
+- Unique color gradients per faction
+- Faction-specific UI element styling
+- Dynamic theme switching
+- Power state visual feedback
+
+2. Game Interface Layout
+- Responsive battlefield zones
+- Resource state indicators
+- Turn phase visualization
+- Crisis event alerts
+
+3. Card Interaction System
+- Drag-and-drop placement validation
+- Resource cost verification
+- Synergy highlight system
+- Faction restriction feedback
 
 $END$
 

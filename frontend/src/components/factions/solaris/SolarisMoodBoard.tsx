@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from './SolarisMoodBoard.module.css';
-import { getFactionTheme } from '@/theme/factionThemes';
+ 
 
 interface SolarisMoodBoardProps {
   expanded?: boolean;
@@ -11,7 +11,7 @@ interface SolarisMoodBoardProps {
  * Showcases the faction's aesthetic design principles and visual elements
  */
 const SolarisMoodBoard: React.FC<SolarisMoodBoardProps> = ({ expanded = false }) => {
-  const theme = getFactionTheme('solaris');
+  
 
   return (
     <div className={`${styles.container} ${expanded ? styles.expanded : ''}`}>

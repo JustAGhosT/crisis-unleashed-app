@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { CardService } from '@/services/cardService';
 import { Card, CardFilters } from '@/types/card';
+import { useMemo } from 'react';
 
 export interface CardSearchResult {
   cards: Card[];
@@ -12,6 +13,7 @@ export function useCardSearch(filters: CardFilters = {}, page = 1, pageSize = 20
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | undefined>(undefined);
   const controllerRef = useRef<AbortController | null>(null);
+  const filtersKey = useMemo(() => JSON.stringify(filters), [filters]);
 
   useEffect(() => {
     controllerRef.current?.abort();
@@ -40,7 +42,7 @@ export function useCardSearch(filters: CardFilters = {}, page = 1, pageSize = 20
       cancelled = true;
       controller.abort();
     };
-  }, [JSON.stringify(filters), page, pageSize]);
+  }, [filters, filtersKey, page, pageSize]);
 
   return { data, isLoading, error };
 }

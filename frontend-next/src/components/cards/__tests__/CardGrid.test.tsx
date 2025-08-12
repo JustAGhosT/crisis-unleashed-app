@@ -13,7 +13,7 @@ jest.mock('../GameCard', () => ({
     quantity, 
     maxQuantity, 
     disabled 
-  }: any) => (
+  }: { card: GameCardData; onClick?: (c: GameCardData) => void; onAdd?: (c: GameCardData) => void; onRemove?: (c: GameCardData) => void; quantity?: number; maxQuantity?: number; disabled?: boolean }) => (
     <div 
       data-testid={`game-card-${card.id}`}
       data-card-id={card.id}
@@ -25,10 +25,10 @@ jest.mock('../GameCard', () => ({
       <button onClick={() => onClick?.(card)} data-testid={`card-click-${card.id}`}>
         Click Card
       </button>
-      <button onClick={(e) => onAdd?.(card)} data-testid={`card-add-${card.id}`}>
+      <button onClick={() => onAdd?.(card)} data-testid={`card-add-${card.id}`}>
         Add Card
       </button>
-      <button onClick={(e) => onRemove?.(card)} data-testid={`card-remove-${card.id}`}>
+      <button onClick={() => onRemove?.(card)} data-testid={`card-remove-${card.id}`}>
         Remove Card
       </button>
     </div>

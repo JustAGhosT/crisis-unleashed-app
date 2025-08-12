@@ -3,18 +3,6 @@ import { CardService } from '@/services/cardService';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, CardFilters, UserCard } from '@/types/card';
 
-// Definition of pagination state interface
-interface PaginationState {
-  page: number;
-  pageSize: number;
-  total: number;
-  totalPages: number;
-  setPage: (page: number) => void;
-  setTotal: (total: number) => void;
-  hasNextPage: boolean;
-  hasPrevPage: boolean;
-}
-
 // Simple pagination hook implementation
 function usePagination({
   initialPage = 1,
@@ -116,7 +104,7 @@ export function useCards({
       setCards(result.cards);
       setTotalCount(result.total);
       pagination.setTotal(result.total);
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Ignore aborts
       if (controller.signal.aborted) return;
       const errorMessage = err instanceof Error ? err.message : 'Failed to load cards';
@@ -132,7 +120,7 @@ export function useCards({
         setLoading(false);
       }
     }
-  }, [filters, pagination.page, pagination.pageSize, toast]);
+  }, [filters, pagination, toast]);
 
   // Fetch user cards if userId is provided
   const fetchUserCards = useCallback(async () => {
@@ -147,7 +135,7 @@ export function useCards({
       const userCardData = await CardService.getUserCards(userId, controller.signal);
       if (!mountedRef.current) return;
       setUserCards(userCardData);
-    } catch (err: any) {
+    } catch (err: unknown) {
       if (controller.signal.aborted) return;
       const errorMessage = err instanceof Error ? err.message : 'Failed to load your card collection';
       toast({

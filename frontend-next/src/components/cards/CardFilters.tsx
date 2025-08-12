@@ -9,6 +9,7 @@ import { CardFilters as CardFiltersType } from '@/types/card';
 import { getFactionOptions } from '@/data/factions';
 import { Search, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { FactionId } from '@/types/faction';
 
 // Zod schema for card filter validation
 const cardFiltersSchema = z.object({
@@ -73,13 +74,13 @@ export const CardFilters: React.FC<CardFiltersProps> = ({
       filters.search = watchedValues.search.trim();
     }
     if (watchedValues.faction) {
-      filters.faction = watchedValues.faction as any;
+      filters.faction = watchedValues.faction as FactionId;
     }
     if (watchedValues.type) {
-      filters.type = watchedValues.type as any;
+      filters.type = watchedValues.type as CardFiltersType['type'];
     }
     if (watchedValues.rarity) {
-      filters.rarity = watchedValues.rarity as any;
+      filters.rarity = watchedValues.rarity as CardFiltersType['rarity'];
     }
     if (watchedValues.costMin !== undefined && watchedValues.costMin >= 0) {
       filters.costMin = watchedValues.costMin;

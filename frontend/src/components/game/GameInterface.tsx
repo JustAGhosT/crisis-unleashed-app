@@ -6,7 +6,6 @@ import CardHand from '@/features/cards/CardHand';
 import TurnManager from '@/features/battlefield/TurnManager';
 import OpponentHand from '@/features/players/OpponentHand';
 import { GameState, Card, Faction } from '@/types/game.types';
-import { factionThemes } from '@/theme/factionThemes';
 import FactionSelector from './FactionSelector';
 import GameHeader from './GameHeader';
 

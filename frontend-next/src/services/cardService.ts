@@ -2,12 +2,19 @@ import { Card, CardFilters, CardSearchResult, UserCard } from '@/types/card';
 import { FactionId } from '@/types/faction';
 import { apiClient, ApiException } from './api';
 import { CardMockData } from '../lib/CardMockData';
+import axios from 'axios';
 
 // Helper to check if error is a cancellation
-const isAbortError = (error: any): boolean => {
-  return error instanceof DOMException && error.name === 'AbortError' || 
-         error.code === 'ECONNABORTED' || 
-         error.message === 'canceled';
+const isAbortError = (error: unknown): boolean => {
+  if (error instanceof DOMException && error.name === 'AbortError') return true;
+  if (axios.isAxiosError(error)) {
+    return error.code === 'ECONNABORTED' || error.message === 'canceled';
+  }
+  if (typeof error === 'object' && error !== null) {
+    const maybe = error as { code?: string; message?: string };
+    return maybe.code === 'ECONNABORTED' || maybe.message === 'canceled';
+  }
+  return false;
 };
 
 // Helper to check if we're in development mode
@@ -39,14 +46,15 @@ export class CardService {
         signal,
       });
       return response.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Rethrow abort errors to properly handle cancellations
       if (isAbortError(error)) {
         throw error;
       }
 
-      if (error.response?.status === 401 || error.response?.status === 403) {
-        throw new ApiException('Authentication required', error.response.status);
+      const status = axios.isAxiosError(error) ? error.response?.status : undefined;
+      if (status === 401 || status === 403) {
+        throw new ApiException('Authentication required', status);
       }
       
       // Fallback to mock data for development only!
@@ -57,7 +65,7 @@ export class CardService {
       
       throw new ApiException(
         'Failed to fetch cards',
-        error.response?.status || 500
+        status ?? 500
       );
     }
   }
@@ -69,14 +77,15 @@ export class CardService {
     try {
       const response = await apiClient.get(`/users/${userId}/cards`, { signal });
       return response.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Rethrow abort errors to properly handle cancellations
       if (isAbortError(error)) {
         throw error;
       }
 
-      if (error.response?.status === 401 || error.response?.status === 403) {
-        throw new ApiException('Authentication required', error.response.status);
+      const status = axios.isAxiosError(error) ? error.response?.status : undefined;
+      if (status === 401 || status === 403) {
+        throw new ApiException('Authentication required', status);
       }
       
       // Fallback to mock data for development only!
@@ -87,7 +96,7 @@ export class CardService {
       
       throw new ApiException(
         `Failed to fetch cards for user ${userId}`,
-        error.response?.status || 500
+        status ?? 500
       );
     }
   }
@@ -99,14 +108,15 @@ export class CardService {
     try {
       const response = await apiClient.get(`/cards/${cardId}`, { signal });
       return response.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Rethrow abort errors to properly handle cancellations
       if (isAbortError(error)) {
         throw error;
       }
       
       // Fallback to mock data for development only!
-      if (isDevelopment() && error.response?.status === 404) {
+      const status = axios.isAxiosError(error) ? error.response?.status : undefined;
+      if (isDevelopment() && status === 404) {
         console.warn(`Using mock data for card ${cardId}`);
         const mockCard = CardMockData.getMockCardById(cardId);
         if (mockCard) return mockCard;
@@ -114,7 +124,7 @@ export class CardService {
       
       throw new ApiException(
         `Failed to fetch card ${cardId}`,
-        error.response?.status || 500
+        status ?? 500
       );
     }
   }

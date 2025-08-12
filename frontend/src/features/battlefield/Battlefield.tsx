@@ -1,4 +1,3 @@
-import { useTheme } from '@/theme/ThemeProvider';
 import { BattlefieldUnit, BattlefieldZone, Card, PlayerId } from '@/types/game.types';
 import clsx from 'clsx';
 import React, { useCallback, useMemo, useState } from 'react';
@@ -22,15 +21,13 @@ const Battlefield: React.FC<BattlefieldProps> = ({
   onUnitSelected,
   onZoneHover,
   playerId = 'player1',
-  enemyId = 'enemy',
+  enemyId: _enemyId = 'enemy',
   initialUnits = {},
   rows = 3,
   cols = 5,
 }) => {
   const [hoveredZone, setHoveredZone] = useState<string | null>(null);
-  const [battlefieldUnits, setBattlefieldUnits] = useState<Record<string, BattlefieldUnit>>(initialUnits);
-
-  const { theme } = useTheme();
+  const [battlefieldUnits] = useState<Record<string, BattlefieldUnit>>(initialUnits);
 
   // Create battlefield grid with zones
   const battlefieldGrid = useMemo(() => {

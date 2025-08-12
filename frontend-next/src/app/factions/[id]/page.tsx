@@ -294,12 +294,12 @@ export default async function FactionPage({ params }: { params: { id: string } }
                 
                 <h3 className="text-xl font-semibold dark:text-white">Early Game</h3>
                 <p>
-                  In the early game, focus on establishing your resource base and deploying key units that synergize with your faction's mechanics.
+                  In the early game, focus on establishing your resource base and deploying key units that synergize with your faction&apos;s mechanics.
                 </p>
                 
                 <h3 className="text-xl font-semibold dark:text-white">Mid Game</h3>
                 <p>
-                  As the game progresses, leverage your faction's unique abilities to control the battlefield and counter your opponent's strategy.
+                  As the game progresses, leverage your faction&apos;s unique abilities to control the battlefield and counter your opponent&apos;s strategy.
                 </p>
                 
                 <h3 className="text-xl font-semibold dark:text-white">Late Game</h3>

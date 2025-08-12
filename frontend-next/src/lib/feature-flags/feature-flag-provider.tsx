@@ -34,6 +34,24 @@ const defaultFlags: FeatureFlags = {
   enableAIOpponent: false,
 };
 
+// Runtime type guard for FeatureFlags shape
+function isFeatureFlags(value: unknown): value is FeatureFlags {
+  if (!value || typeof value !== 'object') return false;
+  const obj = value as Record<string, unknown>;
+  return (
+    typeof obj.useNewFactionUI === 'boolean' &&
+    typeof obj.useNewDeckBuilder === 'boolean' &&
+    typeof obj.useNewCardDisplay === 'boolean' &&
+    typeof obj.useNewNavigation === 'boolean' &&
+    typeof obj.useNewTheme === 'boolean' &&
+    typeof obj.enableAdvancedDeckAnalytics === 'boolean' &&
+    typeof obj.enableCardAnimations === 'boolean' &&
+    typeof obj.enableMultiplayerChat === 'boolean' &&
+    typeof obj.enableTournamentMode === 'boolean' &&
+    typeof obj.enableAIOpponent === 'boolean'
+  );
+}
+
 const FeatureFlagContext = createContext<{
   flags: FeatureFlags;
   setFlag: (flag: keyof FeatureFlags, value: boolean) => void;
@@ -58,14 +76,7 @@ const isLocalStorageAvailable = (): boolean => {
 const safeParseFlags = (json: string): FeatureFlags | null => {
   try {
     const parsed = JSON.parse(json);
-    
-    // Basic validation to ensure it's a FeatureFlags object
-    const requiredKeys = Object.keys(defaultFlags);
-    const hasAllKeys = requiredKeys.every(key => typeof parsed[key] === 'boolean');
-    
-    if (hasAllKeys) {
-      return parsed as FeatureFlags;
-    }
+    if (isFeatureFlags(parsed)) return parsed;
     
     console.warn("Stored feature flags missing required keys or have wrong types");
     return null;
@@ -97,11 +108,16 @@ export function FeatureFlagProvider({ children }: { children: ReactNode }) {
           return res.json();
         })
         .then((data) => {
-          setFlags(data);
+          if (isFeatureFlags(data)) {
+            setFlags(data);
+          } else {
+            console.warn("API returned invalid feature flags; keeping defaults/current state");
+          }
           
           // Only try to save to localStorage if it's available
-          if (storageAvailable) {
+          if (storageAvailable && isFeatureFlags(data)) {
             try {
+              // Only save valid flags
               localStorage.setItem("featureFlags", JSON.stringify(data));
             } catch (e) {
               console.error("Failed to save feature flags to localStorage", e);
@@ -175,8 +191,10 @@ export function FeatureFlagProvider({ children }: { children: ReactNode }) {
       
       // Track flag change in analytics
       try {
-        if (typeof window !== 'undefined' && 'analytics' in window) {
-          (window as any).analytics?.track('Feature Flag Changed', {
+        type AnalyticsLike = { track: (event: string, props?: Record<string, unknown>) => void };
+        if (typeof window !== 'undefined') {
+          const w = window as unknown as { analytics?: AnalyticsLike };
+          w.analytics?.track('Feature Flag Changed', {
             flag,
             value,
             timestamp: new Date().toISOString()

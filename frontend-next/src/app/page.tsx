@@ -34,7 +34,7 @@ export default function HomePage() {
           <ul className="space-y-2">
             <li className="pb-2 border-b">
               <span className="text-sm text-gray-500">2025-08-09</span>
-              <p>New faction "Cyber Collective" added to the game</p>
+              <p>New faction &quot;Cyber Collective&quot; added to the game</p>
             </li>
             <li className="pb-2 border-b">
               <span className="text-sm text-gray-500">2025-08-05</span>

@@ -76,7 +76,7 @@ export default function BasicFormExample() {
           <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
           <AlertTitle className="text-green-800 dark:text-green-300">Success!</AlertTitle>
           <AlertDescription className="text-green-700 dark:text-green-400">
-            Your message has been sent successfully. We'll get back to you soon.
+            Your message has been sent successfully. We&apos;ll get back to you soon.
           </AlertDescription>
         </Alert>
       ) : (

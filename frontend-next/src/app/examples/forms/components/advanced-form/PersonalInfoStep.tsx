@@ -11,7 +11,7 @@ interface PersonalInfoStepProps {
   formData: AdvancedFormData;
   updateFormData: (data: Partial<AdvancedFormData>) => void;
   onNext: (isValid: boolean) => void;
-  hasValidationError: boolean;
+  hasValidationError?: boolean;
 }
 
 // Define validation schema for this step
@@ -27,7 +27,6 @@ export default function PersonalInfoStep({
   formData,
   updateFormData,
   onNext,
-  hasValidationError
 }: PersonalInfoStepProps) {
   // Local validation errors
   const [errors, setErrors] = useState<Record<string, string>>({});

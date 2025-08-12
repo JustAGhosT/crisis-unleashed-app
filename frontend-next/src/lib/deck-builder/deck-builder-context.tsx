@@ -39,16 +39,59 @@ export function DeckBuilderProvider({ children, initialDeck }: DeckBuilderProvid
   });
   
   // Store all available cards
-  const [cards, setCards] = useState<Card[]>(sampleCards);
+  const [cards] = useState<Card[]>(sampleCards);
   
   // Validation state
   const [isValid, setIsValid] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   
+  // Validate the deck
+  const validateDeck = React.useCallback(() => {
+    const errors: string[] = [];
+    
+    // Check card count
+    if (deck.cards.length < (deck.minCards || 40)) {
+      errors.push(`Deck must contain at least ${deck.minCards || 40} cards`);
+    }
+    
+    if (deck.cards.length > (deck.maxCards || 60)) {
+      errors.push(`Deck cannot contain more than ${deck.maxCards || 60} cards`);
+    }
+    
+    // Check faction consistency
+    const cardFactions = deck.cards
+      .filter(card => card.faction && card.faction !== 'Neutral')
+      .map(card => card.faction);
+    
+    const uniqueFactions = new Set(cardFactions);
+    if (uniqueFactions.size > 1) {
+      errors.push('Deck cannot contain cards from multiple factions');
+    }
+    
+    // Check card limits (max 3 copies of any card, except unique cards)
+    const cardCounts: Record<string, number> = {};
+    deck.cards.forEach(card => {
+      cardCounts[card.id] = (cardCounts[card.id] || 0) + 1;
+    });
+    
+    Object.entries(cardCounts).forEach(([cardId, count]) => {
+      const card = deck.cards.find(c => c.id === cardId);
+      if (card?.isUnique && count > 1) {
+        errors.push(`Cannot have more than 1 copy of unique card: ${card.name}`);
+      } else if (count > 3) {
+        const card = deck.cards.find(c => c.id === cardId);
+        errors.push(`Cannot have more than 3 copies of: ${card?.name}`);
+      }
+    });
+    
+    setValidationErrors(errors);
+    setIsValid(errors.length === 0);
+  }, [deck]);
+  
   // Validate deck whenever it changes
   useEffect(() => {
     validateDeck();
-  }, [deck]);
+  }, [validateDeck]);
   
   // Add a card to the deck
   const addCardToDeck = (card: Card) => {
@@ -105,9 +148,11 @@ export function DeckBuilderProvider({ children, initialDeck }: DeckBuilderProvid
   };
   
   // Load a deck
-  const loadDeck = async (deckId: string): Promise<boolean> => {
+  const loadDeck = async (_deckId: string): Promise<boolean> => {
     // In a real app, you would load from a database or API here
     try {
+      // reference to avoid unused param lint
+      void _deckId;
       const savedDeck = localStorage.getItem('savedDeck');
       if (savedDeck) {
         setDeck(JSON.parse(savedDeck));
@@ -120,48 +165,7 @@ export function DeckBuilderProvider({ children, initialDeck }: DeckBuilderProvid
     }
   };
   
-  // Validate the deck
-  const validateDeck = () => {
-    const errors: string[] = [];
-    
-    // Check card count
-    if (deck.cards.length < (deck.minCards || 40)) {
-      errors.push(`Deck must contain at least ${deck.minCards || 40} cards`);
-    }
-    
-    if (deck.cards.length > (deck.maxCards || 60)) {
-      errors.push(`Deck cannot contain more than ${deck.maxCards || 60} cards`);
-    }
-    
-    // Check faction consistency
-    const cardFactions = deck.cards
-      .filter(card => card.faction && card.faction !== 'Neutral')
-      .map(card => card.faction);
-    
-    const uniqueFactions = new Set(cardFactions);
-    if (uniqueFactions.size > 1) {
-      errors.push('Deck cannot contain cards from multiple factions');
-    }
-    
-    // Check card limits (max 3 copies of any card, except unique cards)
-    const cardCounts: Record<string, number> = {};
-    deck.cards.forEach(card => {
-      cardCounts[card.id] = (cardCounts[card.id] || 0) + 1;
-    });
-    
-    Object.entries(cardCounts).forEach(([cardId, count]) => {
-      const card = deck.cards.find(c => c.id === cardId);
-      if (card?.isUnique && count > 1) {
-        errors.push(`Cannot have more than 1 copy of unique card: ${card.name}`);
-      } else if (count > 3) {
-        const card = deck.cards.find(c => c.id === cardId);
-        errors.push(`Cannot have more than 3 copies of: ${card?.name}`);
-      }
-    });
-    
-    setValidationErrors(errors);
-    setIsValid(errors.length === 0);
-  };
+  
   
   const value = {
     deck,

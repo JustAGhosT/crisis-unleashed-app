@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
 // In a real application, this would be stored in a database
@@ -21,7 +21,7 @@ const MOCK_USERS = [
   }
 ];
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Get the auth token from cookies
     const authCookie = cookies().get('auth_token');

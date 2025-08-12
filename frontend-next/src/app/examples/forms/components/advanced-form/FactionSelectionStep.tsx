@@ -12,7 +12,6 @@ interface FactionSelectionStepProps {
   updateFormData: (data: Partial<AdvancedFormData>) => void;
   onNext: (isValid: boolean) => void;
   onBack: () => void;
-  hasValidationError: boolean;
 }
 
 // Define validation schema for this step
@@ -25,8 +24,7 @@ export default function FactionSelectionStep({
   formData,
   updateFormData,
   onNext,
-  onBack,
-  hasValidationError
+  onBack
 }: FactionSelectionStepProps) {
   // Local validation errors
   const [errors, setErrors] = useState<Record<string, string>>({});

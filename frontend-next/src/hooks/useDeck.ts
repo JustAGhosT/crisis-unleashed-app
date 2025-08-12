@@ -31,11 +31,18 @@ export function useDeck({
   const getErrorMessage = useCallback((err: unknown, fallback: string) => {
     // If axios error shape is present (before interceptor standardizes)
     if (err && typeof err === 'object') {
-      const anyErr: any = err;
-      const data = anyErr?.response?.data;
+      const maybeResponse = (err as { response?: { data?: unknown } }).response;
+      const data = maybeResponse?.data;
       if (data) {
         if (typeof data === 'string') return data;
-        if (typeof data?.message === 'string') return data.message;
+        if (
+          typeof data === 'object' &&
+          data !== null &&
+          'message' in (data as Record<string, unknown>) &&
+          typeof (data as Record<string, unknown>).message === 'string'
+        ) {
+          return (data as Record<string, unknown>).message as string;
+        }
         try { return JSON.stringify(data); } catch { /* ignore */ }
       }
     }
@@ -109,6 +116,18 @@ export function useDeck({
     }
   }, [factionId, deck?.faction, toast, getErrorMessage]);
 
+  // Get maximum allowed quantity for a card
+  const getMaxCardQuantity = useCallback((card: Card): number => {
+    // Heroes are limited to 1 copy per deck
+    if (card.type === 'hero') return 1;
+    
+    // Some cards might have custom limits
+    if (card.abilities?.includes('Unique')) return 1;
+    
+    // Default limit is 3 copies per card
+    return 3;
+  }, []);
+
   // Add a card to the deck
   const addCard = useCallback((card: Card) => {
     if (!deck) {
@@ -168,7 +187,7 @@ export function useDeck({
       description: `${card.name} added to deck.`,
       variant: 'success',
     });
-  }, [deck, toast]);
+  }, [deck, toast, getMaxCardQuantity]);
 
   // Remove a card from the deck
   const removeCard = useCallback((card: Card) => {
@@ -242,17 +261,7 @@ export function useDeck({
     return deckCard ? deckCard.quantity : 0;
   }, [deck]);
 
-  // Get maximum allowed quantity for a card
-  const getMaxCardQuantity = useCallback((card: Card): number => {
-    // Heroes are limited to 1 copy per deck
-    if (card.type === 'hero') return 1;
-    
-    // Some cards might have custom limits
-    if (card.abilities?.includes('Unique')) return 1;
-    
-    // Default limit is 3 copies per card
-    return 3;
-  }, []);
+  
 
   // Load initial data
   useEffect(() => {
@@ -308,7 +317,7 @@ export function useDeck({
     // Warning for unbalanced cost curve
     const lowCostCards = Object.entries(costCurve)
       .filter(([cost]) => parseInt(cost) <= 3)
-      .reduce((sum, [_, count]) => sum + count, 0);
+      .reduce((sum, [, count]) => sum + count, 0);
 
     if (lowCostCards < totalCards * 0.3) {
       warnings.push('Your deck has few low-cost cards, which may lead to slow starts');

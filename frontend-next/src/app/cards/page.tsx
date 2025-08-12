@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { generateMockCards } from '@/services/__mocks__/cardService';
+import { FactionId } from '@/types/faction';
 
 // In a real implementation, these would come from a hook or API call
 // For this demo, we'll simulate it
@@ -85,9 +86,9 @@ export default function CardsPage() {
     const costMin = getInt('costMin');
     const costMax = getInt('costMax');
 
-    if (faction) filters.faction = faction as any;
-    if (type) filters.type = type as any;
-    if (rarity) filters.rarity = rarity as any;
+    if (faction) filters.faction = faction as FactionId;
+    if (type) filters.type = type as CardFiltersType['type'];
+    if (rarity) filters.rarity = rarity as CardFiltersType['rarity'];
     if (search) filters.search = search;
     if (costMin !== undefined) filters.costMin = costMin;
     if (costMax !== undefined) filters.costMax = costMax;

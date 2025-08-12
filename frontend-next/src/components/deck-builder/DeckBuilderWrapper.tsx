@@ -5,14 +5,10 @@ import { DeckBuilderProvider } from '@/lib/deck-builder/deck-builder-context';
 import DeckBuilderInterface from './DeckBuilderInterface';
 
 interface DeckBuilderWrapperProps {
-  userId?: string;
-  initialDeckId?: string;
   isLoading?: boolean;
 }
 
 export default function DeckBuilderWrapper({ 
-  userId, 
-  initialDeckId,
   isLoading = false
 }: DeckBuilderWrapperProps) {
 

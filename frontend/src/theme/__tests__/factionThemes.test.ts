@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { Faction } from '@/types/game.types';
-import { factionThemes, getFactionTheme, defaultTheme, FactionTheme } from '../factionThemes';
+import { factionThemes, getFactionTheme, defaultTheme } from '../factionThemes';
 
 describe('factionThemes', () => {
   const allFactions: Faction[] = ['solaris', 'umbral', 'neuralis', 'aeonic', 'infernal', 'primordial', 'synthetic'];

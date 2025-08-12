@@ -3,6 +3,14 @@
 import { useFeatureFlags } from "./feature-flag-provider";
 import { useEffect } from "react";
 
+declare global {
+  interface Window {
+    analytics?: {
+      track: (event: string, payload: Record<string, unknown>) => void;
+    };
+  }
+}
+
 type FeatureFlagOptions = {
   /**
    * Whether to log usage of this feature flag to analytics
@@ -39,7 +47,7 @@ export function useFeatureFlag(
     if (options.trackUsage && typeof window !== 'undefined') {
       // Track feature flag check in analytics
       if ('analytics' in window) {
-        (window as any).analytics?.track('Feature Flag Checked', {
+        window.analytics?.track('Feature Flag Checked', {
           flag: flagName,
           enabled: isEnabled,
           path: window.location.pathname,

@@ -1,4 +1,4 @@
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 
 // API client configuration
 export const apiClient = axios.create({
@@ -10,24 +10,37 @@ export const apiClient = axios.create({
 });
 
 // Helper to safely log API errors without exposing sensitive data
-const safelyLogError = (error: any) => {
-  const status = error.response?.status;
-  const url = error.config?.url || 'unknown';
-  const method = error.config?.method || 'unknown';
-  const errorMessage = error.response?.data?.message || error.message || 'Unknown error';
+const safelyLogError = (error: unknown) => {
+  let status: number | undefined;
+  let url = 'unknown';
+  let method = 'unknown';
+  let errorMessage = 'Unknown error';
+
+  if (axios.isAxiosError(error)) {
+    status = error.response?.status;
+    url = error.config?.url ?? 'unknown';
+    method = error.config?.method ?? 'unknown';
+    const responseMessage = (error.response?.data as { message?: string } | undefined)?.message;
+    errorMessage = responseMessage || error.message || 'Unknown error';
+  } else if (error && typeof error === 'object') {
+    const maybe = error as { message?: string };
+    errorMessage = maybe.message || 'Unknown error';
+  }
   
   // Safe metadata that doesn't include potentially sensitive response data
   const safeErrorInfo = {
     url: url.replace(/\/[^/]+$/, '/*'), // Replace specific IDs in URL paths
     method,
     status,
-    errorType: error.code || 'API_ERROR',
+    errorType: axios.isAxiosError(error) ? (error.code || 'API_ERROR') : 'API_ERROR',
   };
 
   // In development, provide more details but still sanitize sensitive data
   if (process.env.NODE_ENV === 'development') {
     // Create a sanitized version of the response data if it exists
-    const sanitizedData = error.response?.data ? sanitizeResponseData(error.response.data) : undefined;
+    const sanitizedData = axios.isAxiosError(error) && error.response?.data
+      ? sanitizeResponseData(error.response.data)
+      : undefined;
     
     console.error(`API Error (${status}):`, errorMessage, {
       ...safeErrorInfo,
@@ -40,11 +53,11 @@ const safelyLogError = (error: any) => {
 };
 
 // Helper to sanitize potentially sensitive data
-const sanitizeResponseData = (data: any) => {
-  if (!data) return undefined;
+const sanitizeResponseData = (data: unknown) => {
+  if (!data || typeof data !== 'object') return undefined;
   
   // Create a shallow copy to avoid modifying the original
-  const sanitized = { ...data };
+  const sanitized: Record<string, unknown> = { ...(data as Record<string, unknown>) };
   
   // List of fields that might contain sensitive information
   const sensitiveFields = [
@@ -140,12 +153,11 @@ export async function apiRequest<T>(
 
     // Handle Axios errors properly
     if (axios.isAxiosError(error)) {
-      const axiosError = error as AxiosError;
       // Use response status if available, 0 for network errors, or undefined
-      const status = axiosError.response?.status ?? (axiosError.code === 'ECONNABORTED' ? 0 : undefined);
+      const status = error.response?.status ?? (error.code === 'ECONNABORTED' ? 0 : undefined);
       
       throw new ApiException(
-        axiosError.message,
+        error.message,
         // Use 0 for network errors (like timeouts), keep original status if available
         status ?? 0
       );

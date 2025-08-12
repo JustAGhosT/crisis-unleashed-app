@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 import { describe, it, expect } from 'vitest';
-import { SafeDisplay, DebugDisplay } from '../components/common/SafeDisplay';
+import { SafeDisplay } from '../components/common/SafeDisplay';
 import withSafeRendering from '../components/common/withSafeRendering';
 import { safeToString } from '../utils/stringUtils';
 

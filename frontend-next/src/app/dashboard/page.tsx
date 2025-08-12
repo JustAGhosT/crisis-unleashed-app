@@ -1,6 +1,5 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import GameStatus from "@/components/game/GameStatus";
 import DashboardStats from "@/components/dashboard/DashboardStats";
 import RecentGames from "@/components/dashboard/RecentGames";
@@ -13,7 +12,7 @@ export default function DashboardPage() {
       <div className="flex flex-col md:flex-row justify-between items-start gap-6">
         <div>
           <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
-          <p className="text-gray-600">Welcome back, Commander. Here's your latest status.</p>
+          <p className="text-gray-600">Welcome back, Commander. Here&apos;s your latest status.</p>
         </div>
         <GameStatus compact={true} className="self-end" />
       </div>

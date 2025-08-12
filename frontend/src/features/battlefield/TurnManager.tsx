@@ -19,7 +19,7 @@ const TurnManager: React.FC<TurnManagerProps> = ({
   onEndTurn,
   phases = ['DEPLOY', 'ACTION', 'END'],
   currentPhaseIndex = 0,
-  currentPhase = '',
+  currentPhase: _currentPhase = '',
   className = '',
 }) => {
   const isPlayerTurn = activePlayer === 'player1';

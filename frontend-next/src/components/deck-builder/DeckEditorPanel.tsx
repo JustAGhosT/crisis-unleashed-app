@@ -8,7 +8,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Deck, Card as CardType } from '@/types/deck';
 import DeckCard from './DeckCard';
-import { AlertTriangle, CheckCircle } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 
 interface DeckEditorPanelProps {
   deck: Deck;

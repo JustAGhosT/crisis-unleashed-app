@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { CheckCircle } from 'lucide-react';
@@ -144,7 +143,6 @@ export default function AdvancedFormExample() {
             updateFormData={updateFormData} 
             onNext={goToNextStep}
             onBack={goToPreviousStep}
-            hasValidationError={stepValidationErrors.factionSelection}
           />
         );
       case 'deckConfiguration':
@@ -154,7 +152,6 @@ export default function AdvancedFormExample() {
             updateFormData={updateFormData} 
             onNext={goToNextStep}
             onBack={goToPreviousStep}
-            hasValidationError={stepValidationErrors.deckConfiguration}
           />
         );
       case 'review':
@@ -178,7 +175,7 @@ export default function AdvancedFormExample() {
         <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
         <AlertTitle className="text-green-800 dark:text-green-300">Registration Complete!</AlertTitle>
         <AlertDescription className="text-green-700 dark:text-green-400">
-          Your player profile has been created successfully. Your deck "{formData.deckName}" with the {formData.selectedFaction} faction is ready for battle!
+          Your player profile has been created successfully. Your deck &quot;{formData.deckName}&quot; with the {formData.selectedFaction} faction is ready for battle!
         </AlertDescription>
       </Alert>
     );

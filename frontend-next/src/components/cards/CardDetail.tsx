@@ -1,6 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -276,7 +276,7 @@ export const CardDetail: React.FC<CardDetailProps> = ({
             <div>
               <h3 className="text-lg font-semibold mb-2">Faction Context</h3>
               <p className="text-sm text-gray-300">
-                As a {card.faction} card, {card.name} embodies the faction's principles of 
+                As a {card.faction} card, {card.name} embodies the faction&apos;s principles of 
                 {card.faction === 'solaris' && ' light, energy, and direct power.'}
                 {card.faction === 'umbral' && ' shadow, stealth, and manipulation.'}
                 {card.faction === 'aeonic' && ' time, control, and strategic foresight.'}

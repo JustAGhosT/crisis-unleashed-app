@@ -13,7 +13,7 @@ export default function FeatureFlagIndicator() {
   const [isExpanded, setIsExpanded] = useState(false);
   
   // Count active flags
-  const activeFlags = Object.entries(flags).filter(([_, enabled]) => enabled);
+  const activeFlags = Object.entries(flags).filter(([, enabled]) => enabled);
   const activeFlagCount = activeFlags.length;
   
   // If no flags are active, don't render anything
@@ -39,7 +39,7 @@ export default function FeatureFlagIndicator() {
           </div>
           
           <ul className="space-y-2 mb-3">
-            {activeFlags.map(([flag, _]) => (
+            {activeFlags.map(([flag]) => (
               <li key={flag} className="text-xs flex items-center">
                 <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
                 <span className="font-mono">{flag}</span>

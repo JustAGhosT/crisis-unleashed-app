@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react';
 import { CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Deck, Card as CardType } from '@/types/deck';
+import { Deck } from '@/types/deck';
 import { 
   BarChart, 
   Bar, 
