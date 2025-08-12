@@ -52,22 +52,22 @@ export default function Footer() {
             <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/about" className={linkClasses}>
+                <Link href={"/about" as import('next').Route} className={linkClasses}>
                   About
                 </Link>
               </li>
               <li>
-                <Link href="/factions" className={linkClasses}>
+                <Link href={"/factions" as import('next').Route} className={linkClasses}>
                   Factions
                 </Link>
               </li>
               <li>
-                <Link href="/cards" className={linkClasses}>
+                <Link href={"/cards" as import('next').Route} className={linkClasses}>
                   Cards
                 </Link>
               </li>
               <li>
-                <Link href="/rules" className={linkClasses}>
+                <Link href={"/rules" as import('next').Route} className={linkClasses}>
                   Game Rules
                 </Link>
               </li>

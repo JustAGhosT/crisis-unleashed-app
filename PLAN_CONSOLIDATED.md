@@ -1,6 +1,6 @@
 # Crisis Unleashed - Consolidated Implementation Plan
 
-> **Last Updated**: August 11, 2025  
+> **Last Updated**: August 12, 2025  
 > **Status**: In Progress (25% Complete)
 
 ## Table of Contents
@@ -41,11 +41,12 @@ Crisis Unleashed is a digital card game with blockchain integration, featuring s
  - ✅ Faction system migration (cards, grid, details)
  - ✅ Card browsing components
  - ✅ Basic layout components
-
+ - ✅ Type-check baseline clean (frontend-next)
+ - ✅ Deck builder core UI (grid, list)
 
 ### In Progress
  
- - 🔄 Deck builder migration
+ - 🔄 Deck builder migration (polish & lint cleanup)
  - 🔄 Authentication system
  - 🔄 Game integration systems
  - 🔄 Real-time game status updates
@@ -99,19 +100,19 @@ Crisis Unleashed is a digital card game with blockchain integration, featuring s
 ## Migration Strategy
 
 ### Completed Migrations
- 
+
  - Faction components to Next.js
  - Core UI components to shadcn/ui
  - State management to React Query
-
+ - Deck builder core UI (grid, list)
 
 ### Pending Migrations
 
 #### 1. Deck Builder Interface
 
  - [ ] **UI Components**
-  - [ ] Create card grid with filtering and search
-  - [ ] Implement deck list management
+  - [x] Create card grid with filtering and search
+  - [x] Implement deck list management
   - [ ] Add card details panel
   - [ ] Create deck statistics display
 
@@ -217,6 +218,7 @@ Crisis Unleashed is a digital card game with blockchain integration, featuring s
 - Lazy loading
 - Image optimization
 - State management efficiency
+- Real User Monitoring (web-vitals) wired to RUM endpoint
 
 ### Future Optimizations
 - Code splitting
@@ -255,7 +257,7 @@ Crisis Unleashed is a digital card game with blockchain integration, featuring s
 
 ## Next Steps
 
-1. Complete deck builder migration
+1. Complete deck builder polish and core ESLint cleanup
 2. Implement authentication system
 3. Set up real-time game state
 4. Begin user testing

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import GameStatus from "@/components/game/GameStatus";
+import type { Route } from 'next';
 
 export default function HomePage() {
   const router = useRouter();
@@ -22,7 +23,7 @@ export default function HomePage() {
           </p>
           <button
             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-            onClick={() => router.push("/factions")}
+            onClick={() => router.push("/factions" as Route)}
           >
             Choose Faction
           </button>
@@ -51,7 +52,7 @@ export default function HomePage() {
         <h2 className="text-2xl font-semibold mb-4">Ready to Play?</h2>
         <button
           className="bg-green-600 text-white px-6 py-3 rounded-lg text-lg font-medium hover:bg-green-700 transition"
-          onClick={() => router.push("/game")}
+          onClick={() => router.push("/game" as Route)}
         >
           Launch Game
         </button>

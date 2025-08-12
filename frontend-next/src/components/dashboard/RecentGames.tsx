@@ -137,7 +137,7 @@ export default function RecentGames() {
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">Recent Games</h2>
         <Link 
-          href="/games/history" 
+          href={"/games/history" as import('next').Route} 
           className="text-blue-600 hover:text-blue-800 text-sm font-medium"
         >
           View All

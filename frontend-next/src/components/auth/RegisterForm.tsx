@@ -200,11 +200,11 @@ export function RegisterForm() {
               />
               <span className="text-sm text-gray-300">
                 I accept the{' '}
-                <Link href="/terms" className="text-purple-400 hover:text-purple-300 underline">
+                <Link href={"/terms" as import('next').Route} className="text-purple-400 hover:text-purple-300 underline">
                   Terms and Conditions
                 </Link>{' '}
                 and{' '}
-                <Link href="/privacy" className="text-purple-400 hover:text-purple-300 underline">
+                <Link href={"/privacy" as import('next').Route} className="text-purple-400 hover:text-purple-300 underline">
                   Privacy Policy
                 </Link>
               </span>
@@ -225,7 +225,7 @@ export function RegisterForm() {
           
           <div className="text-center text-gray-300 text-sm">
             Already have an account?{' '}
-            <Link href="/login" className="text-purple-400 hover:text-purple-300">
+            <Link href={"/login" as import('next').Route} className="text-purple-400 hover:text-purple-300">
               Login
             </Link>
           </div>

@@ -58,8 +58,8 @@ export default function DashboardStats() {
         title="Rank" 
         value={stats?.rank || "Unranked"} 
         subtitle={`Season highest: ${stats?.seasonHighest}`}
-        trend={stats?.rankChange > 0 ? "up" : "down"}
-        trendValue={stats?.rankChange > 0 ? `+${stats?.rankChange}` : `${stats?.rankChange}`}
+        trend={typeof stats?.rankChange === 'number' ? (stats!.rankChange > 0 ? "up" : stats!.rankChange < 0 ? "down" : "neutral") : "neutral"}
+        trendValue={typeof stats?.rankChange === 'number' ? (stats!.rankChange > 0 ? `+${stats!.rankChange}` : `${stats!.rankChange}`) : undefined}
       />
       
       <StatCard 

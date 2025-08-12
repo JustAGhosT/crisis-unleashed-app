@@ -6,6 +6,7 @@ import { FactionGrid } from './FactionGrid';
 import { Faction, FactionId } from '@/types/faction';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { 
   Card, 
   CardContent, 

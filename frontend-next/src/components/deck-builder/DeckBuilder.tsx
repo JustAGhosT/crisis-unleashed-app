@@ -15,6 +15,7 @@ import { useCreateDeck, useUpdateDeck, useDeckValidation } from '@/hooks/useDeck
 import { CardFilters as CardFiltersType, DeckCard, Card as GameCardData } from '@/types/card';
 import { FactionId, FACTION_IDS } from '@/types/faction';
 import { getFactionOptions } from '@/data/factions';
+import { cn } from '@/lib/utils';
 function cx(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(' ');
 }

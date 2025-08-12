@@ -1,7 +1,6 @@
 import React from 'react';
 import { FactionCard } from './FactionCard';
-import { FactionGridProps } from '@/types/faction';
-import { factions as defaultFactions } from '@/data/factions';
+import { FactionGridProps, Faction } from '@/types/faction';
 import { cn } from '@/lib/utils';
 
 /**
@@ -14,7 +13,7 @@ import { cn } from '@/lib/utils';
  * Dependency Inversion: Depends on faction data abstraction
  */
 export const FactionGrid: React.FC<FactionGridProps> = ({
-  factions = defaultFactions,
+  factions = [],
   onFactionClick,
   loading = false
 }) => {
@@ -50,7 +49,7 @@ export const FactionGrid: React.FC<FactionGridProps> = ({
         "place-items-center"
       )}
     >
-      {factions.map((faction) => (
+      {factions.map((faction: Faction) => (
         <FactionCard
           key={faction.id}
           faction={faction}

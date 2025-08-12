@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import type { Route } from 'next';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -29,6 +30,8 @@ export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const from = searchParams.get('from') || '/dashboard';
+  const allowedRoutes: string[] = ['/dashboard', '/factions', '/cards', '/login', '/register', '/forgot-password'];
+  const safeFrom = (allowedRoutes.includes(from) ? (from as Route) : ('/dashboard' as Route));
 
   const {
     register,
@@ -43,7 +46,7 @@ export function LoginForm() {
     
     try {
       await login(data.email, data.password);
-      router.push(from);
+      router.push(safeFrom);
     } catch (err) {
       // Error is handled by the auth context
       console.error('Login error:', err);
@@ -107,7 +110,7 @@ export function LoginForm() {
             )}
           </div>
           <div className="text-right">
-            <Link href="/forgot-password" className="text-sm text-purple-400 hover:text-purple-300">
+            <Link href={"/forgot-password" as Route} className="text-sm text-purple-400 hover:text-purple-300">
               Forgot password?
             </Link>
         </div>
@@ -123,7 +126,7 @@ export function LoginForm() {
           
           <div className="text-center text-gray-300 text-sm">
             Don&apos;t have an account?{' '}
-            <Link href="/register" className="text-purple-400 hover:text-purple-300">
+            <Link href={"/register" as Route} className="text-purple-400 hover:text-purple-300">
               Register
             </Link>
           </div>

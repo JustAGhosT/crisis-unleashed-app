@@ -5,8 +5,9 @@ import { CardHeader, CardTitle, CardDescription, CardContent } from '@/component
 import { TextInput, SelectInput } from '@/components/forms';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Deck, Card as CardType } from '@/types/deck';
-import CardItem from './CardItem';
+import { Deck } from '@/types/deck';
+import { Card as CardType } from '@/types/card';
+import { CardItem } from './CardItem';
 import { Search, Filter, X } from 'lucide-react';
 
 interface CardBrowserPanelProps {
@@ -68,7 +69,7 @@ export default function CardBrowserPanel({
       const matchesSearch = 
         !searchQuery || 
         card.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (card.text && card.text.toLowerCase().includes(searchQuery.toLowerCase()));
+        (card.description && card.description.toLowerCase().includes(searchQuery.toLowerCase()));
       
       // Type filter
       const matchesType = !typeFilter || card.type === typeFilter;
@@ -98,24 +99,7 @@ export default function CardBrowserPanel({
     }
   };
 
-  // Check if a card can be added to the deck
-  const canAddCard = (card: CardType) => {
-    // Check if deck is full
-    if (deck.cards.length >= (deck.maxCards || 60)) {
-      return false;
-    }
-    
-    // Check faction restrictions
-    if (deck.faction && card.faction && deck.faction !== card.faction) {
-      return false;
-    }
-    
-    // Check card limit (usually 3 copies per card, except for special cards)
-    const copiesInDeck = deck.cards.filter(c => c.id === card.id).length;
-    const maxCopies = card.isUnique ? 1 : 3;
-    
-    return copiesInDeck < maxCopies;
-  };
+  // Note: deck capacity, faction constraints, and copy limits are enforced in deck operations
 
   return (
     <>
@@ -229,15 +213,20 @@ export default function CardBrowserPanel({
         ) : (
           <ScrollArea className="h-[calc(100vh-450px)] min-h-[400px]">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pb-4">
-              {filteredCards.map(card => (
-                <CardItem
-                  key={card.id}
-                  card={card}
-                  onAdd={() => onAddCard(card)}
-                  canAdd={canAddCard(card)}
-                  copiesInDeck={deck.cards.filter(c => c.id === card.id).length}
-                />
-              ))}
+              {filteredCards.map(card => {
+                const copies = deck.cards.filter(c => c.id === card.id).length;
+                const maxCopies = card.rarity?.toLowerCase() === 'legendary' ? 1 : 3;
+                return (
+                  <CardItem
+                    key={card.id}
+                    card={card}
+                    onAdd={() => onAddCard(card)}
+                    copiesInDeck={copies}
+                    maxCopies={maxCopies}
+                    showAddButton
+                  />
+                );
+              })}
             </div>
           </ScrollArea>
         )}
