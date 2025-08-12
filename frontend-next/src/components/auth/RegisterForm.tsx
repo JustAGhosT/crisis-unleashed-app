@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useAuth } from '@/lib/auth/AuthContext';
+import { signIn } from 'next-auth/react';
 import Link from 'next/link';
 import { getFactionOptions } from '@/data/factions';
 
@@ -42,7 +42,7 @@ const registerSchema = z.object({
 
 type RegisterFormData = z.infer<typeof registerSchema>;
 export function RegisterForm() {
-  const { register: registerUser, error, clearError } = useAuth();
+  const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const factionOptions = getFactionOptions();
@@ -59,14 +59,38 @@ export function RegisterForm() {
   const selectedFaction = watch('preferredFaction');
   const onSubmit = async (data: RegisterFormData) => {
     setIsSubmitting(true);
-    clearError();
+    setError(null);
     
     try {
-      await registerUser(data.username, data.email, data.password);
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: data.username,
+          email: data.email,
+          password: data.password,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        setError(json?.error ?? 'Registration failed');
+        return;
+      }
+      // Auto sign-in after successful registration
+      const login = await signIn('credentials', {
+        redirect: false,
+        email: data.email,
+        password: data.password,
+      });
+      if (login?.error) {
+        // Registration succeeded but login failed; send to login page
+        router.push('/login');
+        return;
+      }
       router.push('/dashboard');
     } catch (err) {
-      // Error is handled by the auth context
       console.error('Registration error:', err);
+      setError('Registration failed. Please try again.');
     } finally {
       setIsSubmitting(false);
     }

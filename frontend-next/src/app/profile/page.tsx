@@ -1,20 +1,21 @@
 "use client";
 
-import { useAuth } from "@/lib/auth/AuthContext";
+import { useSession, signOut } from "next-auth/react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
+import RequireAuth from "@/components/auth/RequireAuth";
 
 export default function ProfilePage() {
-  const { user, isLoading, logout } = useAuth();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   // If still loading, show skeleton
-  if (isLoading) {
+  if (status === "loading") {
     return (
       <div className="max-w-4xl mx-auto py-8">
         <Card className="bg-slate-800/50 border-slate-700">
@@ -38,20 +39,17 @@ export default function ProfilePage() {
     );
   }
 
-  // If no user is logged in, redirect to login
-  if (!user) {
-    router.push("/login");
-    return null;
-  }
+  const user = session?.user;
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
-    await logout();
+    await signOut({ redirect: false });
     router.push("/");
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-8">
+    <RequireAuth>
+      <div className="max-w-4xl mx-auto py-8">
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader>
           <CardTitle className="text-2xl text-white">Your Profile</CardTitle>
@@ -62,26 +60,28 @@ export default function ProfilePage() {
         <CardContent>
           <div className="flex flex-col md:flex-row gap-8">
             <div className="relative h-32 w-32">
-              {user.avatar ? (
+              {user?.image ? (
                 <Image
-                  src={user.avatar}
-                  alt={user.username}
+                  src={user.image}
+                  alt={user.name ?? user.email ?? "User"}
                   width={128}
                   height={128}
                   className="rounded-full object-cover"
                 />
               ) : (
                 <div className="h-32 w-32 rounded-full bg-blue-600 flex items-center justify-center text-white text-4xl font-bold">
-                  {user.username.charAt(0).toUpperCase()}
+                  {(user?.name ?? user?.email ?? "U").charAt(0).toUpperCase()}
                 </div>
               )}
             </div>
             
             <div className="space-y-4 flex-1">
               <div>
-                <h3 className="text-xl font-bold text-white">{user.username}</h3>
-                <p className="text-gray-400">{user.email}</p>
-                <p className="text-gray-400 capitalize">Role: {user.role}</p>
+                <h3 className="text-xl font-bold text-white">{user?.name ?? user?.email}</h3>
+                <p className="text-gray-400">{user?.email}</p>
+                {"role" in (user ?? {}) && (
+                  <p className="text-gray-400 capitalize">Role: {(user as { role?: string }).role ?? "user"}</p>
+                )}
               </div>
               
               <div className="space-y-2">
@@ -126,5 +126,6 @@ export default function ProfilePage() {
         </CardContent>
       </Card>
     </div>
-  );
+  </RequireAuth>
+);
 }

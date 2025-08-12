@@ -12,9 +12,11 @@ import { Search, Filter } from 'lucide-react';
 interface CardGridProps {
   cards: CardType[];
   onAddCard: (card: CardType) => void;
+  onSelectCard?: (card: CardType) => void;
+  selectedCardId?: string | null;
 }
 
-export function CardGrid({ cards, onAddCard }: CardGridProps) {
+export function CardGrid({ cards, onAddCard, onSelectCard, selectedCardId }: CardGridProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFaction, setSelectedFaction] = useState<FactionId | 'all'>('all');
   const [showFilters, setShowFilters] = useState(false);
@@ -175,6 +177,8 @@ export function CardGrid({ cards, onAddCard }: CardGridProps) {
             key={card.id} 
             card={card} 
             onAdd={() => onAddCard(card)}
+            onClick={onSelectCard}
+            className={card.id === selectedCardId ? 'ring-2 ring-amber-400 ring-offset-2 ring-offset-slate-900' : undefined}
             showAddButton
           />
         ))}

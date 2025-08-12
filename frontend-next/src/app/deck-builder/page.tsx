@@ -3,14 +3,10 @@
 import { useState, useEffect } from 'react';
 import { FeatureGate } from '@/components/feature-flags/FeatureGate';
 import DeckBuilderInterface from '@/components/deck-builder/DeckBuilderInterface';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useAuth } from "@/lib/auth/AuthContext";
-import { useRouter } from "next/navigation";
+import RequireAuth from '@/components/auth/RequireAuth';
 
 export default function DeckBuilderPage() {
-  const { user, isLoading } = useAuth();
-  const router = useRouter();
   const [isLoadingLocal, setIsLoadingLocal] = useState(true);
 
   // Simulate loading state for demonstration
@@ -23,7 +19,7 @@ export default function DeckBuilderPage() {
   }, []);
 
   // If still loading, show skeleton
-  if (isLoading) {
+  if (isLoadingLocal) {
     return (
       <div className="py-8">
         <Skeleton className="h-10 w-64 mb-6 bg-slate-700" />
@@ -39,20 +35,15 @@ export default function DeckBuilderPage() {
     );
   }
 
-  // If no user is logged in, redirect to login
-  if (!user) {
-    router.push("/login?from=/deck-builder");
-    return null;
-  }
-
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 dark:text-white">Deck Builder</h1>
-      
-      {/* Deck Builder Feature Gate */}
-      <FeatureGate flag="useNewDeckBuilder">
-        <DeckBuilderInterface isLoading={isLoadingLocal} />
-      </FeatureGate>
-    </div>
+    <RequireAuth>
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold mb-8 dark:text-white">Deck Builder</h1>
+        {/* Deck Builder Feature Gate */}
+        <FeatureGate flag="useNewDeckBuilder">
+          <DeckBuilderInterface isLoading={isLoadingLocal} />
+        </FeatureGate>
+      </div>
+    </RequireAuth>
   );
 }

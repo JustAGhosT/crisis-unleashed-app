@@ -1,25 +1,20 @@
 "use client";
 
-import { useAuth } from "@/lib/auth/AuthContext";
+import { useSession } from "next-auth/react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProfileForm } from "@/components/settings/ProfileForm";
 import { PasswordForm } from "@/components/settings/PasswordForm";
 import { GamePreferencesForm } from "@/components/settings/GamePreferencesForm";
+import RequireAuth from "@/components/auth/RequireAuth";
 export default function SettingsPage() {
-  const { user, isLoading } = useAuth();
-  const router = useRouter();
+  const { data: session, status } = useSession();
   const [activeTab, setActiveTab] = useState("profile");
   const [updateSuccess, setUpdateSuccess] = useState(false);
   const [updateError, setUpdateError] = useState<string | null>(null);
-  // Redirect if not logged in
-  if (!isLoading && !user) {
-    router.push("/login");
-    return null;
-  }
+  const user = session?.user;
 
   const handleSuccess = () => {
       setUpdateError(null);
@@ -31,7 +26,7 @@ export default function SettingsPage() {
     setUpdateError(error);
   };
 
-  if (isLoading) {
+  if (status === "loading") {
     return (
       <div className="max-w-4xl mx-auto py-8">
         <Card className="bg-slate-800/50 border-slate-700">
@@ -44,8 +39,9 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto py-8">
-      <Card className="bg-slate-800/50 border-slate-700">
+    <RequireAuth>
+      <div className="max-w-4xl mx-auto py-8">
+        <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader>
           <CardTitle className="text-2xl text-white">Account Settings</CardTitle>
           <CardDescription className="text-gray-300">
@@ -74,7 +70,10 @@ export default function SettingsPage() {
             
             <TabsContent value="profile">
               <ProfileForm 
-                user={user!} 
+                user={{
+                  username: (user?.name ?? user?.email ?? "").toString(),
+                  email: user?.email ?? "",
+                }} 
                 onSuccess={handleSuccess} 
                 onError={handleError} 
                   />
@@ -92,7 +91,8 @@ export default function SettingsPage() {
             </TabsContent>
           </Tabs>
         </CardContent>
-      </Card>
-    </div>
+        </Card>
+      </div>
+    </RequireAuth>
   );
 }

@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useAuth } from '@/lib/auth/AuthContext';
+import { signIn } from 'next-auth/react';
 import Link from 'next/link';
 
 // Zod schema for login validation
@@ -25,7 +25,7 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 export function LoginForm() {
-  const { login, error, clearError } = useAuth();
+  const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -42,14 +42,22 @@ export function LoginForm() {
   });
   const onSubmit = async (data: LoginFormData) => {
     setIsSubmitting(true);
-    clearError();
+    setError(null);
     
     try {
-      await login(data.email, data.password);
-      router.push(safeFrom);
+      const res = await signIn('credentials', {
+        redirect: false,
+        email: data.email,
+        password: data.password,
+      });
+      if (res?.error) {
+        setError('Invalid email or password');
+      } else {
+        router.push(safeFrom);
+      }
     } catch (err) {
-      // Error is handled by the auth context
       console.error('Login error:', err);
+      setError('Login failed. Please try again.');
     } finally {
       setIsSubmitting(false);
     }

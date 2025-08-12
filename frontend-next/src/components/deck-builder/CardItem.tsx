@@ -12,6 +12,7 @@ interface CardItemProps {
   card: CardType;
   onAdd?: () => void;
   onRemove?: () => void;
+  onClick?: (card: CardType) => void;
   showAddButton?: boolean;
   showRemoveButton?: boolean;
   copiesInDeck?: number;
@@ -24,6 +25,7 @@ export function CardItem({
   card, 
   onAdd, 
   onRemove,
+  onClick,
   showAddButton = false,
   showRemoveButton = false,
   copiesInDeck = 0,
@@ -105,6 +107,7 @@ export function CardItem({
         isHovered && 'shadow-md',
         className
       )}
+      onClick={() => onClick?.(card)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >

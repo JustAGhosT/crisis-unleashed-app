@@ -5,13 +5,14 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import GameStatus from "@/components/game/GameStatus";
-import { useAuth } from "@/lib/auth/AuthContext";
+import { useSession, signOut } from "next-auth/react";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { data: session } = useSession();
+  const user = session?.user;
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   
   const isActive = (path: string) => {
@@ -19,7 +20,7 @@ export default function Navbar() {
   };
 
   const handleLogout = async () => {
-    await logout();
+    await signOut({ redirect: false });
     router.push("/");
   };
 
@@ -46,38 +47,38 @@ export default function Navbar() {
             <Link href="/cards" className={`flex items-center font-medium ${isActive("/cards")}`}>
               Cards
             </Link>
-            {user && (
+            {session && (
               <Link href="/deck-builder" className={`flex items-center font-medium ${isActive("/deck-builder")}`}>
                 Deck Builder
               </Link>
-                    )}
-                  </div>
+            )}
+          </div>
           
           <div className="flex items-center space-x-4">
             <ThemeToggle />
             <GameStatus compact={true} />
-            {user ? (
+            {session ? (
               <div className="relative">
                 <button 
                   className="flex items-center space-x-2"
                   onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
                     >
                   <div className="h-8 w-8 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-600">
-                    {user.avatar ? (
+                    {user?.image ? (
                       <Image 
-                        src={user.avatar} 
-                        alt={user.username} 
+                        src={user.image} 
+                        alt={user?.name ?? user?.email ?? "User"} 
                         width={32} 
                         height={32}
                         className="h-full w-full object-cover"
                       />
                     ) : (
                       <div className="h-full w-full flex items-center justify-center bg-blue-600 text-white text-sm font-medium">
-                        {user.username.charAt(0).toUpperCase()}
+                        {(user?.name ?? user?.email ?? "U").charAt(0).toUpperCase()}
                       </div>
                     )}
                   </div>
-                  <span className="font-medium text-sm hidden lg:block">{user.username}</span>
+                  <span className="font-medium text-sm hidden lg:block">{user?.name ?? user?.email ?? "User"}</span>
                 </button>
                 
                 {isProfileMenuOpen && (

@@ -14,6 +14,8 @@ import type { Card as GameCard, DeckCard as GameDeckCard, CardType, CardRarity }
 import { FACTION_IDS, type FactionId } from '@/types/faction';
 import { CardGrid } from './CardGrid';
 import { DeckList } from './DeckList';
+import CardDetailsPanel from './CardDetailsPanel';
+import { DeckStats as DeckStatsComponent } from './DeckStats';
 import { Save, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -31,6 +33,8 @@ export default function DeckBuilderInterface({ isLoading = false, className }: D
   };
   const [deckName, setDeckName] = useState('New Deck');
   const [activeTab, setActiveTab] = useState('cards');
+  const [selectedCard, setSelectedCard] = useState<GameCard | null>(null);
+  const [infoTab, setInfoTab] = useState<'details' | 'stats'>('details');
   
   const { 
     deck, 
@@ -88,6 +92,103 @@ export default function DeckBuilderInterface({ isLoading = false, className }: D
     updatedAt: new Date().toISOString(),
   }), []);
 
+  // Map available cards and deck card aggregates (declared early for downstream hooks)
+  const gameCards: GameCard[] = useMemo(() => cards.map(toGameCard), [cards, toGameCard]);
+  const gameCardMap = useMemo(() => new Map(gameCards.map(c => [c.id, c])), [gameCards]);
+
+  // Prepare deck cards for the DeckList in DeckCard[] format
+  const deckCardsForList: GameDeckCard[] = useMemo(() => {
+    const counts = new Map<string, number>();
+    deck.cards.forEach((c) => counts.set(c.id, (counts.get(c.id) ?? 0) + 1));
+    return Array.from(counts.entries()).map(([cardId, quantity]) => ({ cardId, quantity }));
+  }, [deck.cards]);
+
+  // Compute lightweight stats and validation compatible with DeckStats component
+  const computedStats = useMemo(() => {
+    const totalCards = deck.cards.length;
+    const typeDistribution: Record<CardType, number> = { hero: 0, unit: 0, action: 0, structure: 0 } as const as Record<CardType, number>;
+    const rarityDistribution: Record<CardRarity, number> = { common: 0, uncommon: 0, rare: 0, epic: 0, legendary: 0 } as const as Record<CardRarity, number>;
+    const costCurve: { [cost: number]: number } = {};
+    let totalCost = 0;
+    const avgInitiative = 0;
+    let frontlineUnitCount = 0, backlineUnitCount = 0, rangedUnitCount = 0, flyingUnitCount = 0;
+
+    deckCardsForList.forEach(dc => {
+      const card = gameCardMap.get(dc.cardId);
+      if (!card) return;
+      const qty = dc.quantity;
+      // cost
+      totalCost += (card.cost ?? 0) * qty;
+      costCurve[card.cost] = (costCurve[card.cost] ?? 0) + qty;
+      // type
+      typeDistribution[card.type] = (typeDistribution[card.type] ?? 0) + qty;
+      // rarity
+      rarityDistribution[card.rarity] = (rarityDistribution[card.rarity] ?? 0) + qty;
+      // simple unit subtotals
+      if (card.type === 'unit') {
+        if (card.unitType === 'ranged') rangedUnitCount += qty;
+        if (card.unitType === 'flying') flyingUnitCount += qty;
+        if (card.unitType === 'melee') frontlineUnitCount += qty;
+        if (card.unitType === 'siege') backlineUnitCount += qty;
+      }
+    });
+
+    return {
+      totalCards,
+      averageCost: totalCards > 0 ? totalCost / totalCards : 0,
+      averageInitiative: avgInitiative,
+      frontlineUnitCount,
+      backlineUnitCount,
+      rangedUnitCount,
+      flyingUnitCount,
+      typeDistribution,
+      unitTypeDistribution: { melee: 0, ranged: rangedUnitCount, siege: backlineUnitCount, flying: flyingUnitCount },
+      actionTypeDistribution: { instant: 0, ongoing: 0, equipment: 0 },
+      structureTypeDistribution: { building: 0, trap: 0, aura: 0 },
+      rarityDistribution,
+      costCurve,
+      energyCurve: costCurve,
+      momentumRequirements: {},
+    };
+  }, [deck.cards.length, deckCardsForList, gameCardMap]);
+
+  const computedValidation = useMemo(() => {
+    const cardCount = deck.cards.length;
+    // Derive counts by type
+    let hero = 0, unit = 0, action = 0, structure = 0;
+    deckCardsForList.forEach(dc => {
+      const c = gameCardMap.get(dc.cardId);
+      if (!c) return;
+      switch (c.type) {
+        case 'hero': hero += dc.quantity; break;
+        case 'unit': unit += dc.quantity; break;
+        case 'action': action += dc.quantity; break;
+        case 'structure': structure += dc.quantity; break;
+      }
+    });
+    // Build simple cost curve for validation
+    const costCurve: { [cost: number]: number } = {};
+    deckCardsForList.forEach(dc => {
+      const c = gameCardMap.get(dc.cardId);
+      if (!c) return;
+      costCurve[c.cost] = (costCurve[c.cost] ?? 0) + dc.quantity;
+    });
+    return {
+      isValid,
+      errors: validationErrors,
+      warnings: [],
+      cardCount,
+      heroCardCount: hero,
+      unitCardCount: unit,
+      actionCardCount: action,
+      structureCardCount: structure,
+      factionConsistency: true,
+      energyCurveBalance: true,
+      costCurve,
+      factionSpecificRules: {},
+    };
+  }, [deck.cards.length, deckCardsForList, gameCardMap, isValid, validationErrors]);
+
   // Adapter: game -> legacy card (best-effort)
   const toLegacyCard = useCallback((c: GameCard): LegacyCard => ({
     id: c.id,
@@ -104,19 +205,13 @@ export default function DeckBuilderInterface({ isLoading = false, className }: D
     keywords: c.keywords,
   }), []);
 
-  // Map available cards for UI components
-  const gameCards: GameCard[] = useMemo(() => cards.map(toGameCard), [cards, toGameCard]);
-
-  // Prepare deck cards for the DeckList in DeckCard[] format
-  const deckCardsForList: GameDeckCard[] = useMemo(() => {
-    const counts = new Map<string, number>();
-    deck.cards.forEach((c) => counts.set(c.id, (counts.get(c.id) ?? 0) + 1));
-    return Array.from(counts.entries()).map(([cardId, quantity]) => ({ cardId, quantity }));
-  }, [deck.cards]);
+  // (moved above)
 
   // Handle adding a card to the deck
   const handleAddCard = (card: GameCard) => {
     addCardToDeck(toLegacyCard(card));
+    // Auto-select first added card for better UX
+    setSelectedCard((prev) => prev ?? card);
   };
 
   // Handle removing a card from the deck
@@ -146,6 +241,8 @@ export default function DeckBuilderInterface({ isLoading = false, className }: D
   // Handle clearing the deck
   const handleClearDeck = () => {
     clearDeck();
+    // Clear selection when deck is cleared
+    setSelectedCard(null);
     toast({
       title: "Deck Cleared",
       description: "Your deck has been cleared.",
@@ -190,6 +287,29 @@ export default function DeckBuilderInterface({ isLoading = false, className }: D
               className="w-full"
             />
           </div>
+
+      {/* Details / Stats Panel */}
+      <div className="space-y-4">
+        <Card className="h-[420px] overflow-hidden">
+          <CardHeader className="border-b">
+            <Tabs value={infoTab} onValueChange={(v) => setInfoTab(v as 'details' | 'stats')}>
+              <TabsList>
+                <TabsTrigger value="details">Details</TabsTrigger>
+                <TabsTrigger value="stats">Stats</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </CardHeader>
+          <ScrollArea className="h-[calc(100%-56px)]">
+            <CardContent className="p-4">
+              {infoTab === 'details' ? (
+                <CardDetailsPanel card={selectedCard} />
+              ) : (
+                <DeckStatsComponent stats={computedStats} validation={computedValidation} />
+              )}
+            </CardContent>
+          </ScrollArea>
+        </Card>
+      </div>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -203,6 +323,8 @@ export default function DeckBuilderInterface({ isLoading = false, className }: D
             <CardGrid 
               cards={gameCards}
               onAddCard={handleAddCard}
+              onSelectCard={setSelectedCard}
+              selectedCardId={selectedCard?.id ?? null}
             />
           </TabsContent>
 
@@ -279,6 +401,8 @@ export default function DeckBuilderInterface({ isLoading = false, className }: D
                   viewMode="list"
                   onSaveDeck={handleSaveDeck}
                   onClearDeck={handleClearDeck}
+                  onSelectCard={setSelectedCard}
+                  selectedCardId={selectedCard?.id ?? null}
                 />
               ) : (
                 <div className="flex flex-col items-center justify-center h-64 text-center text-muted-foreground">

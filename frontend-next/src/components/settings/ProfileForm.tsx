@@ -1,14 +1,10 @@
 "use client";
-
-import { useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { User } from "@/lib/auth/AuthContext";
 import { getFactionOptions } from "@/data/factions";
 
 // Profile update schema
@@ -29,7 +25,11 @@ const profileSchema = z.object({
 type ProfileFormData = z.infer<typeof profileSchema>;
 
 interface ProfileFormProps {
-  user: User;
+  user: {
+    username: string;
+    email: string;
+    preferredFaction?: "" | "solaris" | "umbral" | "aeonic" | "primordial" | "infernal" | "neuralis" | "synthetic";
+  };
   onSuccess: () => void;
   onError: (error: string) => void;
 }
@@ -50,7 +50,7 @@ export function ProfileForm({ user, onSuccess, onError }: ProfileFormProps) {
     },
   });
 
-  const onSubmit = async (_formData: ProfileFormData) => {
+  const onSubmit = async () => {
     try {
       // In a real app, this would be an API call to update the profile
       await new Promise(resolve => setTimeout(resolve, 1000));

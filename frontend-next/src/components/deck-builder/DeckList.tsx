@@ -19,6 +19,8 @@ interface DeckListProps {
   isLoading?: boolean;
   viewMode?: 'list' | 'grid';
   onViewModeChange?: (mode: 'list' | 'grid') => void;
+  onSelectCard?: (card: GameCardData) => void;
+  selectedCardId?: string | null;
   className?: string;
 }
 
@@ -36,6 +38,8 @@ export const DeckList: React.FC<DeckListProps> = ({
   isLoading = false,
   viewMode = 'list',
   onViewModeChange,
+  onSelectCard,
+  selectedCardId,
   className,
 }) => {
   // Create card lookup map for efficiency
@@ -163,7 +167,11 @@ export const DeckList: React.FC<DeckListProps> = ({
                   return (
                     <div
                       key={deckCard.cardId}
-                      className="flex items-center gap-3 p-2 bg-slate-700/30 rounded border border-slate-600 hover:border-slate-500 transition-colors"
+                      className={cn(
+                        "flex items-center justify-between bg-slate-800/50 border border-slate-600 rounded-lg p-3 hover:bg-slate-800",
+                        selectedCardId === card.id && "ring-2 ring-amber-400 ring-offset-2 ring-offset-slate-900"
+                      )}
+                      onClick={() => onSelectCard?.(card)}
                     >
                       {/* Quantity */}
                       <div className="flex items-center gap-1">
@@ -242,6 +250,7 @@ export const DeckList: React.FC<DeckListProps> = ({
                       size="sm"
                       onAdd={onAddCard}
                       onRemove={onRemoveCard}
+                      onClick={onSelectCard}
                       disabled={isLoading}
                     />
                   );

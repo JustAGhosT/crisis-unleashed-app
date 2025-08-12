@@ -12,6 +12,7 @@ import FeatureFlagIndicator from "@/components/feature-flags/FeatureFlagIndicato
 import { ThemeProvider } from "@/lib/theme/theme-provider";
 import { RUMInit } from "@/components/observability/RUMInit";
 import { ToastProvider } from "@/hooks/useToast";
+import { SessionProvider } from "next-auth/react";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -50,19 +51,21 @@ export default function RootLayout({
         >
           <ToastProvider>
             <QueryProvider>
-              <AuthProvider>
-                <FeatureFlagProvider>
-                  <Providers>
-                    <div className="relative flex min-h-screen flex-col">
-                      <Navbar />
-                      <main className="flex-1 container mx-auto px-4 py-6">{children}</main>
-                      <Footer />
-                      <FeatureFlagIndicator />
-                      <RUMInit />
-                    </div>
-                  </Providers>
-                </FeatureFlagProvider>
-              </AuthProvider>
+              <SessionProvider>
+                <AuthProvider>
+                  <FeatureFlagProvider>
+                    <Providers>
+                      <div className="relative flex min-h-screen flex-col">
+                        <Navbar />
+                        <main className="flex-1 container mx-auto px-4 py-6">{children}</main>
+                        <Footer />
+                        <FeatureFlagIndicator />
+                        <RUMInit />
+                      </div>
+                    </Providers>
+                  </FeatureFlagProvider>
+                </AuthProvider>
+              </SessionProvider>
             </QueryProvider>
           </ToastProvider>
         </ThemeProvider>
