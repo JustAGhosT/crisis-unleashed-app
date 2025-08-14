@@ -30,6 +30,7 @@
     "synthetic",
     "timeshift",
     "umbral",
-    "valuenow"
+    "valuenow",
+    "vlist"
   ]
 }

@@ -1,90 +1,56 @@
 ---
-description: Specifies frontend architecture patterns for a faction-based card game with complex state management and UI interactions
+description: Specification for frontend architecture including React component hierarchy, state management, and UI/UX implementation
 ---
 
 
 # frontend-architecture
 
-Frontend Component Hierarchy (Importance: 85/100)
+## Core UI Architecture
 
-1. Game State Management Layer
-Path: `frontend-next/src/lib/game-state/`
-- Manages dual resource system (Energy/Momentum)
-- Tracks faction-specific power states
-- Handles turn phase transitions
-- Crisis event state management
+### Faction System UI Components (frontend/src/components/factions/)
+- Component hierarchy implementing 7 distinct faction interfaces
+- Each faction has unique visual themes and interaction patterns:
+  - Solaris: Radial layouts with energy visualization
+  - Umbral: Shadow-based reveal mechanics  
+  - Neuralis: Neural network-inspired connections
+  - Aeonic: Time-flow based animations
+  - Primordial: Organic growth patterns
+  - Infernal: Heat/flame visual system
+  - Synthetic: Grid-based mechanical layouts
 
-2. Faction System Components
-Path: `frontend-next/src/components/factions/`
-- Implements 7 unique faction UIs with distinct visual languages
-- Faction-specific card display rules
-- Cross-faction synergy visualization
-- Dynamic power state indicators
+### Game State Management
+- Multi-phase turn system with distinct UI states:
+  1. Deploy Phase: Card placement interface
+  2. Action Phase: Combat and ability activation
+  3. End Phase: Resource reconciliation
+- Resource visualization for energy/momentum systems
+- Crisis event overlay system for battlefield modifiers
 
-3. Deck Building Interface
-Path: `frontend-next/src/components/deck-builder/`
-- Real-time deck validation against faction rules
-- Energy curve visualization
-- Synergy highlighting system
-- Faction mixing restrictions UI
+### Battlefield Grid Implementation (frontend/src/features/battlefield/)
+- Hexagonal grid system with faction-colored zones
+- Unit placement validation with zone control visualization
+- Combat resolution animation system
+- Crisis event visual effects system
 
-4. Battle Interface Components
-Path: `frontend-next/src/features/battlefield/`
-- Zone-based unit placement system
-- Crisis event visualization
-- Resource state management
-- Multi-phase turn indicator
+### Progressive Feature System
+- Feature flag-based component loading
+- Phased rollout architecture:
+  1. Core UI components
+  2. Faction-specific interfaces
+  3. Advanced game mechanics
+  4. Social features
 
-5. Card Display System
-Path: `frontend-next/src/components/cards/`
-- Dynamic card state visualization
-- Faction-specific styling rules
-- Power/synergy indicators
-- Resource cost display
+### Card Display System
+- Faction-specific card templates
+- Dynamic stat/ability visualization
+- Synergy highlight system for compatible cards
+- Special effect system for card combinations
 
-State Management Patterns:
-
-1. Resource Management
-- Dual tracking of Energy (0-10) and Momentum (0-5)
-- Faction-specific resource generation rules
-- Crisis event impact on resource states
-
-2. Turn Phase Management
-- Draw → Energy → Main → Combat → End
-- Phase-specific action validation
-- Crisis event integration points
-
-3. Battlefield State
-- Zone control tracking
-- Unit positioning rules
-- Line of sight calculations
-- Crisis event modifications
-
-4. Synergy System
-- Real-time synergy detection
-- Cross-faction interaction validation
-- Power state calculations
-- Data-Link visualization
-
-UI/UX Implementation:
-
-1. Faction Theming
-- Unique color gradients per faction
-- Faction-specific UI element styling
-- Dynamic theme switching
-- Power state visual feedback
-
-2. Game Interface Layout
-- Responsive battlefield zones
-- Resource state indicators
-- Turn phase visualization
-- Crisis event alerts
-
-3. Card Interaction System
-- Drag-and-drop placement validation
-- Resource cost verification
-- Synergy highlight system
-- Faction restriction feedback
+Importance Score: 85/100
+- Core game mechanics visualization
+- Complex faction-specific interfaces
+- Unique battlefield management system
+- Custom card interaction patterns
 
 $END$
 

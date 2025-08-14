@@ -6,7 +6,11 @@ Crisis Unleashed backend API. It provides the HTTP interface for external
 clients to interact with the application.
 """
 
-from .blockchain_endpoints import router as blockchain_router
+from fastapi import APIRouter
+from .blockchain_endpoints import router as _blockchain_router
+
+# Explicit type annotation for mypy to resolve the exported symbol type
+blockchain_router: APIRouter = _blockchain_router
 
 __all__ = [
     "blockchain_router"

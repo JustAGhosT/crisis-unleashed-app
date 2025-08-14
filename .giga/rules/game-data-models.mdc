@@ -1,5 +1,5 @@
 ---
-description: Specifies core game entities including cards, battlefield grid, player stats, and game state models
+description: Specification for core game entities including cards, battlefield grid, player stats, and game state data models
 ---
 
 # === USER INSTRUCTIONS ===
@@ -22,62 +22,48 @@ description: Specifies core game entities including cards, battlefield grid, pla
 
 # game-data-models
 
-Key Domain Models:
+Core game entities and data models that define the unique mechanics and rules:
 
-1. Card System
-Path: frontend/src/types/card.ts
-- Seven card types: Hero, Unit, Structure, Artifact, Action, Reaction, Enhancement
-- Attributes: name, cost, faction, type, rarity, effects
-- Keywords system for ability tagging
-- Status effect tracking (temporary/permanent)
+## Card Model
+- Faction-specific card attributes
+- Energy/Momentum cost system
+- Rarity tiers (Common to Legendary) affecting power level
+- Synergy tags for Data-Link system
 
-2. Battlefield Grid
-Path: frontend/src/types/battlefield.ts
-- 4x4 hex-based grid structure
-- Zone control mechanics with line-of-sight calculations
-- Terrain modifiers affecting movement and combat
-- Position-based effect triggers
+## Battlefield Grid 
+- 3x3 zone-based control system
+- Position-dependent card effects
+- Crisis event impact areas
+- Territory control scoring
 
-3. Player Resources
-Path: frontend/src/types/player.ts
+## Player Stats
 - Health (0-20)
-- Energy (0-10, gains +1 per turn)
-- Momentum (0-5, gained through actions)
-- Hand size limits (7 cards maximum)
+- Energy (scales 1-10 per turn)
+- Momentum (0-5, generated through combat)
+- Faction alignment affecting resource generation
 
-4. Game State Model
-Path: frontend/src/types/game.ts
-- Turn phases: Draw, Energy, Main, Combat, End
-- Crisis event tracking and resolution
-- Victory condition monitoring
-- Initiative order management
+## Game State
+- Three-phase turn system (Deploy/Action/End)
+- Crisis event countdown and effects
+- Card synergy tracking via Data-Link
+- Zone control state
+- Resource pool management
 
-5. Faction System
-Path: frontend/src/types/faction.ts
-- Seven distinct factions with unique mechanics:
-  * Solaris: Energy manipulation
-  * Umbral: Stealth mechanics
-  * Aeonic: Time manipulation
-  * Primordial: Growth systems
-  * Infernal: Sacrifice mechanics
-  * Neuralis: Mind control
-  * Synthetic: Optimization
+## Combat Resolution
+- Position-based damage calculation
+- Zone control multipliers
+- Crisis event modifiers
+- Faction synergy bonuses
 
-6. Status Effects
-Path: frontend/src/types/effects.ts
-- Duration tracking (turns remaining)
-- Stacking rules per effect type
-- Faction-specific status interactions
-- Priority order resolution
+Key file paths:
+```
+backend/app_types/game_state.py
+backend/types_old/faction.py
+frontend/src/types/game.types.ts
+```
 
-7. Combat Resolution Model
-Path: frontend/src/types/combat.ts
-- Initiative-based action order
-- Range and movement calculations
-- Damage application sequence
-- Death/removal trigger handling
-
-The models emphasize faction-specific mechanics and their interactions, with complex state tracking for battlefield positioning and resource management. Each faction introduces unique modifications to the base rule set, requiring specialized handling of interactions.
+Importance Score: 90/100
+(Critical game mechanics and state management defining unique gameplay)
 
 $END$
 

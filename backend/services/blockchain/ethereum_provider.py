@@ -3,32 +3,19 @@ Ethereum blockchain provider implementation.
 """
 import asyncio
 import logging
-import importlib
-from typing import Any, Dict, Optional, Tuple, TYPE_CHECKING
-
-# Determine web3 availability without binding names that conflict for typing
-try:  # pragma: no cover - import detection only
-    importlib.import_module("web3")
-    WEB3_AVAILABLE = True
-except Exception:  # pragma: no cover
-    WEB3_AVAILABLE = False
-    # Runtime fallback: use mock exception type name for error handling
-    try:
-        from ...types.web3_types import (
-            MockTransactionNotFound as TransactionNotFound,
-        )
-    except Exception:
-        class TransactionNotFound(Exception):
-            """Fallback TransactionNotFound when web3/types are unavailable."""
-
-if TYPE_CHECKING:  # typing-only imports for better hints
-    from web3 import Web3 as _RealWeb3  # noqa: F401
-    from web3.contract import Contract as _RealContract  # noqa: F401
-    from web3.exceptions import TransactionNotFound as _RealTransactionNotFound  # noqa: F401
+from typing import Any, Dict, Optional, Tuple
 
 from .base_provider import BaseBlockchainProvider
+from .web3_compat import (
+    WEB3_AVAILABLE,
+    TransactionNotFound,
+    new_web3,
+)
 
 logger = logging.getLogger(__name__)
+
+
+# Re-exported from web3_compat for public API
 
 
 class EthereumProvider(BaseBlockchainProvider):
@@ -55,15 +42,19 @@ class EthereumProvider(BaseBlockchainProvider):
             return False
 
         try:
-            web3_mod = importlib.import_module("web3")
-            self.web3 = web3_mod.Web3(web3_mod.HTTPProvider(self.rpc_url))
+            # Create web3 via compatibility factory
+            w3 = new_web3(self.rpc_url)
+            if w3 is None:
+                logger.error("Web3 initialization failed for Ethereum")
+                return False
+            self.web3 = w3
 
             # Test connection
-            is_connected_any = await asyncio.to_thread(self.web3.is_connected)
+            is_connected_any = await asyncio.to_thread(w3.is_connected)
             is_connected = bool(is_connected_any)
 
             if is_connected and self.contract_address:
-                self.contract = self.web3.eth.contract(
+                self.contract = w3.eth.contract(
                     address=self.contract_address, abi=[]  # Placeholder
                 )
 
@@ -80,7 +71,11 @@ class EthereumProvider(BaseBlockchainProvider):
             return False
 
         try:
-            result = await asyncio.to_thread(self.web3.is_connected)
+            # Narrow after guard for analyzers
+            w3 = self.web3
+            if w3 is None:
+                return False
+            result = await asyncio.to_thread(w3.is_connected)
             return bool(result)
         except Exception:
             return False

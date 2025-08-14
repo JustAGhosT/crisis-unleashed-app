@@ -1,0 +1,13 @@
+:root {}
+
+.vlist-viewport {
+  height: var(--vh);
+}
+
+.vlist-spacer {
+  height: var(--spacer-h);
+}
+
+.vlist-offset {
+  transform: translateY(var(--offsetY));
+}

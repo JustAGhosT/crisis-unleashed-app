@@ -18,32 +18,50 @@ import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field
-from typing import List, Optional, Any
+from typing import List, Optional, Any, TYPE_CHECKING, cast
 import uuid
 import sys
 from datetime import datetime
 
-# Import routers and configuration
-# Support both package execution (uvicorn backend.server:app) and direct script execution
-try:
-    from .api import blockchain_router  # type: ignore
-    from .config import get_settings  # type: ignore
-    from .services import BlockchainService  # type: ignore
-    from .services.health_manager import (  # type: ignore
-        ServiceHealthManager,
-        CriticalServiceException,
-    )
-    from .workers import OutboxProcessor  # type: ignore
-    from .middleware.service_dependency import (  # type: ignore
-        ServiceDependencyMiddleware,
-    )
-except ImportError:  # pragma: no cover - fallback for direct execution
-    from api import blockchain_router
-    from config import get_settings
-    from services import BlockchainService
-    from services.health_manager import ServiceHealthManager, CriticalServiceException
-    from workers import OutboxProcessor
-    from middleware.service_dependency import ServiceDependencyMiddleware
+"""Import routers and configuration with analyzer-friendly gating.
+Supports both package execution (uvicorn backend.server:app) and
+direct script execution (python backend/server.py).
+"""
+
+if TYPE_CHECKING:
+    # Provide clean symbols for type checkers and IDEs
+    from . import api as _api  # type: ignore
+    from . import config as _config  # type: ignore
+    from . import services as _services  # type: ignore
+    from .services import health_manager as _health_manager  # type: ignore
+    from . import workers as _workers  # type: ignore
+    from .middleware import service_dependency as _svc_dep  # type: ignore
+else:
+    try:
+        # Prefer relative imports when running as a package
+        from . import api as _api  # type: ignore
+        from . import config as _config  # type: ignore
+        from . import services as _services  # type: ignore
+        from .services import health_manager as _health_manager  # type: ignore
+        from . import workers as _workers  # type: ignore
+        from .middleware import service_dependency as _svc_dep  # type: ignore
+    except Exception:  # pragma: no cover - fallback for direct script execution
+        import importlib
+        _api = importlib.import_module("api")
+        _config = importlib.import_module("config")
+        _services = importlib.import_module("services")
+        _health_manager = importlib.import_module("services.health_manager")
+        _workers = importlib.import_module("workers")
+        _svc_dep = importlib.import_module("middleware.service_dependency")
+
+# Bind required symbols exactly once to avoid duplicate-definition warnings
+blockchain_router: APIRouter = cast(APIRouter, _api.blockchain_router)
+get_settings = _config.get_settings
+BlockchainService = _services.BlockchainService
+ServiceHealthManager = _health_manager.ServiceHealthManager
+CriticalServiceException = _health_manager.CriticalServiceException
+OutboxProcessor = _workers.OutboxProcessor
+ServiceDependencyMiddleware = _svc_dep.ServiceDependencyMiddleware
 
 
 ROOT_DIR = Path(__file__).parent

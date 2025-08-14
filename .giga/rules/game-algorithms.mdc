@@ -1,5 +1,5 @@
 ---
-description: Specification for analyzing and documenting core game mechanics, algorithms and rules systems in a digital card game.
+description: Defines and documents core game mechanics, algorithms and systems for card battles, resource management, and faction interactions
 ---
 
 
@@ -7,63 +7,68 @@ description: Specification for analyzing and documenting core game mechanics, al
 
 Core Game Systems:
 
-1. Faction Combat System (Score: 95)
-Path: src/mechanics/combat/
-- Seven distinct factions with unique abilities and interactions
-- Dual-resource management (Energy/Momentum)
-- Zone-based battlefield positioning
-- Initiative-based combat resolution
-- Faction-specific rule modifications
+1. Turn Sequencing
+- Three-phase turn structure: Deploy, Action, End
+- Resource reset mechanics between phases
+- Custom validation for action timing/sequencing
+- Phase-specific ability activation rules
 
-2. Crisis Event System (Score: 90)
-Path: src/mechanics/events/
-- Dynamic battlefield modifiers affecting gameplay
-- Real-time event processing/resolution
-- Event impact calculations on game state
-- Reward distribution mechanics
-- Integration with faction abilities
+2. Combat Resolution
+```typescript
+// Core combat flow:
+1. Attacker declares target
+2. Keyword ability pre-combat triggers
+3. Combat math resolution with modifiers
+4. Post-combat triggers and state updates
+```
 
-3. Card Deployment Logic (Score: 85)
-Path: src/mechanics/cards/
-- Energy cost validation
-- Positioning requirements check
-- Faction compatibility verification
-- Effect trigger sequencing
-- Status effect application rules
+3. Resource Management
+- Dual currency system:
+  - Energy: Fixed per-turn allocation (1-10)
+  - Momentum: Combat-generated resource (0-5)
+- Faction-specific resource modifiers
+- Card cost validation against available resources
 
-4. Turn Sequencing (Score: 80)
-Path: src/mechanics/turns/
-- Draw → Energy → Main → Combat → End phases
-- Phase-specific action validation
-- Resource reset/gain calculations
-- State cleanup procedures
-- End-of-turn trigger processing
+4. Crisis Event System
+- Dynamic battlefield modifiers
+- Event countdown mechanics
+- Cascading effect resolution
+- Impact calculation on game zones
 
-5. Combat Resolution (Score: 90)
-Path: src/mechanics/combat/
-- Initiative-based ordering
-- Damage calculation with modifiers
-- Status effect application
-- Death/removal processing
-- Victory condition checking
+5. Faction Mechanics
+- Seven unique faction implementations:
+  - Solaris: Energy manipulation
+  - Umbral: Stealth/information warfare
+  - Neuralis: Mind control
+  - Aeonic: Time manipulation
+  - Primordial: Growth systems
+  - Infernal: Risk/reward
+  - Synthetic: Optimization
 
-Unique Mechanics:
+6. Card Synergy System ("Data-Link")
+- Card combination detection
+- Faction-based synergy bonuses
+- Multi-card effect chains
+- Keyword interaction handling
 
-1. Data-Link System
-- Card synergy detection
-- Multi-card combination effects
-- Cross-faction interaction rules
+7. Battlefield Management
+- Zone control scoring
+- Unit positioning validation
+- Territory control mechanics
+- Multi-zone effect propagation
 
-2. Timeline Mechanics
-- Three distinct future paths
-- Faction emergence sequencing
-- Universal stability calculations
+File Paths:
+- src/game/mechanics/turn-manager.ts
+- src/game/combat/resolver.ts
+- src/game/resources/energy-system.ts
+- src/game/crisis/event-manager.ts
+- src/game/factions/faction-abilities.ts
+- src/game/cards/synergy-calculator.ts
+- src/game/battlefield/zone-controller.ts
 
-3. Zone Control
-- Battlefield division system
-- Position-based bonuses
-- Line of sight calculations
-- Zone ownership effects
+The algorithms focus heavily on the unique faction-based gameplay mechanics, crisis event system, and dual resource management that defines the core gameplay experience.
+
+Importance Score: 95/100
 
 $END$
 

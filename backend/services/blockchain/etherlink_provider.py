@@ -3,44 +3,15 @@ Etherlink blockchain provider implementation.
 """
 import asyncio
 import logging
-import importlib
-from typing import Any, Dict, Optional, Tuple, TYPE_CHECKING
-
-# Determine web3 availability without binding names for typing
-try:  # pragma: no cover - import detection
-    importlib.import_module("web3")
-    WEB3_AVAILABLE = True
-except Exception:  # pragma: no cover
-    WEB3_AVAILABLE = False
-    # Runtime fallback: use mocks under distinct names
-    try:
-        # Prefer shared mock types if available
-        from ...types.web3_types import (
-            MockTransactionNotFound as TransactionNotFound,
-            MockTimeExhausted as TimeExhausted,
-            TxReceiptType as TxReceipt,
-        )
-    except Exception:
-        # Define minimal local fallbacks
-        class TransactionNotFound(Exception):
-            """Fallback TransactionNotFound when web3/types are unavailable."""
-
-        class TimeExhausted(Exception):
-            """Fallback TimeExhausted when web3/types are unavailable."""
-
-        # TxReceipt represented minimally as a dict when web3 is absent
-        TxReceipt = dict
-
-if TYPE_CHECKING:  # typing-only imports for editors/mypy context
-    from web3 import Web3 as _RealWeb3  # noqa: F401
-    from web3.contract import Contract as _RealContract  # noqa: F401
-    from web3.exceptions import (
-        TransactionNotFound as _RealTransactionNotFound,  # noqa: F401
-        TimeExhausted as _RealTimeExhausted,  # noqa: F401
-    )
-    from web3.types import TxReceipt as _RealTxReceipt  # noqa: F401
+from typing import Any, Dict, Optional, Tuple
 
 from .base_provider import BaseBlockchainProvider
+from .web3_compat import (
+    WEB3_AVAILABLE,
+    TransactionNotFound,
+    TimeExhausted,
+    new_web3,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -70,22 +41,26 @@ class EtherlinkProvider(BaseBlockchainProvider):
             return False
         
         try:
-            # Dynamically import web3 to avoid type conflicts
-            web3_mod = importlib.import_module("web3")
-            self.web3 = web3_mod.Web3(web3_mod.HTTPProvider(self.rpc_url))
+            # Create web3 via compatibility factory
+            w3 = new_web3(self.rpc_url)
+            if w3 is None:
+                logger.error("Web3 initialization failed for Etherlink")
+                return False
+            self.web3 = w3
             
             # Test connection
-            await asyncio.to_thread(self.web3.is_connected)
+            connected_any = await asyncio.to_thread(w3.is_connected)
+            connected = bool(connected_any)
             
-            if self.contract_address:
+            if connected and self.contract_address:
                 # Load contract (ABI would be loaded from file in real implementation)
-                self.contract = self.web3.eth.contract(
+                self.contract = w3.eth.contract(
                     address=self.contract_address,
                     abi=[]  # Placeholder - would load actual ABI
                 )
             
             logger.info(f"Connected to Etherlink at {self.rpc_url}")
-            return True
+            return connected
             
         except Exception as e:
             logger.error(f"Failed to connect to Etherlink: {e}")
@@ -97,7 +72,11 @@ class EtherlinkProvider(BaseBlockchainProvider):
             return False
         
         try:
-            return await asyncio.to_thread(self.web3.is_connected)
+            w3 = self.web3
+            if w3 is None:
+                return False
+            result = await asyncio.to_thread(w3.is_connected)
+            return bool(result)
         except Exception:
             return False
     
@@ -188,8 +167,12 @@ class EtherlinkProvider(BaseBlockchainProvider):
         while (asyncio.get_event_loop().time() - start_time) < timeout:
             try:
                 if WEB3_AVAILABLE and self.web3:
+                    w3 = self.web3
+                    # Guard again for type-checkers
+                    if w3 is None:
+                        return None
                     receipt = await asyncio.to_thread(
-                        self.web3.eth.get_transaction_receipt, tx_hash
+                        w3.eth.get_transaction_receipt, tx_hash
                     )
                     
                     if receipt:
