@@ -1,0 +1,6 @@
+
+    <svg width="500" height="500" xmlns="http://www.w3.org/2000/svg">
+      <rect width="500" height="500" fill="#0A0A1A" />
+      <text x="250" y="250" font-family="Arial" font-size="24" fill="white" text-anchor="middle">time_distortion</text>
+    </svg>
+    

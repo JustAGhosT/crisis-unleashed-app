@@ -12,6 +12,10 @@ const nextConfig = {
     // Enable latest Next.js features
     typedRoutes: true,
   },
+  // Provide a stable build id to avoid generator incompat issues across environments
+  generateBuildId() {
+    return "crisis-unleashed-build";
+  },
   // API routes for backend communication
   async rewrites() {
     return [

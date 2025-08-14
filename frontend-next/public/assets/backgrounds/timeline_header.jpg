@@ -1,0 +1,15 @@
+
+  <svg width="1200" height="600" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="600" fill="#0A0A1A" />
+    
+    <!-- Time flow representation -->
+    <path d="M0,300 C400,200 800,400 1200,300" stroke="rgba(255,255,255,0.3)" stroke-width="2" fill="none" />
+    
+    <!-- Event markers -->
+    <circle cx="200" cy="300" r="15" fill="#FFD700" />
+    <circle cx="400" cy="260" r="15" fill="#9B59B6" />
+    <circle cx="600" cy="320" r="15" fill="#FF4500" />
+    <circle cx="800" cy="280" r="15" fill="#32CD32" />
+    <circle cx="1000" cy="310" r="15" fill="#1E90FF" />
+  </svg>
+  

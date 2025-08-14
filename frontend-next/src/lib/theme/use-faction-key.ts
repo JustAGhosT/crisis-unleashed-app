@@ -2,7 +2,6 @@
 
 import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
-import { useFeatureFlag } from "@/lib/feature-flags/useFeatureFlag";
 import { FACTION_KEYS, type FactionKey } from "./faction-theme";
 
 function parseCookie(name: string): string | null {
@@ -19,9 +18,6 @@ export function useFactionKey(): FactionKey {
   const isFactionKey = (v: string): v is FactionKey =>
     (FACTION_KEYS as readonly string[]).includes(v);
 
-  // Consolidated single flag (string) e.g. theme:active=umbral
-  const activeThemeFlag = useFeatureFlag("theme:active");
-
   return useMemo<FactionKey>(() => {
     // 1) Query param
     if (isFactionKey(factionParam)) return factionParam as FactionKey;
@@ -30,12 +26,8 @@ export function useFactionKey(): FactionKey {
     const cookieVal = parseCookie("theme:active");
     if (cookieVal && isFactionKey(cookieVal)) return cookieVal as FactionKey;
 
-    // 3) Single feature flag value (string)
-    if (typeof activeThemeFlag === "string" && isFactionKey(activeThemeFlag)) {
-      return activeThemeFlag as FactionKey;
-    }
-
-    // 4) Default
+    // 3) Default
     return "default";
-  }, [activeThemeFlag, factionParam]);
+  }, [factionParam]);
 }
+

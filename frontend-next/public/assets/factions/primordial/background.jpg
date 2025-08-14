@@ -1,0 +1,14 @@
+
+    <svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+      <rect width="800" height="600" fill="#0A0A1A" />
+      
+      <!-- Faction-specific pattern -->
+      
+      
+      
+      
+      
+      <path d="M400,150 C500,200 500,400 400,450 C300,400 300,200 400,150 Z" fill="none" stroke="#32CD32" stroke-width="2" stroke-opacity="0.3" />
+      
+    </svg>
+    

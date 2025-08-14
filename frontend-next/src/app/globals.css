@@ -128,6 +128,30 @@
   .faction-glow {
     @apply animate-glow;
   }
+
+  /* Faction theme variables (Option A) */
+  .faction-theme-solaris { --faction-primary: #f59e0b; --faction-secondary: #fde68a; --faction-accent: #fbbf24; }
+  .faction-theme-umbral { --faction-primary: #8b5cf6; --faction-secondary: #ddd6fe; --faction-accent: #a78bfa; }
+  .faction-theme-aeonic { --faction-primary: #6366f1; --faction-secondary: #c7d2fe; --faction-accent: #60a5fa; }
+  .faction-theme-primordial { --faction-primary: #10b981; --faction-secondary: #6ee7b7; --faction-accent: #34d399; }
+  .faction-theme-infernal { --faction-primary: #ef4444; --faction-secondary: #fecaca; --faction-accent: #fb7185; }
+  .faction-theme-neuralis { --faction-primary: #ec4899; --faction-secondary: #fbcfe8; --faction-accent: #f472b6; }
+  .faction-theme-synthetic { --faction-primary: #06b6d4; --faction-secondary: #67e8f9; --faction-accent: #22d3ee; }
+
+  /* Faction background images */
+  .faction-bg-solaris { background-image: linear-gradient(to bottom, rgba(2,6,23,0.85), rgba(2,6,23,0.85)), url(/assets/factions/solaris/background.jpg); }
+  .faction-bg-umbral { background-image: linear-gradient(to bottom, rgba(2,6,23,0.85), rgba(2,6,23,0.85)), url(/assets/factions/umbral/background.jpg); }
+  .faction-bg-aeonic { background-image: linear-gradient(to bottom, rgba(2,6,23,0.85), rgba(2,6,23,0.85)), url(/assets/factions/aeonic/background.jpg); }
+  .faction-bg-primordial { background-image: linear-gradient(to bottom, rgba(2,6,23,0.85), rgba(2,6,23,0.85)), url(/assets/factions/primordial/background.jpg); }
+  .faction-bg-infernal { background-image: linear-gradient(to bottom, rgba(2,6,23,0.85), rgba(2,6,23,0.85)), url(/assets/factions/infernal/background.jpg); }
+  .faction-bg-neuralis { background-image: linear-gradient(to bottom, rgba(2,6,23,0.85), rgba(2,6,23,0.85)), url(/assets/factions/neuralis/background.jpg); }
+  .faction-bg-synthetic { background-image: linear-gradient(to bottom, rgba(2,6,23,0.85), rgba(2,6,23,0.85)), url(/assets/factions/synthetic/background.jpg); }
+
+  /* Common background behavior for detail panels */
+  .faction-detail-bg { background-size: cover; background-position: center; }
+
+  /* Accent bar using CSS vars */
+  .faction-accent-bar { background: linear-gradient(90deg, var(--faction-primary), var(--faction-accent)); }
 }
 
 @layer utilities {
