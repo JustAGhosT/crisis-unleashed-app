@@ -13,11 +13,23 @@ try:  # pragma: no cover - import detection
 except Exception:  # pragma: no cover
     WEB3_AVAILABLE = False
     # Runtime fallback: use mocks under distinct names
-    from ...types.web3_types import (
-        MockTransactionNotFound as TransactionNotFound,
-        MockTimeExhausted as TimeExhausted,
-        TxReceiptType as TxReceipt,
-    )
+    try:
+        # Prefer shared mock types if available
+        from ...types.web3_types import (
+            MockTransactionNotFound as TransactionNotFound,
+            MockTimeExhausted as TimeExhausted,
+            TxReceiptType as TxReceipt,
+        )
+    except Exception:
+        # Define minimal local fallbacks
+        class TransactionNotFound(Exception):
+            """Fallback TransactionNotFound when web3/types are unavailable."""
+
+        class TimeExhausted(Exception):
+            """Fallback TimeExhausted when web3/types are unavailable."""
+
+        # TxReceipt represented minimally as a dict when web3 is absent
+        TxReceipt = dict
 
 if TYPE_CHECKING:  # typing-only imports for editors/mypy context
     from web3 import Web3 as _RealWeb3  # noqa: F401

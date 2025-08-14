@@ -189,19 +189,16 @@ export function useRealtimeConnection(): RealtimeClient {
                 setStatus("disconnected");
                 // small task queue to avoid same-tick issues
                 window.setTimeout(() => {
-                  if (enabled && shouldReconnectRef.current) {
-                    // @ts-expect-error - we are inside the object literal; call via returned client
-                  }
+                  // noop: reconnect scheduling handled elsewhere
                 }, 0);
               }
             }, delay) as unknown as number;
           };
 
           ws.onerror = (evt) => {
+            const maybe = evt as unknown as { message?: string };
             lastErrorRef.current =
-              typeof (evt as any)?.message === "string"
-                ? (evt as any).message
-                : "WebSocket error";
+              typeof maybe?.message === "string" ? maybe.message : "WebSocket error";
             realtimeDispatcher.publish("realtime:error", {
               message: lastErrorRef.current,
             });
@@ -238,7 +235,7 @@ export function useRealtimeConnection(): RealtimeClient {
               if (!reconnectTimerRef.current) {
                 reconnectTimerRef.current = window.setTimeout(() => {
                   reconnectTimerRef.current = null;
-                  // @ts-expect-error see note above
+                  // noop
                 }, BACKOFF_BASE_MS) as unknown as number;
               }
             }

@@ -42,9 +42,15 @@ describe("useDeckDnD", () => {
       id: "c1",
       name: "Alpha",
       cost: 1,
-      type: "Unit",
+      type: "unit",
       faction: "solaris",
       rarity: "common",
+      description: "Test unit",
+      abilities: [],
+      energyCost: 1,
+      isActive: true,
+      createdAt: "2024-01-01T00:00:00.000Z",
+      updatedAt: "2024-01-01T00:00:00.000Z",
     },
   ];
 
@@ -68,7 +74,7 @@ describe("useDeckDnD", () => {
         getData: (k: string) => store[k] || "",
         dropEffect: "copy",
       },
-    } as any;
+    } as any; // eslint-disable-line @typescript-eslint/no-explicit-any
     fireEvent.drop(dz, event);
     expect(onAdd).toHaveBeenCalledTimes(1);
     expect(onAdd.mock.calls[0][0].id).toBe("c1");
@@ -92,7 +98,7 @@ describe("useDeckDnD", () => {
         getData: (k: string) => store[k] || "",
         dropEffect: "copy",
       },
-    } as any);
+    } as any); // eslint-disable-line @typescript-eslint/no-explicit-any
     expect(onAdd).toHaveBeenCalledTimes(1);
     expect(onInvalid).not.toHaveBeenCalled();
   });
@@ -111,7 +117,7 @@ describe("useDeckDnD", () => {
         getData: (k: string) => store[k] || "",
         dropEffect: "copy",
       },
-    } as any);
+    } as any); // eslint-disable-line @typescript-eslint/no-explicit-any
     expect(onAdd).not.toHaveBeenCalled();
     expect(onInvalid).toHaveBeenCalledTimes(1);
   });

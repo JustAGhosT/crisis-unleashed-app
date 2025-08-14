@@ -18,8 +18,13 @@ const Progress = React.forwardRef<
     {...props}
   >
     <ProgressPrimitive.Indicator
-      className="h-full w-full flex-1 bg-primary transition-all"
-      style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
+      className="h-full w-full flex-1 bg-primary transition-all [transform:translateX(calc(-1*var(--progress)))]"
+      style={{
+        // Use CSS variable so Tailwind can own the transform rule
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore -- CSS var typing
+        "--progress": `${100 - (value || 0)}%`,
+      } as React.CSSProperties}
     />
   </ProgressPrimitive.Root>
 ));

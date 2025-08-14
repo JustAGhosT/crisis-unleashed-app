@@ -20,6 +20,7 @@ import {
   Cell,
   Legend,
 } from "recharts";
+import { ChartThemeVars } from "@/components/charts/ChartThemeVars";
 
 interface DeckStatsPanelProps {
   deck: Deck;
@@ -187,36 +188,38 @@ export default function DeckStatsPanel({ deck }: DeckStatsPanelProps) {
               <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">
                 Cost Distribution
               </h3>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={costDistribution}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                  >
-                    <XAxis
-                      dataKey="cost"
-                      tick={{ fill: "var(--chart-text-color, #4b5563)" }}
-                    />
-                    <YAxis
-                      allowDecimals={false}
-                      tick={{ fill: "var(--chart-text-color, #4b5563)" }}
-                    />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: "var(--tooltip-bg, white)",
-                        borderColor: "var(--tooltip-border, #e5e7eb)",
-                        color: "var(--tooltip-text, black)",
-                      }}
-                    />
-                    <Bar
-                      dataKey="count"
-                      fill="#3b82f6"
-                      radius={[4, 4, 0, 0]}
-                      name="Cards"
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+              <ChartThemeVars>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={costDistribution}
+                      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                    >
+                      <XAxis
+                        dataKey="cost"
+                        tick={{ fill: "var(--chart-text-color, #4b5563)" }}
+                      />
+                      <YAxis
+                        allowDecimals={false}
+                        tick={{ fill: "var(--chart-text-color, #4b5563)" }}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "var(--tooltip-bg, white)",
+                          borderColor: "var(--tooltip-border, #e5e7eb)",
+                          color: "var(--tooltip-text, black)",
+                        }}
+                      />
+                      <Bar
+                        dataKey="count"
+                        fill="#3b82f6"
+                        radius={[4, 4, 0, 0]}
+                        name="Cards"
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </ChartThemeVars>
             </div>
 
             {/* Type and Rarity distribution charts */}
@@ -226,48 +229,50 @@ export default function DeckStatsPanel({ deck }: DeckStatsPanelProps) {
                 <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">
                   Card Types
                 </h3>
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={typeDistribution}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        outerRadius={80}
-                        fill="#8884d8"
-                        dataKey="count"
-                        nameKey="type"
-                        label={({ type, percentage }) =>
-                          `${type}: ${percentage}%`
-                        }
-                      >
-                        {typeDistribution.map((entry, index) => (
-                          <Cell
-                            key={`cell-${index}`}
-                            fill={COLORS[index % COLORS.length]}
-                          />
-                        ))}
-                      </Pie>
-                      <Legend />
-                      <Tooltip
-                        formatter={(
-                          value: number | string,
-                          name: string,
-                          entry: { payload?: { percentage?: number } },
-                        ) => {
-                          const pct = entry?.payload?.percentage ?? 0;
-                          return [`${value} cards (${pct}%)`, name];
-                        }}
-                        contentStyle={{
-                          backgroundColor: "var(--tooltip-bg, white)",
-                          borderColor: "var(--tooltip-border, #e5e7eb)",
-                          color: "var(--tooltip-text, black)",
-                        }}
-                      />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
+                <ChartThemeVars>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={typeDistribution}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          outerRadius={80}
+                          fill="#8884d8"
+                          dataKey="count"
+                          nameKey="type"
+                          label={({ type, percentage }) =>
+                            `${type}: ${percentage}%`
+                          }
+                        >
+                          {typeDistribution.map((entry, index) => (
+                            <Cell
+                              key={`cell-${index}`}
+                              fill={COLORS[index % COLORS.length]}
+                            />
+                          ))}
+                        </Pie>
+                        <Legend />
+                        <Tooltip
+                          formatter={(
+                            value: number | string,
+                            name: string,
+                            entry: { payload?: { percentage?: number } },
+                          ) => {
+                            const pct = entry?.payload?.percentage ?? 0;
+                            return [`${value} cards (${pct}%)`, name];
+                          }}
+                          contentStyle={{
+                            backgroundColor: "var(--tooltip-bg, white)",
+                            borderColor: "var(--tooltip-border, #e5e7eb)",
+                            color: "var(--tooltip-text, black)",
+                          }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </ChartThemeVars>
               </div>
 
               {/* Rarity distribution */}
@@ -275,9 +280,10 @@ export default function DeckStatsPanel({ deck }: DeckStatsPanelProps) {
                 <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">
                   Card Rarities
                 </h3>
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
+                <ChartThemeVars>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
                       <Pie
                         data={rarityDistribution}
                         cx="50%"
@@ -314,9 +320,10 @@ export default function DeckStatsPanel({ deck }: DeckStatsPanelProps) {
                           color: "var(--tooltip-text, black)",
                         }}
                       />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </ChartThemeVars>
               </div>
             </div>
           </div>

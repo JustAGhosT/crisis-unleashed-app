@@ -9,13 +9,15 @@ export const AriaLiveRegion: React.FC<AriaLiveRegionProps> = ({
   message,
   assertive = false,
 }) => (
-  <div
-    className="sr-only"
-    aria-live={assertive ? "assertive" : "polite"}
-    aria-atomic="true"
-  >
-    {message}
-  </div>
+  assertive ? (
+    <div className="sr-only" aria-live="assertive" aria-atomic="true">
+      {message}
+    </div>
+  ) : (
+    <div className="sr-only" aria-live="polite" aria-atomic="true">
+      {message}
+    </div>
+  )
 );
 
 AriaLiveRegion.displayName = "AriaLiveRegion";

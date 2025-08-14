@@ -22,8 +22,9 @@ describe("useDeckReorder", () => {
 
   it("moves item up/down via keyboard direction", () => {
     const onReorder = jest.fn();
+    type Props = { items: DeckCard[]; onReorder: (next: DeckCard[]) => void };
     const { result, rerender } = renderHook(
-      (props: any) => useDeckReorder(props),
+      (props: Props) => useDeckReorder(props),
       {
         initialProps: { items, onReorder },
       },

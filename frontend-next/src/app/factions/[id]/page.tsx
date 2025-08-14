@@ -16,6 +16,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FactionId } from "@/types/faction";
 import { FeatureGate } from "@/components/feature-flags/FeatureGate";
+import FactionsThemeShell from "../FactionsThemeShell";
 
 export async function generateStaticParams() {
   const factionIds = await getFactionIds();
@@ -443,8 +444,10 @@ export default async function FactionPage({
 
   // Use FeatureGate to conditionally render the new or legacy component
   return (
-    <FeatureGate flag="useNewFactionUI" fallback={<LegacyFactionDetail />}>
-      <EnhancedFactionDetail />
-    </FeatureGate>
+    <FactionsThemeShell>
+      <FeatureGate flag="useNewFactionUI" fallback={<LegacyFactionDetail />}>
+        <EnhancedFactionDetail />
+      </FeatureGate>
+    </FactionsThemeShell>
   );
 }

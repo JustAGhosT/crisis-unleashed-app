@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { CardCollection } from "@/components/cards/CardCollection";
 import { Card, CardFilters as CardFiltersType } from "@/types/card";
 import { useSearchParams } from "next/navigation";
@@ -9,6 +9,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { generateMockCards } from "@/services/__mocks__/cardService";
 import { FactionId } from "@/types/faction";
+import FactionsThemeShell from "../factions/FactionsThemeShell";
 
 // In a real implementation, these would come from a hook or API call
 // For this demo, we'll simulate it
@@ -74,7 +75,7 @@ const mockUserCards = [
   },
 ];
 
-export default function CardsPage() {
+function CardsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -197,5 +198,15 @@ export default function CardsPage() {
         />
       )}
     </div>
+  );
+}
+
+export default function CardsPage() {
+  return (
+    <Suspense fallback={<div className="p-8">Loading…</div>}>
+      <FactionsThemeShell>
+        <CardsContent />
+      </FactionsThemeShell>
+    </Suspense>
   );
 }

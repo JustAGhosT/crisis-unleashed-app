@@ -4,12 +4,7 @@ import type { JWT } from "next-auth/jwt";
 import type { Session } from "next-auth";
 
 // NextAuth v5 Route Handlers
-export const {
-  handlers: { GET, POST },
-  auth,
-  signIn,
-  signOut,
-} = NextAuth({
+const nextAuthExports = NextAuth({
   session: { strategy: "jwt" },
   secret: process.env.NEXTAUTH_SECRET,
   trustHost: true,
@@ -104,3 +99,5 @@ export const {
     },
   },
 });
+
+export const { GET, POST } = nextAuthExports.handlers;

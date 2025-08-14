@@ -1,7 +1,7 @@
 export function generateIdempotencyKey(prefix = "deck"): string {
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    // @ts-expect-error: randomUUID exists in modern browsers
-    return `${prefix}_${crypto.randomUUID()}`;
+  if (typeof crypto !== "undefined") {
+    const uuid = (crypto as { randomUUID?: () => string }).randomUUID?.();
+    if (uuid) return `${prefix}_${uuid}`;
   }
   // Fallback
   const rnd = Math.random().toString(36).slice(2);

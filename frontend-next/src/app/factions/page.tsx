@@ -1,5 +1,6 @@
 import { EnhancedFactionGrid } from "@/components/factions/EnhancedFactionGrid";
 import { getFactions } from "@/services/factionService";
+import FactionsThemeShell from "./FactionsThemeShell";
 
 // Make this page static with revalidation every hour
 export const revalidate = 3600;
@@ -15,14 +16,14 @@ export default async function FactionsPage() {
   const factions = await getFactions();
 
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-8 dark:text-white">Factions</h1>
+    <FactionsThemeShell>
+      <h1 className="text-3xl font-bold mb-8 text-white">Factions</h1>
 
       <EnhancedFactionGrid
         factions={factions}
         title="Choose Your Faction"
         description="Each faction in Crisis Unleashed has unique abilities, strengths, and playstyles. Explore them all to find your perfect match."
       />
-    </div>
+    </FactionsThemeShell>
   );
 }

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+export const dynamic = "force-dynamic";
 
 // In a real application, this would be stored in a database
 const MOCK_USERS = [

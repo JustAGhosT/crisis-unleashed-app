@@ -24,12 +24,26 @@ import sys
 from datetime import datetime
 
 # Import routers and configuration
-from .api import blockchain_router
-from .config import get_settings
-from .services import BlockchainService
-from .services.health_manager import ServiceHealthManager, CriticalServiceException
-from .workers import OutboxProcessor
-from .middleware.service_dependency import ServiceDependencyMiddleware
+# Support both package execution (uvicorn backend.server:app) and direct script execution
+try:
+    from .api import blockchain_router  # type: ignore
+    from .config import get_settings  # type: ignore
+    from .services import BlockchainService  # type: ignore
+    from .services.health_manager import (  # type: ignore
+        ServiceHealthManager,
+        CriticalServiceException,
+    )
+    from .workers import OutboxProcessor  # type: ignore
+    from .middleware.service_dependency import (  # type: ignore
+        ServiceDependencyMiddleware,
+    )
+except ImportError:  # pragma: no cover - fallback for direct execution
+    from api import blockchain_router
+    from config import get_settings
+    from services import BlockchainService
+    from services.health_manager import ServiceHealthManager, CriticalServiceException
+    from workers import OutboxProcessor
+    from middleware.service_dependency import ServiceDependencyMiddleware
 
 
 ROOT_DIR = Path(__file__).parent

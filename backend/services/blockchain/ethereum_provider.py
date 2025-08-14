@@ -13,9 +13,13 @@ try:  # pragma: no cover - import detection only
 except Exception:  # pragma: no cover
     WEB3_AVAILABLE = False
     # Runtime fallback: use mock exception type name for error handling
-    from ...types.web3_types import (
-        MockTransactionNotFound as TransactionNotFound,
-    )
+    try:
+        from ...types.web3_types import (
+            MockTransactionNotFound as TransactionNotFound,
+        )
+    except Exception:
+        class TransactionNotFound(Exception):
+            """Fallback TransactionNotFound when web3/types are unavailable."""
 
 if TYPE_CHECKING:  # typing-only imports for better hints
     from web3 import Web3 as _RealWeb3  # noqa: F401

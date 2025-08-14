@@ -76,3 +76,13 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  /* Centralized chart CSS variables for Recharts and similar libs */
+  .chart-theme {
+    --chart-text-color: hsl(var(--muted-foreground));
+    --tooltip-bg: hsl(var(--card));
+    --tooltip-border: hsl(var(--border));
+    --tooltip-text: hsl(var(--foreground));
+  }
+}

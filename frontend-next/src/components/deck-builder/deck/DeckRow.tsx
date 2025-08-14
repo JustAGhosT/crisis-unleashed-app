@@ -66,7 +66,6 @@ const DeckRowInner: React.FC<DeckRowProps> = ({
       onMouseUp={disableDragAttr}
       onBlur={disableDragAttr}
       tabIndex={0}
-      role="listitem"
     >
       {/* Drag handle slot via unicode when draggable */}
       {draggable && (

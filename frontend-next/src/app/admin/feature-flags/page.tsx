@@ -1,7 +1,12 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import React, { useState, useMemo } from "react";
-import { useFeatureFlags, FeatureFlags } from "@/hooks/useFeatureFlags";
+import {
+  useFeatureFlags,
+  FeatureFlags,
+  FeatureFlagsProvider,
+} from "@/hooks/useFeatureFlags";
 import { useToast } from "@/hooks/useToast";
 import {
   Dialog,
@@ -14,6 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { FeatureFlagCard } from "@/components/admin/FeatureFlagCard";
+import FactionsThemeShell from "../../factions/FactionsThemeShell";
 
 function AdminContent() {
   const { flags, setFlag } = useFeatureFlags();
@@ -231,5 +237,11 @@ function AdminContent() {
 }
 
 export default function FeatureFlagsPage() {
-  return <AdminContent />;
+  return (
+    <FeatureFlagsProvider>
+      <FactionsThemeShell>
+        <AdminContent />
+      </FactionsThemeShell>
+    </FeatureFlagsProvider>
+  );
 }

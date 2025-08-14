@@ -13,6 +13,9 @@ import { ThemeProvider } from "@/lib/theme/theme-provider";
 import { RUMInit } from "@/components/observability/RUMInit";
 import { ToastProvider } from "@/hooks/useToast";
 import { SessionProvider } from "next-auth/react";
+import { cookies } from "next/headers";
+import FactionThemeRoot from "./FactionThemeRoot";
+import { FACTION_KEYS, type FactionKey } from "@/lib/theme/faction-theme";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -36,6 +39,13 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // SSR cookie sync for initial theme selection
+  const c = cookies();
+  const raw = (c.get("theme:active")?.value || "").toLowerCase();
+  const initialFaction: FactionKey = (FACTION_KEYS as readonly string[]).includes(raw)
+    ? (raw as FactionKey)
+    : "default";
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -56,15 +66,17 @@ export default function RootLayout({
                 <AuthProvider>
                   <FeatureFlagProvider>
                     <Providers>
-                      <div className="relative flex min-h-screen flex-col">
-                        <Navbar />
-                        <main className="flex-1 container mx-auto px-4 py-6">
-                          {children}
-                        </main>
-                        <Footer />
-                        <FeatureFlagIndicator />
-                        <RUMInit />
-                      </div>
+                      <FactionThemeRoot initial={initialFaction}>
+                        <div className="relative flex min-h-screen flex-col">
+                          <Navbar />
+                          <main className="flex-1 container mx-auto px-4 py-6">
+                            {children}
+                          </main>
+                          <Footer />
+                          <FeatureFlagIndicator />
+                          <RUMInit />
+                        </div>
+                      </FactionThemeRoot>
                     </Providers>
                   </FeatureFlagProvider>
                 </AuthProvider>

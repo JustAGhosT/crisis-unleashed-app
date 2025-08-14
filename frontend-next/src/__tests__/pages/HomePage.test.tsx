@@ -1,13 +1,25 @@
-import HomePage from "@/app/page";
 import { useQuery } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { useRouter } from "next/navigation";
 
 // Mock the required modules
 jest.mock("@tanstack/react-query");
 jest.mock("next/navigation", () => ({
   useRouter: jest.fn(),
+  useSearchParams: jest.fn(() => ({
+    get: () => null,
+  })),
+}));
+jest.mock("@/lib/theme/theme-context", () => ({
+  FactionThemeProvider: ({ children }: { children: React.ReactNode }) => (
+    <>{children}</>
+  ),
+}));
+jest.mock("@/lib/theme/use-faction-key", () => ({
+  useFactionKey: () => "default",
+}));
+jest.mock("lucide-react", () => ({
+  Sparkles: () => <span data-testid="sparkles" />,
 }));
 jest.mock("@/components/factions/FactionGrid", () => ({
   FactionGrid: () => (
@@ -16,8 +28,10 @@ jest.mock("@/components/factions/FactionGrid", () => ({
 }));
 
 describe("HomePage Component", () => {
+  const getHome = () => require("@/app/page").default as React.ComponentType;
   // Setup default mocks
   beforeEach(() => {
+    jest.clearAllMocks();
     // Mock useQuery
     (useQuery as jest.Mock).mockReturnValue({
       data: { message: "Crisis Unleashed - Ready to deploy!" },
@@ -32,6 +46,7 @@ describe("HomePage Component", () => {
   });
 
   it("renders the home page with game status", async () => {
+    const HomePage = getHome();
     render(<HomePage />);
 
     // Check heading
@@ -63,23 +78,17 @@ describe("HomePage Component", () => {
       isLoading: true,
     });
 
+    const HomePage = getHome();
     render(<HomePage />);
 
     expect(screen.getByText("Loading...")).toBeInTheDocument();
   });
 
-  it("navigates to deck builder when Build Deck button is clicked", async () => {
-    const mockPush = jest.fn();
-    (useRouter as jest.Mock).mockReturnValue({
-      push: mockPush,
-    });
-
+  it("has a Build Deck link pointing to /deck-builder", () => {
+    const HomePage = getHome();
     render(<HomePage />);
-
-    const buildDeckButton = screen.getByText("Build Deck");
-    await userEvent.click(buildDeckButton);
-
-    expect(mockPush).toHaveBeenCalledWith("/deck-builder");
+    const link = screen.getByRole("link", { name: "Build Deck" });
+    expect(link).toHaveAttribute("href", "/deck-builder");
   });
 
   it("shows fallback status when query fails", () => {
@@ -90,6 +99,7 @@ describe("HomePage Component", () => {
       isError: true,
     });
 
+    const HomePage = getHome();
     render(<HomePage />);
 
     expect(screen.getByText("System Online")).toBeInTheDocument();

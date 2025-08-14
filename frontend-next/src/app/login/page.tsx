@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { Metadata } from "next";
 
@@ -12,7 +13,9 @@ export default function LoginPage() {
       <h1 className="text-3xl font-bold text-center mb-8 text-white">
         Login to Crisis Unleashed
       </h1>
-      <LoginForm />
+      <Suspense fallback={<div>Loading…</div>}>
+        <LoginForm />
+      </Suspense>
     </div>
   );
 }

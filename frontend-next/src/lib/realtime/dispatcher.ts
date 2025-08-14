@@ -16,13 +16,13 @@ class EventDispatcher {
   publish<T = unknown>(type: string, payload: T): void {
     const set = this.listeners.get(type);
     if (!set) return;
-    for (const l of set) {
+    set.forEach((l) => {
       try {
         (l as Listener<T>)(payload);
       } catch {
         /* swallow */
       }
-    }
+    });
   }
 }
 

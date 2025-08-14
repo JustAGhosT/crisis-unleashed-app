@@ -11,6 +11,7 @@ import { AlertCircle, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import FactionsThemeShell from "../../factions/FactionsThemeShell";
 
 export default function CardDetailPage() {
   const params = useParams<{ id?: string }>();
@@ -56,24 +57,26 @@ export default function CardDetailPage() {
   };
 
   return (
-    <div className="container mx-auto py-8 max-w-5xl">
-      <div className="mb-8 flex items-center gap-4">
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/cards" className="flex items-center gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            Back to Cards
-          </Link>
-        </Button>
-        <h1 className="text-2xl font-bold">Card Details</h1>
-      </div>
+    <FactionsThemeShell>
+      <div className="container mx-auto py-8 max-w-5xl">
+        <div className="mb-8 flex items-center gap-4">
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/cards" className="flex items-center gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Back to Cards
+            </Link>
+          </Button>
+          <h1 className="text-2xl font-bold">Card Details</h1>
+        </div>
 
-      {error && (
-        <Alert variant="destructive" className="mb-6">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
+        {error && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+      
 
       {!cardId ? (
         <Alert className="mb-6">
@@ -137,6 +140,7 @@ export default function CardDetailPage() {
           </AlertDescription>
         </Alert>
       )}
-    </div>
+      </div>
+    </FactionsThemeShell>
   );
 }

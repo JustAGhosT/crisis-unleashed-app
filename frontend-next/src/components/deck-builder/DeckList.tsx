@@ -77,10 +77,9 @@ export const DeckList: React.FC<DeckListProps> = ({
       }
       return cardA.name.localeCompare(cardB.name);
     });
-
-    // Virtualization threshold
-    const useVirtual = sortedDeckCards.length > 60;
   }, [deckCards, cardMap, onReorderDeckCards]);
+  // Virtualization threshold (outside of memo so it can be referenced below)
+  const useVirtual = sortedDeckCards.length > 60;
   const dnd = useDeckDnD({
     resolveById: (id) => cardMap.get(id),
     onAddCard: (c) => onAddCard(c),

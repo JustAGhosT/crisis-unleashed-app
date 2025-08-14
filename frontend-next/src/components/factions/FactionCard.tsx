@@ -7,7 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { cn, getFactionColorClass, getFactionGradientClass } from "@/lib/utils";
-import { FactionCardProps } from "@/types/faction";
+import { FactionCardProps, FactionId } from "@/types/faction";
 import React from "react";
 
 /**
@@ -48,6 +48,17 @@ export const FactionCard: React.FC<FactionCardProps> = ({
     }
   };
 
+  // Spectral base styles per faction identity
+  const spectralById: Record<FactionId, string> = {
+    solaris: "bg-slate-800/30 border-slate-600 ring-1 ring-amber-400/10 hover:ring-amber-400/20",
+    umbral: "bg-slate-950/60 border-violet-900/60 ring-1 ring-violet-400/10 hover:ring-violet-400/20",
+    aeonic: "bg-slate-900/40 border-indigo-900/60 ring-1 ring-indigo-400/10 hover:ring-indigo-400/20",
+    primordial: "bg-slate-900/40 border-emerald-900/60 ring-1 ring-emerald-400/10 hover:ring-emerald-400/20",
+    infernal: "bg-slate-900/40 border-red-900/60 ring-1 ring-red-400/10 hover:ring-red-400/20",
+    neuralis: "bg-slate-900/40 border-pink-900/60 ring-1 ring-pink-400/10 hover:ring-pink-400/20",
+    synthetic: "bg-slate-900/50 border-cyan-900/60 ring-1 ring-cyan-400/10 hover:ring-cyan-400/20",
+  };
+
   return (
     <Card
       className={cn(
@@ -55,7 +66,7 @@ export const FactionCard: React.FC<FactionCardProps> = ({
         sizeClasses[size],
         interactive && "card-hover cursor-pointer hover:border-current",
         getFactionColorClass(faction.id),
-        "bg-slate-800/30 border-slate-600",
+        spectralById[faction.id],
       )}
       onClick={handleClick}
       onKeyDown={handleKeyDown}

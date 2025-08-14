@@ -47,22 +47,41 @@ export const VirtualizedReorderableList: React.FC<
   const slice = items.slice(startIndex, endIndex);
   const offsetY = startIndex * rowHeight;
 
+  // Memoized style objects to avoid inline-style lint warnings while retaining CSS variable approach (Option A)
+  const viewportStyle = React.useMemo(
+    () => ({ "--vh": `${height}px` } as React.CSSProperties),
+    [height],
+  );
+  const spacerStyle = React.useMemo(
+    () => ({ "--spacer-h": `${total * rowHeight}px` } as React.CSSProperties),
+    [total, rowHeight],
+  );
+  const translateStyle = React.useMemo(
+    () => ({ "--offsetY": `${offsetY}px` } as React.CSSProperties),
+    [offsetY],
+  );
+
   return (
     <div
-      className="relative w-full overflow-auto"
-      style={{ height }}
+      className="relative w-full overflow-auto [height:var(--vh)]"
+      /* eslint-disable-next-line */
+      style={viewportStyle}
       onScroll={(e) => setScrollTop((e.target as HTMLDivElement).scrollTop)}
-      role="list"
-      aria-label="Virtualized deck list"
     >
-      <div style={{ height: total * rowHeight }} />
+      {/* Spacer to preserve scroll height */}
       <div
-        className="absolute left-0 right-0"
-        style={{ transform: `translateY(${offsetY}px)` }}
+        className="[height:var(--spacer-h)]"
+        /* eslint-disable-next-line */
+        style={spacerStyle}
+      />
+      <div
+        className="absolute left-0 right-0 [transform:translateY(var(--offsetY))]"
+        /* eslint-disable-next-line */
+        style={translateStyle}
       >
-        <div className="space-y-2">
+        <div className="space-y-2" role="list" aria-label="Virtualized deck list">
           {slice.map((item) => (
-            <React.Fragment key={getRowId(item)}>
+            <div key={getRowId(item)} role="listitem">
               {renderItem(item, {
                 draggable: enabled,
                 onDragStart: reorder.getDragStart(item.cardId),
@@ -70,12 +89,13 @@ export const VirtualizedReorderableList: React.FC<
                 onDrop: reorder.getDrop(item.cardId),
                 onKeyDown: reorder.onKeyDown(item.cardId),
               })}
-            </React.Fragment>
+            </div>
           ))}
         </div>
       </div>
     </div>
   );
-};
+}
+;
 
 VirtualizedReorderableList.displayName = "VirtualizedReorderableList";

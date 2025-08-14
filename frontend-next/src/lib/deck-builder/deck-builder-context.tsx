@@ -1,8 +1,4 @@
-const genId = () =>
-  globalThis.crypto && "randomUUID" in globalThis.crypto
-    ? (globalThis.crypto as Crypto).randomUUID()
-    : Math.random().toString(36).slice(2);
-("use client");
+"use client";
 
 import React, {
   createContext,
@@ -15,6 +11,11 @@ import { Deck, Card } from "@/types/deck";
 
 // Sample cards for demonstration
 import { sampleCards } from "./sample-cards";
+
+const genId = () =>
+  globalThis.crypto && "randomUUID" in globalThis.crypto
+    ? (globalThis.crypto as Crypto).randomUUID()
+    : Math.random().toString(36).slice(2);
 
 interface DeckBuilderContextType {
   deck: Deck;
