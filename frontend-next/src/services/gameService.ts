@@ -1,4 +1,4 @@
-import { apiClient, apiRequest } from './api';
+import { apiClient, apiRequest } from "./api";
 
 export interface GameStatus {
   online: boolean;
@@ -28,18 +28,14 @@ export interface MatchmakingStatus {
  * Fetches the current game server status
  */
 export function fetchGameStatus() {
-  return apiRequest<GameStatus>(() => 
-    apiClient.get('/game/status')
-  );
+  return apiRequest<GameStatus>(() => apiClient.get("/game/status"));
 }
 
 /**
  * Fetches game statistics
  */
 export function fetchGameStats() {
-  return apiRequest<GameStats>(() => 
-    apiClient.get('/game/stats')
-  );
+  return apiRequest<GameStats>(() => apiClient.get("/game/stats"));
 }
 
 /**
@@ -48,13 +44,15 @@ export function fetchGameStats() {
  * @returns Promise with the player's matchmaking status
  * @throws Error if playerId is empty or invalid
  */
-export function fetchMatchmakingStatus(playerId: string): Promise<MatchmakingStatus> {
+export function fetchMatchmakingStatus(
+  playerId: string,
+): Promise<MatchmakingStatus> {
   const safeId = encodeURIComponent(playerId.trim());
   if (!safeId) {
-    return Promise.reject(new Error('playerId is required'));
+    return Promise.reject(new Error("playerId is required"));
   }
-  
-  return apiRequest<MatchmakingStatus>(() => 
-    apiClient.get(`/matchmaking/status/${safeId}`)
+
+  return apiRequest<MatchmakingStatus>(() =>
+    apiClient.get(`/matchmaking/status/${safeId}`),
   );
 }

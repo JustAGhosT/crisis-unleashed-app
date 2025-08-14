@@ -1,9 +1,9 @@
 "use client";
 
-import React, { ReactNode } from 'react';
-import { Label } from '@/components/ui/label';
+import React, { ReactNode } from "react";
+import { Label } from "@/components/ui/label";
 function cx(...classes: Array<string | false | null | undefined>) {
-  return classes.filter(Boolean).join(' ');
+  return classes.filter(Boolean).join(" ");
 }
 
 export interface FormFieldProps {
@@ -33,42 +33,42 @@ export function FormField({
   children,
   labelClassName,
   descriptionClassName,
-  errorClassName
+  errorClassName,
 }: FormFieldProps) {
   return (
     <div className={cx("space-y-2", className)}>
       {label && (
-        <Label 
-          htmlFor={id} 
+        <Label
+          htmlFor={id}
           className={cx(
             "block text-sm font-medium",
             "text-gray-700 dark:text-gray-200",
-            labelClassName
+            labelClassName,
           )}
         >
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </Label>
       )}
-      
+
       {children}
-      
+
       {description && (
-        <p 
+        <p
           className={cx(
-            "text-sm text-gray-500 dark:text-gray-400", 
-            descriptionClassName
+            "text-sm text-gray-500 dark:text-gray-400",
+            descriptionClassName,
           )}
         >
           {description}
         </p>
       )}
-      
+
       {error && (
-        <p 
+        <p
           className={cx(
-            "text-sm text-red-500 dark:text-red-400", 
-            errorClassName
+            "text-sm text-red-500 dark:text-red-400",
+            errorClassName,
           )}
           id={`${id}-error`}
         >

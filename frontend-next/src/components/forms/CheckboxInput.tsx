@@ -1,14 +1,18 @@
 "use client";
 
-import React, { forwardRef, InputHTMLAttributes } from 'react';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
+import React, { forwardRef, InputHTMLAttributes } from "react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 function cx(...classes: Array<string | false | null | undefined>) {
-  return classes.filter(Boolean).join(' ');
+  return classes.filter(Boolean).join(" ");
 }
 
-export interface CheckboxInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'id' | 'type' | 'onChange'> {
+export interface CheckboxInputProps
+  extends Omit<
+    InputHTMLAttributes<HTMLInputElement>,
+    "id" | "type" | "onChange"
+  > {
   id: string;
   label: string;
   description?: string;
@@ -26,81 +30,87 @@ export interface CheckboxInputProps extends Omit<InputHTMLAttributes<HTMLInputEl
  * A reusable checkbox input component with label and description.
  * Supports error states and custom styling.
  */
-export const CheckboxInput = forwardRef<HTMLInputElement, CheckboxInputProps>(({
-  id,
-  label,
-  description,
-  error,
-  checked = false,
-  onChange,
-  className,
-  labelClassName,
-  descriptionClassName,
-  errorClassName,
-  checkboxClassName,
-  disabled = false,
-  ...props
-}, ref) => {
-  const hasError = !!error;
-  
-  return (
-    <div className={cx("space-y-2", className)}>
-      <div className="flex items-start">
-        <div className="flex items-center h-5">
-          <Checkbox
-            id={id}
-            ref={ref}
-            checked={checked}
-            onCheckedChange={onChange}
-            disabled={disabled}
-            className={cx(
-              hasError && "border-red-500 focus:ring-red-500 dark:border-red-400",
-              disabled && "opacity-60 cursor-not-allowed",
-              checkboxClassName
-            )}
-            aria-invalid={hasError ? 'true' : 'false'}
-            aria-describedby={hasError ? `${id}-error` : undefined}
-            {...props}
-          />
-        </div>
-        <div className="ml-3 text-sm">
-          <Label 
-            htmlFor={id} 
-            className={cx(
-              "font-medium text-gray-700 dark:text-gray-200",
-              disabled && "opacity-60 cursor-not-allowed",
-              labelClassName
-            )}
-          >
-            {label}
-          </Label>
-          
-          {description && (
-            <p 
+export const CheckboxInput = forwardRef<HTMLInputElement, CheckboxInputProps>(
+  (
+    {
+      id,
+      label,
+      description,
+      error,
+      checked = false,
+      onChange,
+      className,
+      labelClassName,
+      descriptionClassName,
+      errorClassName,
+      checkboxClassName,
+      disabled = false,
+      ...props
+    },
+    ref,
+  ) => {
+    const hasError = !!error;
+
+    return (
+      <div className={cx("space-y-2", className)}>
+        <div className="flex items-start">
+          <div className="flex items-center h-5">
+            <Checkbox
+              id={id}
+              ref={ref}
+              checked={checked}
+              onCheckedChange={onChange}
+              disabled={disabled}
               className={cx(
-                "text-gray-500 dark:text-gray-400", 
-                descriptionClassName
+                hasError &&
+                  "border-red-500 focus:ring-red-500 dark:border-red-400",
+                disabled && "opacity-60 cursor-not-allowed",
+                checkboxClassName,
+              )}
+              aria-invalid={hasError ? "true" : "false"}
+              aria-describedby={hasError ? `${id}-error` : undefined}
+              {...props}
+            />
+          </div>
+          <div className="ml-3 text-sm">
+            <Label
+              htmlFor={id}
+              className={cx(
+                "font-medium text-gray-700 dark:text-gray-200",
+                disabled && "opacity-60 cursor-not-allowed",
+                labelClassName,
               )}
             >
-              {description}
-            </p>
-          )}
-        </div>
-      </div>
-      
-      {error && (
-        <p 
-          className={cx(
-            "text-sm text-red-500 dark:text-red-400", 
-            errorClassName
-          )}
-          id={`${id}-error`}
-        >
-          {error}
-        </p>
-      )}
-    </div>
-  );
-});
+              {label}
+            </Label>
 
-CheckboxInput.displayName = 'CheckboxInput';
+            {description && (
+              <p
+                className={cx(
+                  "text-gray-500 dark:text-gray-400",
+                  descriptionClassName,
+                )}
+              >
+                {description}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {error && (
+          <p
+            className={cx(
+              "text-sm text-red-500 dark:text-red-400",
+              errorClassName,
+            )}
+            id={`${id}-error`}
+          >
+            {error}
+          </p>
+        )}
+      </div>
+    );
+  },
+);
+
+CheckboxInput.displayName = "CheckboxInput";

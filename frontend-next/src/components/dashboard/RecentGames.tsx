@@ -27,8 +27,8 @@ interface RecentGame {
 // Mock data fetcher - replace with actual API call
 const fetchRecentGames = async (): Promise<RecentGame[]> => {
   // Simulate API call
-  await new Promise(resolve => setTimeout(resolve, 700));
-  
+  await new Promise((resolve) => setTimeout(resolve, 700));
+
   return [
     {
       id: "game-123456",
@@ -36,15 +36,15 @@ const fetchRecentGames = async (): Promise<RecentGame[]> => {
       opponent: {
         name: "NightStalker",
         avatar: "https://via.placeholder.com/40",
-        faction: "Cyber Collective"
+        faction: "Cyber Collective",
       },
       playerFaction: "Wasteland Nomads",
       result: "win",
       score: {
         player: 25,
-        opponent: 18
+        opponent: 18,
       },
-      duration: "24:15"
+      duration: "24:15",
     },
     {
       id: "game-123455",
@@ -52,15 +52,15 @@ const fetchRecentGames = async (): Promise<RecentGame[]> => {
       opponent: {
         name: "TechMage",
         avatar: "https://via.placeholder.com/40",
-        faction: "Corporate Overlords"
+        faction: "Corporate Overlords",
       },
       playerFaction: "Wasteland Nomads",
       result: "loss",
       score: {
         player: 12,
-        opponent: 25
+        opponent: 25,
       },
-      duration: "18:42"
+      duration: "18:42",
     },
     {
       id: "game-123454",
@@ -68,15 +68,15 @@ const fetchRecentGames = async (): Promise<RecentGame[]> => {
       opponent: {
         name: "ShadowHunter",
         avatar: "https://via.placeholder.com/40",
-        faction: "Resistance Fighters"
+        faction: "Resistance Fighters",
       },
       playerFaction: "Cyber Collective",
       result: "win",
       score: {
         player: 25,
-        opponent: 10
+        opponent: 10,
       },
-      duration: "15:30"
+      duration: "15:30",
     },
     {
       id: "game-123453",
@@ -84,15 +84,15 @@ const fetchRecentGames = async (): Promise<RecentGame[]> => {
       opponent: {
         name: "DataWraith",
         avatar: "https://via.placeholder.com/40",
-        faction: "Cyber Collective"
+        faction: "Cyber Collective",
       },
       playerFaction: "Wasteland Nomads",
       result: "draw",
       score: {
         player: 20,
-        opponent: 20
+        opponent: 20,
       },
-      duration: "30:00"
+      duration: "30:00",
     },
     {
       id: "game-123452",
@@ -100,16 +100,16 @@ const fetchRecentGames = async (): Promise<RecentGame[]> => {
       opponent: {
         name: "BioCrusader",
         avatar: "https://via.placeholder.com/40",
-        faction: "Wasteland Nomads"
+        faction: "Wasteland Nomads",
       },
       playerFaction: "Corporate Overlords",
       result: "win",
       score: {
         player: 25,
-        opponent: 22
+        opponent: 22,
       },
-      duration: "27:18"
-    }
+      duration: "27:18",
+    },
   ];
 };
 
@@ -136,34 +136,52 @@ export default function RecentGames() {
     <div className="bg-white shadow rounded-lg p-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">Recent Games</h2>
-        <Link 
-          href={"/games/history" as import('next').Route} 
+        <Link
+          href={"/games/history" as import("next").Route}
           className="text-blue-600 hover:text-blue-800 text-sm font-medium"
         >
           View All
         </Link>
       </div>
-      
+
       <div className="overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
                 Date
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
                 Opponent
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
                 Factions
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
                 Result
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
                 Score
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
                 Duration
               </th>
             </tr>
@@ -186,22 +204,30 @@ export default function RecentGames() {
                       />
                     </div>
                     <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-900">{game.opponent.name}</div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {game.opponent.name}
+                      </div>
                     </div>
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">{game.playerFaction}</div>
-                  <div className="text-sm text-gray-500">vs. {game.opponent.faction}</div>
+                  <div className="text-sm text-gray-900">
+                    {game.playerFaction}
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    vs. {game.opponent.faction}
+                  </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    game.result === 'win' 
-                      ? 'bg-green-100 text-green-800' 
-                      : game.result === 'loss' 
-                        ? 'bg-red-100 text-red-800' 
-                        : 'bg-yellow-100 text-yellow-800'
-                  }`}>
+                  <span
+                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      game.result === "win"
+                        ? "bg-green-100 text-green-800"
+                        : game.result === "loss"
+                          ? "bg-red-100 text-red-800"
+                          : "bg-yellow-100 text-yellow-800"
+                    }`}
+                  >
                     {game.result.toUpperCase()}
                   </span>
                 </td>

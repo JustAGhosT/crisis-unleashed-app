@@ -23,7 +23,7 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
           "ring-offset-background disabled:cursor-not-allowed disabled:opacity-50",
           "dark:bg-gray-800 dark:border-gray-700",
-          className
+          className,
         )}
         checked={!!checked}
         onChange={(e) => onCheckedChange?.(e.target.checked)}
@@ -31,7 +31,7 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
         {...props}
       />
     );
-  }
+  },
 );
 
 Checkbox.displayName = "Checkbox";

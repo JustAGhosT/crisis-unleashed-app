@@ -26,12 +26,17 @@
     --ring: 0 0% 3.9%;
     --radius: 0.5rem;
     /* Card sizing variables */
-    --card-w-sm: 8rem;   /* matches Tailwind w-32 */
-    --card-h-sm: 11rem;  /* matches Tailwind h-44 */
-    --card-w-md: 10rem;  /* matches Tailwind w-40 */
-    --card-h-md: 14rem;  /* matches Tailwind h-56 */
-    --card-w-lg: 12rem;  /* matches Tailwind w-48 */
-    --card-h-lg: 17rem;  /* matches Tailwind h-68 */  --chart-1: 12 76% 61%;  --chart-2: 173 58% 39%;  --chart-3: 197 37% 24%;  --chart-4: 43 74% 66%;  --chart-5: 27 87% 67%;
+    --card-w-sm: 8rem; /* matches Tailwind w-32 */
+    --card-h-sm: 11rem; /* matches Tailwind h-44 */
+    --card-w-md: 10rem; /* matches Tailwind w-40 */
+    --card-h-md: 14rem; /* matches Tailwind h-56 */
+    --card-w-lg: 12rem; /* matches Tailwind w-48 */
+    --card-h-lg: 17rem; /* matches Tailwind h-68 */
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
   }
 
   .dark {
@@ -75,34 +80,43 @@
 /* Crisis Unleashed specific styles */
 @layer components {
   /* Card size helper classes to centralize dimensions */
-  .card-size-sm { width: var(--card-w-sm); height: var(--card-h-sm); }
-  .card-size-md { width: var(--card-w-md); height: var(--card-h-md); }
-  .card-size-lg { width: var(--card-w-lg); height: var(--card-h-lg); }
+  .card-size-sm {
+    width: var(--card-w-sm);
+    height: var(--card-h-sm);
+  }
+  .card-size-md {
+    width: var(--card-w-md);
+    height: var(--card-h-md);
+  }
+  .card-size-lg {
+    width: var(--card-w-lg);
+    height: var(--card-h-lg);
+  }
 
   .faction-gradient-solaris {
     @apply bg-gradient-to-br from-faction-solaris-primary via-faction-solaris-secondary to-faction-solaris-accent;
   }
-  
+
   .faction-gradient-umbral {
     @apply bg-gradient-to-br from-faction-umbral-primary via-faction-umbral-secondary to-faction-umbral-accent;
   }
-  
+
   .faction-gradient-aeonic {
     @apply bg-gradient-to-br from-faction-aeonic-primary via-faction-aeonic-secondary to-faction-aeonic-accent;
   }
-  
+
   .faction-gradient-primordial {
     @apply bg-gradient-to-br from-faction-primordial-primary via-faction-primordial-secondary to-faction-primordial-accent;
   }
-  
+
   .faction-gradient-infernal {
     @apply bg-gradient-to-br from-faction-infernal-primary via-faction-infernal-secondary to-faction-infernal-accent;
   }
-  
+
   .faction-gradient-neuralis {
     @apply bg-gradient-to-br from-faction-neuralis-primary via-faction-neuralis-secondary to-faction-neuralis-accent;
   }
-  
+
   .faction-gradient-synthetic {
     @apply bg-gradient-to-br from-faction-synthetic-primary via-faction-synthetic-secondary to-faction-synthetic-accent;
   }
@@ -118,5 +132,7 @@
 
 @layer utilities {
   /* Utility to apply width from a CSS variable (Option A) */
-  .w-cost-bar { width: var(--cost-bar-w); }
+  .w-cost-bar {
+    width: var(--cost-bar-w);
+  }
 }

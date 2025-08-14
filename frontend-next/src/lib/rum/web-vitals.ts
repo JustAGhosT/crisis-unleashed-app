@@ -1,4 +1,4 @@
-import { onCLS, onINP, onLCP, type Metric } from 'web-vitals';
+import { onCLS, onINP, onLCP, type Metric } from "web-vitals";
 
 function sendToRUM(metric: Metric) {
   try {
@@ -25,10 +25,15 @@ function sendToRUM(metric: Metric) {
     const body = JSON.stringify(payload);
 
     if (navigator.sendBeacon) {
-      const blob = new Blob([body], { type: 'application/json' });
-      navigator.sendBeacon('/api/rum', blob);
+      const blob = new Blob([body], { type: "application/json" });
+      navigator.sendBeacon("/api/rum", blob);
     } else {
-      fetch('/api/rum', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body, keepalive: true });
+      fetch("/api/rum", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body,
+        keepalive: true,
+      });
     }
   } catch (e) {
     // swallow

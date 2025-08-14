@@ -1,11 +1,22 @@
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { isValidRarity } from '@/lib/card-utils';
-import { rarityBadgeClass } from '@/lib/ui-maps';
-import { cn } from '@/lib/utils';
-import { DeckStats as DeckStatsType, DeckValidationResult } from '@/types/card';
-import { AlertCircle, AlertTriangle, BarChart3, CheckCircle, PieChart } from 'lucide-react';
- 
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { isValidRarity } from "@/lib/card-utils";
+import { rarityBadgeClass } from "@/lib/ui-maps";
+import { cn } from "@/lib/utils";
+import { DeckStats as DeckStatsType, DeckValidationResult } from "@/types/card";
+import {
+  AlertCircle,
+  AlertTriangle,
+  BarChart3,
+  CheckCircle,
+  PieChart,
+} from "lucide-react";
 
 interface DeckStatsProps {
   stats: DeckStatsType;
@@ -17,11 +28,7 @@ interface DeckStatsProps {
  * DeckStats component - Displays deck composition statistics and validation
  * Following Single Responsibility Principle - focused on stats display
  */
-export const DeckStats = ({
-  stats,
-  validation,
-  className,
-}: DeckStatsProps) => {
+export const DeckStats = ({ stats, validation, className }: DeckStatsProps) => {
   // Cost curve visualization data
   const maxCostCount = Math.max(...Object.values(stats.costCurve), 1);
   const costCurveData = Array.from({ length: 11 }, (_, cost) => ({
@@ -33,7 +40,7 @@ export const DeckStats = ({
   // We're now using the imported isValidRarity function from card-utils
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn("space-y-4", className)}>
       {/* Validation Status */}
       <Card className="bg-slate-800/50 border-slate-600">
         <CardHeader className="pb-3">
@@ -43,16 +50,20 @@ export const DeckStats = ({
             ) : (
               <AlertCircle className="w-5 h-5 text-red-400" />
             )}
-            <CardTitle className="text-lg">
-              Deck Validation
-            </CardTitle>
+            <CardTitle className="text-lg">Deck Validation</CardTitle>
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
           {/* Card Count */}
           <div className="flex justify-between items-center">
             <span className="text-gray-300">Cards:</span>
-            <Badge variant={validation.cardCount >= 30 && validation.cardCount <= 50 ? "default" : "destructive"}>
+            <Badge
+              variant={
+                validation.cardCount >= 30 && validation.cardCount <= 50
+                  ? "default"
+                  : "destructive"
+              }
+            >
               {validation.cardCount}/30-50
             </Badge>
           </div>
@@ -108,11 +119,15 @@ export const DeckStats = ({
           {/* Key Stats */}
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-purple-400">{stats.totalCards}</div>
+              <div className="text-2xl font-bold text-purple-400">
+                {stats.totalCards}
+              </div>
               <div className="text-sm text-gray-400">Total Cards</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-400">{stats.averageCost.toFixed(1)}</div>
+              <div className="text-2xl font-bold text-blue-400">
+                {stats.averageCost.toFixed(1)}
+              </div>
               <div className="text-sm text-gray-400">Avg Cost</div>
             </div>
           </div>
@@ -126,7 +141,9 @@ export const DeckStats = ({
               <div className="space-y-2">
                 {Object.entries(stats.typeDistribution).map(([type, count]) => (
                   <div key={type} className="flex justify-between items-center">
-                    <span className="text-sm text-gray-400 capitalize">{type}:</span>
+                    <span className="text-sm text-gray-400 capitalize">
+                      {type}:
+                    </span>
                     <span className="text-sm text-white">{count}</span>
                   </div>
                 ))}
@@ -136,19 +153,28 @@ export const DeckStats = ({
           {/* Rarity Distribution */}
           {Object.keys(stats.rarityDistribution).length > 0 && (
             <div>
-              <h4 className="text-sm font-medium text-gray-300 mb-2">Rarity Distribution</h4>
+              <h4 className="text-sm font-medium text-gray-300 mb-2">
+                Rarity Distribution
+              </h4>
               <div className="space-y-2">
-                {Object.entries(stats.rarityDistribution).map(([rarity, count]) => (
-                  <div key={rarity} className="flex justify-between items-center">
-                    <Badge
-                      variant={isValidRarity(rarity) ? 'secondary' : 'default'}
-                      className={cn('text-xs', rarityBadgeClass(rarity))}
+                {Object.entries(stats.rarityDistribution).map(
+                  ([rarity, count]) => (
+                    <div
+                      key={rarity}
+                      className="flex justify-between items-center"
                     >
-                      {rarity}
-                    </Badge>
-                    <span className="text-sm text-white">{count}</span>
-                  </div>
-                ))}
+                      <Badge
+                        variant={
+                          isValidRarity(rarity) ? "secondary" : "default"
+                        }
+                        className={cn("text-xs", rarityBadgeClass(rarity))}
+                      >
+                        {rarity}
+                      </Badge>
+                      <span className="text-sm text-white">{count}</span>
+                    </div>
+                  ),
+                )}
               </div>
             </div>
           )}
@@ -167,20 +193,18 @@ export const DeckStats = ({
             {costCurveData.slice(0, 8).map(({ cost, count, percentage }) => (
               <div key={cost} className="flex items-center gap-3">
                 <div className="w-6 text-sm text-gray-400 text-right">
-                  {cost === 7 ? '7+' : cost}
+                  {cost === 7 ? "7+" : cost}
                 </div>
                 <div
                   className="flex-1 bg-slate-700 rounded-full h-6 overflow-hidden"
                   ref={(el) => {
                     if (el) {
                       const pct = Math.max(percentage, count > 0 ? 10 : 0);
-                      el.style.setProperty('--cost-bar-w', `${pct}%`);
+                      el.style.setProperty("--cost-bar-w", `${pct}%`);
                     }
                   }}
                 >
-                  <div
-                    className="h-full bg-gradient-to-r from-purple-500 to-blue-500 transition-all duration-300 flex items-center justify-center w-cost-bar"
-                  >
+                  <div className="h-full bg-gradient-to-r from-purple-500 to-blue-500 transition-all duration-300 flex items-center justify-center w-cost-bar">
                     {count > 0 && (
                       <span className="text-xs font-medium text-white">
                         {count}
@@ -197,4 +221,4 @@ export const DeckStats = ({
   );
 };
 
-DeckStats.displayName = 'DeckStats';
+DeckStats.displayName = "DeckStats";

@@ -14,7 +14,7 @@ Modern Next.js 14 frontend for Crisis Unleashed, featuring App Router, Shadcn UI
 
 ## 📁 **Project Structure**
 
-``` text
+```text
 frontend-next/
 ├── src/
 │   ├── app/                    # Next.js App Router
@@ -105,7 +105,7 @@ pnpm type-check
 Each faction has a dedicated color palette:
 
 - **Solaris**: Gold to Orange gradient
-- **Umbral**: Purple to Violet gradient  
+- **Umbral**: Purple to Violet gradient
 - **Aeonic**: Cyan to Turquoise gradient
 - **Primordial**: Green to Spring Green gradient
 - **Infernal**: Crimson to Pink gradient
@@ -163,6 +163,7 @@ See [MIGRATION_STATUS.md](./MIGRATION_STATUS.md) for detailed migration status.
 ## 🧪 **Testing Strategy**
 
 ### **Planned Testing Stack**
+
 - **Vitest** - Fast unit testing
 - **Testing Library** - Component testing
 - **Playwright** - E2E testing
@@ -171,24 +172,27 @@ See [MIGRATION_STATUS.md](./MIGRATION_STATUS.md) for detailed migration status.
 ## 📱 **Responsive Design**
 
 Mobile-first approach with breakpoints:
+
 - **Mobile**: 320px+
-- **Tablet**: 768px+  
+- **Tablet**: 768px+
 - **Desktop**: 1024px+
 - **Large**: 1280px+
 
 ## 🔧 **API Integration**
 
 ### **TanStack Query Setup**
+
 ```typescript
 // Example query hook
 const { data: factions, isLoading } = useQuery({
-  queryKey: ['factions'],
+  queryKey: ["factions"],
   queryFn: fetchFactions,
   staleTime: 5 * 60 * 1000, // 5 minutes
 });
 ```
 
 ### **Backend Integration**
+
 - API routes proxied through Next.js
 - Automatic retry on network failures
 - Loading and error states
@@ -197,11 +201,13 @@ const { data: factions, isLoading } = useQuery({
 ## 🚀 **Deployment**
 
 ### **Recommended Platforms**
+
 - **Vercel** - Optimal for Next.js
 - **Netlify** - Alternative with good DX
 - **AWS Amplify** - Enterprise solution
 
 ### **Environment Variables**
+
 ```bash
 NEXT_PUBLIC_API_URL=http://localhost:8000
 NEXT_PUBLIC_BLOCKCHAIN_NETWORK=testnet
@@ -226,6 +232,7 @@ NEXT_PUBLIC_BLOCKCHAIN_NETWORK=testnet
 ## 🎮 **Game-Specific Features**
 
 ### **Faction System** ✅
+
 - Complete faction data with colors and themes
 - Responsive faction cards with hover effects
 - Grid layout with loading states
@@ -235,6 +242,7 @@ NEXT_PUBLIC_BLOCKCHAIN_NETWORK=testnet
 - Legacy compatibility layer
 
 ### **Planned Features**
+
 - Card collection interface
 - Deck builder with drag-and-drop
 - Real-time battle interface
@@ -244,6 +252,7 @@ NEXT_PUBLIC_BLOCKCHAIN_NETWORK=testnet
 ## 🤝 **Contributing**
 
 ### **Code Standards**
+
 - TypeScript strict mode
 - ESLint + Prettier formatting
 - Component naming: PascalCase
@@ -251,6 +260,7 @@ NEXT_PUBLIC_BLOCKCHAIN_NETWORK=testnet
 - Named exports preferred
 
 ### **Component Guidelines**
+
 - Follow SOLID principles
 - Include JSDoc comments
 - Handle loading/error states

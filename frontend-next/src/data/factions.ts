@@ -5,13 +5,13 @@ import { FactionId } from "@/types/faction";
  */
 export function getFactionOptions() {
   return [
-    { value: 'solaris', label: 'Solaris Nexus' },
-    { value: 'umbral', label: 'Umbral Eclipse' },
-    { value: 'aeonic', label: 'Aeonic Dominion' },
-    { value: 'primordial', label: 'Primordial Genesis' },
-    { value: 'infernal', label: 'Infernal Core' },
-    { value: 'neuralis', label: 'Neuralis Conclave' },
-    { value: 'synthetic', label: 'Synthetic Directive' }
+    { value: "solaris", label: "Solaris Nexus" },
+    { value: "umbral", label: "Umbral Eclipse" },
+    { value: "aeonic", label: "Aeonic Dominion" },
+    { value: "primordial", label: "Primordial Genesis" },
+    { value: "infernal", label: "Infernal Core" },
+    { value: "neuralis", label: "Neuralis Conclave" },
+    { value: "synthetic", label: "Synthetic Directive" },
   ];
 }
 
@@ -19,13 +19,13 @@ export function getFactionOptions() {
  * Get all available faction IDs
  */
 export const FACTION_IDS: FactionId[] = [
-  'solaris',
-  'umbral',
-  'aeonic',
-  'primordial',
-  'infernal',
-  'neuralis',
-  'synthetic'
+  "solaris",
+  "umbral",
+  "aeonic",
+  "primordial",
+  "infernal",
+  "neuralis",
+  "synthetic",
 ];
 
 /**
@@ -33,7 +33,7 @@ export const FACTION_IDS: FactionId[] = [
  */
 export function getFactionById(id: FactionId) {
   const options = getFactionOptions();
-  return options.find(option => option.value === id);
+  return options.find((option) => option.value === id);
 }
 
 /**
@@ -49,21 +49,21 @@ export function formatFactionName(id: FactionId): string {
  */
 export function getFactionColorClass(id: FactionId): string {
   switch (id) {
-    case 'solaris':
-      return 'text-yellow-400';
-    case 'umbral':
-      return 'text-purple-400';
-    case 'aeonic':
-      return 'text-blue-400';
-    case 'primordial':
-      return 'text-green-400';
-    case 'infernal':
-      return 'text-red-400';
-    case 'neuralis':
-      return 'text-cyan-400';
-    case 'synthetic':
-      return 'text-gray-400';
+    case "solaris":
+      return "text-yellow-400";
+    case "umbral":
+      return "text-purple-400";
+    case "aeonic":
+      return "text-blue-400";
+    case "primordial":
+      return "text-green-400";
+    case "infernal":
+      return "text-red-400";
+    case "neuralis":
+      return "text-cyan-400";
+    case "synthetic":
+      return "text-gray-400";
     default:
-      return 'text-white';
+      return "text-white";
   }
 }

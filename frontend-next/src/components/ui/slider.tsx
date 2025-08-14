@@ -17,8 +17,17 @@ export interface SliderProps extends React.HTMLAttributes<HTMLSpanElement> {
 
 export const Slider = React.forwardRef<HTMLSpanElement, SliderProps>(
   (
-    { value = [0], onValueChange, min = 0, max = 100, step = 1, disabled, className, ...props },
-    ref
+    {
+      value = [0],
+      onValueChange,
+      min = 0,
+      max = 100,
+      step = 1,
+      disabled,
+      className,
+      ...props
+    },
+    ref,
   ) => {
     const current = Array.isArray(value) && value.length ? value[0] : 0;
 
@@ -33,7 +42,7 @@ export const Slider = React.forwardRef<HTMLSpanElement, SliderProps>(
           type="range"
           className={cx(
             "w-full cursor-pointer appearance-none bg-transparent",
-            disabled && "opacity-60 cursor-not-allowed"
+            disabled && "opacity-60 cursor-not-allowed",
           )}
           value={current}
           min={min}
@@ -45,7 +54,7 @@ export const Slider = React.forwardRef<HTMLSpanElement, SliderProps>(
         />
       </span>
     );
-  }
+  },
 );
 
 Slider.displayName = "Slider";

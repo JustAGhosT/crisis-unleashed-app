@@ -101,11 +101,11 @@ export async function getFactions(): Promise<Faction[]> {
 // Get faction IDs (for static generation)
 export async function getFactionIds(): Promise<string[]> {
   const factions = await getFactions();
-  return factions.map(faction => faction.id);
+  return factions.map((faction) => faction.id);
 }
 
 // Get a single faction by ID
 export async function getFaction(id: string): Promise<Faction | null> {
   const factions = await getFactions();
-  return factions.find(faction => faction.id === id) || null;
+  return factions.find((faction) => faction.id === id) || null;
 }

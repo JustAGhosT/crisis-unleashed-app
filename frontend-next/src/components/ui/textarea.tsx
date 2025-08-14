@@ -20,12 +20,12 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
           "disabled:cursor-not-allowed disabled:opacity-50",
           "dark:bg-gray-800 dark:border-gray-700 dark:text-white",
-          className
+          className,
         )}
         {...props}
       />
     );
-  }
+  },
 );
 Textarea.displayName = "Textarea";
 

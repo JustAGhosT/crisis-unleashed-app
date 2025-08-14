@@ -13,12 +13,22 @@ const profileSchema = z.object({
     .string()
     .min(3, "Username must be at least 3 characters")
     .max(20, "Username must be less than 20 characters")
-    .regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores"),
-  email: z
-    .string()
-    .email("Please enter a valid email address"),
+    .regex(
+      /^[a-zA-Z0-9_]+$/,
+      "Username can only contain letters, numbers, and underscores",
+    ),
+  email: z.string().email("Please enter a valid email address"),
   preferredFaction: z
-    .enum(["", "solaris", "umbral", "aeonic", "primordial", "infernal", "neuralis", "synthetic"] as const)
+    .enum([
+      "",
+      "solaris",
+      "umbral",
+      "aeonic",
+      "primordial",
+      "infernal",
+      "neuralis",
+      "synthetic",
+    ] as const)
     .optional(),
 });
 
@@ -28,7 +38,15 @@ interface ProfileFormProps {
   user: {
     username: string;
     email: string;
-    preferredFaction?: "" | "solaris" | "umbral" | "aeonic" | "primordial" | "infernal" | "neuralis" | "synthetic";
+    preferredFaction?:
+      | ""
+      | "solaris"
+      | "umbral"
+      | "aeonic"
+      | "primordial"
+      | "infernal"
+      | "neuralis"
+      | "synthetic";
   };
   onSuccess: () => void;
   onError: (error: string) => void;
@@ -36,7 +54,7 @@ interface ProfileFormProps {
 
 export function ProfileForm({ user, onSuccess, onError }: ProfileFormProps) {
   const factionOptions = getFactionOptions();
-  
+
   const {
     register,
     handleSubmit,
@@ -53,7 +71,7 @@ export function ProfileForm({ user, onSuccess, onError }: ProfileFormProps) {
   const onSubmit = async () => {
     try {
       // In a real app, this would be an API call to update the profile
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       onSuccess();
     } catch (error) {
       onError("Failed to update profile. Please try again.");
@@ -77,7 +95,7 @@ export function ProfileForm({ user, onSuccess, onError }: ProfileFormProps) {
           <p className="text-red-400 text-sm">{errors.username.message}</p>
         )}
       </div>
-      
+
       <div className="space-y-2">
         <label htmlFor="email" className="text-sm font-medium text-gray-200">
           Email
@@ -94,9 +112,12 @@ export function ProfileForm({ user, onSuccess, onError }: ProfileFormProps) {
           <p className="text-red-400 text-sm">{errors.email.message}</p>
         )}
       </div>
-      
+
       <div className="space-y-2">
-        <label htmlFor="preferredFaction" className="text-sm font-medium text-gray-200">
+        <label
+          htmlFor="preferredFaction"
+          className="text-sm font-medium text-gray-200"
+        >
           Preferred Faction
         </label>
         <Select
@@ -112,12 +133,8 @@ export function ProfileForm({ user, onSuccess, onError }: ProfileFormProps) {
           ))}
         </Select>
       </div>
-      
-      <Button
-        type="submit"
-        disabled={isSubmitting}
-        className="mt-4"
-      >
+
+      <Button type="submit" disabled={isSubmitting} className="mt-4">
         {isSubmitting ? "Saving..." : "Save Changes"}
       </Button>
     </form>

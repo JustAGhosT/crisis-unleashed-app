@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
-import { useFeatureFlags, FeatureFlags } from '@/hooks/useFeatureFlags';
-import { useToast } from '@/hooks/useToast';
+import React, { useState, useMemo } from "react";
+import { useFeatureFlags, FeatureFlags } from "@/hooks/useFeatureFlags";
+import { useToast } from "@/hooks/useToast";
 import {
   Dialog,
   DialogContent,
@@ -10,10 +10,10 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { FeatureFlagCard } from '@/components/admin/FeatureFlagCard';
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { FeatureFlagCard } from "@/components/admin/FeatureFlagCard";
 
 function AdminContent() {
   const { flags, setFlag } = useFeatureFlags();
@@ -21,23 +21,66 @@ function AdminContent() {
   const [confirmEnableOpen, setConfirmEnableOpen] = useState(false);
   const [confirmDisableOpen, setConfirmDisableOpen] = useState(false);
   const [isBatchLoading, setIsBatchLoading] = useState(false);
-  const allFlagKeys = useMemo(() => Object.keys(flags) as (keyof typeof flags)[], [flags]);
+  const allFlagKeys = useMemo(
+    () => Object.keys(flags) as (keyof typeof flags)[],
+    [flags],
+  );
 
   // Group flags by category
   const migrationFlags = [
-    { key: 'useNewFactionUI', title: 'Faction UI', description: 'New faction cards and detail pages' },
-    { key: 'useNewDeckBuilder', title: 'Deck Builder', description: 'New deck builder interface with improved UX' },
-    { key: 'useNewCardDisplay', title: 'Card Display', description: 'Redesigned card layout and animations' },
-    { key: 'useNewNavigation', title: 'Navigation', description: 'New header and navigation components' },
-    { key: 'useNewTheme', title: 'Theme System', description: 'New theming with dark/light mode support' },
+    {
+      key: "useNewFactionUI",
+      title: "Faction UI",
+      description: "New faction cards and detail pages",
+    },
+    {
+      key: "useNewDeckBuilder",
+      title: "Deck Builder",
+      description: "New deck builder interface with improved UX",
+    },
+    {
+      key: "useNewCardDisplay",
+      title: "Card Display",
+      description: "Redesigned card layout and animations",
+    },
+    {
+      key: "useNewNavigation",
+      title: "Navigation",
+      description: "New header and navigation components",
+    },
+    {
+      key: "useNewTheme",
+      title: "Theme System",
+      description: "New theming with dark/light mode support",
+    },
   ];
-  
+
   const newFeatureFlags = [
-    { key: 'enableAdvancedDeckAnalytics', title: 'Advanced Deck Analytics', description: 'Statistical analysis and deck performance metrics' },
-    { key: 'enableCardAnimations', title: 'Card Animations', description: 'Enhanced visual effects for card interactions' },
-    { key: 'enableMultiplayerChat', title: 'Multiplayer Chat', description: 'In-game chat functionality for multiplayer games' },
-    { key: 'enableTournamentMode', title: 'Tournament Mode', description: 'Competitive tournament features and brackets' },
-    { key: 'enableAIOpponent', title: 'AI Opponent', description: 'Play against an AI-powered opponent' },
+    {
+      key: "enableAdvancedDeckAnalytics",
+      title: "Advanced Deck Analytics",
+      description: "Statistical analysis and deck performance metrics",
+    },
+    {
+      key: "enableCardAnimations",
+      title: "Card Animations",
+      description: "Enhanced visual effects for card interactions",
+    },
+    {
+      key: "enableMultiplayerChat",
+      title: "Multiplayer Chat",
+      description: "In-game chat functionality for multiplayer games",
+    },
+    {
+      key: "enableTournamentMode",
+      title: "Tournament Mode",
+      description: "Competitive tournament features and brackets",
+    },
+    {
+      key: "enableAIOpponent",
+      title: "AI Opponent",
+      description: "Play against an AI-powered opponent",
+    },
   ];
 
   // Handle batch operations
@@ -81,25 +124,31 @@ function AdminContent() {
 
       {/* Migration Features Section */}
       <h2 className="text-xl font-semibold mb-4 mt-6">Migration Features</h2>
-      <p className="text-muted-foreground mb-4">These features have been fully migrated to Next.js and are enabled by default.</p>
+      <p className="text-muted-foreground mb-4">
+        These features have been fully migrated to Next.js and are enabled by
+        default.
+      </p>
       <div className="grid gap-6 md:grid-cols-2">
-        {migrationFlags.map(flag => (
-        <FeatureFlagCard
+        {migrationFlags.map((flag) => (
+          <FeatureFlagCard
             key={flag.key}
             title={flag.title}
             description={flag.description}
             flagKey={flag.key as keyof FeatureFlags}
             enabled={flags[flag.key as keyof FeatureFlags] ?? false}
             setFlag={typeSafeSetFlag}
-        />
+          />
         ))}
       </div>
 
       {/* New Features Section */}
       <h2 className="text-xl font-semibold mb-4 mt-10">New Features</h2>
-      <p className="text-muted-foreground mb-4">These features are currently in development and can be enabled for testing.</p>
+      <p className="text-muted-foreground mb-4">
+        These features are currently in development and can be enabled for
+        testing.
+      </p>
       <div className="grid gap-6 md:grid-cols-2">
-        {newFeatureFlags.map(flag => (
+        {newFeatureFlags.map((flag) => (
           <FeatureFlagCard
             key={flag.key}
             title={flag.title}
@@ -127,10 +176,17 @@ function AdminContent() {
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setConfirmEnableOpen(false)} disabled={isBatchLoading}>
+              <Button
+                variant="outline"
+                onClick={() => setConfirmEnableOpen(false)}
+                disabled={isBatchLoading}
+              >
                 Cancel
               </Button>
-              <Button onClick={() => handleBatch(true)} disabled={isBatchLoading}>
+              <Button
+                onClick={() => handleBatch(true)}
+                disabled={isBatchLoading}
+              >
                 {isBatchLoading ? "Enabling…" : "Confirm"}
               </Button>
             </DialogFooter>
@@ -147,14 +203,23 @@ function AdminContent() {
             <DialogHeader>
               <DialogTitle>Disable all feature flags?</DialogTitle>
               <DialogDescription>
-                This will turn off every feature flag for your session. Continue?
+                This will turn off every feature flag for your session.
+                Continue?
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setConfirmDisableOpen(false)} disabled={isBatchLoading}>
+              <Button
+                variant="outline"
+                onClick={() => setConfirmDisableOpen(false)}
+                disabled={isBatchLoading}
+              >
                 Cancel
               </Button>
-              <Button variant="destructive" onClick={() => handleBatch(false)} disabled={isBatchLoading}>
+              <Button
+                variant="destructive"
+                onClick={() => handleBatch(false)}
+                disabled={isBatchLoading}
+              >
                 {isBatchLoading ? "Disabling…" : "Confirm"}
               </Button>
             </DialogFooter>

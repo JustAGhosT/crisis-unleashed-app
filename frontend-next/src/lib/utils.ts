@@ -1,14 +1,43 @@
-import { type ClassValue, clsx } from "clsx";
+import type { ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+  // Lightweight clsx-like handling to avoid runtime dependency issues in tests
+  const classes: string[] = [];
+  for (const input of inputs) {
+    if (!input) continue;
+    if (typeof input === "string" || typeof input === "number") {
+      classes.push(String(input));
+      continue;
+    }
+    if (Array.isArray(input)) {
+      for (const item of input) {
+        if (!item) continue;
+        if (typeof item === "string" || typeof item === "number") {
+          classes.push(String(item));
+        } else if (typeof item === "object") {
+          for (const [k, v] of Object.entries(
+            item as Record<string, unknown>,
+          )) {
+            if (v) classes.push(k);
+          }
+        }
+      }
+      continue;
+    }
+    if (typeof input === "object") {
+      for (const [k, v] of Object.entries(input as Record<string, unknown>)) {
+        if (v) classes.push(k);
+      }
+    }
+  }
+  return twMerge(classes.join(" "));
 }
 
 // Debounce utility: returns a debounced version of fn that fires after `wait` ms
 export function debounce<TArgs extends unknown[]>(
   fn: (...args: TArgs) => void,
-  wait: number
+  wait: number,
 ) {
   let timer: ReturnType<typeof setTimeout> | undefined;
   return (...args: TArgs) => {

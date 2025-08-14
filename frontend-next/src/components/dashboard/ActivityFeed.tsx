@@ -19,8 +19,8 @@ interface Activity {
 // Mock data fetcher - replace with actual API call
 const fetchRecentActivity = async (): Promise<Activity[]> => {
   // Simulate API call
-  await new Promise(resolve => setTimeout(resolve, 800));
-  
+  await new Promise((resolve) => setTimeout(resolve, 800));
+
   return [
     {
       id: "activity-001",
@@ -29,8 +29,8 @@ const fetchRecentActivity = async (): Promise<Activity[]> => {
       timestamp: "2025-08-09T20:15:00Z",
       details: {
         achievement: "Master Tactician",
-        points: 50
-      }
+        points: 50,
+      },
     },
     {
       id: "activity-002",
@@ -40,8 +40,8 @@ const fetchRecentActivity = async (): Promise<Activity[]> => {
       details: {
         gameId: "game-123456",
         opponent: "NightStalker",
-        result: "win"
-      }
+        result: "win",
+      },
     },
     {
       id: "activity-003",
@@ -50,14 +50,14 @@ const fetchRecentActivity = async (): Promise<Activity[]> => {
       timestamp: "2025-08-09T09:10:00Z",
       details: {
         reward: "Energy Pack",
-        amount: 100
-      }
+        amount: 100,
+      },
     },
     {
       id: "activity-004",
       type: "friend",
       description: "TechMage accepted your friend request",
-      timestamp: "2025-08-08T22:45:00Z"
+      timestamp: "2025-08-08T22:45:00Z",
     },
     {
       id: "activity-005",
@@ -66,9 +66,9 @@ const fetchRecentActivity = async (): Promise<Activity[]> => {
       timestamp: "2025-08-08T18:30:00Z",
       details: {
         item: "Apocalypse Survivor Pack",
-        cost: 500
-      }
-    }
+        cost: 500,
+      },
+    },
   ];
 };
 
@@ -117,7 +117,7 @@ export default function ActivityFeed() {
   return (
     <div className="bg-white shadow rounded-lg p-6">
       <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
-      
+
       <div className="flow-root">
         <ul className="-mb-8">
           {activities?.map((activity, activityIdx) => (
@@ -137,7 +137,9 @@ export default function ActivityFeed() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div>
-                      <p className="text-sm text-gray-900">{activity.description}</p>
+                      <p className="text-sm text-gray-900">
+                        {activity.description}
+                      </p>
                       <p className="mt-0.5 text-xs text-gray-500">
                         {new Date(activity.timestamp).toLocaleString()}
                       </p>
@@ -149,7 +151,7 @@ export default function ActivityFeed() {
           ))}
         </ul>
       </div>
-      
+
       <div className="mt-2 text-center">
         <button className="text-sm font-medium text-blue-600 hover:text-blue-800">
           View All Activity

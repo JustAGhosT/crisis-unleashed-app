@@ -1,26 +1,28 @@
 "use client";
 
-import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import type { Route } from 'next';
-import { z } from 'zod';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { signIn } from 'next-auth/react';
-import Link from 'next/link';
+import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import type { Route } from "next";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { signIn } from "next-auth/react";
+import Link from "next/link";
 
 // Zod schema for login validation
 const loginSchema = z.object({
-  email: z
-    .string()
-    .email('Please enter a valid email address'),
-  password: z
-    .string()
-    .min(6, 'Password must be at least 6 characters'),
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
@@ -29,9 +31,18 @@ export function LoginForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const from = searchParams.get('from') || '/dashboard';
-  const allowedRoutes: string[] = ['/dashboard', '/factions', '/cards', '/login', '/register', '/forgot-password'];
-  const safeFrom = (allowedRoutes.includes(from) ? (from as Route) : ('/dashboard' as Route));
+  const from = searchParams.get("from") || "/dashboard";
+  const allowedRoutes: string[] = [
+    "/dashboard",
+    "/factions",
+    "/cards",
+    "/login",
+    "/register",
+    "/forgot-password",
+  ];
+  const safeFrom = allowedRoutes.includes(from)
+    ? (from as Route)
+    : ("/dashboard" as Route);
 
   const {
     register,
@@ -43,21 +54,21 @@ export function LoginForm() {
   const onSubmit = async (data: LoginFormData) => {
     setIsSubmitting(true);
     setError(null);
-    
+
     try {
-      const res = await signIn('credentials', {
+      const res = await signIn("credentials", {
         redirect: false,
         email: data.email,
         password: data.password,
       });
       if (res?.error) {
-        setError('Invalid email or password');
+        setError("Invalid email or password");
       } else {
         router.push(safeFrom);
       }
     } catch (err) {
-      console.error('Login error:', err);
-      setError('Login failed. Please try again.');
+      console.error("Login error:", err);
+      setError("Login failed. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -71,26 +82,32 @@ export function LoginForm() {
           Enter your credentials to access your account
         </CardDescription>
       </CardHeader>
-      
+
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {error && (
-            <Alert variant="destructive" className="bg-red-900/50 border-red-800 text-red-200">
+            <Alert
+              variant="destructive"
+              className="bg-red-900/50 border-red-800 text-red-200"
+            >
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
-          
+
           {/* Email Field */}
           <div className="space-y-2">
-            <label htmlFor="email" className="text-sm font-medium text-gray-200">
+            <label
+              htmlFor="email"
+              className="text-sm font-medium text-gray-200"
+            >
               Email
             </label>
             <Input
               id="email"
               type="email"
-              {...register('email')}
+              {...register("email")}
               className={`bg-slate-700 border ${
-                errors.email ? 'border-red-500' : 'border-slate-600'
+                errors.email ? "border-red-500" : "border-slate-600"
               }`}
               placeholder="Enter your email"
             />
@@ -98,18 +115,21 @@ export function LoginForm() {
               <p className="text-red-400 text-sm">{errors.email.message}</p>
             )}
           </div>
-          
+
           {/* Password Field */}
           <div className="space-y-2">
-            <label htmlFor="password" className="text-sm font-medium text-gray-200">
+            <label
+              htmlFor="password"
+              className="text-sm font-medium text-gray-200"
+            >
               Password
             </label>
             <Input
               id="password"
               type="password"
-              {...register('password')}
+              {...register("password")}
               className={`bg-slate-700 border ${
-                errors.password ? 'border-red-500' : 'border-slate-600'
+                errors.password ? "border-red-500" : "border-slate-600"
               }`}
               placeholder="Enter your password"
             />
@@ -118,23 +138,29 @@ export function LoginForm() {
             )}
           </div>
           <div className="text-right">
-            <Link href={"/forgot-password" as Route} className="text-sm text-purple-400 hover:text-purple-300">
+            <Link
+              href={"/forgot-password" as Route}
+              className="text-sm text-purple-400 hover:text-purple-300"
+            >
               Forgot password?
             </Link>
-        </div>
-          
+          </div>
+
           {/* Submit Button */}
           <Button
             type="submit"
             className="w-full bg-purple-600 hover:bg-purple-700 text-white"
             disabled={isSubmitting}
           >
-            {isSubmitting ? 'Logging in...' : 'Login'}
+            {isSubmitting ? "Logging in..." : "Login"}
           </Button>
-          
+
           <div className="text-center text-gray-300 text-sm">
-            Don&apos;t have an account?{' '}
-            <Link href={"/register" as Route} className="text-purple-400 hover:text-purple-300">
+            Don&apos;t have an account?{" "}
+            <Link
+              href={"/register" as Route}
+              className="text-purple-400 hover:text-purple-300"
+            >
               Register
             </Link>
           </div>

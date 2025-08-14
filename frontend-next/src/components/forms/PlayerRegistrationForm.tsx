@@ -1,31 +1,46 @@
 "use client";
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
-import { zodResolver } from '@hookform/resolvers/zod';
-import React from 'react';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
+import React from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 // Assuming this function exists in your codebase; if not, we'll need to create it
-import { getFactionOptions } from '@/data/factions';
+import { getFactionOptions } from "@/data/factions";
 
 // Zod schema for player registration validation
 const playerRegistrationSchema = z.object({
   username: z
     .string()
-    .min(3, 'Username must be at least 3 characters')
-    .max(20, 'Username must be less than 20 characters')
-    .regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores'),
-  email: z
-    .string()
-    .email('Please enter a valid email address'),
+    .min(3, "Username must be at least 3 characters")
+    .max(20, "Username must be less than 20 characters")
+    .regex(
+      /^[a-zA-Z0-9_]+$/,
+      "Username can only contain letters, numbers, and underscores",
+    ),
+  email: z.string().email("Please enter a valid email address"),
   preferredFaction: z
-    .enum(['solaris', 'umbral', 'aeonic', 'primordial', 'infernal', 'neuralis', 'synthetic'] as const)
+    .enum([
+      "solaris",
+      "umbral",
+      "aeonic",
+      "primordial",
+      "infernal",
+      "neuralis",
+      "synthetic",
+    ] as const)
     .optional(),
   acceptTerms: z
     .boolean()
-    .refine(val => val === true, 'You must accept the terms and conditions'),
+    .refine((val) => val === true, "You must accept the terms and conditions"),
 });
 
 type PlayerRegistrationData = z.infer<typeof playerRegistrationSchema>;
@@ -37,7 +52,7 @@ interface PlayerRegistrationFormProps {
 
 /**
  * PlayerRegistrationForm - Demonstrates React Hook Form + Zod integration
- * 
+ *
  * Following SOLID principles:
  * - Single Responsibility: Handles player registration
  * - Open/Closed: Extensible through props and composition
@@ -46,19 +61,19 @@ interface PlayerRegistrationFormProps {
  */
 export const PlayerRegistrationForm: React.FC<PlayerRegistrationFormProps> = ({
   onSubmit,
-  isLoading = false
+  isLoading = false,
 }) => {
   const {
     register,
     handleSubmit,
     formState: { errors, isValid },
-    watch
+    watch,
   } = useForm<PlayerRegistrationData>({
     resolver: zodResolver(playerRegistrationSchema),
-    mode: 'onChange'
+    mode: "onChange",
   });
 
-  const selectedFaction = watch('preferredFaction');
+  const selectedFaction = watch("preferredFaction");
   const factionOptions = getFactionOptions();
   // Intentionally ignore state values until modals are rendered
   const [, setShowTermsModal] = React.useState(false);
@@ -81,17 +96,20 @@ export const PlayerRegistrationForm: React.FC<PlayerRegistrationFormProps> = ({
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
           {/* Username Field */}
           <div className="space-y-2">
-            <label htmlFor="username" className="text-sm font-medium text-gray-200">
+            <label
+              htmlFor="username"
+              className="text-sm font-medium text-gray-200"
+            >
               Username
             </label>
             <input
               id="username"
               type="text"
-              {...register('username')}
+              {...register("username")}
               className={cn(
-                'w-full px-3 py-2 bg-slate-700 border rounded-md text-white placeholder-gray-400',
-                'focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent',
-                errors.username ? 'border-red-500' : 'border-slate-600'
+                "w-full px-3 py-2 bg-slate-700 border rounded-md text-white placeholder-gray-400",
+                "focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent",
+                errors.username ? "border-red-500" : "border-slate-600",
               )}
               placeholder="Enter your username"
             />
@@ -102,17 +120,20 @@ export const PlayerRegistrationForm: React.FC<PlayerRegistrationFormProps> = ({
 
           {/* Email Field */}
           <div className="space-y-2">
-            <label htmlFor="email" className="text-sm font-medium text-gray-200">
+            <label
+              htmlFor="email"
+              className="text-sm font-medium text-gray-200"
+            >
               Email
             </label>
             <input
               id="email"
               type="email"
-              {...register('email')}
+              {...register("email")}
               className={cn(
-                'w-full px-3 py-2 bg-slate-700 border rounded-md text-white placeholder-gray-400',
-                'focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent',
-                errors.email ? 'border-red-500' : 'border-slate-600'
+                "w-full px-3 py-2 bg-slate-700 border rounded-md text-white placeholder-gray-400",
+                "focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent",
+                errors.email ? "border-red-500" : "border-slate-600",
               )}
               placeholder="Enter your email"
             />
@@ -123,15 +144,18 @@ export const PlayerRegistrationForm: React.FC<PlayerRegistrationFormProps> = ({
 
           {/* Faction Selection */}
           <div className="space-y-2">
-            <label htmlFor="preferredFaction" className="text-sm font-medium text-gray-200">
+            <label
+              htmlFor="preferredFaction"
+              className="text-sm font-medium text-gray-200"
+            >
               Preferred Faction (Optional)
             </label>
             <select
               id="preferredFaction"
-              {...register('preferredFaction')}
+              {...register("preferredFaction")}
               className={cn(
-                'w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-white',
-                'focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent'
+                "w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-white",
+                "focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent",
               )}
             >
               <option value="">Select a faction</option>
@@ -153,19 +177,19 @@ export const PlayerRegistrationForm: React.FC<PlayerRegistrationFormProps> = ({
             <label className="flex items-start space-x-2">
               <input
                 type="checkbox"
-                {...register('acceptTerms')}
+                {...register("acceptTerms")}
                 className="mt-1 h-4 w-4 text-purple-600 rounded border-slate-600 bg-slate-700 focus:ring-purple-500"
               />
               <span className="text-sm text-gray-300">
-                I accept the{' '}
+                I accept the{" "}
                 <button
                   type="button"
                   onClick={() => setShowTermsModal(true)}
                   className="text-purple-400 hover:text-purple-300 underline"
                 >
                   Terms and Conditions
-                </button>{' '}
-                and{' '}
+                </button>{" "}
+                and{" "}
                 <button
                   type="button"
                   onClick={() => setShowPrivacyModal(true)}
@@ -176,7 +200,9 @@ export const PlayerRegistrationForm: React.FC<PlayerRegistrationFormProps> = ({
               </span>
             </label>
             {errors.acceptTerms && (
-              <p className="text-red-400 text-sm">{errors.acceptTerms.message}</p>
+              <p className="text-red-400 text-sm">
+                {errors.acceptTerms.message}
+              </p>
             )}
           </div>
 
@@ -187,7 +213,7 @@ export const PlayerRegistrationForm: React.FC<PlayerRegistrationFormProps> = ({
             disabled={!isValid || isLoading}
             variant="faction"
           >
-            {isLoading ? 'Creating Account...' : 'Create Account'}
+            {isLoading ? "Creating Account..." : "Create Account"}
           </Button>
         </form>
       </CardContent>
@@ -195,4 +221,4 @@ export const PlayerRegistrationForm: React.FC<PlayerRegistrationFormProps> = ({
   );
 };
 
-PlayerRegistrationForm.displayName = 'PlayerRegistrationForm';
+PlayerRegistrationForm.displayName = "PlayerRegistrationForm";

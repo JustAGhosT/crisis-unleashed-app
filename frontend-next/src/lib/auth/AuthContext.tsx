@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 
 export interface User {
   id: string;
@@ -15,7 +21,11 @@ interface AuthContextType {
   isLoading: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
-  register: (username: string, email: string, password: string) => Promise<void>;
+  register: (
+    username: string,
+    email: string,
+    password: string,
+  ) => Promise<void>;
   logout: () => Promise<void>;
   clearError: () => void;
 }
@@ -43,41 +53,41 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
-    setIsLoading(true);
-        const response = await fetch('/api/auth/session');
+        setIsLoading(true);
+        const response = await fetch("/api/auth/session");
         const data = await response.json();
-        
+
         if (data.user) {
           setUser(data.user);
-      }
-    } catch (err) {
+        }
+      } catch (err) {
         console.error("Failed to restore auth session:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
     checkAuthStatus();
   }, []);
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
       });
-      
+
       const data = await response.json();
-      
+
       if (!response.ok) {
-        throw new Error(data.error || 'Login failed');
+        throw new Error(data.error || "Login failed");
       }
-      
+
       setUser(data.user);
     } catch (err) {
       setError((err as Error).message);
@@ -87,25 +97,29 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  const register = async (username: string, email: string, password: string) => {
+  const register = async (
+    username: string,
+    email: string,
+    password: string,
+  ) => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ username, email, password }),
       });
-      
+
       const data = await response.json();
-      
+
       if (!response.ok) {
-        throw new Error(data.error || 'Registration failed');
+        throw new Error(data.error || "Registration failed");
       }
-      
+
       setUser(data.user);
     } catch (err) {
       setError((err as Error).message);
@@ -117,12 +131,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const logout = async () => {
     setIsLoading(true);
-    
+
     try {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
+      await fetch("/api/auth/logout", {
+        method: "POST",
       });
-      
+
       setUser(null);
     } catch (err) {
       console.error("Logout error:", err);
@@ -142,7 +156,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     login,
     register,
     logout,
-    clearError
+    clearError,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

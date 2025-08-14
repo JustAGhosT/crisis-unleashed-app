@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 
 // Define the feature flags interface
 export interface FeatureFlags {
@@ -38,7 +44,9 @@ interface FeatureFlagsContextType {
 }
 
 // Create context
-export const FeatureFlagsContext = createContext<FeatureFlagsContextType | undefined>(undefined);
+export const FeatureFlagsContext = createContext<
+  FeatureFlagsContextType | undefined
+>(undefined);
 
 // Provider component props
 interface FeatureFlagsProviderProps {
@@ -53,12 +61,12 @@ export function FeatureFlagsProvider({ children }: FeatureFlagsProviderProps) {
   // Load flags from API on mount
   useEffect(() => {
     let isMounted = true;
-    
+
     async function loadFlags() {
       try {
-        const response = await fetch('/api/feature-flags');
+        const response = await fetch("/api/feature-flags");
         if (!response.ok) {
-          throw new Error('Failed to load feature flags');
+          throw new Error("Failed to load feature flags");
         }
         const data = await response.json();
         if (isMounted) {
@@ -66,7 +74,7 @@ export function FeatureFlagsProvider({ children }: FeatureFlagsProviderProps) {
           setIsLoading(false);
         }
       } catch (error) {
-        console.error('Error loading feature flags:', error);
+        console.error("Error loading feature flags:", error);
         if (isMounted) {
           setIsLoading(false);
         }
@@ -74,7 +82,7 @@ export function FeatureFlagsProvider({ children }: FeatureFlagsProviderProps) {
     }
 
     loadFlags();
-    
+
     return () => {
       isMounted = false;
     };
@@ -83,25 +91,25 @@ export function FeatureFlagsProvider({ children }: FeatureFlagsProviderProps) {
   // Function to update a single flag
   const setFlag = async (key: keyof FeatureFlags, value: boolean) => {
     // Update local state immediately for responsive UI
-    setFlags(prev => ({ ...prev, [key]: value }));
+    setFlags((prev) => ({ ...prev, [key]: value }));
 
     // Persist to cookie via API
     try {
-      const response = await fetch('/api/feature-flags', {
-        method: 'POST',
+      const response = await fetch("/api/feature-flags", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ key, value }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update feature flag');
+        throw new Error("Failed to update feature flag");
       }
     } catch (error) {
       // Revert on failure
-      console.error('Error updating feature flag:', error);
-      setFlags(prev => ({ ...prev, [key]: !value }));
+      console.error("Error updating feature flag:", error);
+      setFlags((prev) => ({ ...prev, [key]: !value }));
       throw error;
     }
   };
@@ -122,10 +130,12 @@ export function FeatureFlagsProvider({ children }: FeatureFlagsProviderProps) {
 // Hook to use feature flags
 export function useFeatureFlags(): FeatureFlagsContextType {
   const context = useContext(FeatureFlagsContext);
-  
+
   if (context === undefined) {
-    throw new Error('useFeatureFlags must be used within a FeatureFlagsProvider');
+    throw new Error(
+      "useFeatureFlags must be used within a FeatureFlagsProvider",
+    );
   }
-  
+
   return context;
 }

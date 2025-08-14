@@ -18,15 +18,15 @@ function MyComponent() {
   return (
     <div>
       <h1>My Component</h1>
-      
+
       {/* Only render this content if the new faction UI is enabled */}
       <FeatureGate flag="useNewFactionUI">
         <p>This is the new faction UI!</p>
       </FeatureGate>
-      
+
       {/* Provide a fallback for when the feature is disabled */}
-      <FeatureGate 
-        flag="useNewDeckBuilder" 
+      <FeatureGate
+        flag="useNewDeckBuilder"
         fallback={<p>The new deck builder is coming soon!</p>}
       >
         <p>This is the new deck builder!</p>

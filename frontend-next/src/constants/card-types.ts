@@ -1,23 +1,23 @@
 export const CardType = {
-  All: 'all',
-  Hero: 'hero',
-  Unit: 'unit',
-  Action: 'action',
-  Structure: 'structure',
+  All: "all",
+  Hero: "hero",
+  Unit: "unit",
+  Action: "action",
+  Structure: "structure",
 } as const;
 
-export type CardTypeValue = typeof CardType[keyof typeof CardType];
+export type CardTypeValue = (typeof CardType)[keyof typeof CardType];
 
 export const CardTab = {
-  All: 'all',
-  Heroes: 'heroes',
-  Units: 'units',
-  Actions: 'actions',
-  Structures: 'structures',
-  Favorites: 'favorites',
+  All: "all",
+  Heroes: "heroes",
+  Units: "units",
+  Actions: "actions",
+  Structures: "structures",
+  Favorites: "favorites",
 } as const;
 
-export type CardTabValue = typeof CardTab[keyof typeof CardTab];
+export type CardTabValue = (typeof CardTab)[keyof typeof CardTab];
 
 // Mapping from tab value to card type value (null when not applicable)
 export const CardTabToType: Record<CardTabValue, CardTypeValue | null> = {

@@ -58,28 +58,28 @@ const SolarisMoodBoard: React.FC<SolarisMoodBoardProps> = ({ expanded = false })
           <h3 className={styles.sectionTitle}>Color Palette</h3>
           <div className={styles.colorPalette}>
             <div className={styles.colorSwatch}>
-              <div className={styles.color} style={{ backgroundColor: "#FFD700" }}></div>
+              <div className={`${styles.color} ${styles.colorGold}`}></div>
               <div className={styles.colorInfo}>
                 <span className={styles.colorName}>Gold</span>
                 <span className={styles.colorHex}>#FFD700</span>
               </div>
             </div>
             <div className={styles.colorSwatch}>
-              <div className={styles.color} style={{ backgroundColor: "#FF8C00" }}></div>
+              <div className={`${styles.color} ${styles.colorOrange}`}></div>
               <div className={styles.colorInfo}>
                 <span className={styles.colorName}>Dark Orange</span>
                 <span className={styles.colorHex}>#FF8C00</span>
               </div>
             </div>
             <div className={styles.colorSwatch}>
-              <div className={styles.color} style={{ backgroundColor: "#FF4500" }}></div>
+              <div className={`${styles.color} ${styles.colorOrangeRed}`}></div>
               <div className={styles.colorInfo}>
                 <span className={styles.colorName}>Orange-Red</span>
                 <span className={styles.colorHex}>#FF4500</span>
               </div>
             </div>
             <div className={styles.colorSwatch}>
-              <div className={styles.color} style={{ backgroundColor: "#0A0A1A" }}></div>
+              <div className={`${styles.color} ${styles.colorDeepSpace}`}></div>
               <div className={styles.colorInfo}>
                 <span className={styles.colorName}>Deep Space Blue</span>
                 <span className={styles.colorHex}>#0A0A1A</span>

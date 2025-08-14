@@ -11,21 +11,37 @@ export function parseEnvBool(value: string | undefined, key: string): boolean {
   if (value === undefined) return false;
   if (value === "true" || value === "false") return value === "true";
   // Invalid values are ignored; log for visibility
-  console.warn(`Invalid env value for ${key}: "${value}". Expected "true" or "false". Defaulting to false.`);
+  console.warn(
+    `Invalid env value for ${key}: "${value}". Expected "true" or "false". Defaulting to false.`,
+  );
   return false;
 }
 
 export function readEnvFlags(env: NodeJS.ProcessEnv): FeatureFlags {
   return {
-    useNewFactionUI: parseEnvBool(env.ENABLE_NEW_FACTION_UI, "ENABLE_NEW_FACTION_UI"),
-    useNewDeckBuilder: parseEnvBool(env.ENABLE_NEW_DECK_BUILDER, "ENABLE_NEW_DECK_BUILDER"),
-    useNewCardDisplay: parseEnvBool(env.ENABLE_NEW_CARD_DISPLAY, "ENABLE_NEW_CARD_DISPLAY"),
-    useNewNavigation: parseEnvBool(env.ENABLE_NEW_NAVIGATION, "ENABLE_NEW_NAVIGATION"),
+    useNewFactionUI: parseEnvBool(
+      env.ENABLE_NEW_FACTION_UI,
+      "ENABLE_NEW_FACTION_UI",
+    ),
+    useNewDeckBuilder: parseEnvBool(
+      env.ENABLE_NEW_DECK_BUILDER,
+      "ENABLE_NEW_DECK_BUILDER",
+    ),
+    useNewCardDisplay: parseEnvBool(
+      env.ENABLE_NEW_CARD_DISPLAY,
+      "ENABLE_NEW_CARD_DISPLAY",
+    ),
+    useNewNavigation: parseEnvBool(
+      env.ENABLE_NEW_NAVIGATION,
+      "ENABLE_NEW_NAVIGATION",
+    ),
     useNewTheme: parseEnvBool(env.ENABLE_NEW_THEME, "ENABLE_NEW_THEME"),
   };
 }
 
-export function sanitizeFlags(input: Partial<Record<FlagKey, unknown>>): FeatureFlags {
+export function sanitizeFlags(
+  input: Partial<Record<FlagKey, unknown>>,
+): FeatureFlags {
   const base = readEnvFlags(process.env);
   const out: FeatureFlags = { ...base };
   for (const k of FLAG_KEYS) {
@@ -52,7 +68,11 @@ export function parseCookieFlags(raw: string | undefined): FeatureFlags | null {
 export function isAuthorized(req: NextRequest): boolean {
   const headerToken = req.headers.get("x-admin-token");
   // Use optional chaining to safely access ADMIN_TOKEN
-  if (headerToken && process.env.ADMIN_TOKEN && headerToken === process.env.ADMIN_TOKEN) {
+  if (
+    headerToken &&
+    process.env.ADMIN_TOKEN &&
+    headerToken === process.env.ADMIN_TOKEN
+  ) {
     return true;
   }
   const adminCookie = req.cookies.get("isAdmin");

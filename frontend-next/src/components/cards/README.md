@@ -9,7 +9,7 @@ This directory contains components for displaying, filtering, and interacting wi
 Displays an individual card with all its gameplay information.
 
 ```tsx
-import { GameCard } from '@/components/cards';
+import { GameCard } from "@/components/cards";
 
 <GameCard
   card={cardData}
@@ -22,7 +22,7 @@ import { GameCard } from '@/components/cards';
   disabled={false}
   showQuantity={true}
   draggable={true}
-/>
+/>;
 ```
 
 ### CardGrid
@@ -30,7 +30,7 @@ import { GameCard } from '@/components/cards';
 Displays a grid of cards with various interaction options.
 
 ```tsx
-import { CardGrid } from '@/components/cards';
+import { CardGrid } from "@/components/cards";
 
 <CardGrid
   cards={cardsArray}
@@ -45,8 +45,8 @@ import { CardGrid } from '@/components/cards';
   cardSize="md"
   columnCount={4}
   draggable={true}
-  disabledCardIds={['card-1', 'card-2']}
-/>
+  disabledCardIds={["card-1", "card-2"]}
+/>;
 ```
 
 ### CardFilters
@@ -54,13 +54,13 @@ import { CardGrid } from '@/components/cards';
 Provides filtering interface for card search.
 
 ```tsx
-import { CardFilters } from '@/components/cards';
+import { CardFilters } from "@/components/cards";
 
 <CardFilters
   initialFilters={currentFilters}
   onFiltersChange={handleFiltersChange}
   showOwnedFilter={true}
-/>
+/>;
 ```
 
 ### CardDetail
@@ -68,7 +68,7 @@ import { CardFilters } from '@/components/cards';
 Displays detailed information about a card.
 
 ```tsx
-import { CardDetail } from '@/components/cards';
+import { CardDetail } from "@/components/cards";
 
 <CardDetail
   card={selectedCard}
@@ -76,7 +76,7 @@ import { CardDetail } from '@/components/cards';
   onToggleFavorite={handleToggleFavorite}
   ownedQuantity={3}
   isFavorite={true}
-/>
+/>;
 ```
 
 ### CardCollection
@@ -84,7 +84,7 @@ import { CardDetail } from '@/components/cards';
 Displays a user's card collection with filtering and detail view.
 
 ```tsx
-import { CardCollection } from '@/components/cards';
+import { CardCollection } from "@/components/cards";
 
 <CardCollection
   cards={allCards}
@@ -99,7 +99,7 @@ import { CardCollection } from '@/components/cards';
   currentPage={currentPage}
   totalPages={totalPages}
   onPageChange={handlePageChange}
-/>
+/>;
 ```
 
 ## Usage Examples
@@ -107,16 +107,16 @@ import { CardCollection } from '@/components/cards';
 ### Card Browser Page
 
 ```tsx
-import { CardCollection } from '@/components/cards';
-import { useCards } from '@/hooks/useCards';
+import { CardCollection } from "@/components/cards";
+import { useCards } from "@/hooks/useCards";
 
 export default function CardBrowserPage() {
   const { cards, loading, filters, setFilters, pagination } = useCards();
-  
+
   return (
     <div className="container mx-auto py-8">
       <h1 className="text-3xl font-bold mb-6">Card Browser</h1>
-      
+
       <CardCollection
         cards={cards}
         loading={loading}
@@ -134,12 +134,12 @@ export default function CardBrowserPage() {
 ### Deck Builder
 
 ```tsx
-import { CardGrid } from '@/components/cards';
-import { useDeck } from '@/hooks/useDeck';
+import { CardGrid } from "@/components/cards";
+import { useDeck } from "@/hooks/useDeck";
 
 export default function DeckBuilderPage() {
   const { availableCards, deckCards, addCard, removeCard } = useDeck();
-  
+
   return (
     <div className="grid grid-cols-2 gap-6">
       <div>
@@ -150,11 +150,11 @@ export default function DeckBuilderPage() {
           getQuantity={(cardId) => getDeckCardQuantity(cardId)}
         />
       </div>
-      
+
       <div>
         <h2>Your Deck</h2>
         <CardGrid
-          cards={deckCards.map(dc => dc.card)}
+          cards={deckCards.map((dc) => dc.card)}
           onCardRemove={removeCard}
           getQuantity={(cardId) => getDeckCardQuantity(cardId)}
         />
@@ -171,6 +171,7 @@ See TypeScript interface definitions in each component file for detailed prop do
 ## Styling
 
 These components use a combination of:
+
 - Tailwind CSS for layout and basic styling
 - ShadCN UI components for common UI elements
 - Custom styling for card-specific elements
@@ -178,6 +179,7 @@ These components use a combination of:
 ## Accessibility
 
 All components are designed with accessibility in mind:
+
 - Proper keyboard navigation
 - ARIA attributes for interactive elements
 - Responsive design for all screen sizes

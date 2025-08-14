@@ -1,25 +1,25 @@
-import { Card, CardFilters, CardSearchResult, UserCard } from '@/types/card';
-import { FactionId } from '@/types/faction';
-import { apiClient, ApiException } from './api';
-import { CardMockData } from '../lib/CardMockData';
-import axios from 'axios';
+import { Card, CardFilters, CardSearchResult, UserCard } from "@/types/card";
+import { FactionId } from "@/types/faction";
+import { apiClient, ApiException } from "./api";
+import { CardMockData } from "../lib/CardMockData";
+import axios from "axios";
 
 // Helper to check if error is a cancellation
 const isAbortError = (error: unknown): boolean => {
-  if (error instanceof DOMException && error.name === 'AbortError') return true;
+  if (error instanceof DOMException && error.name === "AbortError") return true;
   if (axios.isAxiosError(error)) {
-    return error.code === 'ECONNABORTED' || error.message === 'canceled';
+    return error.code === "ECONNABORTED" || error.message === "canceled";
   }
-  if (typeof error === 'object' && error !== null) {
+  if (typeof error === "object" && error !== null) {
     const maybe = error as { code?: string; message?: string };
-    return maybe.code === 'ECONNABORTED' || maybe.message === 'canceled';
+    return maybe.code === "ECONNABORTED" || maybe.message === "canceled";
   }
   return false;
 };
 
 // Helper to check if we're in development mode
 const isDevelopment = (): boolean => {
-  return process.env.NODE_ENV === 'development';
+  return process.env.NODE_ENV === "development";
 };
 
 /**
@@ -34,10 +34,10 @@ export class CardService {
     filters: CardFilters = {},
     page = 1,
     pageSize = 20,
-    signal?: AbortSignal
+    signal?: AbortSignal,
   ): Promise<CardSearchResult> {
     try {
-      const response = await apiClient.get('/cards/search', {
+      const response = await apiClient.get("/cards/search", {
         params: {
           ...filters,
           page,
@@ -52,30 +52,34 @@ export class CardService {
         throw error;
       }
 
-      const status = axios.isAxiosError(error) ? error.response?.status : undefined;
+      const status = axios.isAxiosError(error)
+        ? error.response?.status
+        : undefined;
       if (status === 401 || status === 403) {
-        throw new ApiException('Authentication required', status);
+        throw new ApiException("Authentication required", status);
       }
-      
+
       // Fallback to mock data for development only!
       if (isDevelopment()) {
-        console.warn('Using mock card data');
+        console.warn("Using mock card data");
         return CardMockData.getMockCardSearchResult(filters, page, pageSize);
       }
-      
-      throw new ApiException(
-        'Failed to fetch cards',
-        status ?? 500
-      );
+
+      throw new ApiException("Failed to fetch cards", status ?? 500);
     }
   }
 
   /**
    * Get user's card collection
    */
-  static async getUserCards(userId: string, signal?: AbortSignal): Promise<UserCard[]> {
+  static async getUserCards(
+    userId: string,
+    signal?: AbortSignal,
+  ): Promise<UserCard[]> {
     try {
-      const response = await apiClient.get(`/users/${userId}/cards`, { signal });
+      const response = await apiClient.get(`/users/${userId}/cards`, {
+        signal,
+      });
       return response.data;
     } catch (error: unknown) {
       // Rethrow abort errors to properly handle cancellations
@@ -83,20 +87,22 @@ export class CardService {
         throw error;
       }
 
-      const status = axios.isAxiosError(error) ? error.response?.status : undefined;
+      const status = axios.isAxiosError(error)
+        ? error.response?.status
+        : undefined;
       if (status === 401 || status === 403) {
-        throw new ApiException('Authentication required', status);
+        throw new ApiException("Authentication required", status);
       }
-      
+
       // Fallback to mock data for development only!
       if (isDevelopment()) {
-        console.warn('Using mock user cards');
+        console.warn("Using mock user cards");
         return CardMockData.getMockUserCards(userId);
       }
-      
+
       throw new ApiException(
         `Failed to fetch cards for user ${userId}`,
-        status ?? 500
+        status ?? 500,
       );
     }
   }
@@ -104,7 +110,10 @@ export class CardService {
   /**
    * Get card details by ID
    */
-  static async getCardById(cardId: string, signal?: AbortSignal): Promise<Card> {
+  static async getCardById(
+    cardId: string,
+    signal?: AbortSignal,
+  ): Promise<Card> {
     try {
       const response = await apiClient.get(`/cards/${cardId}`, { signal });
       return response.data;
@@ -113,19 +122,18 @@ export class CardService {
       if (isAbortError(error)) {
         throw error;
       }
-      
+
       // Fallback to mock data for development only!
-      const status = axios.isAxiosError(error) ? error.response?.status : undefined;
+      const status = axios.isAxiosError(error)
+        ? error.response?.status
+        : undefined;
       if (isDevelopment() && status === 404) {
         console.warn(`Using mock data for card ${cardId}`);
         const mockCard = CardMockData.getMockCardById(cardId);
         if (mockCard) return mockCard;
       }
-      
-      throw new ApiException(
-        `Failed to fetch card ${cardId}`,
-        status ?? 500
-      );
+
+      throw new ApiException(`Failed to fetch card ${cardId}`, status ?? 500);
     }
   }
 
@@ -135,40 +143,45 @@ export class CardService {
   static async getCardsByFaction(
     faction: FactionId,
     pageSize: number = 100,
-    signal?: AbortSignal
+    signal?: AbortSignal,
   ): Promise<Card[]> {
     const allCards: Card[] = [];
     let page = 1;
     let hasMore = true;
     const SAFE_LIMIT = 250; // reasonable upper bound to avoid perf issues
-    
+
     while (hasMore) {
       // Calculate how many items we'll have after this fetch
       const projectedTotal = allCards.length + pageSize;
-      
+
       // If we'd exceed the safe limit, adjust the pageSize for the final fetch
       if (projectedTotal > SAFE_LIMIT) {
         const remainingAllowed = SAFE_LIMIT - allCards.length;
         if (remainingAllowed <= 0) break; // Already at or over limit
-        
+
         // Final fetch with adjusted page size
         const result = await this.searchCards(
-          { faction }, 
-          page, 
-          remainingAllowed, 
-          signal
+          { faction },
+          page,
+          remainingAllowed,
+          signal,
         );
         allCards.push(...result.cards);
         break; // Exit after final fetch
       }
-      
+
       // Normal fetch
-      const result = await this.searchCards({ faction }, page, pageSize, signal);
+      const result = await this.searchCards(
+        { faction },
+        page,
+        pageSize,
+        signal,
+      );
       allCards.push(...result.cards);
       hasMore = result.cards.length === pageSize;
       page++;
     }
-    
+
     return allCards;
   }
 }

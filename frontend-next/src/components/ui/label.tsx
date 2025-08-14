@@ -6,7 +6,8 @@ function cx(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
 }
 
-export interface LabelProps extends React.LabelHTMLAttributes<HTMLLabelElement> {}
+export interface LabelProps
+  extends React.LabelHTMLAttributes<HTMLLabelElement> {}
 
 export const Label = React.forwardRef<HTMLLabelElement, LabelProps>(
   ({ className, ...props }, ref) => (
@@ -15,11 +16,11 @@ export const Label = React.forwardRef<HTMLLabelElement, LabelProps>(
       className={cx(
         "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
         "text-foreground dark:text-white",
-        className
+        className,
       )}
       {...props}
     />
-  )
+  ),
 );
 
 Label.displayName = "Label";

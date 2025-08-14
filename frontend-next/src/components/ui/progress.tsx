@@ -7,7 +7,8 @@ function cx(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
 }
 
-export interface ProgressProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'aria-valuenow'> {
+export interface ProgressProps
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, "aria-valuenow"> {
   value?: number; // 0-100
 }
 
@@ -20,17 +21,23 @@ export const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
         className={cx(
           "w-full h-2 rounded bg-gray-200 dark:bg-gray-700 overflow-hidden",
           styles.progress,
-          className
+          className,
         )}
         {...props}
       >
         {/* Semantic progress element for accessibility; hidden visually */}
         <progress value={clamped} max={100} className="sr-only" />
         {/* Visual bar (decorative) */}
-        <div className={cx("h-full bg-primary transition-all", "dark:bg-blue-500", styles.progressBar)} />
+        <div
+          className={cx(
+            "h-full bg-primary transition-all",
+            "dark:bg-blue-500",
+            styles.progressBar,
+          )}
+        />
       </div>
     );
-  }
+  },
 );
 
 Progress.displayName = "Progress";

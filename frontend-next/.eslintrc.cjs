@@ -5,17 +5,17 @@
 module.exports = {
   root: true,
   extends: [
-    'next',
-    'next/core-web-vitals',
-    'plugin:@typescript-eslint/recommended',
+    "next",
+    "next/core-web-vitals",
+    "plugin:@typescript-eslint/recommended",
   ],
   settings: {
     next: {
-      rootDir: ['.'],
+      rootDir: ["."],
     },
   },
   rules: {
     // App Router project; no pages directory
-    'next/no-html-link-for-pages': 'off',
+    "next/no-html-link-for-pages": "off",
   },
 };

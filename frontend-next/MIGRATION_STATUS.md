@@ -12,7 +12,7 @@ This guide explains the feature flag system used during migration from the Vite 
 - **API Route**: [`frontend-next/src/app/api/feature-flags/route.ts`](frontend-next/src/app/api/feature-flags/route.ts)
   - Provides environment-driven initial flag values
 
-- **Layout Integration**: 
+- **Layout Integration**:
   - [`frontend-next/src/app/layout.tsx`](frontend-next/src/app/layout.tsx)
   - [`frontend-next/src/components/providers.tsx`](frontend-next/src/components/providers.tsx)
   - Implements the Providers pattern for client components in server contexts
@@ -34,6 +34,7 @@ Next.js App Router uses Server Components by default, but React context provider
 2. Use this component in your root layout (see [`layout.tsx`](frontend-next/src/app/layout.tsx))
 
 This pattern allows you to:
+
 - Keep the layout as a Server Component
 - Isolate client-side code to specific components
 - Properly provide context to the entire application
@@ -42,45 +43,54 @@ This pattern allows you to:
 ## Cookie Management
 
 ### Size and Encoding
+
 - Keep the cookie under 4KB (recommended max is 2KB for broad compatibility)
 - Use compact encoding (e.g., base64 encoded JSON with minimal property names)
 - See [`feature-flag-provider.tsx`](frontend-next/src/lib/feature-flags/feature-flag-provider.tsx) for implementation
 
 ### Schema Versioning
+
 - Include a schema version in the cookie structure
 - Handle version migrations gracefully
 - See [`cookie-migration.ts`](frontend-next/src/lib/feature-flags/cookie-migration.ts) for implementation
 
 ### Security
+
 - Sign the cookie to prevent tampering
 - See [`cookie-security.ts`](frontend-next/src/lib/feature-flags/cookie-security.ts) for implementation
 
 ## Middleware Strategy
 
 ### Server as Source of Truth
+
 - Verify flags on the server side
 - Fall back to environment defaults when verification fails
 - See [`middleware.ts`](frontend-next/src/middleware.ts) for implementation
 
 ### Preventing Rewrite Issues
+
 - Exclude static assets and API routes from rewrites
 - See path exclusion patterns in [`middleware.ts`](frontend-next/src/middleware.ts)
 
 ### Preventing Rewrite Loops
+
 - Check if the path is already pointing to legacy
 - See rewrite logic in [`middleware.ts`](frontend-next/src/middleware.ts)
 
 ### Edge Performance Considerations
+
 - Keep middleware logic minimal for optimal performance
 - Consider caching implications for middleware responses
 
 ## Usage
 
 - **In Client Components**:
+
   ```typescript
   import { useFeatureFlags } from "@/lib/feature-flags/feature-flag-provider";
   const { flags, setFlag } = useFeatureFlags();
   ```
+
   - Must be used within Client Components (marked with 'use client')
 
 - **In Server Components**:
@@ -159,6 +169,7 @@ While the UI components have been migrated, several gameplay mechanics are still
 ## Notes for Developers
 
 When working with faction data:
+
 1. Import types from `@/types/faction`
 2. Use the service functions from `@/services/factionService`
 3. For UI components, use components from `@/components/factions/`
@@ -167,6 +178,7 @@ When working with faction data:
 ## Final Cleanup
 
 The following files are now deprecated and can be safely deleted once all teams have migrated:
+
 - `src/components/factions/*`
 - `src/app/factions/*`
 - Faction-related code in `src/lib/data.ts`

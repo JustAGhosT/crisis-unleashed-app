@@ -24,8 +24,8 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
       <button
         onClick={() => setTheme("light")}
         className={`p-2 rounded-md ${
-          theme === "light" 
-            ? "bg-blue-100 text-blue-600" 
+          theme === "light"
+            ? "bg-blue-100 text-blue-600"
             : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
         }`}
         aria-label="Light mode"
@@ -36,8 +36,8 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
       <button
         onClick={() => setTheme("dark")}
         className={`p-2 rounded-md ${
-          theme === "dark" 
-            ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300" 
+          theme === "dark"
+            ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300"
             : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
         }`}
         aria-label="Dark mode"
@@ -48,8 +48,8 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
       <button
         onClick={() => setTheme("system")}
         className={`p-2 rounded-md ${
-          theme === "system" 
-            ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300" 
+          theme === "system"
+            ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300"
             : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
         }`}
         aria-label="System theme"

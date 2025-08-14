@@ -7,7 +7,7 @@ export const FLAG_KEYS = [
   "useNewTheme",
 ] as const;
 
-export type FlagKey = typeof FLAG_KEYS[number];
+export type FlagKey = (typeof FLAG_KEYS)[number];
 
 export interface FeatureFlags {
   useNewFactionUI: boolean;

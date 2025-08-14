@@ -50,8 +50,8 @@ export interface DeckFilters {
   name?: string;
   faction?: string;
   author?: string;
-  sortBy?: 'name' | 'created' | 'updated' | 'popularity';
-  sortOrder?: 'asc' | 'desc';
+  sortBy?: "name" | "created" | "updated" | "popularity";
+  sortOrder?: "asc" | "desc";
 }
 
 export interface CardFilters {
@@ -63,3 +63,20 @@ export interface CardFilters {
   rarity?: string;
   keyword?: string;
 }
+
+// --- Deck Builder UI additions ---
+export interface DeckRowVM {
+  cardId: string;
+  quantity: number;
+  name: string;
+  cost?: number;
+  type?: string;
+  faction?: string;
+  rarity?: string;
+  attack?: number;
+  health?: number;
+}
+
+export const CARD_ID_MIME = "text/card-id";
+export const DECK_CARD_ID_MIME = "text/deck-card-id";
+export const CARD_JSON_MIME = "application/json";

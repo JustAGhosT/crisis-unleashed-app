@@ -8,7 +8,7 @@ import Link from "next/link";
 export default function ThemeSettingsPage() {
   const { theme, setTheme, systemTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  
+
   // Avoid hydration mismatch
   useEffect(() => {
     setMounted(true);
@@ -29,10 +29,7 @@ export default function ThemeSettingsPage() {
       <p className="text-gray-600 mb-6">
         Theme settings are not available in the current version.
       </p>
-      <Link 
-        href="/settings" 
-        className="text-blue-600 hover:text-blue-800"
-      >
+      <Link href="/settings" className="text-blue-600 hover:text-blue-800">
         Back to Settings
       </Link>
     </div>
@@ -41,24 +38,32 @@ export default function ThemeSettingsPage() {
   // New theme settings with enhanced options
   const NewThemeSettings = () => {
     const currentTheme = theme === "system" ? `system (${systemTheme})` : theme;
-    
+
     return (
       <div className="space-y-6">
         <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6 transition-colors duration-200">
-          <h2 className="text-xl font-semibold mb-4 dark:text-white">Theme Settings</h2>
+          <h2 className="text-xl font-semibold mb-4 dark:text-white">
+            Theme Settings
+          </h2>
           <p className="text-gray-600 dark:text-gray-300 mb-6">
-            Customize the appearance of Crisis Unleashed to match your preferences.
+            Customize the appearance of Crisis Unleashed to match your
+            preferences.
           </p>
-          
+
           <div className="mb-8">
-            <h3 className="text-lg font-medium mb-3 dark:text-white">Current Theme</h3>
+            <h3 className="text-lg font-medium mb-3 dark:text-white">
+              Current Theme
+            </h3>
             <p className="text-gray-600 dark:text-gray-300 mb-2">
-              You&#39;re currently using the <span className="font-semibold">{currentTheme}</span> theme.
+              You&#39;re currently using the{" "}
+              <span className="font-semibold">{currentTheme}</span> theme.
             </p>
           </div>
-          
+
           <div className="mb-8">
-            <h3 className="text-lg font-medium mb-3 dark:text-white">Select Theme</h3>
+            <h3 className="text-lg font-medium mb-3 dark:text-white">
+              Select Theme
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <ThemeOption
                 name="Light"
@@ -80,9 +85,11 @@ export default function ThemeSettingsPage() {
               />
             </div>
           </div>
-          
+
           <div className="mb-8">
-            <h3 className="text-lg font-medium mb-3 dark:text-white">Theme Preview</h3>
+            <h3 className="text-lg font-medium mb-3 dark:text-white">
+              Theme Preview
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
                 <h4 className="font-medium text-gray-900 mb-2">Light Theme</h4>
@@ -98,15 +105,15 @@ export default function ThemeSettingsPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="flex justify-between">
-            <Link 
-              href="/settings" 
+            <Link
+              href="/settings"
               className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
             >
               Back to Settings
             </Link>
-            <button 
+            <button
               onClick={() => setTheme("system")}
               className="text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-100"
             >
@@ -114,28 +121,37 @@ export default function ThemeSettingsPage() {
             </button>
           </div>
         </div>
-        
+
         <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6 transition-colors duration-200">
-          <h2 className="text-xl font-semibold mb-4 dark:text-white">Advanced Settings</h2>
+          <h2 className="text-xl font-semibold mb-4 dark:text-white">
+            Advanced Settings
+          </h2>
           <p className="text-gray-600 dark:text-gray-300 mb-4">
             Additional theme customization options.
           </p>
-          
+
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 id="reduced-motion-label" className="font-medium dark:text-white">Reduced Motion</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Minimize animations throughout the interface</p>
+                <h3
+                  id="reduced-motion-label"
+                  className="font-medium dark:text-white"
+                >
+                  Reduced Motion
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  Minimize animations throughout the interface
+                </p>
               </div>
               <div className="relative inline-block w-10 mr-2 align-middle select-none">
-                <input 
-                  type="checkbox" 
-                  id="reduced-motion" 
-                  name="reduced-motion" 
+                <input
+                  type="checkbox"
+                  id="reduced-motion"
+                  name="reduced-motion"
                   className="sr-only"
                   aria-labelledby="reduced-motion-label"
                 />
-                <label 
+                <label
                   htmlFor="reduced-motion"
                   className="block overflow-hidden h-6 rounded-full bg-gray-300 dark:bg-gray-600 cursor-pointer"
                 >
@@ -143,21 +159,28 @@ export default function ThemeSettingsPage() {
                 </label>
               </div>
             </div>
-            
+
             <div className="flex items-center justify-between">
               <div>
-                <h3 id="high-contrast-label" className="font-medium dark:text-white">High Contrast</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Increase contrast for better readability</p>
+                <h3
+                  id="high-contrast-label"
+                  className="font-medium dark:text-white"
+                >
+                  High Contrast
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  Increase contrast for better readability
+                </p>
               </div>
               <div className="relative inline-block w-10 mr-2 align-middle select-none">
-                <input 
-                  type="checkbox" 
-                  id="high-contrast" 
-                  name="high-contrast" 
+                <input
+                  type="checkbox"
+                  id="high-contrast"
+                  name="high-contrast"
                   className="sr-only"
                   aria-labelledby="high-contrast-label"
                 />
-                <label 
+                <label
                   htmlFor="high-contrast"
                   className="block overflow-hidden h-6 rounded-full bg-gray-300 dark:bg-gray-600 cursor-pointer"
                 >
@@ -173,42 +196,45 @@ export default function ThemeSettingsPage() {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <h1 className="text-2xl font-bold mb-6 dark:text-white">Appearance Settings</h1>
-      
-      <FeatureGate
-        flag="useNewTheme"
-        fallback={<LegacyThemeSettings />}
-      >
+      <h1 className="text-2xl font-bold mb-6 dark:text-white">
+        Appearance Settings
+      </h1>
+
+      <FeatureGate flag="useNewTheme" fallback={<LegacyThemeSettings />}>
         <NewThemeSettings />
       </FeatureGate>
     </div>
   );
 }
 
-function ThemeOption({ 
-  name, 
-  description, 
-  selected, 
-  onClick 
-}: { 
-  name: string; 
-  description: string; 
-  selected: boolean; 
+function ThemeOption({
+  name,
+  description,
+  selected,
+  onClick,
+}: {
+  name: string;
+  description: string;
+  selected: boolean;
   onClick: () => void;
 }) {
   return (
     <button
       onClick={onClick}
       className={`border rounded-lg p-4 text-left transition-all ${
-        selected 
-          ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 ring-2 ring-blue-500" 
+        selected
+          ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 ring-2 ring-blue-500"
           : "border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
       }`}
     >
-      <h3 className={`font-medium ${selected ? "text-blue-600 dark:text-blue-400" : "dark:text-white"}`}>
+      <h3
+        className={`font-medium ${selected ? "text-blue-600 dark:text-blue-400" : "dark:text-white"}`}
+      >
         {name}
       </h3>
-      <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{description}</p>
+      <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+        {description}
+      </p>
     </button>
   );
 }

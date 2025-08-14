@@ -1,7 +1,7 @@
-import { useToast } from '@/hooks/useToast';
-import { CardService } from '@/services/cardService';
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { Card, CardFilters, UserCard } from '@/types/card';
+import { useToast } from "@/hooks/useToast";
+import { CardService } from "@/services/cardService";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { Card, CardFilters, UserCard } from "@/types/card";
 
 // Simple pagination hook implementation
 function usePagination({
@@ -20,19 +20,25 @@ function usePagination({
   const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
 
   // Ensure page is within bounds
-  const setPageSafe = useCallback((newPage: number) => {
-    const boundedPage = Math.max(1, Math.min(newPage, totalPages));
-    setPage(boundedPage);
-  }, [totalPages]);
+  const setPageSafe = useCallback(
+    (newPage: number) => {
+      const boundedPage = Math.max(1, Math.min(newPage, totalPages));
+      setPage(boundedPage);
+    },
+    [totalPages],
+  );
 
   // Set total with bounds check
-  const setTotalSafe = useCallback((newTotal: number) => {
-    setTotalItems(newTotal);
-    const maxPage = Math.max(1, Math.ceil(newTotal / pageSize));
-    if (page > maxPage) {
-      setPage(maxPage);
-    }
-  }, [page, pageSize]);
+  const setTotalSafe = useCallback(
+    (newTotal: number) => {
+      setTotalItems(newTotal);
+      const maxPage = Math.max(1, Math.ceil(newTotal / pageSize));
+      if (page > maxPage) {
+        setPage(maxPage);
+      }
+    },
+    [page, pageSize],
+  );
 
   return {
     page,
@@ -97,7 +103,7 @@ export function useCards({
         filters,
         pagination.page,
         pagination.pageSize,
-        controller.signal
+        controller.signal,
       );
 
       if (!mountedRef.current || reqId !== requestIdRef.current) return;
@@ -107,13 +113,14 @@ export function useCards({
     } catch (err: unknown) {
       // Ignore aborts
       if (controller.signal.aborted) return;
-      const errorMessage = err instanceof Error ? err.message : 'Failed to load cards';
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to load cards";
       if (!mountedRef.current || reqId !== requestIdRef.current) return;
       setError(errorMessage);
       toast({
-        title: 'Error',
+        title: "Error",
         description: errorMessage,
-        variant: 'destructive',
+        variant: "destructive",
       });
     } finally {
       if (mountedRef.current && reqId === requestIdRef.current) {
@@ -132,61 +139,79 @@ export function useCards({
     userControllerRef.current = controller;
 
     try {
-      const userCardData = await CardService.getUserCards(userId, controller.signal);
+      const userCardData = await CardService.getUserCards(
+        userId,
+        controller.signal,
+      );
       if (!mountedRef.current) return;
       setUserCards(userCardData);
     } catch (err: unknown) {
       if (controller.signal.aborted) return;
-      const errorMessage = err instanceof Error ? err.message : 'Failed to load your card collection';
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Failed to load your card collection";
       toast({
-        title: 'Warning',
+        title: "Warning",
         description: errorMessage,
-        variant: 'destructive',
+        variant: "destructive",
       });
     }
   }, [userId, toast]);
 
   // Apply new filters and reset to page 1
-  const applyFilters = useCallback((newFilters: CardFilters) => {
-    setFilters(newFilters);
-    pagination.setPage(1);
-  }, [pagination]);
+  const applyFilters = useCallback(
+    (newFilters: CardFilters) => {
+      setFilters(newFilters);
+      pagination.setPage(1);
+    },
+    [pagination],
+  );
 
   // Get quantity of a card in user's collection
-  const getCardQuantity = useCallback((cardId: string): number => {
-    const userCard = userCards.find(uc => uc.cardId === cardId);
-    return userCard ? userCard.quantity : 0;
-  }, [userCards]);
+  const getCardQuantity = useCallback(
+    (cardId: string): number => {
+      const userCard = userCards.find((uc) => uc.cardId === cardId);
+      return userCard ? userCard.quantity : 0;
+    },
+    [userCards],
+  );
 
   // Check if a card is favorite
-  const isCardFavorite = useCallback((cardId: string): boolean => {
-    const userCard = userCards.find(uc => uc.cardId === cardId);
-    return userCard ? userCard.isFavorite : false;
-  }, [userCards]);
+  const isCardFavorite = useCallback(
+    (cardId: string): boolean => {
+      const userCard = userCards.find((uc) => uc.cardId === cardId);
+      return userCard ? userCard.isFavorite : false;
+    },
+    [userCards],
+  );
 
   // Toggle favorite status of a card
-  const toggleFavorite = useCallback(async (card: Card, isFavorite: boolean) => {
-    try {
-      // This would call an API to update the favorite status
-      toast({
-        title: isFavorite ? 'Added to favorites' : 'Removed from favorites',
-        description: `${card.name} has been ${isFavorite ? 'added to' : 'removed from'} your favorites.`,
-      });
+  const toggleFavorite = useCallback(
+    async (card: Card, isFavorite: boolean) => {
+      try {
+        // This would call an API to update the favorite status
+        toast({
+          title: isFavorite ? "Added to favorites" : "Removed from favorites",
+          description: `${card.name} has been ${isFavorite ? "added to" : "removed from"} your favorites.`,
+        });
 
-      // Update local state optimistically
-      setUserCards(prev => prev.map(uc =>
-        uc.cardId === card.id
-          ? { ...uc, isFavorite }
-          : uc
-      ));
-    } catch (err) {
-      toast({
-        title: 'Error',
-        description: 'Failed to update favorite status.',
-        variant: 'destructive',
-      });
-    }
-  }, [toast]);
+        // Update local state optimistically
+        setUserCards((prev) =>
+          prev.map((uc) =>
+            uc.cardId === card.id ? { ...uc, isFavorite } : uc,
+          ),
+        );
+      } catch (err) {
+        toast({
+          title: "Error",
+          description: "Failed to update favorite status.",
+          variant: "destructive",
+        });
+      }
+    },
+    [toast],
+  );
 
   // Fetch data on initial load and when dependencies change
   useEffect(() => {

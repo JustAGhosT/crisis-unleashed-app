@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   TextInput,
   TextArea,
@@ -10,41 +10,55 @@ import {
   FileInput,
   SwitchInput,
   DatePicker,
-  SliderInput
-} from '@/components/forms';
-import { Separator } from '@/components/ui/separator';
+  SliderInput,
+} from "@/components/forms";
+import { Separator } from "@/components/ui/separator";
 
 export default function FormComponentsShowcase() {
   // State for each component
-  const [textValue, setTextValue] = useState('');
-  const [emailValue, setEmailValue] = useState('');
-  const [passwordValue, setPasswordValue] = useState('');
-  const [textareaValue, setTextareaValue] = useState('');
-  const [selectValue, setSelectValue] = useState('');
+  const [textValue, setTextValue] = useState("");
+  const [emailValue, setEmailValue] = useState("");
+  const [passwordValue, setPasswordValue] = useState("");
+  const [textareaValue, setTextareaValue] = useState("");
+  const [selectValue, setSelectValue] = useState("");
   const [checkboxValue, setCheckboxValue] = useState(false);
-  const [radioValue, setRadioValue] = useState('');
+  const [radioValue, setRadioValue] = useState("");
   const [switchValue, setSwitchValue] = useState(false);
   const [dateValue, setDateValue] = useState<Date>();
   const [sliderValue, setSliderValue] = useState([50]);
 
   // Options for select and radio
   const selectOptions = [
-    { value: 'option1', label: 'Option 1' },
-    { value: 'option2', label: 'Option 2' },
-    { value: 'option3', label: 'Option 3' },
+    { value: "option1", label: "Option 1" },
+    { value: "option2", label: "Option 2" },
+    { value: "option3", label: "Option 3" },
   ];
 
   const radioOptions = [
-    { value: 'radio1', label: 'Radio Option 1', description: 'Description for option 1' },
-    { value: 'radio2', label: 'Radio Option 2', description: 'Description for option 2' },
-    { value: 'radio3', label: 'Radio Option 3', description: 'Description for option 3' },
+    {
+      value: "radio1",
+      label: "Radio Option 1",
+      description: "Description for option 1",
+    },
+    {
+      value: "radio2",
+      label: "Radio Option 2",
+      description: "Description for option 2",
+    },
+    {
+      value: "radio3",
+      label: "Radio Option 3",
+      description: "Description for option 3",
+    },
   ];
 
   return (
     <div className="space-y-10">
       {/* Text Inputs */}
       <div>
-        <h2 className="text-xl font-semibold mb-4 dark:text-white">Text Inputs</h2>
+        <h2 className="text-xl font-semibold mb-4 dark:text-white">
+          Text Inputs
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <TextInput
             id="text-input-example"
@@ -63,8 +77,19 @@ export default function FormComponentsShowcase() {
             value={emailValue}
             onChange={(e) => setEmailValue(e.target.value)}
             leftIcon={
-              <svg className="w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              <svg
+                className="w-5 h-5 text-gray-500 dark:text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                />
               </svg>
             }
           />
@@ -93,7 +118,9 @@ export default function FormComponentsShowcase() {
 
       {/* TextArea */}
       <div>
-        <h2 className="text-xl font-semibold mb-4 dark:text-white">Text Area</h2>
+        <h2 className="text-xl font-semibold mb-4 dark:text-white">
+          Text Area
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <TextArea
             id="textarea-example"
@@ -121,7 +148,9 @@ export default function FormComponentsShowcase() {
 
       {/* Select Input */}
       <div>
-        <h2 className="text-xl font-semibold mb-4 dark:text-white">Select Input</h2>
+        <h2 className="text-xl font-semibold mb-4 dark:text-white">
+          Select Input
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <SelectInput
             id="select-example"
@@ -147,7 +176,9 @@ export default function FormComponentsShowcase() {
 
       {/* Checkbox and Radio */}
       <div>
-        <h2 className="text-xl font-semibold mb-4 dark:text-white">Checkbox and Radio</h2>
+        <h2 className="text-xl font-semibold mb-4 dark:text-white">
+          Checkbox and Radio
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <CheckboxInput
@@ -183,7 +214,9 @@ export default function FormComponentsShowcase() {
 
       {/* Switch Input */}
       <div>
-        <h2 className="text-xl font-semibold mb-4 dark:text-white">Switch Input</h2>
+        <h2 className="text-xl font-semibold mb-4 dark:text-white">
+          Switch Input
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <SwitchInput
             id="switch-example"
@@ -207,7 +240,9 @@ export default function FormComponentsShowcase() {
 
       {/* Date Picker */}
       <div>
-        <h2 className="text-xl font-semibold mb-4 dark:text-white">Date Picker</h2>
+        <h2 className="text-xl font-semibold mb-4 dark:text-white">
+          Date Picker
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <DatePicker
             id="date-example"
@@ -233,7 +268,9 @@ export default function FormComponentsShowcase() {
 
       {/* Slider Input */}
       <div>
-        <h2 className="text-xl font-semibold mb-4 dark:text-white">Slider Input</h2>
+        <h2 className="text-xl font-semibold mb-4 dark:text-white">
+          Slider Input
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <SliderInput
             id="slider-example"
@@ -265,7 +302,9 @@ export default function FormComponentsShowcase() {
 
       {/* File Input */}
       <div>
-        <h2 className="text-xl font-semibold mb-4 dark:text-white">File Input</h2>
+        <h2 className="text-xl font-semibold mb-4 dark:text-white">
+          File Input
+        </h2>
         <div className="grid grid-cols-1 gap-6">
           <FileInput
             id="file-example"

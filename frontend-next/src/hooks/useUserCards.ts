@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { CardService } from '@/services/cardService';
-import { UserCard } from '@/types/card';
+import { useEffect, useState } from "react";
+import { CardService } from "@/services/cardService";
+import { UserCard } from "@/types/card";
 
 export function useUserCards(userId?: string) {
   const [data, setData] = useState<UserCard[] | undefined>(undefined);
@@ -19,20 +19,24 @@ export function useUserCards(userId?: string) {
       setIsLoading(true);
       setError(undefined);
       try {
-        const result = await CardService.getUserCards(userId, controller.signal);
+        const result = await CardService.getUserCards(
+          userId,
+          controller.signal,
+        );
         if (!cancelled) setData(result);
       } catch (e: unknown) {
         if (!cancelled && !controller.signal.aborted) {
-          let message = 'Failed to load user cards';
-          if (e && typeof e === 'object') {
-            const maybeResponse = (e as { response?: { data?: unknown } }).response;
+          let message = "Failed to load user cards";
+          if (e && typeof e === "object") {
+            const maybeResponse = (e as { response?: { data?: unknown } })
+              .response;
             const data = maybeResponse?.data;
-            if (typeof data === 'string') message = data;
+            if (typeof data === "string") message = data;
             else if (
               data &&
-              typeof data === 'object' &&
-              'message' in (data as Record<string, unknown>) &&
-              typeof (data as Record<string, unknown>).message === 'string'
+              typeof data === "object" &&
+              "message" in (data as Record<string, unknown>) &&
+              typeof (data as Record<string, unknown>).message === "string"
             ) {
               message = (data as Record<string, unknown>).message as string;
             } else if (e instanceof Error) {

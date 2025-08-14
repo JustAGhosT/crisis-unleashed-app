@@ -1,8 +1,8 @@
-import React from 'react';
-import { Card as GameCardData } from '@/types/card';
-import { GameCard } from './GameCard';
-import { Skeleton } from '@/components/ui/skeleton';
-import { cn } from '@/lib/utils';
+import React from "react";
+import { Card as GameCardData } from "@/types/card";
+import { GameCard } from "./GameCard";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 
 interface CardGridProps {
   cards: GameCardData[];
@@ -14,7 +14,7 @@ interface CardGridProps {
   getMaxQuantity?: (card: GameCardData) => number;
   emptyMessage?: string;
   showQuantity?: boolean;
-  cardSize?: 'sm' | 'md' | 'lg';
+  cardSize?: "sm" | "md" | "lg";
   className?: string;
   columnCount?: 2 | 3 | 4 | 5 | 6;
   draggable?: boolean;
@@ -33,9 +33,9 @@ export const CardGrid: React.FC<CardGridProps> = ({
   onCardRemove,
   getQuantity = () => 0,
   getMaxQuantity = () => 3,
-  emptyMessage = 'No cards found',
+  emptyMessage = "No cards found",
   showQuantity = true,
-  cardSize = 'md',
+  cardSize = "md",
   className,
   columnCount = 4,
   draggable = false,
@@ -43,23 +43,25 @@ export const CardGrid: React.FC<CardGridProps> = ({
 }) => {
   // Grid column configuration based on columnCount prop
   const gridColumns = {
-    2: 'grid-cols-1 sm:grid-cols-2',
-    3: 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3',
-    4: 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4',
-    5: 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5',
-    6: 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6',
+    2: "grid-cols-1 sm:grid-cols-2",
+    3: "grid-cols-1 sm:grid-cols-2 md:grid-cols-3",
+    4: "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4",
+    5: "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
+    6: "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6",
   };
 
   // Render loading skeletons when in loading state
   if (loading) {
     return (
-      <div className={cn(
-        'grid gap-4',
-        gridColumns[columnCount],
-        className
-      )}>
+      <div
+        role="list"
+        data-testid="card-grid"
+        className={cn("grid gap-4", gridColumns[columnCount], className)}
+      >
         {Array.from({ length: 12 }).map((_, index) => (
-          <Card key={index} />
+          <div role="listitem" key={index}>
+            <Card />
+          </div>
         ))}
       </div>
     );
@@ -75,25 +77,26 @@ export const CardGrid: React.FC<CardGridProps> = ({
   }
 
   return (
-    <div className={cn(
-      'grid gap-4',
-      gridColumns[columnCount],
-      className
-    )}>
+    <div
+      role="list"
+      data-testid="card-grid"
+      className={cn("grid gap-4", gridColumns[columnCount], className)}
+    >
       {cards.map((card) => (
-        <GameCard
-          key={card.id}
-          card={card}
-          quantity={getQuantity(card.id)}
-          maxQuantity={getMaxQuantity(card)}
-          onAdd={onCardAdd}
-          onRemove={onCardRemove}
-          onClick={onCardClick}
-          size={cardSize}
-          showQuantity={showQuantity}
-          draggable={draggable}
-          disabled={disabledCardIds.includes(card.id)}
-        />
+        <div role="listitem" key={card.id}>
+          <GameCard
+            card={card}
+            quantity={getQuantity(card.id)}
+            maxQuantity={getMaxQuantity(card)}
+            onAdd={onCardAdd}
+            onRemove={onCardRemove}
+            onClick={onCardClick}
+            size={cardSize}
+            showQuantity={showQuantity}
+            draggable={draggable}
+            disabled={disabledCardIds.includes(card.id)}
+          />
+        </div>
       ))}
     </div>
   );
@@ -102,7 +105,10 @@ export const CardGrid: React.FC<CardGridProps> = ({
 // Loading skeleton for card
 const Card = () => {
   return (
-    <div className="relative aspect-[3/4] w-full bg-slate-800/50 rounded-md overflow-hidden">
+    <div
+      data-testid="card-skeleton"
+      className="relative aspect-[3/4] w-full bg-slate-800/50 rounded-md overflow-hidden"
+    >
       <div className="p-3 space-y-2">
         <div className="flex justify-between">
           <Skeleton className="h-6 w-6 rounded-full" />
@@ -125,4 +131,4 @@ const Card = () => {
   );
 };
 
-CardGrid.displayName = 'CardGrid';
+CardGrid.displayName = "CardGrid";

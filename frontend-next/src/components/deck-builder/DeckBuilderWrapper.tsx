@@ -1,17 +1,16 @@
 "use client";
 
-import React from 'react';
-import { DeckBuilderProvider } from '@/lib/deck-builder/deck-builder-context';
-import DeckBuilderInterface from './DeckBuilderInterface';
+import React from "react";
+import { DeckBuilderProvider } from "@/lib/deck-builder/deck-builder-context";
+import DeckBuilderInterface from "./DeckBuilderInterface";
 
 interface DeckBuilderWrapperProps {
   isLoading?: boolean;
 }
 
-export default function DeckBuilderWrapper({ 
-  isLoading = false
+export default function DeckBuilderWrapper({
+  isLoading = false,
 }: DeckBuilderWrapperProps) {
-
   if (isLoading) {
     // Loading state handled by new DeckBuilderInterface
     return <DeckBuilderInterface isLoading={true} />;

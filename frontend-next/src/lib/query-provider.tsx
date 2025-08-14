@@ -15,9 +15,10 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
             staleTime: 60 * 1000, // 1 minute
             retry: (failureCount, error) => {
               // Don't retry on 4xx errors
-              const status = error && typeof error === 'object' && 'status' in error
-                ? (error as { status: number }).status
-                : null;
+              const status =
+                error && typeof error === "object" && "status" in error
+                  ? (error as { status: number }).status
+                  : null;
               if (status && status >= 400 && status < 500) {
                 return false;
               }
@@ -28,7 +29,7 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
             retry: false,
           },
         },
-      })
+      }),
   );
 
   return (

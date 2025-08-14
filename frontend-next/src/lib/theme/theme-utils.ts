@@ -15,14 +15,18 @@ export function useSafeTheme() {
   }, []);
 
   // Determine the actual theme (accounting for system theme)
-  const currentTheme = mounted ? (theme === "system" ? systemTheme : theme) : undefined;
+  const currentTheme = mounted
+    ? theme === "system"
+      ? systemTheme
+      : theme
+    : undefined;
 
   return {
     theme: currentTheme,
     setTheme,
     mounted,
     isDark: mounted && currentTheme === "dark",
-    isLight: mounted && currentTheme === "light"
+    isLight: mounted && currentTheme === "light",
   };
 }
 
@@ -33,7 +37,7 @@ export function useSafeTheme() {
  * @returns A function that returns the appropriate classes based on the current theme
  */
 export function createThemeClasses(lightClasses: string, darkClasses: string) {
-  return (isDark: boolean) => isDark ? darkClasses : lightClasses;
+  return (isDark: boolean) => (isDark ? darkClasses : lightClasses);
 }
 
 /**
@@ -47,15 +51,15 @@ export function getThemeVariables(isDark: boolean) {
     bgPrimary: isDark ? "#1f2937" : "#ffffff",
     bgSecondary: isDark ? "#111827" : "#f9fafb",
     bgAccent: isDark ? "#2563eb" : "#3b82f6",
-    
+
     // Text colors
     textPrimary: isDark ? "#f9fafb" : "#111827",
     textSecondary: isDark ? "#d1d5db" : "#4b5563",
     textAccent: isDark ? "#60a5fa" : "#2563eb",
-    
+
     // Border colors
     borderColor: isDark ? "#374151" : "#e5e7eb",
-    
+
     // Shadow
     shadowColor: isDark ? "rgba(0, 0, 0, 0.3)" : "rgba(0, 0, 0, 0.1)",
   };

@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { FeatureGate } from '@/components/feature-flags/FeatureGate';
-import DeckBuilderInterface from '@/components/deck-builder/DeckBuilderInterface';
-import { Skeleton } from '@/components/ui/skeleton';
-import RequireAuth from '@/components/auth/RequireAuth';
+import { useState, useEffect } from "react";
+import { FeatureGate } from "@/components/feature-flags/FeatureGate";
+import DeckBuilderInterface from "@/components/deck-builder/DeckBuilderInterface";
+import { Skeleton } from "@/components/ui/skeleton";
+import RequireAuth from "@/components/auth/RequireAuth";
 
 export default function DeckBuilderPage() {
   const [isLoadingLocal, setIsLoadingLocal] = useState(true);
@@ -14,7 +14,7 @@ export default function DeckBuilderPage() {
     const timer = setTimeout(() => {
       setIsLoadingLocal(false);
     }, 1000);
-    
+
     return () => clearTimeout(timer);
   }, []);
 
@@ -38,7 +38,9 @@ export default function DeckBuilderPage() {
   return (
     <RequireAuth>
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-8 dark:text-white">Deck Builder</h1>
+        <h1 className="text-3xl font-bold mb-8 dark:text-white">
+          Deck Builder
+        </h1>
         {/* Deck Builder Feature Gate */}
         <FeatureGate flag="useNewDeckBuilder">
           <DeckBuilderInterface isLoading={isLoadingLocal} />

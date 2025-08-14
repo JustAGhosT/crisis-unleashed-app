@@ -17,7 +17,7 @@ export const ScrollArea = React.forwardRef<HTMLDivElement, ScrollAreaProps>(
         <div className={cx("overflow-auto", viewportClassName)}>{children}</div>
       </div>
     );
-  }
+  },
 );
 ScrollArea.displayName = "ScrollArea";
 

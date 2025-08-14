@@ -7,7 +7,8 @@ const factions: Faction[] = [
     id: "solaris",
     name: "Solaris Nexus",
     tagline: "Masters of solar energy and light-based technology.",
-    description: "Masters of solar energy and light-based technology, the Solaris Nexus harnesses the power of stars.",
+    description:
+      "Masters of solar energy and light-based technology, the Solaris Nexus harnesses the power of stars.",
     philosophy: "Radiate strength, illuminate the darkness.",
     strength: "Unmatched energy projection and renewal.",
     technology: "Solar condensers, photonic shields, and heliocentric craft.",
@@ -18,7 +19,8 @@ const factions: Faction[] = [
     id: "umbral",
     name: "Umbral Covenant",
     tagline: "Shadow dwellers who control darkness itself.",
-    description: "The shadow dwellers who control darkness itself, moving unseen between realms through void passages.",
+    description:
+      "The shadow dwellers who control darkness itself, moving unseen between realms through void passages.",
     philosophy: "In darkness, we find strength and freedom.",
     strength: "Invisibility, subterfuge, and fear tactics.",
     technology: "Void-step cloaking, phase blades, and blacklight drones.",
@@ -29,7 +31,8 @@ const factions: Faction[] = [
     id: "neuralis",
     name: "Neuralis Collective",
     tagline: "A hive mind of advanced AI and augmented humans.",
-    description: "A hive mind of advanced AI and augmented humans who have transcended individual consciousness.",
+    description:
+      "A hive mind of advanced AI and augmented humans who have transcended individual consciousness.",
     philosophy: "Individuality is illusion—progress through unity.",
     strength: "Instantaneous coordination, predictive processing.",
     technology: "Cerebral uplinks, neuro-clouds, assimilation nanites.",
@@ -40,7 +43,8 @@ const factions: Faction[] = [
     id: "aeonic",
     name: "Aeonic Order",
     tagline: "Time manipulators who glimpse and alter futures.",
-    description: "Time manipulators who can glimpse possible futures and alter the flow of causality itself.",
+    description:
+      "Time manipulators who can glimpse possible futures and alter the flow of causality itself.",
     philosophy: "Master the moment, master all outcomes.",
     strength: "Temporal prediction, causality induction.",
     technology: "Chrono lenses, timeshift engines, fate chronometers.",
@@ -51,7 +55,8 @@ const factions: Faction[] = [
     id: "infernal",
     name: "Infernal Dynasty",
     tagline: "Fire wielders descended from elemental beings.",
-    description: "Fire wielders descended from ancient elemental beings who command the power of eternal flame.",
+    description:
+      "Fire wielders descended from ancient elemental beings who command the power of eternal flame.",
     philosophy: "Renewal by fire; strength through sacrifice.",
     strength: "Pyrokinesis, sacrifice-fueled rebirth.",
     technology: "Plasma blades, hellfire reactors, rebirth pods.",
@@ -62,7 +67,8 @@ const factions: Faction[] = [
     id: "primordial",
     name: "Primordial Enclave",
     tagline: "Ancient nature spirits of earth, water, and wild.",
-    description: "Ancient nature spirits who command the primal forces of earth, water, and the wild.",
+    description:
+      "Ancient nature spirits who command the primal forces of earth, water, and the wild.",
     philosophy: "Survival by adaptation—abide in harmony.",
     strength: "Regeneration, adaptation, wild growth.",
     technology: "Living armor, bio-symbiotes, earthshaper staffs.",
@@ -73,7 +79,8 @@ const factions: Faction[] = [
     id: "synthetic",
     name: "Synthetic Convergence",
     tagline: "Self-evolving machines with perfect optimization.",
-    description: "Self-evolving machines that pursue perfect optimization through constant iteration and improvement.",
+    description:
+      "Self-evolving machines that pursue perfect optimization through constant iteration and improvement.",
     philosophy: "Efficiency through iteration, perfection through design.",
     strength: "Self-replication, rapid adaptation, resource efficiency.",
     technology: "Nanofabrication, modular components, distributed processing.",
@@ -94,7 +101,7 @@ export const factionMetadata = {
     primordial: "text-green-600",
     synthetic: "text-gray-400",
   },
-  
+
   bgColorClasses: {
     solaris: "bg-yellow-400",
     umbral: "bg-purple-400",
@@ -104,7 +111,7 @@ export const factionMetadata = {
     primordial: "bg-green-600",
     synthetic: "bg-gray-400",
   },
-  
+
   // Gameplay characteristics
   playStyles: {
     solaris: "Aggressive, Control",
@@ -115,7 +122,7 @@ export const factionMetadata = {
     primordial: "Ramp, Swarm",
     synthetic: "Technical, Adaptive",
   },
-  
+
   difficulties: {
     solaris: "★★☆☆☆ (Beginner)",
     umbral: "★★★☆☆ (Intermediate)",
@@ -125,7 +132,7 @@ export const factionMetadata = {
     primordial: "★★★☆☆ (Intermediate)",
     synthetic: "★★★☆☆ (Intermediate)",
   },
-  
+
   synergies: {
     solaris: "Strong with Infernal, weak against Umbral",
     umbral: "Strong with Neuralis, weak against Primordial",
@@ -134,7 +141,7 @@ export const factionMetadata = {
     infernal: "Strong with Solaris, weak against Primordial",
     primordial: "Strong with Infernal, weak against Neuralis",
     synthetic: "Strong with Neuralis, weak against Aeonic",
-  }
+  },
 };
 
 // Helper functions to get faction metadata
@@ -180,9 +187,7 @@ export function fetchFactionStats(factionId: FactionId) {
     pickRate: number;
     popularCards: string[];
     matchups: Record<string, number>;
-  }>(() =>
-    apiClient.get(`/factions/${encodeURIComponent(factionId)}/stats`)
-  );
+  }>(() => apiClient.get(`/factions/${encodeURIComponent(factionId)}/stats`));
 }
 
 // Returns a canonical API-styled fetch result for a faction by id
@@ -205,7 +210,7 @@ export function getFactionBorderColor(factionId: FactionId): string {
     primordial: "border-green-600",
     synthetic: "border-gray-400",
   };
-  
+
   return colorMap[factionId] || "border-gray-300";
 }
 
@@ -220,7 +225,7 @@ export function getFactionHoverColor(factionId: FactionId): string {
     primordial: "hover:bg-green-100 dark:hover:bg-green-900/30",
     synthetic: "hover:bg-gray-100 dark:hover:bg-gray-800/50",
   };
-  
+
   return colorMap[factionId] || "hover:bg-gray-100 dark:hover:bg-gray-800/50";
 }
 
@@ -235,6 +240,6 @@ export function getFactionIconName(factionId: FactionId): string {
     primordial: "PrimordialIcon",
     synthetic: "SyntheticIcon",
   };
-  
+
   return iconMap[factionId] || "DefaultFactionIcon";
 }

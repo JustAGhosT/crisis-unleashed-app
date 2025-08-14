@@ -1,13 +1,17 @@
-import { GameCard } from '@/components/cards/GameCard';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { isValidRarity } from '@/lib/card-utils';
-import { cn } from '@/lib/utils';
-import { DeckCard, Card as GameCardData } from '@/types/card';
-import { rarityBadgeClass } from '@/lib/ui-maps';
-import { Grid, List, Save, Trash2 } from 'lucide-react';
-import React from 'react';
+import React from "react";
+import { GameCard } from "@/components/cards/GameCard";
+import { Button } from "@/components/ui/button";
+import { Grid, List, Save, Trash2 } from "lucide-react";
+import { DeckCard, Card as GameCardData } from "@/types/card";
+import { DropZone } from "@/components/deck-builder/deck/DropZone";
+import { DeckRow } from "@/components/deck-builder/deck/DeckRow";
+import { DeckSummary } from "@/components/deck-builder/deck/DeckSummary";
+import { AriaLiveRegion } from "@/components/deck-builder/deck/AriaLiveRegion";
+import { ReorderableList } from "@/components/deck-builder/deck/ReorderableList";
+import { VirtualizedReorderableList } from "@/components/deck-builder/deck/VirtualizedReorderableList";
+import { useDeckDnD } from "@/components/deck-builder/hooks/useDeckDnD";
+import { useDeckAnnouncer } from "@/components/deck-builder/hooks/useDeckAnnouncer";
+import { useToast } from "@/hooks/useToast";
 
 interface DeckListProps {
   deckCards: DeckCard[];
@@ -17,11 +21,13 @@ interface DeckListProps {
   onSaveDeck: () => void;
   onClearDeck: () => void;
   isLoading?: boolean;
-  viewMode?: 'list' | 'grid';
-  onViewModeChange?: (mode: 'list' | 'grid') => void;
+  viewMode?: "list" | "grid";
+  onViewModeChange?: (mode: "list" | "grid") => void;
   onSelectCard?: (card: GameCardData) => void;
   selectedCardId?: string | null;
   className?: string;
+  /** Optional handler to reorder deck cards (list view only for now) */
+  onReorderDeckCards?: (newOrder: DeckCard[]) => void;
 }
 
 /**
@@ -36,26 +42,31 @@ export const DeckList: React.FC<DeckListProps> = ({
   onSaveDeck,
   onClearDeck,
   isLoading = false,
-  viewMode = 'list',
+  viewMode = "list",
   onViewModeChange,
   onSelectCard,
   selectedCardId,
   className,
+  onReorderDeckCards,
 }) => {
+  const { toast } = useToast();
+  const announcer = useDeckAnnouncer();
   // Create card lookup map for efficiency
-  const cardMap = React.useMemo(() =>
-    new Map(cards.map(card => [card.id, card])),
-    [cards]
+  const cardMap = React.useMemo(
+    () => new Map(cards.map((card) => [card.id, card])),
+    [cards],
   );
 
   // Calculate total cards in deck
-  const totalCards = React.useMemo(() =>
-    deckCards.reduce((sum, dc) => sum + dc.quantity, 0),
-    [deckCards]
+  const totalCards = React.useMemo(
+    () => deckCards.reduce((sum, dc) => sum + dc.quantity, 0),
+    [deckCards],
   );
 
   // Sort deck cards by cost, then by name
   const sortedDeckCards = React.useMemo(() => {
+    // When manual reorder is enabled, preserve incoming order
+    if (onReorderDeckCards) return deckCards;
     return [...deckCards].sort((a, b) => {
       const cardA = cardMap.get(a.cardId);
       const cardB = cardMap.get(b.cardId);
@@ -66,231 +77,201 @@ export const DeckList: React.FC<DeckListProps> = ({
       }
       return cardA.name.localeCompare(cardB.name);
     });
-  }, [deckCards, cardMap]);
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    try {
-      const cardData = JSON.parse(e.dataTransfer.getData('application/json'));
-      const card = cardMap.get(cardData.id);
-      if (card) {
-        onAddCard(card);
-      }
-    } catch (error) {
-      console.error('Failed to parse dropped card data:', error);
-    }
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'copy';
-  };
+    // Virtualization threshold
+    const useVirtual = sortedDeckCards.length > 60;
+  }, [deckCards, cardMap, onReorderDeckCards]);
+  const dnd = useDeckDnD({
+    resolveById: (id) => cardMap.get(id),
+    onAddCard: (c) => onAddCard(c),
+    onInvalidDrop: () =>
+      toast({
+        title: "Invalid drop",
+        description: "That item cannot be added here.",
+        variant: "destructive",
+      }),
+    onAnnounceAdd: announcer.announceAdd,
+  });
 
   return (
-    <Card
-      className={cn('bg-slate-800/50 border-slate-600', className)}
-      onDrop={handleDrop}
-      onDragOver={handleDragOver}
-    >
-      <CardHeader>
-        <div className="flex justify-between items-center">
-          <CardTitle className="flex items-center gap-2">
-            Current Deck
-            <Badge variant="outline" className="ml-2">
-              {totalCards} cards
-            </Badge>
-          </CardTitle>
+    <DropZone
+      title="Current Deck"
+      totalCount={totalCards}
+      isDragOver={dnd.isDragOver}
+      isInvalidDrop={dnd.isInvalidDrop}
+      className={className}
+      onDrop={dnd.handleDrop}
+      onDragOver={dnd.handleDragOver}
+      onDragEnter={dnd.handleDragEnter}
+      onDragLeave={dnd.handleDragLeave}
+      headerRight={
+        <div className="flex items-center gap-2">
+          {/* View Mode Toggle */}
+          {onViewModeChange && (
+            <div className="flex rounded border border-slate-600 overflow-hidden">
+              <Button
+                size="sm"
+                variant={viewMode === "list" ? "default" : "ghost"}
+                onClick={() => onViewModeChange("list")}
+                className="rounded-none px-3"
+              >
+                <List className="w-4 h-4" />
+              </Button>
+              <Button
+                size="sm"
+                variant={viewMode === "grid" ? "default" : "ghost"}
+                onClick={() => onViewModeChange("grid")}
+                className="rounded-none px-3"
+              >
+                <Grid className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
 
-          <div className="flex items-center gap-2">
-            {/* View Mode Toggle */}
-            {onViewModeChange && (
-              <div className="flex rounded border border-slate-600 overflow-hidden">
-                <Button
-                  size="sm"
-                  variant={viewMode === 'list' ? 'default' : 'ghost'}
-                  onClick={() => onViewModeChange('list')}
-                  className="rounded-none px-3"
-                >
-                  <List className="w-4 h-4" />
-                </Button>
-                <Button
-                  size="sm"
-                  variant={viewMode === 'grid' ? 'default' : 'ghost'}
-                  onClick={() => onViewModeChange('grid')}
-                  className="rounded-none px-3"
-                >
-                  <Grid className="w-4 h-4" />
-                </Button>
-              </div>
-            )}
+          {/* Action Buttons */}
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={onSaveDeck}
+            disabled={isLoading || totalCards === 0}
+          >
+            <Save className="w-4 h-4 mr-1" />
+            Save
+          </Button>
 
-            {/* Action Buttons */}
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={onSaveDeck}
-              disabled={isLoading || totalCards === 0}
-            >
-              <Save className="w-4 h-4 mr-1" />
-              Save
-            </Button>
-
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={onClearDeck}
-              disabled={isLoading || totalCards === 0}
-              className="text-red-400 border-red-400/50 hover:bg-red-400/10"
-            >
-              <Trash2 className="w-4 h-4 mr-1" />
-              Clear
-            </Button>
-          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={onClearDeck}
+            disabled={isLoading || totalCards === 0}
+            className="text-red-400 border-red-400/50 hover:bg-red-400/10"
+          >
+            <Trash2 className="w-4 h-4 mr-1" />
+            Clear
+          </Button>
         </div>
-      </CardHeader>
-
-      <CardContent>
-        {totalCards === 0 ? (
-          <div className="text-center py-12 text-gray-400">
-            <div className="text-4xl mb-4">🃏</div>
-            <p>No cards in deck</p>
-            <p className="text-sm mt-1">Drag cards here or use the + button to add cards</p>
-          </div>
-        ) : (
-          <>
-            {viewMode === 'list' ? (
-              <div className="space-y-2">
-                {sortedDeckCards.map((deckCard) => {
+      }
+    >
+      {totalCards === 0 ? (
+        <div className="text-center py-12 text-gray-400">
+          <p>Drag cards here to start building your deck</p>
+          <p className="text-sm">
+            You can also click on a card in the grid to add it
+          </p>
+        </div>
+      ) : (
+        <>
+          {viewMode === "list" ? (
+            useVirtual ? (
+              <VirtualizedReorderableList
+                items={sortedDeckCards}
+                enabled={Boolean(onReorderDeckCards)}
+                onReorder={onReorderDeckCards}
+                plainArrowKeys={Boolean(onReorderDeckCards)}
+                renderItem={(deckCard, ctx) => {
                   const card = cardMap.get(deckCard.cardId);
                   if (!card) return null;
-
                   return (
-                    <div
-                      key={deckCard.cardId}
-                      className={cn(
-                        "flex items-center justify-between bg-slate-800/50 border border-slate-600 rounded-lg p-3 hover:bg-slate-800",
-                        selectedCardId === card.id && "ring-2 ring-amber-400 ring-offset-2 ring-offset-slate-900"
-                      )}
-                      onClick={() => onSelectCard?.(card)}
-                    >
-                      {/* Quantity */}
-                      <div className="flex items-center gap-1">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => onRemoveCard(card)}
-                          disabled={isLoading}
-                          className="h-6 w-6 p-0"
-                        >
-                          -
-                        </Button>
-                        <span className="w-8 text-center text-sm font-medium">
-                          {deckCard.quantity}
-                        </span>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => onAddCard(card)}
-                          disabled={isLoading || deckCard.quantity >= 3}
-                          className="h-6 w-6 p-0"
-                        >
-                          +
-                        </Button>
-                      </div>
-
-                      {/* Cost */}
-                      <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-bold">
-                        {card.cost}
-                      </div>
-
-                      {/* Card Info */}
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium text-white">{card.name}</span>
-                          <Badge
-                            variant={isValidRarity(card.rarity) ? 'secondary' : 'default'}
-                            className={cn('text-xs', rarityBadgeClass(card.rarity))}
-                          >
-                            {card.rarity}
-                          </Badge>
-                        </div>
-                        <div className="text-xs text-gray-400">
-                          {card.type} • {card.faction}
-                          {card.attack !== undefined && card.health !== undefined && (
-                            <span> • {card.attack}/{card.health}</span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Remove Button */}
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => onRemoveCard(card)}
-                        disabled={isLoading}
-                        className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                {sortedDeckCards.map((deckCard) => {
-                  const card = cardMap.get(deckCard.cardId);
-                  if (!card) return null;
-
-                  return (
-                    <GameCard
+                    <DeckRow
                       key={deckCard.cardId}
                       card={card}
                       quantity={deckCard.quantity}
-                      size="sm"
-                      onAdd={onAddCard}
-                      onRemove={onRemoveCard}
-                      onClick={onSelectCard}
+                      selected={selectedCardId === card.id}
                       disabled={isLoading}
+                      onAdd={(c) => {
+                        announcer.announceAdd(c.name);
+                        onAddCard(c);
+                      }}
+                      onRemove={(c) => {
+                        announcer.announceRemove(c.name);
+                        onRemoveCard(c);
+                      }}
+                      onClick={(c) => onSelectCard?.(c)}
+                      draggable={ctx.draggable}
+                      onDragStart={ctx.onDragStart}
+                      onDragOver={ctx.onDragOver}
+                      onDrop={ctx.onDrop}
+                      onKeyDown={ctx.onKeyDown}
                     />
                   );
-                })}
-              </div>
-            )}
+                }}
+              />
+            ) : (
+              <ReorderableList
+                items={sortedDeckCards}
+                enabled={Boolean(onReorderDeckCards)}
+                onReorder={onReorderDeckCards}
+                plainArrowKeys={Boolean(onReorderDeckCards)}
+                renderItem={(deckCard, ctx) => {
+                  const card = cardMap.get(deckCard.cardId);
+                  if (!card) return null;
+                  return (
+                    <DeckRow
+                      key={deckCard.cardId}
+                      card={card}
+                      quantity={deckCard.quantity}
+                      selected={selectedCardId === card.id}
+                      disabled={isLoading}
+                      onAdd={(c) => {
+                        announcer.announceAdd(c.name);
+                        onAddCard(c);
+                      }}
+                      onRemove={(c) => {
+                        announcer.announceRemove(c.name);
+                        onRemoveCard(c);
+                      }}
+                      onClick={(c) => onSelectCard?.(c)}
+                      draggable={ctx.draggable}
+                      onDragStart={ctx.onDragStart}
+                      onDragOver={ctx.onDragOver}
+                      onDrop={ctx.onDrop}
+                      onKeyDown={ctx.onKeyDown}
+                    />
+                  );
+                }}
+              />
+            )
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {sortedDeckCards.map((deckCard) => {
+                const card = cardMap.get(deckCard.cardId);
+                if (!card) return null;
 
-            {/* Deck Summary */}
-            <div className="mt-4 pt-4 border-t border-slate-600">
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div>
-                  <div className="text-lg font-semibold text-purple-400">
-                    {sortedDeckCards.length}
-                  </div>
-                  <div className="text-xs text-gray-400">Unique Cards</div>
-                </div>
-                <div>
-                  <div className="text-lg font-semibold text-blue-400">
-                    {totalCards}
-                  </div>
-                  <div className="text-xs text-gray-400">Total Cards</div>
-                </div>
-                <div>
-                  <div className="text-lg font-semibold text-green-400">
-                    {totalCards > 0 ? (
-                      (deckCards.reduce((sum, dc) => {
-                        const card = cardMap.get(dc.cardId);
-                        return sum + (card ? card.cost * dc.quantity : 0);
-                      }, 0) / totalCards).toFixed(1)
-                    ) : '0.0'}
-                  </div>
-                  <div className="text-xs text-gray-400">Avg Cost</div>
-                </div>
-              </div>
+                return (
+                  <GameCard
+                    key={deckCard.cardId}
+                    card={card}
+                    quantity={deckCard.quantity}
+                    size="sm"
+                    onAdd={onAddCard}
+                    onRemove={onRemoveCard}
+                    onClick={onSelectCard}
+                    disabled={isLoading}
+                  />
+                );
+              })}
             </div>
-          </>
-        )}
-      </CardContent>
-    </Card>
+          )}
+
+          <DeckSummary
+            uniqueCount={sortedDeckCards.length}
+            totalCount={totalCards}
+            averageCost={
+              totalCards > 0
+                ? (
+                    deckCards.reduce((sum, dc) => {
+                      const card = cardMap.get(dc.cardId);
+                      return sum + (card ? (card.cost ?? 0) * dc.quantity : 0);
+                    }, 0) / totalCards
+                  ).toFixed(1)
+                : "0.0"
+            }
+          />
+        </>
+      )}
+      <AriaLiveRegion message={announcer.message} />
+    </DropZone>
   );
 };
 
-DeckList.displayName = 'DeckList';
+DeckList.displayName = "DeckList";

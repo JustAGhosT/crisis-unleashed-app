@@ -30,7 +30,7 @@ const PopoverContent = React.forwardRef<
         "data-[side=right]:slide-in-from-left-2",
         "data-[side=top]:slide-in-from-bottom-2",
         "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700",
-        className
+        className,
       )}
       {...props}
     />

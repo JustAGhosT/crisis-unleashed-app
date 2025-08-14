@@ -1,8 +1,8 @@
 "use client";
 
-import React from 'react';
-import { FeatureFlags } from '@/hooks/useFeatureFlags';
-import { Switch } from '@/components/ui/switch';
+import React from "react";
+import { FeatureFlags } from "@/hooks/useFeatureFlags";
+import { Switch } from "@/components/ui/switch";
 
 interface FeatureFlagCardProps {
   title: string;
@@ -12,12 +12,12 @@ interface FeatureFlagCardProps {
   setFlag: (key: string, value: boolean) => void;
 }
 
-export function FeatureFlagCard({ 
-  title, 
-  description, 
-  flagKey, 
-  enabled, 
-  setFlag 
+export function FeatureFlagCard({
+  title,
+  description,
+  flagKey,
+  enabled,
+  setFlag,
 }: FeatureFlagCardProps) {
   return (
     <div className="border rounded-lg p-4 shadow-sm">

@@ -1,11 +1,11 @@
 "use client";
 
-import React from 'react';
-import Image from 'next/image';
-import { Card as CardType } from '@/types/deck';
-import { Button } from '@/components/ui/button';
-import { X } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import React from "react";
+import Image from "next/image";
+import { Card as CardType } from "@/types/deck";
+import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface DeckCardProps {
   card: CardType;
@@ -14,27 +14,27 @@ interface DeckCardProps {
 
 export default function DeckCard({ card, onRemove }: DeckCardProps) {
   // Get color class based on card rarity
-  const getRarityColorClass = (rarity: string = 'common') => {
+  const getRarityColorClass = (rarity: string = "common") => {
     switch (rarity.toLowerCase()) {
-      case 'legendary':
-        return 'border-amber-400 dark:border-amber-500';
-      case 'epic':
-        return 'border-purple-400 dark:border-purple-500';
-      case 'rare':
-        return 'border-blue-400 dark:border-blue-500';
-      case 'uncommon':
-        return 'border-green-400 dark:border-green-500';
-      case 'common':
+      case "legendary":
+        return "border-amber-400 dark:border-amber-500";
+      case "epic":
+        return "border-purple-400 dark:border-purple-500";
+      case "rare":
+        return "border-blue-400 dark:border-blue-500";
+      case "uncommon":
+        return "border-green-400 dark:border-green-500";
+      case "common":
       default:
-        return 'border-gray-300 dark:border-gray-600';
+        return "border-gray-300 dark:border-gray-600";
     }
   };
 
   return (
-    <div 
+    <div
       className={cn(
         "flex items-center p-2 rounded-md border bg-white dark:bg-gray-800",
-        getRarityColorClass(card.rarity)
+        getRarityColorClass(card.rarity),
       )}
     >
       {/* Card image */}
@@ -48,13 +48,24 @@ export default function DeckCard({ card, onRemove }: DeckCardProps) {
           />
         ) : (
           <div className="h-full w-full flex items-center justify-center text-gray-400 dark:text-gray-500">
-            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            <svg
+              className="h-6 w-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
             </svg>
           </div>
         )}
       </div>
-      
+
       {/* Card info */}
       <div className="ml-3 flex-grow min-w-0">
         <div className="flex justify-between items-start">

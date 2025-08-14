@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState } from 'react';
-import { z } from 'zod';
-import { CardContent, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { TextInput, DatePicker, RadioGroup } from '@/components/forms';
-import { AdvancedFormData } from '../AdvancedFormExample';
+import React, { useState } from "react";
+import { z } from "zod";
+import { CardContent, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { TextInput, DatePicker, RadioGroup } from "@/components/forms";
+import { AdvancedFormData } from "../AdvancedFormExample";
 
 interface PersonalInfoStepProps {
   formData: AdvancedFormData;
@@ -20,7 +20,7 @@ const personalInfoSchema = z.object({
   lastName: z.string().min(2, "Last name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
   dateOfBirth: z.date().optional(),
-  experience: z.string().min(1, "Please select your experience level")
+  experience: z.string().min(1, "Please select your experience level"),
 });
 
 export default function PersonalInfoStep({
@@ -30,50 +30,50 @@ export default function PersonalInfoStep({
 }: PersonalInfoStepProps) {
   // Local validation errors
   const [errors, setErrors] = useState<Record<string, string>>({});
-  
+
   // Handle text input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     updateFormData({ [name]: value });
-    
+
     // Clear error for this field
     if (errors[name]) {
-      setErrors(prev => {
+      setErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[name];
         return newErrors;
       });
     }
   };
-  
+
   // Handle date change
   const handleDateChange = (date: Date | undefined) => {
     updateFormData({ dateOfBirth: date });
-    
+
     // Clear error for this field
     if (errors.dateOfBirth) {
-      setErrors(prev => {
+      setErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors.dateOfBirth;
         return newErrors;
       });
     }
   };
-  
+
   // Handle radio group change
   const handleExperienceChange = (value: string) => {
     updateFormData({ experience: value });
-    
+
     // Clear error for this field
     if (errors.experience) {
-      setErrors(prev => {
+      setErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors.experience;
         return newErrors;
       });
     }
   };
-  
+
   // Validate this step and proceed
   const validateAndProceed = () => {
     try {
@@ -83,7 +83,7 @@ export default function PersonalInfoStep({
     } catch (error) {
       if (error instanceof z.ZodError) {
         const newErrors: Record<string, string> = {};
-        error.errors.forEach(err => {
+        error.errors.forEach((err) => {
           if (err.path.length > 0) {
             newErrors[err.path[0]] = err.message;
           }
@@ -93,20 +93,26 @@ export default function PersonalInfoStep({
       }
     }
   };
-  
+
   // Experience level options
   const experienceOptions = [
-    { value: 'beginner', label: 'Beginner', description: 'New to card games' },
-    { value: 'intermediate', label: 'Intermediate', description: 'Played similar games before' },
-    { value: 'advanced', label: 'Advanced', description: 'Experienced player' },
-    { value: 'expert', label: 'Expert', description: 'Competitive player' }
+    { value: "beginner", label: "Beginner", description: "New to card games" },
+    {
+      value: "intermediate",
+      label: "Intermediate",
+      description: "Played similar games before",
+    },
+    { value: "advanced", label: "Advanced", description: "Experienced player" },
+    { value: "expert", label: "Expert", description: "Competitive player" },
   ];
-  
+
   return (
     <>
       <CardContent className="pt-6 space-y-6">
-        <h2 className="text-xl font-semibold mb-4 dark:text-white">Personal Information</h2>
-        
+        <h2 className="text-xl font-semibold mb-4 dark:text-white">
+          Personal Information
+        </h2>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <TextInput
             id="firstName"
@@ -118,7 +124,7 @@ export default function PersonalInfoStep({
             error={errors.firstName}
             required
           />
-          
+
           <TextInput
             id="lastName"
             name="lastName"
@@ -130,7 +136,7 @@ export default function PersonalInfoStep({
             required
           />
         </div>
-        
+
         <TextInput
           id="email"
           name="email"
@@ -142,7 +148,7 @@ export default function PersonalInfoStep({
           error={errors.email}
           required
         />
-        
+
         <DatePicker
           id="dateOfBirth"
           label="Date of Birth"
@@ -152,7 +158,7 @@ export default function PersonalInfoStep({
           description="Optional: Used to verify age requirements for tournaments"
           error={errors.dateOfBirth}
         />
-        
+
         <RadioGroup
           id="experience"
           label="Experience Level"
@@ -163,11 +169,9 @@ export default function PersonalInfoStep({
           required
         />
       </CardContent>
-      
+
       <CardFooter className="flex justify-end border-t p-6 dark:border-gray-700">
-        <Button onClick={validateAndProceed}>
-          Continue
-        </Button>
+        <Button onClick={validateAndProceed}>Continue</Button>
       </CardFooter>
     </>
   );

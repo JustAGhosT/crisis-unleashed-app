@@ -8,7 +8,8 @@ function cx(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
 }
 
-export interface CalendarProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onSelect'> {
+export interface CalendarProps
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, "onSelect"> {
   mode?: "single"; // stub for API compatibility
   selected?: Date;
   onSelect?: (date: Date | undefined) => void;
@@ -34,7 +35,11 @@ export const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
         return;
       }
       const parts = val.split("-");
-      const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+      const d = new Date(
+        Number(parts[0]),
+        Number(parts[1]) - 1,
+        Number(parts[2]),
+      );
       // Apply disabled predicate if provided as function
       if (typeof disabled === "function" && disabled(d)) {
         return;
@@ -51,7 +56,7 @@ export const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
           className={cx(
             "w-full rounded-md border bg-background px-3 py-2 text-sm",
             "border-input focus:outline-none focus:ring-2 focus:ring-ring",
-            "dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+            "dark:bg-gray-800 dark:border-gray-700 dark:text-white",
           )}
           value={value}
           onChange={handleChange}
@@ -60,7 +65,7 @@ export const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
         />
       </div>
     );
-  }
+  },
 );
 
 Calendar.displayName = "Calendar";

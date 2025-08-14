@@ -1,10 +1,10 @@
-import { FactionId } from './faction';
+import { FactionId } from "./faction";
 
-export type CardType = 'hero' | 'unit' | 'action' | 'structure';
-export type UnitType = 'melee' | 'ranged' | 'siege' | 'flying';
-export type ActionType = 'instant' | 'ongoing' | 'equipment';
-export type StructureType = 'building' | 'trap' | 'aura';
-export type CardRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
+export type CardType = "hero" | "unit" | "action" | "structure";
+export type UnitType = "melee" | "ranged" | "siege" | "flying";
+export type ActionType = "instant" | "ongoing" | "equipment";
+export type StructureType = "building" | "trap" | "aura";
+export type CardRarity = "common" | "uncommon" | "rare" | "epic" | "legendary";
 
 export interface Card {
   id: string;
@@ -95,7 +95,6 @@ export interface DeckValidationResult {
   costCurve: { [cost: number]: number };
   factionSpecificRules: { [rule: string]: boolean };
 }
-
 
 export interface DeckStats {
   totalCards: number;

@@ -6,8 +6,8 @@ import { ArrowUp, ArrowDown } from "lucide-react";
 // Mock data fetcher - replace with actual API call
 const fetchStats = async () => {
   // Simulate API call
-  await new Promise(resolve => setTimeout(resolve, 500));
-  
+  await new Promise((resolve) => setTimeout(resolve, 500));
+
   return {
     wins: 27,
     losses: 12,
@@ -16,7 +16,7 @@ const fetchStats = async () => {
     energy: 1250,
     rank: "Platinum",
     rankChange: 2,
-    seasonHighest: "Diamond"
+    seasonHighest: "Diamond",
   };
 };
 
@@ -38,33 +38,47 @@ export default function DashboardStats() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      <StatCard 
-        title="Win Rate" 
-        value={`${stats?.winRate}%`} 
+      <StatCard
+        title="Win Rate"
+        value={`${stats?.winRate}%`}
         subtitle={`${stats?.wins}W - ${stats?.losses}L`}
         trend="up"
         trendValue="+2.5%"
       />
-      
-      <StatCard 
-        title="Energy" 
-        value={stats?.energy.toLocaleString() || "0"} 
+
+      <StatCard
+        title="Energy"
+        value={stats?.energy.toLocaleString() || "0"}
         subtitle="Available to spend"
         trend="up"
         trendValue="+150"
       />
-      
-      <StatCard 
-        title="Rank" 
-        value={stats?.rank || "Unranked"} 
+
+      <StatCard
+        title="Rank"
+        value={stats?.rank || "Unranked"}
         subtitle={`Season highest: ${stats?.seasonHighest}`}
-        trend={typeof stats?.rankChange === 'number' ? (stats!.rankChange > 0 ? "up" : stats!.rankChange < 0 ? "down" : "neutral") : "neutral"}
-        trendValue={typeof stats?.rankChange === 'number' ? (stats!.rankChange > 0 ? `+${stats!.rankChange}` : `${stats!.rankChange}`) : undefined}
+        trend={
+          typeof stats?.rankChange === "number"
+            ? stats!.rankChange > 0
+              ? "up"
+              : stats!.rankChange < 0
+                ? "down"
+                : "neutral"
+            : "neutral"
+        }
+        trendValue={
+          typeof stats?.rankChange === "number"
+            ? stats!.rankChange > 0
+              ? `+${stats!.rankChange}`
+              : `${stats!.rankChange}`
+            : undefined
+        }
       />
-      
-      <StatCard 
-        title="Cards Played" 
-        value={stats?.cardsPlayed.toLocaleString() || "0"} 
+
+      <StatCard
+        title="Cards Played"
+        value={stats?.cardsPlayed.toLocaleString() || "0"}
         subtitle="This season"
         trend="neutral"
       />
@@ -80,15 +94,25 @@ type StatCardProps = {
   trendValue?: string;
 };
 
-function StatCard({ title, value, subtitle, trend, trendValue }: StatCardProps) {
+function StatCard({
+  title,
+  value,
+  subtitle,
+  trend,
+  trendValue,
+}: StatCardProps) {
   return (
     <div className="bg-white shadow rounded-lg p-6">
       <div className="flex justify-between items-start">
         <h3 className="text-gray-500 text-sm font-medium">{title}</h3>
         {trend !== "neutral" && (
-          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-            trend === "up" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-          }`}>
+          <span
+            className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+              trend === "up"
+                ? "bg-green-100 text-green-800"
+                : "bg-red-100 text-red-800"
+            }`}
+          >
             {trend === "up" ? (
               <ArrowUp className="w-3 h-3 mr-1" />
             ) : (

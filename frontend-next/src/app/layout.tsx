@@ -1,9 +1,9 @@
 import "@/styles/globals.css";
 import type { Metadata } from "next";
 import { Inter as FontSans } from "next/font/google";
-import { AuthProvider } from '@/lib/auth/AuthContext';
-import { FeatureFlagProvider } from '@/lib/feature-flags/feature-flag-provider';
-import { QueryProvider } from '@/lib/query-provider';
+import { AuthProvider } from "@/lib/auth/AuthContext";
+import { FeatureFlagProvider } from "@/lib/feature-flags/feature-flag-provider";
+import { QueryProvider } from "@/lib/query-provider";
 import { Providers } from "@/components/providers";
 import { cn } from "@/lib/utils";
 import Navbar from "@/components/layout/Navbar";
@@ -24,7 +24,8 @@ export const metadata: Metadata = {
     default: "Crisis Unleashed",
     template: "%s | Crisis Unleashed",
   },
-  description: "Strategic card game with unique factions battling in a dystopian future",
+  description:
+    "Strategic card game with unique factions battling in a dystopian future",
   icons: {
     icon: "/favicon.ico",
   },
@@ -40,7 +41,7 @@ export default function RootLayout({
       <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased",
-          fontSans.variable
+          fontSans.variable,
         )}
       >
         <ThemeProvider
@@ -57,7 +58,9 @@ export default function RootLayout({
                     <Providers>
                       <div className="relative flex min-h-screen flex-col">
                         <Navbar />
-                        <main className="flex-1 container mx-auto px-4 py-6">{children}</main>
+                        <main className="flex-1 container mx-auto px-4 py-6">
+                          {children}
+                        </main>
                         <Footer />
                         <FeatureFlagIndicator />
                         <RUMInit />

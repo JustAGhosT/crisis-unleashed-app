@@ -1,21 +1,21 @@
 "use client";
 
-import { CardDetail } from '@/components/cards/CardDetail';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useCardDetail } from '@/hooks/useCardDetail';
-import { useUserDecks } from '@/hooks/useDecks';
-import { AlertCircle, ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
-import { useParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { CardDetail } from "@/components/cards/CardDetail";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useCardDetail } from "@/hooks/useCardDetail";
+import { useUserDecks } from "@/hooks/useDecks";
+import { AlertCircle, ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function CardDetailPage() {
   const params = useParams<{ id?: string }>();
   // Guard against malformed routes where params.id may be missing or not a string
-  const cardId = typeof params.id === 'string' ? params.id : '';
+  const cardId = typeof params.id === "string" ? params.id : "";
 
   // TODO: derive userId from authentication context/provider. Avoid hard-coded test IDs in production.
   const userId: string | undefined = undefined;
@@ -23,9 +23,14 @@ export default function CardDetailPage() {
   // Load user's decks only when authenticated
   const isAuthenticated = Boolean(userId);
   const { data: userDecks } = useUserDecks(userId ?? "", isAuthenticated);
-  const [selectedDeckId, setSelectedDeckId] = useState<string>('');
+  const [selectedDeckId, setSelectedDeckId] = useState<string>("");
   useEffect(() => {
-    if (isAuthenticated && userDecks && userDecks.length > 0 && !selectedDeckId) {
+    if (
+      isAuthenticated &&
+      userDecks &&
+      userDecks.length > 0 &&
+      !selectedDeckId
+    ) {
       setSelectedDeckId(userDecks[0].id);
     }
   }, [isAuthenticated, userDecks, selectedDeckId]);
@@ -74,7 +79,10 @@ export default function CardDetailPage() {
         <Alert className="mb-6">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Not Found</AlertTitle>
-          <AlertDescription>The card you&apos;re looking for does not exist or has an invalid URL.</AlertDescription>
+          <AlertDescription>
+            The card you&apos;re looking for does not exist or has an invalid
+            URL.
+          </AlertDescription>
         </Alert>
       ) : loading ? (
         <Card className="p-6">
@@ -95,7 +103,9 @@ export default function CardDetailPage() {
         <>
           {userId && userDecks && userDecks.length > 0 && (
             <div className="mb-4 flex items-center gap-3">
-              <label htmlFor="deck-select" className="text-sm font-medium">Select deck</label>
+              <label htmlFor="deck-select" className="text-sm font-medium">
+                Select deck
+              </label>
               <select
                 id="deck-select"
                 className="border rounded px-2 py-1 bg-background"
@@ -103,7 +113,9 @@ export default function CardDetailPage() {
                 onChange={(e) => setSelectedDeckId(e.target.value)}
               >
                 {userDecks.map((d) => (
-                  <option key={d.id} value={d.id}>{d.name}</option>
+                  <option key={d.id} value={d.id}>
+                    {d.name}
+                  </option>
                 ))}
               </select>
             </div>
@@ -120,7 +132,9 @@ export default function CardDetailPage() {
         <Alert className="mb-6">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Not Found</AlertTitle>
-          <AlertDescription>The card you&apos;re looking for does not exist or has been removed.</AlertDescription>
+          <AlertDescription>
+            The card you&apos;re looking for does not exist or has been removed.
+          </AlertDescription>
         </Alert>
       )}
     </div>

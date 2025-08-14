@@ -19,7 +19,7 @@ export default function RequireAuth({ children, from }: RequireAuthProps) {
   useEffect(() => {
     if (status === "unauthenticated") {
       const source = (from ?? (pathname as Route)) || ("/" as Route);
-      router.push((`/login?from=${encodeURIComponent(source)}`) as Route);
+      router.push(`/login?from=${encodeURIComponent(source)}` as Route);
     }
   }, [status, router, pathname, from]);
 

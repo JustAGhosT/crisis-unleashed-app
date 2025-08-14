@@ -1,13 +1,21 @@
 /**
  * Valid card rarity types that match Badge component variants
  */
-export type CardRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary' | 'mythic';
+export type CardRarity =
+  | "common"
+  | "uncommon"
+  | "rare"
+  | "epic"
+  | "legendary"
+  | "mythic";
 
 /**
  * Checks if a rarity value is valid for use with Badge variants
  */
 export function isValidRarity(rarity: string): rarity is CardRarity {
-  return ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic'].includes(rarity.toLowerCase());
+  return ["common", "uncommon", "rare", "epic", "legendary", "mythic"].includes(
+    rarity.toLowerCase(),
+  );
 }
 
 /**
@@ -21,5 +29,5 @@ export function getRarityVariant(rarity: string): string {
   }
 
   // Fallback for invalid values
-  return 'default';
+  return "default";
 }

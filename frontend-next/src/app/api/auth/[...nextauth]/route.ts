@@ -33,18 +33,23 @@ export const {
           const res = await fetch(`${backendUrl}/api/auth/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: credentials.email, password: credentials.password }),
+            body: JSON.stringify({
+              email: credentials.email,
+              password: credentials.password,
+            }),
           });
           if (!res.ok) return null;
           const data = await res.json();
           // Expecting { user: { id, username, email, role, avatar? }, token? }
-          const user = data?.user as {
-            id: string;
-            username?: string;
-            email: string;
-            role?: "user" | "admin";
-            avatar?: string | null;
-          } | undefined;
+          const user = data?.user as
+            | {
+                id: string;
+                username?: string;
+                email: string;
+                role?: "user" | "admin";
+                avatar?: string | null;
+              }
+            | undefined;
           if (!user?.id) return null;
           return {
             id: user.id,
@@ -73,11 +78,22 @@ export const {
       return token;
     },
     async session({ session, token }): Promise<Session> {
-      const t = token as JWT & { authUser?: { id: string; name?: string; email?: string; image?: string; role: "user" | "admin" } };
+      const t = token as JWT & {
+        authUser?: {
+          id: string;
+          name?: string;
+          email?: string;
+          image?: string;
+          role: "user" | "admin";
+        };
+      };
       if (t.authUser && session.user) {
         const u = t.authUser;
         // Preserve existing object to satisfy NextAuth's internal types
-        const mutUser = session.user as typeof session.user & { id?: string; role?: "user" | "admin" };
+        const mutUser = session.user as typeof session.user & {
+          id?: string;
+          role?: "user" | "admin";
+        };
         mutUser.id = u.id;
         mutUser.role = u.role;
         session.user.name = u.name ?? session.user.name ?? null;
