@@ -87,6 +87,8 @@ MOCK_FACTIONS = [
     },
 ]
 
+from typing import List, Dict, Any
+
 @router.get("/factions")
 async def get_factions() -> List[dict]:
     """
