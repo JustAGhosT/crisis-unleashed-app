@@ -155,6 +155,7 @@
   margin-bottom: 0.5rem;
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3; /* standard property for compatibility */
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -221,4 +222,14 @@
   border-radius: 0.5rem;
   transform: rotate(6deg);
   opacity: 0.3;
+}
+
+/* Dynamic transform helpers using CSS variables */
+.cardTransform {
+  transform: rotate(var(--rot, 0deg)) translateY(var(--y, 0px)) scale(var(--scale, 1));
+  transform-origin: bottom center;
+}
+
+.cardLayer {
+  z-index: var(--z, 1);
 }

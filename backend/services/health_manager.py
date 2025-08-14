@@ -31,7 +31,7 @@ class ServiceInfo:
         health_check_func: Optional[Callable] = None,
         is_critical: bool = False,
         dependencies: Optional[List[str]] = None
-    ):
+    ) -> None:
         self.name = name
         self.service_instance = service_instance
         self.health_check_func = health_check_func
@@ -58,7 +58,7 @@ class ServiceHealthManager:
     - Dependency validation
     - Service availability checks for requests
     """
-    def __init__(self):
+    def __init__(self) -> None:
         self.services: Dict[str, ServiceInfo] = {}
         self.health_check_interval = 30  # seconds
         self._health_check_task: Optional[asyncio.Task] = None
@@ -314,7 +314,7 @@ class ServiceHealthManager:
         """Get services in dependency order (simple topological sort)."""
         ordered = []
         visited = set()
-        def visit(service_name: str):
+        def visit(service_name: str) -> None:
             if service_name in visited:
                 return
             service_info = self.services.get(service_name)

@@ -1,22 +1,36 @@
-import React from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Select } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
-import { CardFilters as CardFiltersType } from '@/types/card';
-import { getFactionOptions } from '@/data/factions';
-import { Search, X } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import React from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { CardFilters as CardFiltersType } from "@/types/card";
+import { getFactionOptions } from "@/data/factions";
+import { Search, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { FactionId } from "@/types/faction";
 
 // Zod schema for card filter validation
 const cardFiltersSchema = z.object({
   search: z.string().optional(),
-  faction: z.enum(['', 'solaris', 'umbral', 'aeonic', 'primordial', 'infernal', 'neuralis', 'synthetic']).optional(),
-  type: z.enum(['', 'character', 'action', 'artifact', 'hero']).optional(),
-  rarity: z.enum(['', 'common', 'uncommon', 'rare', 'epic', 'legendary']).optional(),
+  faction: z
+    .enum([
+      "",
+      "solaris",
+      "umbral",
+      "aeonic",
+      "primordial",
+      "infernal",
+      "neuralis",
+      "synthetic",
+    ])
+    .optional(),
+  // Allow any string for type to accommodate domain variations (e.g., Unit/Tactic/Support/Resource)
+  type: z.string().optional(),
+  rarity: z
+    .enum(["", "common", "uncommon", "rare", "epic", "legendary"])
+    .optional(),
   costMin: z.number().min(0).max(20).optional(),
   costMax: z.number().min(0).max(20).optional(),
   owned: z.boolean().optional(),
@@ -44,18 +58,16 @@ export const CardFilters: React.FC<CardFiltersProps> = ({
 }) => {
   const {
     register,
-    handleSubmit,
     watch,
     reset,
-    setValue,
     formState: { errors },
   } = useForm<CardFiltersFormData>({
     resolver: zodResolver(cardFiltersSchema),
     defaultValues: {
-      search: initialFilters.search || '',
-      faction: initialFilters.faction || '',
-      type: initialFilters.type || '',
-      rarity: initialFilters.rarity || '',
+      search: initialFilters.search || "",
+      faction: initialFilters.faction || "",
+      type: initialFilters.type || "",
+      rarity: initialFilters.rarity || "",
       costMin: initialFilters.costMin,
       costMax: initialFilters.costMax,
       owned: initialFilters.owned || false,
@@ -70,18 +82,18 @@ export const CardFilters: React.FC<CardFiltersProps> = ({
   React.useEffect(() => {
     // Apply filters whenever form values change
     const filters: CardFiltersType = {};
-    
+
     if (watchedValues.search?.trim()) {
       filters.search = watchedValues.search.trim();
     }
     if (watchedValues.faction) {
-      filters.faction = watchedValues.faction as any;
+      filters.faction = watchedValues.faction as FactionId;
     }
     if (watchedValues.type) {
-      filters.type = watchedValues.type as any;
+      filters.type = watchedValues.type as CardFiltersType["type"];
     }
     if (watchedValues.rarity) {
-      filters.rarity = watchedValues.rarity as any;
+      filters.rarity = watchedValues.rarity as CardFiltersType["rarity"];
     }
     if (watchedValues.costMin !== undefined && watchedValues.costMin >= 0) {
       filters.costMin = watchedValues.costMin;
@@ -98,10 +110,10 @@ export const CardFilters: React.FC<CardFiltersProps> = ({
 
   const handleClearFilters = () => {
     reset({
-      search: '',
-      faction: '',
-      type: '',
-      rarity: '',
+      search: "",
+      faction: "",
+      type: "",
+      rarity: "",
       costMin: undefined,
       costMax: undefined,
       owned: false,
@@ -109,13 +121,13 @@ export const CardFilters: React.FC<CardFiltersProps> = ({
   };
 
   return (
-    <Card className={cn('p-4 bg-slate-800/50 border-slate-600', className)}>
+    <Card className={cn("p-4 bg-slate-800/50 border-slate-600", className)}>
       <div className="space-y-4">
         {/* Search */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input
-            {...register('search')}
+            {...register("search")}
             placeholder="Search cards by name, description, or abilities..."
             className="pl-10 bg-slate-700 border-slate-600 text-white placeholder-gray-400"
           />
@@ -125,12 +137,17 @@ export const CardFilters: React.FC<CardFiltersProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Faction Filter */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
+            <label
+              htmlFor="filter-faction"
+              className="block text-sm font-medium text-gray-300 mb-1"
+            >
               Faction
             </label>
-            <Select
-              {...register('faction')}
-              className="bg-slate-700 border-slate-600 text-white"
+            <select
+              id="filter-faction"
+              title="Faction"
+              {...register("faction")}
+              className="w-full rounded-md border px-3 py-2 bg-slate-700 border-slate-600 text-white"
             >
               <option value="">All Factions</option>
               {factionOptions.map((faction) => (
@@ -138,34 +155,44 @@ export const CardFilters: React.FC<CardFiltersProps> = ({
                   {faction.label}
                 </option>
               ))}
-            </Select>
+            </select>
           </div>
 
           {/* Type Filter */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
+            <label
+              htmlFor="filter-type"
+              className="block text-sm font-medium text-gray-300 mb-1"
+            >
               Type
             </label>
-            <Select
-              {...register('type')}
-              className="bg-slate-700 border-slate-600 text-white"
+            <select
+              id="filter-type"
+              title="Type"
+              {...register("type")}
+              className="w-full rounded-md border px-3 py-2 bg-slate-700 border-slate-600 text-white"
             >
               <option value="">All Types</option>
               <option value="character">Character</option>
               <option value="action">Action</option>
               <option value="artifact">Artifact</option>
               <option value="hero">Hero</option>
-            </Select>
+            </select>
           </div>
 
           {/* Rarity Filter */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
+            <label
+              htmlFor="filter-rarity"
+              className="block text-sm font-medium text-gray-300 mb-1"
+            >
               Rarity
             </label>
-            <Select
-              {...register('rarity')}
-              className="bg-slate-700 border-slate-600 text-white"
+            <select
+              id="filter-rarity"
+              title="Rarity"
+              {...register("rarity")}
+              className="w-full rounded-md border px-3 py-2 bg-slate-700 border-slate-600 text-white"
             >
               <option value="">All Rarities</option>
               <option value="common">Common</option>
@@ -173,7 +200,7 @@ export const CardFilters: React.FC<CardFiltersProps> = ({
               <option value="rare">Rare</option>
               <option value="epic">Epic</option>
               <option value="legendary">Legendary</option>
-            </Select>
+            </select>
           </div>
         </div>
 
@@ -185,7 +212,7 @@ export const CardFilters: React.FC<CardFiltersProps> = ({
               Min Cost
             </label>
             <Input
-              {...register('costMin', { valueAsNumber: true })}
+              {...register("costMin", { valueAsNumber: true })}
               type="number"
               min="0"
               max="20"
@@ -199,7 +226,7 @@ export const CardFilters: React.FC<CardFiltersProps> = ({
               Max Cost
             </label>
             <Input
-              {...register('costMax', { valueAsNumber: true })}
+              {...register("costMax", { valueAsNumber: true })}
               type="number"
               min="0"
               max="20"
@@ -213,7 +240,7 @@ export const CardFilters: React.FC<CardFiltersProps> = ({
             <div>
               <label className="flex items-center space-x-2">
                 <input
-                  {...register('owned')}
+                  {...register("owned")}
                   type="checkbox"
                   className="h-4 w-4 text-purple-600 rounded border-gray-600 bg-slate-700 focus:ring-purple-500"
                 />
@@ -247,4 +274,4 @@ export const CardFilters: React.FC<CardFiltersProps> = ({
   );
 };
 
-CardFilters.displayName = 'CardFilters';
+CardFilters.displayName = "CardFilters";

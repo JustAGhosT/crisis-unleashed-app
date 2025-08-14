@@ -18,18 +18,32 @@ import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import List, Optional, Any
 import uuid
 import sys
 from datetime import datetime
 
 # Import routers and configuration
-from .api import blockchain_router
-from .config import get_settings
-from .services import BlockchainService
-from .services.health_manager import ServiceHealthManager, CriticalServiceException
-from .workers import OutboxProcessor
-from .middleware.service_dependency import ServiceDependencyMiddleware
+# Support both package execution (uvicorn backend.server:app) and direct script execution
+try:
+    from .api import blockchain_router  # type: ignore
+    from .config import get_settings  # type: ignore
+    from .services import BlockchainService  # type: ignore
+    from .services.health_manager import (  # type: ignore
+        ServiceHealthManager,
+        CriticalServiceException,
+    )
+    from .workers import OutboxProcessor  # type: ignore
+    from .middleware.service_dependency import (  # type: ignore
+        ServiceDependencyMiddleware,
+    )
+except ImportError:  # pragma: no cover - fallback for direct execution
+    from api import blockchain_router
+    from config import get_settings
+    from services import BlockchainService
+    from services.health_manager import ServiceHealthManager, CriticalServiceException
+    from workers import OutboxProcessor
+    from middleware.service_dependency import ServiceDependencyMiddleware
 
 
 ROOT_DIR = Path(__file__).parent
@@ -39,8 +53,8 @@ load_dotenv(ROOT_DIR / ".env")
 settings = get_settings()
 
 # MongoDB connection
-client = AsyncIOMotorClient(settings.mongo_url)
-db = client[settings.database_name]
+client = AsyncIOMotorClient(settings.mongo_url)  # type: ignore
+db = client[settings.database_name]  # type: ignore
 
 # Global services and health manager
 blockchain_service: Optional[BlockchainService] = None
@@ -76,7 +90,7 @@ async def root() -> dict[str, str]:
 
 
 @api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
+async def create_status_check(input: StatusCheckCreate) -> StatusCheck:
     status_dict = input.dict()
     status_obj = StatusCheck(**status_dict)
     _ = await db.status_checks.insert_one(status_obj.dict())
@@ -118,7 +132,7 @@ logger = logging.getLogger(__name__)
 
 
 @app.on_event("startup")
-async def startup_event():
+async def startup_event() -> None:
     """Initialize services on application startup with fail-fast behavior."""
     global blockchain_service, outbox_processor
 
@@ -206,7 +220,7 @@ async def startup_event():
 
 
 @app.on_event("shutdown")
-async def shutdown_event():
+async def shutdown_event() -> None:
     """Cleanup on application shutdown."""
     global outbox_processor, health_manager
 
@@ -223,7 +237,7 @@ async def shutdown_event():
             logger.info("Outbox processor stopped")
 
         # Close database connection
-        client.close()
+        await client.close()  # type: ignore
         logger.info("Database connection closed")
 
         logger.info("🛑 Crisis Unleashed Backend shut down successfully!")
@@ -234,7 +248,7 @@ async def shutdown_event():
 
 # Add health check endpoint
 @api_router.get("/health")
-async def health_check():
+async def health_check() -> JSONResponse:
     """
     Application health check endpoint.
     
@@ -277,7 +291,7 @@ async def health_check():
 
 # Add service status endpoint  
 @api_router.get("/services/status")
-async def get_service_status():
+async def get_service_status() -> dict[str, Any]:
     """Get detailed status of individual services."""
     try:
         return await health_manager.get_health_status()

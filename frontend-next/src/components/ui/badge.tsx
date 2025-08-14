@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
+
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
@@ -14,18 +15,12 @@ const badgeVariants = cva(
         destructive:
           "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
         outline: "text-foreground",
-        // Game-specific variants
-        common: "border-gray-400 bg-gray-400/10 text-gray-300",
-        uncommon: "border-green-400 bg-green-400/10 text-green-300",
-        rare: "border-blue-400 bg-blue-400/10 text-blue-300",
-        epic: "border-purple-400 bg-purple-400/10 text-purple-300",
-        legendary: "border-yellow-400 bg-yellow-400/10 text-yellow-300",
       },
     },
     defaultVariants: {
       variant: "default",
     },
-  }
+  },
 );
 
 export interface BadgeProps

@@ -1,18 +1,54 @@
-import { Metadata } from 'next';
-import { DeckBuilder } from '@/components/deck-builder/DeckBuilder';
+"use client";
 
-export const metadata: Metadata = {
-  title: 'Deck Builder - Crisis Unleashed',
-  description: 'Create and customize your deck for Crisis Unleashed battles',
-};
+import { useState, useEffect } from "react";
+import { FeatureGate } from "@/components/feature-flags/FeatureGate";
+import DeckBuilderInterface from "@/components/deck-builder/DeckBuilderInterface";
+import { Skeleton } from "@/components/ui/skeleton";
+import RequireAuth from "@/components/auth/RequireAuth";
+import FactionsThemeShell from "../factions/FactionsThemeShell";
 
 export default function DeckBuilderPage() {
-  // In a real app, this would come from authentication context
-  const userId = 'user-1'; // Mock user ID for development
+  const [isLoadingLocal, setIsLoadingLocal] = useState(true);
+
+  // Simulate loading state for demonstration
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoadingLocal(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // If still loading, show skeleton
+  if (isLoadingLocal) {
+    return (
+      <div className="py-8">
+        <Skeleton className="h-10 w-64 mb-6 bg-slate-700" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <Skeleton className="h-[600px] w-full bg-slate-700" />
+          </div>
+          <div>
+            <Skeleton className="h-[600px] w-full bg-slate-700" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <main>
-      <DeckBuilder userId={userId} />
-    </main>
+    <RequireAuth>
+      <FactionsThemeShell>
+        <div className="container mx-auto px-4 py-8">
+          <h1 className="text-3xl font-bold mb-8 dark:text-white">
+            Deck Builder
+          </h1>
+          {/* Deck Builder Feature Gate */}
+          <FeatureGate flag="useNewDeckBuilder">
+            <DeckBuilderInterface isLoading={isLoadingLocal} />
+          </FeatureGate>
+        </div>
+      </FactionsThemeShell>
+    </RequireAuth>
   );
 }

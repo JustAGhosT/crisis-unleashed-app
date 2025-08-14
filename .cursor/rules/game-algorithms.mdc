@@ -1,71 +1,86 @@
 ---
-description: Defines core game mechanics, combat resolution, faction abilities and card interactions for Crisis Unleashed
-globs: **/game/**,**/battlefield/**,**/combat/**,**/cards/**,**/factions/**
-alwaysApply: false
+description: Specification for core game algorithms including battlefield management, card deployment, turn sequencing, and combat resolution
 ---
 
+# === USER INSTRUCTIONS ===
+description: Specifications for core game algorithms including battlefield management, card deployment, turn sequencing, and combat resolution
+globs: []
+# or, if you already know the target areas:
+# globs:
+#   - "frontend/src/features/battlefield/**/*.ts*"
+#   - "frontend/src/features/cards/**/*.ts*"
+#   - "frontend/src/components/**/*.tsx"
+alwaysApply: false
+# === END USER INSTRUCTIONS ===
 
 # game-algorithms
 
-Core Game Systems:
+## Core Game Flow
 
-1. Turn Sequencing Engine
-- Enforced phase ordering:
-  - Draw Phase 
-  - Energy Phase (Resource regeneration)
-  - Main Phase (Card deployment)
-  - Combat Phase (Attack resolution)
-  - End Phase
-- Energy regeneration rules between turns
-- Phase-specific action validation
+1. **Turn Management System** (Score: 85)
+- Implements phase-based turns: Deploy/Action/End
+- Visual feedback for active player state
+- Resource management between turns
+- Configurable turn timer with animations
+- Turn history logging and turn skipping edge cases
+- File: `plans/board-game-interface.md`
 
-2. Combat Resolution System
-- Unit positioning on hexagonal grid
-- Attack priority calculation based on unit types
-- Combat damage resolution with faction modifiers
-- Terrain effect application during combat
+2. **Combat Resolution Engine** (Score: 90)
+- Grid-based battlefield with unit placement
+- Movement with pathfinding
+- Initiative-based attack resolution 
+- Zone control mechanics
+- Line of sight/range indicators
+- Battlefield status effects
+- File: `plans/board-game-interface.md`
 
-3. Faction Ability Processing
-- Unique faction power activation:
-  - Solaris: Predictive algorithm enhancement
-  - Umbral: Information warfare mechanics 
-  - Aeonic: Time manipulation effects
-  - Others defined but not detailed
-- Cross-faction interaction rules
-- Ability timing validation
+3. **Card System Logic** (Score: 88)
+- Drawing mechanics with mulligan system
+- Card targeting validation
+- Discard pile management
+- Hand size limits
+- Card counter tracking
+- File: `plans/board-game-interface.md`
 
-4. Card Deployment Logic
-- Placement validity checking based on:
-  - Unit type restrictions
-  - Terrain compatibility
-  - Faction requirements
-  - Resource availability
-- Chain reaction triggers for card effects
-
-5. Resource Management
-- Multi-resource economy:
-  - Energy points 
-  - Momentum generation
-  - Crisis event tokens
-- Resource conversion rules
-- Faction-specific resource modifiers
-
-6. Crisis Event System
-- Dynamic battlefield modifiers
-- Event trigger conditions
-- Resolution pathways
+4. **Crisis Event System** (Score: 80)
+- Random crisis event generation
+- Visual impact indicators
+- Event countdown timers
+- Crisis resolution mechanics
 - Reward distribution logic
+- File: `plans/board-game-interface.md`
 
-7. Synergy Detection
-- Card combo identification
-- Cross-faction power amplification
-- Data-Link activation requirements
-- Chain effect resolution
+5. **Faction Mechanics** (Score: 85)
+- Energy manipulation (Solaris)
+- Stealth mechanics (Umbral)
+- Mind control (Neuralis) 
+- Time manipulation (Aeonic)
+- Growth adaptation (Primordial)
+- Sacrifice mechanics (Infernal)
+- File: `backend/types/faction.py`
 
-File paths containing core algorithms:
-- frontend/src/features/battlefield/
-- frontend/src/features/cards/
-- backend/services/game/
+6. **Synergy System** (Score: 75)
+- Card synergy detection
+- Animated connection visualization
+- Synergy activation feedback
+- Tutorial integration
+- File: `plans/board-game-interface.md`
+
+## Resource Management
+
+1. **Multi-Resource System** (Score: 80)
+- Energy for card costs
+- Momentum for hero abilities 
+- Resource gain/loss triggers
+- Faction-specific modifiers
+- File: `frontend/features/players/PlayerHUD.tsx`
+
+2. **Zone Control** (Score: 75)
+- Battlefield divided into control zones
+- Zone ownership tracking
+- Zone-based bonuses
+- Strategic positioning rewards
+- File: `frontend/features/battlefield/Battlefield.tsx`
 
 $END$
 

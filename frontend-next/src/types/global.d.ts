@@ -1,10 +1,4 @@
-declare namespace NodeJS {
-  interface Process {
-    env: {
-      NODE_ENV: 'development' | 'production' | 'test';
-      // Add other environment variables you use
-    }
-  }
-  
-  var process: Process;
-}
+// Deprecated: Avoid redefining NodeJS.Process/env here as it conflicts
+// with the unified declarations in src/types/env.d.ts.
+// This file is intentionally left as a module to prevent accidental global merges.
+export {};

@@ -16,7 +16,7 @@ const nextConfig = {
   async rewrites() {
     return [
       {
-        source: '/api/:path*',
+        source: "/api/:path*",
         // Use env var to keep config environment-agnostic
         destination: `${process.env.NEXT_PUBLIC_API_URL}/:path*`,
       },

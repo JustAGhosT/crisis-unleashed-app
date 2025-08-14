@@ -6,7 +6,6 @@ import { safeToString } from './stringUtils';
 
 // Create a more specific type for objects that can be debugged
 type DebuggableValue = unknown;
-type JsonReplacer = (key: string, value: unknown) => unknown;
 
 export const debugObject = (obj: DebuggableValue, label?: string): void => {
   const prefix = label ? `[${label}]` : '[DEBUG]';

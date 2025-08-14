@@ -29,6 +29,18 @@ coverage/
 test-results/
 playwright-report/
 
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.mypy_cache/
+.python-version
+.pyre/
+.pytype/
+*.pyi
+
 # Logs
 logs/
 *.log

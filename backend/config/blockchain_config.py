@@ -222,7 +222,7 @@ class BlockchainConfig:
         return cls.list_networks(NetworkType.TESTNET)
 
     @classmethod
-    def create_custom_network(cls, **kwargs) -> BlockchainNetwork:
+    def create_custom_network(cls, **kwargs: Any) -> BlockchainNetwork:
         """Create a custom network configuration."""
         return BlockchainNetwork(**kwargs)
 

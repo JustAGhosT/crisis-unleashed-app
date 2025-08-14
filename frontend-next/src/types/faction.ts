@@ -1,13 +1,16 @@
 // Faction type definitions following the existing game schema
 
-export type FactionId = 
-  | 'solaris' 
-  | 'umbral' 
-  | 'aeonic' 
-  | 'primordial' 
-  | 'infernal' 
-  | 'neuralis' 
-  | 'synthetic';
+export const FACTION_IDS = [
+  "solaris",
+  "umbral",
+  "aeonic",
+  "primordial",
+  "infernal",
+  "neuralis",
+  "synthetic",
+] as const;
+
+export type FactionId = (typeof FACTION_IDS)[number];
 
 export interface Faction {
   id: FactionId;
@@ -26,6 +29,7 @@ export interface Faction {
     timeWarp?: boolean; // Aeonic
     adaptation?: boolean; // Primordial
     sacrifice?: boolean; // Infernal
+    selfReplication?: boolean; // Synthetic
     // Add structured numeric configs if/when available
   };
 
@@ -38,7 +42,7 @@ export interface Faction {
 
 export interface FactionCardProps {
   faction: Faction;
-  size?: 'sm' | 'md' | 'lg';
+  size?: "sm" | "md" | "lg";
   interactive?: boolean;
   onClick?: (faction: Faction) => void;
 }

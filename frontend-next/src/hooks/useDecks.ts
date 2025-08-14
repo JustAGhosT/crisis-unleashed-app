@@ -1,13 +1,14 @@
-import { DeckService, createDeck as createDeckService } from '@/services/deckService';
-import { Deck, DeckCard, Card } from '@/types/card';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/hooks/useToast';
+import { DeckService } from "@/services/deckService";
+import { Deck, DeckCard, Card } from "@/types/card";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/useToast";
 
 // Query keys for deck operations
 export const deckQueryKeys = {
-  all: ['decks'] as const,
-  userDecks: (userId: string) => [...deckQueryKeys.all, 'user', userId] as const,
-  deck: (deckId: string) => [...deckQueryKeys.all, 'detail', deckId] as const,
+  all: ["decks"] as const,
+  userDecks: (userId: string) =>
+    [...deckQueryKeys.all, "user", userId] as const,
+  deck: (deckId: string) => [...deckQueryKeys.all, "detail", deckId] as const,
 };
 
 /**
@@ -42,30 +43,38 @@ export function useCreateDeck() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  return useMutation({
-    mutationFn: createDeckService,
-    onSuccess: (newDeck) => {
-      toast({
-        title: 'Deck created!',
-        description: `Deck "${newDeck.name}" was created successfully.`,
-      });
-      // Invalidate user decks to refetch the list
-      queryClient.invalidateQueries({
-        queryKey: deckQueryKeys.userDecks(newDeck.userId),
-      });
-      // Add the new deck to the cache
-      queryClient.setQueryData(deckQueryKeys.deck(newDeck.id), newDeck);
+  return useMutation<Deck, Error, Omit<Deck, "id" | "createdAt" | "updatedAt">>(
+    {
+      mutationFn: (data) => DeckService.createDeck(data),
+      onSuccess: (newDeck) => {
+        toast({
+          title: "Deck created!",
+          description: `Deck "${newDeck.name}" was created successfully.`,
+        });
+        // Invalidate user decks to refetch the list
+        queryClient.invalidateQueries({
+          queryKey: deckQueryKeys.userDecks(newDeck.userId),
+        });
+        // Add the new deck to the cache
+        queryClient.setQueryData(deckQueryKeys.deck(newDeck.id), newDeck);
+      },
+      onError: (error: Error) => {
+        toast({
+          title: "Error creating deck",
+          description: error.message,
+          variant: "destructive",
+        });
+        // Optionally add additional logging here
+        // console.error('Failed to create deck:', error);
+      },
     },
-    onError: (error: Error) => {
-      toast({
-        title: 'Error creating deck',
-        description: error.message,
-        variant: 'destructive',
-      });
-      // Optionally add additional logging here
-      // console.error('Failed to create deck:', error);
-    },
-  });
+  );
+}
+
+// Define a type for the update deck mutation context
+interface UpdateDeckContext {
+  previousDeck: Deck | undefined;
+  deckId: string;
 }
 
 /**
@@ -75,28 +84,44 @@ export function useUpdateDeck() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  return useMutation({
-    mutationFn: ({ deckId, updates }: { deckId: string; updates: Partial<Deck> }) =>
+  return useMutation<
+    Deck,
+    Error,
+    { deckId: string; updates: Partial<Deck> },
+    UpdateDeckContext
+  >({
+    mutationFn: ({ deckId, updates }) =>
       DeckService.updateDeck(deckId, updates),
     onMutate: async ({ deckId, updates }) => {
       await queryClient.cancelQueries({ queryKey: deckQueryKeys.deck(deckId) });
-      const previousDeck = queryClient.getQueryData(deckQueryKeys.deck(deckId));
-      queryClient.setQueryData(deckQueryKeys.deck(deckId), (old: Deck | undefined) =>
-        old ? { ...old, ...updates, updatedAt: new Date().toISOString() } : old
+
+      // Get the previous deck data with proper type casting
+      const previousDeck = queryClient.getQueryData<Deck>(
+        deckQueryKeys.deck(deckId),
       );
+
+      // Update the deck in the cache
+      queryClient.setQueryData(
+        deckQueryKeys.deck(deckId),
+        (old: Deck | undefined) =>
+          old
+            ? { ...old, ...updates, updatedAt: new Date().toISOString() }
+            : old,
+      );
+
       return { previousDeck, deckId };
     },
-    onError: (error: any, variables, context) => {
+    onError: (error: Error, variables, context) => {
       if (context?.previousDeck) {
         queryClient.setQueryData(
           deckQueryKeys.deck(context.deckId),
-          context.previousDeck
+          context.previousDeck,
         );
       }
       toast({
-        title: 'Error updating deck',
-        description: error?.message || 'Failed to update deck.',
-        variant: 'destructive',
+        title: "Error updating deck",
+        description: error?.message || "Failed to update deck.",
+        variant: "destructive",
       });
       // console.error('Failed to update deck:', error);
     },
@@ -106,6 +131,11 @@ export function useUpdateDeck() {
   });
 }
 
+// Define a type for the delete deck mutation context
+interface DeleteDeckContext {
+  deck: Deck | undefined;
+}
+
 /**
  * Mutation hook for deleting a deck
  */
@@ -113,36 +143,38 @@ export function useDeleteDeck() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  return useMutation({
+  return useMutation<void, Error, string, DeleteDeckContext>({
     mutationFn: DeckService.deleteDeck,
     onMutate: async (deckId: string) => {
-      const deck = queryClient.getQueryData(deckQueryKeys.deck(deckId)) as Deck | undefined;
+      // Get the deck with proper type casting
+      const deck = queryClient.getQueryData<Deck>(deckQueryKeys.deck(deckId));
+
       if (deck) {
         queryClient.setQueryData(
           deckQueryKeys.userDecks(deck.userId),
           (old: Deck[] | undefined) =>
-            old?.filter(d => d.id !== deckId) || []
+            old?.filter((d) => d.id !== deckId) || [],
         );
         queryClient.removeQueries({ queryKey: deckQueryKeys.deck(deckId) });
       }
       return { deck };
     },
-    onError: (error, deckId: string, context) => {
+    onError: (error: Error, deckId: string, context) => {
       if (context?.deck) {
         queryClient.setQueryData(deckQueryKeys.deck(deckId), context.deck);
         queryClient.setQueryData(
           deckQueryKeys.userDecks(context.deck.userId),
           (old: Deck[] | undefined) => {
             const existing = old || [];
-            const deckExists = existing.some(d => d.id === context.deck!.id);
+            const deckExists = existing.some((d) => d.id === context.deck!.id);
             return deckExists ? existing : [...existing, context.deck!];
-          }
+          },
         );
       }
       toast({
-        title: 'Error deleting deck',
-        description: error?.message || 'Failed to delete deck.',
-        variant: 'destructive',
+        title: "Error deleting deck",
+        description: error?.message || "Failed to delete deck.",
+        variant: "destructive",
       });
       // console.error('Failed to delete deck:', error);
     },
@@ -171,9 +203,12 @@ export function useDeckValidation(cards: Card[], deckCards: DeckCard[]) {
 export function useInvalidateDecks() {
   const queryClient = useQueryClient();
   return {
-    invalidateAll: () => queryClient.invalidateQueries({ queryKey: deckQueryKeys.all }),
+    invalidateAll: () =>
+      queryClient.invalidateQueries({ queryKey: deckQueryKeys.all }),
     invalidateUserDecks: (userId: string) =>
-      queryClient.invalidateQueries({ queryKey: deckQueryKeys.userDecks(userId) }),
+      queryClient.invalidateQueries({
+        queryKey: deckQueryKeys.userDecks(userId),
+      }),
     invalidateDeck: (deckId: string) =>
       queryClient.invalidateQueries({ queryKey: deckQueryKeys.deck(deckId) }),
   };

@@ -1,86 +1,127 @@
-import { type ClassValue, clsx } from "clsx";
+import type { ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+  // Lightweight clsx-like handling to avoid runtime dependency issues in tests
+  const classes: string[] = [];
+  for (const input of inputs) {
+    if (!input) continue;
+    if (typeof input === "string" || typeof input === "number") {
+      classes.push(String(input));
+      continue;
+    }
+    if (Array.isArray(input)) {
+      for (const item of input) {
+        if (!item) continue;
+        if (typeof item === "string" || typeof item === "number") {
+          classes.push(String(item));
+        } else if (typeof item === "object") {
+          for (const [k, v] of Object.entries(
+            item as Record<string, unknown>,
+          )) {
+            if (v) classes.push(k);
+          }
+        }
+      }
+      continue;
+    }
+    if (typeof input === "object") {
+      for (const [k, v] of Object.entries(input as Record<string, unknown>)) {
+        if (v) classes.push(k);
+      }
+    }
+  }
+  return twMerge(classes.join(" "));
 }
 
-/**
- * Format faction name for display
- */
-export function formatFactionName(faction: string): string {
-  return faction
-    .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+// Debounce utility: returns a debounced version of fn that fires after `wait` ms
+export function debounce<TArgs extends unknown[]>(
+  fn: (...args: TArgs) => void,
+  wait: number,
+) {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  return (...args: TArgs) => {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => {
+      fn(...args);
+    }, wait);
+  };
 }
 
-/**
- * Get faction color class
- */
+// Format faction key (snake_case or single token) to Title Case with spaces
+export function formatFactionName(key: string): string {
+  if (!key) return "";
+  return key
+    .split(/[_\s]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(" ");
+}
+
+// Map faction to text color utility classes
 export function getFactionColorClass(faction: string): string {
-  const factionColors = {
-    solaris: 'text-faction-solaris-primary',
-    umbral: 'text-faction-umbral-primary',
-    aeonic: 'text-faction-aeonic-primary',
-    primordial: 'text-faction-primordial-primary',
-    infernal: 'text-faction-infernal-primary',
-    neuralis: 'text-faction-neuralis-primary',
-    synthetic: 'text-faction-synthetic-primary',
-  };
-  
-  return factionColors[faction as keyof typeof factionColors] || 'text-gray-400';
+  switch (faction.toLowerCase()) {
+    case "solaris":
+      return "text-faction-solaris-primary";
+    case "umbral":
+      return "text-faction-umbral-primary";
+    case "synthetic":
+      return "text-faction-synthetic-primary";
+    case "neuralis":
+      return "text-faction-neuralis-primary";
+    case "aeonic":
+      return "text-faction-aeonic-primary";
+    case "infernal":
+      return "text-faction-infernal-primary";
+    case "primordial":
+      return "text-faction-primordial-primary";
+    default:
+      return "text-gray-400";
+  }
 }
 
-/**
- * Get faction gradient class
- */
+// Map faction to gradient background classes
 export function getFactionGradientClass(faction: string): string {
-  const factionGradients = {
-    solaris: 'faction-gradient-solaris',
-    umbral: 'faction-gradient-umbral',
-    aeonic: 'faction-gradient-aeonic',
-    primordial: 'faction-gradient-primordial',
-    infernal: 'faction-gradient-infernal',
-    neuralis: 'faction-gradient-neuralis',
-    synthetic: 'faction-gradient-synthetic',
-  };
-  
-  return factionGradients[faction as keyof typeof factionGradients] || 'bg-gray-500';
+  switch (faction.toLowerCase()) {
+    case "solaris":
+      return "faction-gradient-solaris";
+    case "umbral":
+      return "faction-gradient-umbral";
+    case "neuralis":
+      return "faction-gradient-neuralis";
+    case "synthetic":
+      return "faction-gradient-synthetic";
+    case "aeonic":
+      return "faction-gradient-aeonic";
+    case "infernal":
+      return "faction-gradient-infernal";
+    case "primordial":
+      return "faction-gradient-primordial";
+    default:
+      return "bg-gray-500";
+  }
 }
 
-/**
- * Debounce function for search and form inputs
- */
-export function debounce<T extends (...args: any[]) => any>(
-  func: T,
-  wait: number
-): (...args: Parameters<T>) => void {
-  let timeout: NodeJS.Timeout;
-  return (...args: Parameters<T>) => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func(...args), wait);
-  };
-}
-
-/**
- * Format card rarity for display
- */
+// Capitalize rarity label
 export function formatRarity(rarity: string): string {
-  return rarity.charAt(0).toUpperCase() + rarity.slice(1);
+  if (!rarity) return "";
+  return rarity.charAt(0).toUpperCase() + rarity.slice(1).toLowerCase();
 }
 
-/**
- * Get rarity color class
- */
+// Map rarity to text color classes
 export function getRarityColorClass(rarity: string): string {
-  const rarityColors = {
-    common: 'text-gray-400',
-    uncommon: 'text-green-400',
-    rare: 'text-blue-400',
-    epic: 'text-purple-400',
-    legendary: 'text-yellow-400',
-  };
-  
-  return rarityColors[rarity as keyof typeof rarityColors] || 'text-gray-400';
+  switch (rarity.toLowerCase()) {
+    case "common":
+      return "text-gray-400";
+    case "uncommon":
+      return "text-green-400";
+    case "rare":
+      return "text-blue-400";
+    case "epic":
+      return "text-purple-400";
+    case "legendary":
+      return "text-yellow-400";
+    default:
+      return "text-gray-400";
+  }
 }

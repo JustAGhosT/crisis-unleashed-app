@@ -1,6 +1,8 @@
 // Test runner utilities and helpers
 
-export const renderWithProviders = (ui: React.ReactElement, options?: any) => {
+import type { ReactElement } from 'react';
+
+export const renderWithProviders = (ui: ReactElement) => {
   // Add your providers here (Router, Theme, etc.)
   return ui;
 };

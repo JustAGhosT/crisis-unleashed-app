@@ -11,12 +11,12 @@ from ..repository import TransactionOutboxRepository, OutboxType, OutboxStatus
 from ..services import BlockchainHandler
 
 
-async def example_mint_nft():
+async def example_mint_nft() -> None:
     """Example: Mint an NFT using the transaction outbox pattern."""
     
     # Setup (normally done in dependency injection)
-    client = AsyncIOMotorClient("mongodb://localhost:27017")
-    db = client.crisis_unleashed
+    client = AsyncIOMotorClient("mongodb://localhost:27017")  # type: ignore
+    db = client.crisis_unleashed  # type: ignore
     outbox_repo = TransactionOutboxRepository(db)
     
     # Step 1: Create outbox entry (records intent to mint)
@@ -66,6 +66,9 @@ async def example_mint_nft():
     
     # Step 3: Check final status
     entry = await outbox_repo.get_by_id(outbox_id)
+    if entry is None:
+        print("📊 Final status: not found")
+        return
     print(f"📊 Final status: {entry.status.value}")
     print(f"📊 Attempts: {entry.attempts}/{entry.max_attempts}")
     print(f"📊 Result: {entry.result}")

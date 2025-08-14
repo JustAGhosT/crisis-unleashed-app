@@ -1,0 +1,40 @@
+name: Lighthouse CI
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'Target URL to audit (deployed preview or prod)'
+        required: true
+        type: string
+
+jobs:
+  lhci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Lighthouse CI
+        run: |
+          npm i -g @lhci/cli@0.13.x
+
+      - name: Run Lighthouse CI (mobile)
+        env:
+          LHCI_SERVER_BASE_URL: ''
+        run: |
+          lhci autorun \
+            --collect.url="${{ inputs.url }}" \
+            --collect.settings.preset=experimental \
+            --collect.settings.formFactor=mobile \
+            --collect.settings.screenEmulation.mobile=true \
+            --assert.assertions='categories:performance>0.8' \
+            --assert.assertions.'metrics/first-contentful-paint'.warnThreshold=3000 \
+            --assert.assertions.'metrics/largest-contentful-paint'.warnThreshold=2500 \
+            --assert.assertions.'metrics/cumulative-layout-shift'.warnThreshold=0.1 \
+            --assert.assertions.'metrics/interaction-to-next-paint'.warnThreshold=200

@@ -1,10 +1,10 @@
 import {
-  FactionHexagon,
-  Header,
   DescriptionSection,
-  TimelineSection,
+  FactionDetail,
+  FactionHexagon,
   Footer,
-  FactionDetail
+  Header,
+  TimelineSection
 } from '@/components/factions';
 import { Faction } from '@/types/game.types';
 import { getFactionsList } from '@/utils/factionUtils';
@@ -54,7 +54,7 @@ export const FactionsHub: React.FC = () => {
   }, []);
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} data-testid="factions-hub">
       <Header title="The Factions of Crisis Unleashed" />
 
       <div className={styles.mainContent}>
@@ -78,7 +78,7 @@ export const FactionsHub: React.FC = () => {
 
       <DescriptionSection
         title="The Universal Program"
-        choiceText="Choose your allegiance wisely, for the fate of the universe may depend on your choice."
+        choiceText="Choose your allegiance wisely."
       >
         <p>
           Each faction represents a unique component of the Universal Program, with distinct

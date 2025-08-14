@@ -3,6 +3,7 @@ export type Faction = 'solaris' | 'umbral' | 'neuralis' | 'aeonic' | 'infernal' 
 export interface GameState {
   currentTurn: number;
   activePlayer: 'player1' | 'player2';
+  currentPhase: string;
   momentum: number;
   energy: number;
   health: number;

@@ -1,51 +1,80 @@
 ---
-description: Frontend architecture specifications for a faction-based card game with complex component hierarchy and state management
-globs: frontend/**,frontend-next/**
-alwaysApply: false
+description: Analysis of React component architecture, state patterns, and game UI implementation for the Crisis Unleashed card game
 ---
 
+# === USER INSTRUCTIONS ===
+- Game Layout: `frontend-next/src/components/game/GameInterface.tsx`
+- Faction-Based Theming: `frontend-next/src/context/FactionThemesContext.tsx`
+- Card Management: `frontend-next/src/features/cards/CardHand.tsx`
+- Battlefield Grid: `frontend-next/src/features/battlefield/Battlefield.tsx`
+- Resource Display: `frontend-next/src/features/players/PlayerHUD.tsx` 
+- Faction Selection: `frontend-next/src/components/factions/FactionGrid.tsx`
+- Turn Manager: `frontend-next/src/features/battlefield/TurnManager.tsx`
+
+  - GameInterface emits phase changes; TurnManager controls sequencing
+  - CardHand derives playable state from current phase and resources
+  - PlayerHUD subscribes to resource updates and action outcomes
+Dataflow:
+ - GameInterface -> PlayerHUD: resource and status updates
+ - CardHand -> TurnManager: play requests validated vs energy/momentum
+ - TurnManager -> CardHand: phase transitions affect playable cards
+ - Battlefield <-> PlayerHUD: unit placements update control zones and HUD
+- Drag and drop card placement (standardize on dnd-kit)
+- Targeting system for abilities
+- Resource cost validation
+- Card preview and detail display
+- Input support: mouse, touch, keyboard (focus + ARIA)
+- Hit-testing: grid cell snapping and valid-target highlighting rules
+# === END USER INSTRUCTIONS ===
 
 # frontend-architecture
 
-## Component Hierarchy
+The frontend architecture implements several domain-specific systems for the Crisis Unleashed card game:
 
-Core Game Components:
-- FactionPortal (`/frontend/src/FactionPortal.tsx`)
-  - Manages faction selection and interaction flows
-  - Implements faction relationship visualization through hex grid
-  - Handles faction-specific visual treatments and animations
+1. **Component Hierarchy**
+- Core game interface components:
+  - `GameInterface`: Main game board orchestrator
+  - `Battlefield`: Manages battlefield grid and unit placement 
+  - `CardHand`: Player hand management and card interactions
+  - `TurnManager`: Turn phase system with deploy/action/end phases
+- Path: `frontend/src/features/game/*`
+- Importance Score: 90
 
-- Battlefield (`/frontend/src/features/battlefield/Battlefield.tsx`)
-  - Grid-based combat zone with specialized territory markers
-  - Dynamic resource display tied to faction mechanics
-  - Implements turn phase system with faction-specific modifiers
+2. **State Management**
+- Game state system using context providers:
+  - Faction state (active faction, relationships, influence)
+  - Resource tracking (energy, momentum, card counts)
+  - Turn/phase management
+  - Combat resolution queue
+- Path: `frontend/src/context/*`
+- Importance Score: 85
 
-- GameInterface (`/frontend/src/components/game/GameInterface.tsx`)
-  - Coordinates cross-faction ability interactions
-  - Manages state for dual resource system (Energy/Momentum)
-  - Handles crisis event triggers and resolution
+3. **Card System Architecture**
+- Card component system with:
+  - Hover states for card detail inspection
+  - Drag and drop targeting system
+  - Validation of legal plays based on resources/targets
+  - Visual feedback for card synergies
+- Path: `frontend-next/src/components/cards/*`
+- Importance Score: 80
 
-## State Management
+4. **Battlefield Implementation**
+- Grid-based field divided into deployment zones
+- Unit placement validation
+- Movement range indicators
+- Combat resolution animations
+- Status effect visualization
+- Path: `frontend/src/features/battlefield/*`
+- Importance Score: 85
 
-Faction State:
-- FactionThemesContext (`/frontend/src/context/FactionThemesContext.tsx`)
-  - Maintains active faction visual identities
-  - Coordinates cross-faction synergy effects
-  - Manages faction-specific resource modifiers
+5. **Resource Management UI**
+- Multi-resource tracking (Energy/Momentum/Crisis)
+- Resource gain/spend animations
+- Warning states for insufficient resources
+- Path: `frontend-next/src/components/game/*`
+- Importance Score: 75
 
-Game State:
-- TurnManager (`/frontend/src/features/battlefield/TurnManager.tsx`)
-  - Tracks phase progression
-  - Manages crisis countdown system
-  - Updates resource pools based on faction abilities
-
-Component Integration:
-- MoodBoard System (`/frontend/src/components/factions/MoodBoard.tsx`)
-  - Faction-specific visual language coordination
-  - Dynamic theme application based on faction combinations
-  - Handles faction power manifestation effects
-
-The architecture emphasizes faction identity preservation while enabling complex inter-faction mechanics through a modular component system. Each faction maintains distinct visual and mechanical characteristics while supporting cross-faction synergies.
+The architecture emphasizes clear separation between game logic and UI components while maintaining tight integration for real-time game state updates and animations.
 
 $END$
 

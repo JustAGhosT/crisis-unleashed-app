@@ -1,89 +1,109 @@
 ---
-description: Defines core game entities and data models for the Crisis Unleashed digital card game
-globs: /backend/**/models/*.py,/frontend/src/types/*.ts,/frontend/src/data/*.ts
-alwaysApply: false
+description: Defines core game entities and data models for cards, battlefield grid, player stats, and game state
 ---
 
+# === USER INSTRUCTIONS ===
+- Axial coordinate system for hex positioning (q,r coordinates)
+- Neighbor calculation and pathfinding algorithms
+- Line of sight and range calculations based on hex distance
+- Implementation split between:
+  - `frontend-next/src/types/grid.ts` - Core grid model and utilities
+  - `frontend-next/src/features/battlefield/Battlefield.tsx` - UI representation
+- Turn structure with distinct phases:
+  - Draw Phase: Card drawing and start-of-turn effects
+  - Energy Phase: Resource generation and allocation
+  - Main Phase: Card playing and unit activation
+  - Combat Phase: Attack declaration and resolution
+  - End Phase: End-of-turn effects and cleanup
+- State machine implementation with:
+  - Defined states for each game phase
+  - Valid transitions between states with guard conditions
+  - Side effects triggered by transitions
+  - Faction-specific modifiers to transition rules
+- Crisis event system that can modify state machine rules
+- Implementation split between:
+  - `frontend-next/src/types/state/GameStateMachine.ts` - Core state machine model
+  - `frontend-next/src/features/battlefield/TurnManager.tsx` - UI orchestrator
+- Synergy detection using directed graph of card interactions
+- Tag-based matching system for identifying potential synergies
+- Multi-level synergy classification (basic, advanced, expert)
+- Chain reaction mechanics with:
+  - Cycle detection to prevent infinite loops
+  - Maximum chain depth limits for performance
+  - Fallback resolution for conflicting synergy effects
+- Faction-specific synergy modifiers and amplifiers
+- Implementation split between:
+  - `frontend-next/src/services/synergy/SynergyDetector.ts` - Core detection algorithm
+  - `frontend-next/src/services/synergy/ChainResolver.ts` - Chain reaction processing
+  - `frontend-next/src/services/synergy/SynergyRules.ts` - Synergy definitions and rules
+$END$
+# === END USER INSTRUCTIONS ===
 
 # game-data-models
 
 ## Core Game Entities
 
-### Card Model
-- Attributes:
-  - ID (unique identifier)
-  - Name
-  - Type (Character, Action, Artifact)
-  - Faction (one of seven core factions)
-  - Rarity (Common, Uncommon, Rare, Epic, Legendary)
-  - Cost (energy requirement)
-  - Attack/Health (for Character cards)
-  - Effect text
-  - Synergy tags
+### Card System
+- **Card Types**: Units, Actions, Structures, Heroes
+- **Card Properties**:
+  - Combat stats (attack, health, initiative)
+  - Energy/momentum costs
+  - Faction alignment
+  - Battlefield zone restrictions
+  - Ability effects and triggers
+- **Validation Rules**:
+  - Maximum 3 copies per card
+  - Faction-specific restrictions
+  - Zone placement requirements
+- **Importance Score**: 90
 
 ### Battlefield Grid
-- 5x4 grid structure
-- Zone types:
-  - Frontline (rows 1-2)
-  - Backline (rows 3-4)
-  - Command Zone (row 5)
-- Position-based effects tracking
-- Unit placement validation
+- **Zone Types**: Frontline, Support, Command
+- **Grid Properties**:
+  - 3x3 grid layout
+  - Zone-specific effects
+  - Line of sight calculations
+  - Unit positioning rules
+- **Combat Resolution**:
+  - Initiative-based attack order
+  - Zone control mechanics
+  - Battlefield status effects
+- **Importance Score**: 85
 
 ### Player Stats
-- Health (0-30)
-- Energy (0-10, resets each turn)
-- Momentum (0-5, persistent resource)
-- Active effects
-- Hand size tracking
+- **Resource Systems**:
+  - Energy (card costs)
+  - Momentum (hero abilities)
+  - Health (victory condition)
+- **Resource Management**:
+  - Per-turn generation
+  - Faction-specific bonuses
+  - Resource interaction rules
+- **Importance Score**: 80
 
 ### Game State
-- Turn phases:
-  - Draw
-  - Energy Allocation
-  - Main
-  - Combat Resolution
-  - End
-- Crisis event tracking
-- Synergy combinations
-- Battlefield state
+- **State Tracking**:
+  - Active player
+  - Turn phase
+  - Resource pools
+  - Card locations
+  - Combat queue
+  - Effect triggers
+- **Phase Management**:
+  - Draw Phase
+  - Energy Phase
+  - Main Phase
+  - Combat Phase
+  - End Phase
+- **Importance Score**: 85
 
-### Faction Definitions
-- Seven core factions:
-  - Solaris: Energy/prediction mechanics
-  - Umbral: Stealth/information warfare
-  - Neuralis: Mind control/psychic
-  - Aeonic: Time/space manipulation
-  - Infernal: Risk/reward mechanics
-  - Primordial: Growth/evolution
-  - Synthetic: Optimization/precision
-
-### Resource Economy
-- Energy System:
-  - Base gain: 1 per turn
-  - Maximum: 10
-  - Carry-over rules
-- Momentum System:
-  - Generation from card effects
-  - Persistent between turns
-  - Faction-specific uses
-
-### Crisis Events
-- Event types:
-  - Universal effects
-  - Targeted effects
-  - Duration tracking
-- Resolution conditions
-- Reward structures
-
-Importance Scores:
-- Card Model: 95 (Core game entity)
-- Battlefield Grid: 90 (Critical gameplay structure)
-- Player Stats: 85 (Essential game state)
-- Game State: 90 (Core game flow)
-- Faction Definitions: 95 (Unique game identity)
-- Resource Economy: 85 (Core mechanics)
-- Crisis Events: 80 (Unique gameplay element)
+Relevant File Paths:
+```
+frontend-next/src/types/card.ts
+frontend-next/src/types/game.types.ts
+frontend-next/src/lib/card-utils.ts
+backend/types/faction.py
+```
 
 $END$
 

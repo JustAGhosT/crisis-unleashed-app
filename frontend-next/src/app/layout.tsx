@@ -1,20 +1,36 @@
+import "@/styles/globals.css";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
+import { Inter as FontSans } from "next/font/google";
+import { AuthProvider } from "@/lib/auth/AuthContext";
+import { FeatureFlagProvider } from "@/lib/feature-flags/feature-flag-provider";
 import { QueryProvider } from "@/lib/query-provider";
-import { ThemeProvider } from "@/components/theme-provider";
+import { Providers } from "@/components/providers";
+import { cn } from "@/lib/utils";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import FeatureFlagIndicator from "@/components/feature-flags/FeatureFlagIndicator";
+import { ThemeProvider } from "@/lib/theme/theme-provider";
+import { RUMInit } from "@/components/observability/RUMInit";
+import { ToastProvider } from "@/hooks/useToast";
+import { SessionProvider } from "next-auth/react";
+import { cookies } from "next/headers";
+import FactionThemeRoot from "./FactionThemeRoot";
+import { FACTION_KEYS, type FactionKey } from "@/lib/theme/faction-theme";
 
-const inter = Inter({ subsets: ["latin"] });
+const fontSans = FontSans({
+  subsets: ["latin"],
+  variable: "--font-sans",
+});
 
 export const metadata: Metadata = {
-  title: "Crisis Unleashed",
-  description: "A strategic digital collectible card game set in a multiverse where seven unique factions battle for supremacy",
-  keywords: ["card game", "strategy", "digital collectibles", "NFT", "blockchain", "gaming"],
-  authors: [{ name: "Crisis Unleashed Team" }],
-  openGraph: {
-    title: "Crisis Unleashed",
-    description: "Strategic multiverse card game with faction-based gameplay",
-    type: "website",
+  title: {
+    default: "Crisis Unleashed",
+    template: "%s | Crisis Unleashed",
+  },
+  description:
+    "Strategic card game with unique factions battling in a dystopian future",
+  icons: {
+    icon: "/favicon.ico",
   },
 };
 
@@ -23,18 +39,50 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // SSR cookie sync for initial theme selection
+  const c = cookies();
+  const raw = (c.get("theme:active")?.value || "").toLowerCase();
+  const initialFaction: FactionKey = (FACTION_KEYS as readonly string[]).includes(raw)
+    ? (raw as FactionKey)
+    : "default";
+
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body
+        className={cn(
+          "min-h-screen bg-background font-sans antialiased",
+          fontSans.variable,
+        )}
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >
-          <QueryProvider>
-            {children}
-          </QueryProvider>
+          <ToastProvider>
+            <QueryProvider>
+              <SessionProvider>
+                <AuthProvider>
+                  <FeatureFlagProvider>
+                    <Providers>
+                      <FactionThemeRoot initial={initialFaction}>
+                        <div className="relative flex min-h-screen flex-col">
+                          <Navbar />
+                          <main className="flex-1 container mx-auto px-4 py-6">
+                            {children}
+                          </main>
+                          <Footer />
+                          <FeatureFlagIndicator />
+                          <RUMInit />
+                        </div>
+                      </FactionThemeRoot>
+                    </Providers>
+                  </FeatureFlagProvider>
+                </AuthProvider>
+              </SessionProvider>
+            </QueryProvider>
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>

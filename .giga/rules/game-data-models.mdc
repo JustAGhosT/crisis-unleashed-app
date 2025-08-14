@@ -1,48 +1,83 @@
 ---
-description: Defines core game entities and data models for the card-based strategy game Crisis Unleashed
-globs: src/types/*.ts,src/models/*.ts,src/constants/*.ts
-alwaysApply: false
+description: Specifies core game entities including cards, battlefield grid, player stats, and game state models
 ---
 
+# === USER INSTRUCTIONS ===
+- Layout: 5 × 6 hex grid divided into player zones
+- Zone Types: Backline (3 rows), Frontline (3 rows)
+- Unit Placement: Maximum 1 unit per hex
+- Movement Rules: Based on unit movement speed and hex adjacency (zone type may modify movement costs)
+
+- Hexagonal grid system with the following specifications:
+  - Dimensions: 5 columns × 6 rows (30 total hexes)
+  - Player Zones: Each player controls 15 hexes (3 rows)
+  - Zone Types: 
+    - Frontline (3 rows closest to center) - Primary combat area
+    - Backline (3 rows farthest from center) - Strategic deployment area
+  - Neutral Areas: None in base configuration
+  - Occupation Rules: Maximum 1 unit per hex
+  - Movement System: Based on unit movement speed attribute and hex adjacency
+  - Zone Effects: Different zones may modify movement costs and unit abilities
+# === END USER INSTRUCTIONS ===
 
 # game-data-models
 
-## Core Game Entities (Importance: 95)
+Key Domain Models:
 
-The game defines several core data models that represent the fundamental game mechanics:
+1. Card System
+Path: frontend/src/types/card.ts
+- Seven card types: Hero, Unit, Structure, Artifact, Action, Reaction, Enhancement
+- Attributes: name, cost, faction, type, rarity, effects
+- Keywords system for ability tagging
+- Status effect tracking (temporary/permanent)
 
-### Player Stats Model
-- Health points tracking player survival
-- Energy points for playing cards each turn 
-- Momentum points affecting special abilities
-- Current/maximum values for each stat
+2. Battlefield Grid
+Path: frontend/src/types/battlefield.ts
+- 4x4 hex-based grid structure
+- Zone control mechanics with line-of-sight calculations
+- Terrain modifiers affecting movement and combat
+- Position-based effect triggers
 
-### Card Model
-- Energy cost requirements
-- Card effects and abilities
-- Target requirements and restrictions
-- Card type classification
-- Synergy identifiers
+3. Player Resources
+Path: frontend/src/types/player.ts
+- Health (0-20)
+- Energy (0-10, gains +1 per turn)
+- Momentum (0-5, gained through actions)
+- Hand size limits (7 cards maximum)
 
-### Battlefield Grid Model
-- Player and enemy zones
-- Unit placement coordinates
-- Zone control status
-- Movement range limitations
-- Line of sight calculations
+4. Game State Model
+Path: frontend/src/types/game.ts
+- Turn phases: Draw, Energy, Main, Combat, End
+- Crisis event tracking and resolution
+- Victory condition monitoring
+- Initiative order management
 
-### Game State Model
-- Turn phase tracking (Deploy/Action/End)
-- Active player designation
-- Crisis event status
-- Synergy activation states
-- Game phase transitions
+5. Faction System
+Path: frontend/src/types/faction.ts
+- Seven distinct factions with unique mechanics:
+  * Solaris: Energy manipulation
+  * Umbral: Stealth mechanics
+  * Aeonic: Time manipulation
+  * Primordial: Growth systems
+  * Infernal: Sacrifice mechanics
+  * Neuralis: Mind control
+  * Synthetic: Optimization
 
-File References:
-- `frontend/src/types/game.types.ts` - Core type definitions
-- `frontend/src/constants/mockCards.ts` - Card data structures
+6. Status Effects
+Path: frontend/src/types/effects.ts
+- Duration tracking (turns remaining)
+- Stacking rules per effect type
+- Faction-specific status interactions
+- Priority order resolution
 
-The models are implemented primarily through TypeScript interfaces and constants, with mock data structures providing the initial game state representation for development and testing.
+7. Combat Resolution Model
+Path: frontend/src/types/combat.ts
+- Initiative-based action order
+- Range and movement calculations
+- Damage application sequence
+- Death/removal trigger handling
+
+The models emphasize faction-specific mechanics and their interactions, with complex state tracking for battlefield positioning and resource management. Each faction introduces unique modifications to the base rule set, requiring specialized handling of interactions.
 
 $END$
 

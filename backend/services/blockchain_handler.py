@@ -1,19 +1,25 @@
 """
 Blockchain Handler for processing outbox entries.
 """
+
 import logging
-from typing import Any, Dict, List
+from typing import Any, Dict, List, TypedDict
 
 from ..repository import (
     TransactionOutboxRepository,
     OutboxEntry,
     OutboxType,
 )
-    OutboxType,
-)
 from .blockchain_service import BlockchainService
 
 logger = logging.getLogger(__name__)
+
+
+class ErrorItem(TypedDict):
+    """Type definition for error items in processing results."""
+
+    entry_id: str
+    error: str
 
 
 class BlockchainHandler:
@@ -26,24 +32,20 @@ class BlockchainHandler:
     ):
         self.outbox_repo = outbox_repo
         self.blockchain_service = blockchain_service
-        
+
     async def process_pending_entries(self, max_entries: int = 50) -> Dict[str, Any]:
         """
         Process pending outbox entries.
-
         Args:
             max_entries: Maximum number of entries to process
-
         Returns:
             Processing results summary
         """
         entries = await self.outbox_repo.get_pending(limit=max_entries)
-
         total_processed = 0
         successful = 0
         failed = 0
-        errors: List[Dict[str, str]] = []
-        
+        errors: List[ErrorItem] = []
         for entry in entries:
             try:
                 await self._process_entry(entry)
@@ -53,27 +55,23 @@ class BlockchainHandler:
                 await self.outbox_repo.increment_attempts(entry.id, str(e))
                 failed += 1
                 errors.append({"entry_id": entry.id, "error": str(e)})
-            
             total_processed += 1
-        
+
         results = {
             "total_processed": total_processed,
             "successful": successful,
             "failed": failed,
-            "errors": errors
+            "errors": errors,
         }
-
         logger.info(
             f"Processed {results['total_processed']} entries: "
             f"{results['successful']} successful, {results['failed']} failed"
         )
-
         return results
 
     async def _process_entry(self, entry: OutboxEntry) -> None:
         """Process a single outbox entry."""
         await self.outbox_repo.mark_processing(entry.id)
-
         try:
             if entry.type == OutboxType.MINT_NFT:
                 await self._handle_mint_nft(entry)
@@ -85,7 +83,6 @@ class BlockchainHandler:
                 await self._handle_marketplace_purchase(entry)
             else:
                 raise ValueError(f"Unsupported operation type: {entry.type}")
-
         except Exception as e:
             logger.error(f"Blockchain operation failed for {entry.id}: {e}")
             await self.outbox_repo.mark_failed(entry.id, str(e))
@@ -95,9 +92,7 @@ class BlockchainHandler:
         """Handle NFT minting operation."""
         data = entry.request_data
         blockchain = data["blockchain"]
-
         logger.info(f"Minting NFT on {blockchain} for entry {entry.id}")
-
         # Execute blockchain mint operation
         tx_hash, tx_data = await self.blockchain_service.mint_nft(
             blockchain=blockchain,
@@ -108,14 +103,11 @@ class BlockchainHandler:
             faction=data.get("faction"),
             card_type=data.get("card_type", "character"),
         )
-
         logger.info(f"Mint transaction submitted: {tx_hash}")
-
         # Wait for confirmation
         receipt = await self.blockchain_service.wait_for_confirmation(
             blockchain, tx_hash, timeout=180
         )
-
         if receipt and receipt.get("status") == 1:
             result = {
                 "operation": "mint_nft",
@@ -137,22 +129,17 @@ class BlockchainHandler:
         """Handle NFT transfer operation."""
         data = entry.request_data
         blockchain = data["blockchain"]
-
         logger.info(f"Transferring NFT on {blockchain} for entry {entry.id}")
-
         tx_hash, tx_data = await self.blockchain_service.transfer_nft(
             blockchain=blockchain,
             from_address=data["from_address"],
             to_address=data["to_address"],
             token_id=data["token_id"],
         )
-
         logger.info(f"Transfer transaction submitted: {tx_hash}")
-
         receipt = await self.blockchain_service.wait_for_confirmation(
             blockchain, tx_hash, timeout=180
         )
-
         if receipt and receipt.get("status") == 1:
             result = {
                 "operation": "transfer_nft",
@@ -173,10 +160,8 @@ class BlockchainHandler:
     async def _handle_marketplace_list(self, entry: OutboxEntry) -> None:
         """Handle marketplace listing operation."""
         data = entry.request_data
-
         # Placeholder for marketplace listing logic
         logger.info(f"Marketplace listing not yet implemented for entry {entry.id}")
-
         # For now, simulate success
         result = {
             "operation": "marketplace_list",
@@ -184,16 +169,13 @@ class BlockchainHandler:
             "price": data.get("price"),
             "status": "listed",
         }
-
         await self.outbox_repo.mark_completed(entry.id, result)
 
     async def _handle_marketplace_purchase(self, entry: OutboxEntry) -> None:
         """Handle marketplace purchase operation."""
         data = entry.request_data
-
         # Placeholder for marketplace purchase logic
         logger.info(f"Marketplace purchase not yet implemented for entry {entry.id}")
-
         # For now, simulate success
         result = {
             "operation": "marketplace_purchase",
@@ -202,14 +184,12 @@ class BlockchainHandler:
             "price": data.get("price"),
             "status": "purchased",
         }
-
         await self.outbox_repo.mark_completed(entry.id, result)
 
     async def get_processing_stats(self) -> Dict[str, Any]:
         """Get statistics about outbox processing."""
         # This could be enhanced to query the database for actual stats
         health = await self.blockchain_service.health_check()
-
         return {
             "blockchain_health": health,
             "supported_networks": self.blockchain_service.get_supported_blockchains(),

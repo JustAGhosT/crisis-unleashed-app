@@ -1,4 +1,4 @@
-import { apiClient } from './api';
+import { apiClient } from "./api";
 import {
   Deck,
   DeckCard,
@@ -7,13 +7,17 @@ import {
   Card,
   CardType,
   CardRarity,
-} from '@/types/card';
-import { FactionId } from '@/types/faction';
-import { mockUserDecks, getMockDeckData } from '@/lib/DeckMockData';
+  UnitType,
+  ActionType,
+  StructureType,
+} from "@/types/card";
+import { mockUserDecks, getMockDeckData } from "@/lib/DeckMockData";
 
 // Helper function to check if we're in production server environment
 const isProductionServer = (): boolean => {
-  return typeof window === 'undefined' && process?.env?.NODE_ENV === 'production';
+  return (
+    typeof window === "undefined" && process?.env?.NODE_ENV === "production"
+  );
 };
 
 // DeckService handles all deck-related operations. Single Responsibility Principle is maintained.
@@ -32,9 +36,9 @@ export class DeckService {
       const response = await apiClient.get(`/users/${userId}/decks`);
       return response.data;
     } catch (error) {
-      console.error('Failed to fetch user decks:', error);
+      console.error("Failed to fetch user decks:", error);
       if (isProductionServer()) {
-        throw new Error('Failed to fetch user decks');
+        throw new Error("Failed to fetch user decks");
       }
       return this.getMockUserDecks(userId);
     }
@@ -48,9 +52,9 @@ export class DeckService {
       const response = await apiClient.get(`/decks/${deckId}`);
       return response.data;
     } catch (error) {
-      console.error('Failed to fetch deck:', error);
+      console.error("Failed to fetch deck:", error);
       if (isProductionServer()) {
-        throw new Error('Failed to fetch deck');
+        throw new Error("Failed to fetch deck");
       }
       return this.getMockDeck(deckId);
     }
@@ -60,15 +64,15 @@ export class DeckService {
    * Create a deck
    */
   static async createDeck(
-    deckData: Omit<Deck, 'id' | 'createdAt' | 'updatedAt'>
+    deckData: Omit<Deck, "id" | "createdAt" | "updatedAt">,
   ): Promise<Deck> {
     try {
-      const response = await apiClient.post('/decks', deckData);
+      const response = await apiClient.post("/decks", deckData);
       return response.data;
     } catch (error) {
-      console.error('Simulating deck creation due to error:', error);
+      console.error("Simulating deck creation due to error:", error);
       if (isProductionServer()) {
-        throw new Error('Failed to create deck');
+        throw new Error("Failed to create deck");
       }
       return this.simulateCreateDeck(deckData);
     }
@@ -77,14 +81,17 @@ export class DeckService {
   /**
    * Update a deck
    */
-  static async updateDeck(deckId: string, updates: Partial<Deck>): Promise<Deck> {
+  static async updateDeck(
+    deckId: string,
+    updates: Partial<Deck>,
+  ): Promise<Deck> {
     try {
       const response = await apiClient.put(`/decks/${deckId}`, updates);
       return response.data;
     } catch (error) {
-      console.error('Simulating deck update due to error:', error);
+      console.error("Simulating deck update due to error:", error);
       if (isProductionServer()) {
-        throw new Error('Failed to update deck');
+        throw new Error("Failed to update deck");
       }
       return this.simulateUpdateDeck(deckId, updates);
     }
@@ -97,9 +104,9 @@ export class DeckService {
     try {
       await apiClient.delete(`/decks/${deckId}`);
     } catch (error) {
-      console.error('Simulating deck deletion due to error:', error);
+      console.error("Simulating deck deletion due to error:", error);
       if (isProductionServer()) {
-        throw new Error('Failed to delete deck');
+        throw new Error("Failed to delete deck");
       }
     }
   }
@@ -107,10 +114,13 @@ export class DeckService {
   /**
    * Validate deck composition and constraints
    */
-  static validateDeck(cards: Card[], deckCards: DeckCard[]): DeckValidationResult {
+  static validateDeck(
+    cards: Card[],
+    deckCards: DeckCard[],
+  ): DeckValidationResult {
     const errors: string[] = [];
     const warnings: string[] = [];
-    const cardMap = new Map(cards.map(card => [card.id, card]));
+    const cardMap = new Map(cards.map((card) => [card.id, card]));
     let totalCards = 0;
     const cardCounts = new Map<string, number>();
 
@@ -123,7 +133,9 @@ export class DeckService {
         continue;
       }
       if (deckCard.quantity > this.MAX_COPIES_PER_CARD) {
-        errors.push(`${card.name}: Maximum ${this.MAX_COPIES_PER_CARD} copies per deck`);
+        errors.push(
+          `${card.name}: Maximum ${this.MAX_COPIES_PER_CARD} copies per deck`,
+        );
       }
       if (deckCard.quantity < 1) {
         errors.push(`${card.name}: Must have at least 1 copy`);
@@ -132,24 +144,22 @@ export class DeckService {
 
     if (totalCards < this.MIN_DECK_SIZE) {
       errors.push(
-        `Deck must contain at least ${this.MIN_DECK_SIZE} cards (currently ${totalCards})`
+        `Deck must contain at least ${this.MIN_DECK_SIZE} cards (currently ${totalCards})`,
       );
     }
     if (totalCards > this.MAX_DECK_SIZE) {
       errors.push(
-        `Deck cannot exceed ${this.MAX_DECK_SIZE} cards (currently ${totalCards})`
+        `Deck cannot exceed ${this.MAX_DECK_SIZE} cards (currently ${totalCards})`,
       );
     }
 
     // Validate faction count
     const factions = new Set(
-      deckCards
-        .map(dc => cardMap.get(dc.cardId)?.faction)
-        .filter(Boolean)
+      deckCards.map((dc) => cardMap.get(dc.cardId)?.faction).filter(Boolean),
     );
     if (factions.size > this.MAX_FACTIONS) {
       errors.push(
-        `Deck can only contain cards from up to ${this.MAX_FACTIONS} factions`
+        `Deck can only contain cards from up to ${this.MAX_FACTIONS} factions`,
       );
     }
 
@@ -162,22 +172,64 @@ export class DeckService {
       }
     }
 
+    let avgCost = 0;
     if (totalCards >= this.MIN_DECK_SIZE) {
-      const avgCost = this.calculateAverageCost(cards, deckCards);
+      avgCost = this.calculateAverageCost(cards, deckCards);
       if (avgCost > 4.5) {
-        warnings.push('High average cost - consider adding cheaper cards');
+        warnings.push("High average cost - consider adding cheaper cards");
       }
       if (avgCost < 2.5) {
-        warnings.push('Low average cost - consider adding more expensive cards');
+        warnings.push(
+          "Low average cost - consider adding more expensive cards",
+        );
       }
     }
+
+    // Derive type counts
+    let heroCardCount = 0;
+    let unitCardCount = 0;
+    let actionCardCount = 0;
+    let structureCardCount = 0;
+    for (const dc of deckCards) {
+      const c = cardMap.get(dc.cardId);
+      if (!c) continue;
+      switch (c.type) {
+        case "hero":
+          heroCardCount += dc.quantity;
+          break;
+        case "unit":
+          unitCardCount += dc.quantity;
+          break;
+        case "action":
+          actionCardCount += dc.quantity;
+          break;
+        case "structure":
+          structureCardCount += dc.quantity;
+          break;
+      }
+    }
+
+    // Reuse factions set for consistency check (declared above in validation)
+    const factionConsistency = factions.size <= this.MAX_FACTIONS;
+
+    // Simple energy curve balance heuristic based on average cost range
+    const energyCurveBalance = avgCost >= 2.5 && avgCost <= 4.5;
+
+    const factionSpecificRules: { [rule: string]: boolean } = {};
 
     return {
       isValid: errors.length === 0,
       errors,
       warnings,
       cardCount: totalCards,
+      heroCardCount,
+      unitCardCount,
+      actionCardCount,
+      structureCardCount,
+      factionConsistency,
+      energyCurveBalance,
       costCurve,
+      factionSpecificRules,
     };
   }
 
@@ -185,11 +237,39 @@ export class DeckService {
    * Calculate overall deck statistics, returns full stats breakdown for analytics/inspection
    */
   static calculateDeckStats(cards: Card[], deckCards: DeckCard[]): DeckStats {
-    const cardMap = new Map(cards.map(card => [card.id, card]));
+    const cardMap = new Map(cards.map((card) => [card.id, card]));
     let totalCards = 0;
     let totalCost = 0;
-    const typeDistribution: { [type in CardType]?: number } = {};
-    const rarityDistribution: { [rarity in CardRarity]?: number } = {};
+    // Initialize distributions to satisfy strict Record typings
+    const typeDistribution: Record<CardType, number> = {
+      hero: 0,
+      unit: 0,
+      action: 0,
+      structure: 0,
+    };
+    const unitTypeDistribution: Record<UnitType, number> = {
+      melee: 0,
+      ranged: 0,
+      siege: 0,
+      flying: 0,
+    };
+    const actionTypeDistribution: Record<ActionType, number> = {
+      instant: 0,
+      ongoing: 0,
+      equipment: 0,
+    };
+    const structureTypeDistribution: Record<StructureType, number> = {
+      building: 0,
+      trap: 0,
+      aura: 0,
+    };
+    const rarityDistribution: Record<CardRarity, number> = {
+      common: 0,
+      uncommon: 0,
+      rare: 0,
+      epic: 0,
+      legendary: 0,
+    };
     const costCurve: { [cost: number]: number } = {};
 
     for (const deckCard of deckCards) {
@@ -198,25 +278,61 @@ export class DeckService {
       totalCards += deckCard.quantity;
       totalCost += card.cost * deckCard.quantity;
       typeDistribution[card.type] =
-        (typeDistribution[card.type] || 0) + deckCard.quantity;
+        typeDistribution[card.type] + deckCard.quantity;
+      // Track sub-type distributions where applicable
+      if (card.type === "unit" && card.unitType) {
+        unitTypeDistribution[card.unitType] =
+          unitTypeDistribution[card.unitType] + deckCard.quantity;
+      }
+      if (card.type === "action" && card.actionType) {
+        actionTypeDistribution[card.actionType] =
+          actionTypeDistribution[card.actionType] + deckCard.quantity;
+      }
+      if (card.type === "structure" && card.structureType) {
+        structureTypeDistribution[card.structureType] =
+          structureTypeDistribution[card.structureType] + deckCard.quantity;
+      }
       rarityDistribution[card.rarity] =
-        (rarityDistribution[card.rarity] || 0) + deckCard.quantity;
+        rarityDistribution[card.rarity] + deckCard.quantity;
       costCurve[card.cost] = (costCurve[card.cost] || 0) + deckCard.quantity;
     }
+    // Basic derived stats with defaults when not computable
+    const averageCost = totalCards > 0 ? totalCost / totalCards : 0;
+    const averageInitiative = 0;
+    const frontlineUnitCount = 0;
+    const backlineUnitCount = 0;
+    const rangedUnitCount = unitTypeDistribution.ranged;
+    const flyingUnitCount = unitTypeDistribution.flying;
+    const energyCurve: { [cost: number]: number } = {};
+    const momentumRequirements: { [cost: number]: number } = {};
+
     return {
       totalCards,
-      averageCost: totalCards > 0 ? totalCost / totalCards : 0,
+      averageCost,
+      averageInitiative,
+      frontlineUnitCount,
+      backlineUnitCount,
+      rangedUnitCount,
+      flyingUnitCount,
       typeDistribution,
+      unitTypeDistribution,
+      actionTypeDistribution,
+      structureTypeDistribution,
       rarityDistribution,
       costCurve,
+      energyCurve,
+      momentumRequirements,
     };
   }
 
   /**
    * Helper: Calculate average mana/energy cost
    */
-  private static calculateAverageCost(cards: Card[], deckCards: DeckCard[]): number {
-    const cardMap = new Map(cards.map(card => [card.id, card]));
+  private static calculateAverageCost(
+    cards: Card[],
+    deckCards: DeckCard[],
+  ): number {
+    const cardMap = new Map(cards.map((card) => [card.id, card]));
     let totalCards = 0;
     let totalCost = 0;
     for (const deckCard of deckCards) {
@@ -233,7 +349,7 @@ export class DeckService {
    */
   private static getMockUserDecks(userId: string): Deck[] {
     // Re-attach userId for SRP-compliant separation, since mockUserDecks omits it
-    return mockUserDecks.map(deck => ({
+    return mockUserDecks.map((deck) => ({
       ...deck,
       userId,
     }));
@@ -250,7 +366,7 @@ export class DeckService {
    * Mock: Simulate deck creation
    */
   private static simulateCreateDeck(
-    deckData: Omit<Deck, 'id' | 'createdAt' | 'updatedAt'>
+    deckData: Omit<Deck, "id" | "createdAt" | "updatedAt">,
   ): Deck {
     return {
       ...deckData,
@@ -263,15 +379,18 @@ export class DeckService {
   /**
    * Mock: Simulate deck update
    */
-  private static simulateUpdateDeck(deckId: string, updates: Partial<Deck>): Deck {
+  private static simulateUpdateDeck(
+    deckId: string,
+    updates: Partial<Deck>,
+  ): Deck {
     return {
       id: deckId,
-      userId: 'user-1',
-      name: 'Updated Deck',
-      faction: 'solaris',
+      userId: "user-1",
+      name: "Updated Deck",
+      faction: "solaris",
       isActive: false,
       cards: [],
-      createdAt: '2024-01-01T00:00:00Z',
+      createdAt: "2024-01-01T00:00:00Z",
       updatedAt: new Date().toISOString(),
       ...updates,
     };

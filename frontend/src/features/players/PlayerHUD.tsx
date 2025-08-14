@@ -1,7 +1,8 @@
+/* eslint-disable react/prop-types */
 import React, { useMemo, memo } from 'react';
 import clsx from 'clsx';
 import { PlayerId } from '@/types/game.types';
-import { useTheme } from '@/theme/ThemeProvider';
+import styles from './PlayerHUD.module.css';
 
 type ProgressColor = 'red' | 'yellow' | 'blue' | 'green';
 
@@ -37,17 +38,15 @@ const CircularProgress: React.FC<CircularProgressProps> = memo(({
   showLabel = true,
   className = ''
 }) => {
-  const { theme } = useTheme();
   
-  const { radius, circumference, progress, percentage } = useMemo(() => {
+  const { radius, circumference, progress } = useMemo(() => {
     const r = (size - strokeWidth) / 2;
     const c = r * 2 * Math.PI;
     const p = Math.max(0, Math.min(value / max, 1)) * c;
     return { 
       radius: r, 
       circumference: c, 
-      progress: p,
-      percentage: Math.round((value / max) * 100)
+      progress: p
     };
   }, [value, max, size, strokeWidth]);
 
@@ -125,10 +124,7 @@ const CircularProgress: React.FC<CircularProgressProps> = memo(({
               `text-gradient-to-r ${colorClasses}`,
               'drop-shadow-glow'
             )}
-            style={{
-              strokeLinecap: 'round',
-              stroke: `url(#${color}Gradient)`,
-            }}
+            stroke={`url(#${color}Gradient)`}
           />
           
           <defs>
@@ -192,9 +188,7 @@ const PlayerHUD: React.FC<PlayerHUDProps> = ({
   isActive = false,
   className = ''
 }) => {
-  const { theme } = useTheme();
   const isEnemy = player === 'enemy';
-  const isTopPosition = position === 'top';
   
   // Calculate health percentage for gradient effect
   const healthPercentage = useMemo(() => {
@@ -280,14 +274,16 @@ const PlayerHUD: React.FC<PlayerHUDProps> = ({
               'absolute inset-0 -z-10',
               'transition-all duration-500',
               'opacity-30',
+              styles.clipVar,
               {
                 'bg-gradient-to-r from-red-900/30 to-red-600/30': healthPercentage > 0.5,
                 'bg-gradient-to-r from-yellow-900/30 to-red-900/30': healthPercentage <= 0.5 && healthPercentage > 0.25,
                 'bg-gradient-to-r from-red-900/30 to-red-900/50': healthPercentage <= 0.25,
               }
             )}
-            style={{
-              clipPath: `polygon(0 0, ${healthPercentage * 100}% 0, ${healthPercentage * 100}% 100%, 0 100%)`
+            ref={(el) => {
+              if (!el) return;
+              el.style.setProperty('--clip', `polygon(0 0, ${healthPercentage * 100}% 0, ${healthPercentage * 100}% 100%, 0 100%)`);
             }}
           />
           <CircularProgress 
@@ -322,12 +318,14 @@ const PlayerHUD: React.FC<PlayerHUDProps> = ({
               'transition-all duration-500',
               'opacity-30',
               'bg-gradient-to-r from-yellow-900/30 to-yellow-600/30',
+              styles.clipVar,
               {
                 'animate-pulse': energy === maxEnergy
               }
             )}
-            style={{
-              clipPath: `polygon(0 0, ${(energy / maxEnergy) * 100}% 0, ${(energy / maxEnergy) * 100}% 100%, 0 100%)`
+            ref={(el) => {
+              if (!el) return;
+              el.style.setProperty('--clip', `polygon(0 0, ${(energy / maxEnergy) * 100}% 0, ${(energy / maxEnergy) * 100}% 100%, 0 100%)`);
             }}
           />
           <CircularProgress 
@@ -363,13 +361,14 @@ const PlayerHUD: React.FC<PlayerHUDProps> = ({
               'absolute inset-0 -z-10',
               'transition-all duration-500',
               'opacity-30',
-              'bg-gradient-to-r from-blue-900/30 to-blue-600/30',
+              styles.clipVar,
               {
-                'animate-pulse': momentum >= 8
+                'bg-gradient-to-r from-blue-900/30 to-blue-600/30': momentum >= 8
               }
             )}
-            style={{
-              clipPath: `polygon(0 0, ${(momentum / 10) * 100}% 0, ${(momentum / 10) * 100}% 100%, 0 100%)`
+            ref={(el) => {
+              if (!el) return;
+              el.style.setProperty('--clip', `polygon(0 0, ${(momentum / 10) * 100}% 0, ${(momentum / 10) * 100}% 100%, 0 100%)`);
             }}
           />
           <CircularProgress 
@@ -392,3 +391,7 @@ const PlayerHUD: React.FC<PlayerHUDProps> = ({
 };
 
 export default PlayerHUD;
+
+// Display names for memoized components
+CircularProgress.displayName = 'CircularProgress';
+PlayerHUD.displayName = 'PlayerHUD';

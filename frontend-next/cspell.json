@@ -1,0 +1,35 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "ignorePaths": [
+    "node_modules/**",
+    ".next/**",
+    "package-lock.json",
+    "public/**"
+  ],
+  "words": [
+    "aeonic",
+    "backstab",
+    "Backstab",
+    "changeme",
+    "clsx",
+    "earthshaper",
+    "favorited",
+    "infernal",
+    "nanites",
+    "neuralis",
+    "neuro",
+    "NEXTAUTH",
+    "overclocks",
+    "overscan",
+    "primordial",
+    "Pyrokinesis",
+    "radix",
+    "Reorderable",
+    "solaris",
+    "synthetic",
+    "timeshift",
+    "umbral",
+    "valuenow"
+  ]
+}

@@ -10,42 +10,71 @@
 - Explain your OBSERVATIONS clearly, then provide REASONING to identify the exact issue. Add console logs when needed to gather more information.
 
 
-The project implements a digital collectible card game with blockchain integration, organized around three core systems:
+Crisis Unleashed implements a complex card game system with faction-based mechanics, blockchain integration, and multi-resource management. The core business logic is organized into several key systems:
 
-## Faction Architecture
-Seven distinct factions form the core gameplay system:
-- Solaris: Light/energy manipulation with predictive algorithms
-- Umbral: Shadow operations and information warfare
-- Neuralis: Mind control and consciousness networking
-- Aeonic: Time/space manipulation mechanics
-- Infernal: Risk/reward sacrifice mechanics  
-- Primordial: Growth and evolutionary systems
-- Synthetic: Mechanical optimization and efficiency
+### Core Game Systems (Score: 90)
+- Turn-based gameplay with distinct phases (Deploy/Action/End)
+- Multi-resource management (Energy, Momentum)
+- Card drawing and playing mechanics with validation
+- Combat resolution on a grid-based battlefield
+- Crisis event system affecting gameplay
 
-Key implementation: frontend/src/data/factions/index.ts
+**Key Files:**
+- `plans/board-game-interface.md`
+- `plans/overview.md`
+- `backend/types/faction.py`
 
-## Blockchain Integration Layer
-Multi-chain NFT operations system supporting:
-- Card minting across Ethereum, Etherlink, and Solana
-- Cross-chain asset transfers with ownership validation
-- Marketplace operations with faction-specific metadata
-- Transaction outbox pattern ensuring operation consistency
+### Faction Mechanics (Score: 85)
+Seven unique factions with distinct mechanics:
+- Solaris: Energy manipulation
+- Umbral: Stealth mechanics  
+- Neuralis: Mind control
+- Aeonic: Time manipulation
+- Primordial: Growth/adaptation
+- Infernal: Sacrifice mechanics
+- Synthetic: Mechanical precision
 
-Key implementations:
-- backend/services/blockchain_service.py
-- backend/services/blockchain_handler.py
+**Key Files:**
+- `frontend/src/data/factions/index.ts`
+- `backend/types/faction.py`
 
-## Game Mechanics System
-Specialized gameplay mechanics including:
-- Resource management (Energy, Momentum)
-- Grid-based battlefield positioning
-- Faction-specific ability activations
-- Crisis event modifiers
-- Cross-faction synergy detection
+### Blockchain Integration (Score: 85)
+- Transaction outbox pattern for NFT operations
+- Multi-chain support (Etherlink, Ethereum, Solana)
+- NFT minting and transfer operations
+- Marketplace functionality
 
-Key implementation: frontend/features/battlefield/Battlefield.tsx
+**Key Files:**
+- `backend/services/blockchain_service.py`
+- `backend/repository/transaction_outbox.py`
 
-The architecture emphasizes faction identity preservation across both gameplay and blockchain systems, with specialized handling for NFT metadata and cross-chain operations.
+### Deck Building System (Score: 80)
+- Faction-specific deck validation
+- Card synergy analysis
+- Deck statistics calculation
+- Advanced filtering system
+
+**Key Files:**
+- `frontend-next/src/services/deckService.ts`
+- `frontend-next/src/components/deck-builder/DeckBuilder.tsx`
+
+### Service Health Management (Score: 75)
+- Service dependency tracking
+- Continuous health monitoring
+- Fail-fast initialization
+- Critical service status tracking
+
+**Key Files:**
+- `backend/services/health_manager.py`
+
+### Feature Flag System (Score: 70)
+- Progressive feature rollout
+- Feature status persistence
+- Middleware route control
+- Admin interface for flag management
+
+**Key Files:**
+- `frontend-next/src/lib/feature-flags/feature-flag-provider.tsx`
 
 $END$
 

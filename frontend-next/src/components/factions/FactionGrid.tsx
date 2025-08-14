@@ -1,12 +1,11 @@
-import React from 'react';
-import { FactionCard } from './FactionCard';
-import { FactionGridProps } from '@/types/faction';
-import { factions as defaultFactions } from '@/data/factions';
-import { cn } from '@/lib/utils';
+import React from "react";
+import { FactionCard } from "./FactionCard";
+import { FactionGridProps, Faction } from "@/types/faction";
+import { cn } from "@/lib/utils";
 
 /**
  * FactionGrid component following SOLID principles
- * 
+ *
  * Single Responsibility: Displays a grid of faction cards
  * Open/Closed: Extensible through props and composition
  * Liskov Substitution: Can be used anywhere a grid component is expected
@@ -14,9 +13,9 @@ import { cn } from '@/lib/utils';
  * Dependency Inversion: Depends on faction data abstraction
  */
 export const FactionGrid: React.FC<FactionGridProps> = ({
-  factions = defaultFactions,
+  factions = [],
   onFactionClick,
-  loading = false
+  loading = false,
 }) => {
   if (loading) {
     return (
@@ -40,17 +39,17 @@ export const FactionGrid: React.FC<FactionGridProps> = ({
   }
 
   return (
-    <div 
+    <div
       className={cn(
         "grid gap-6",
         "grid-cols-1",
         "sm:grid-cols-2",
         "lg:grid-cols-3",
         "xl:grid-cols-4",
-        "place-items-center"
+        "place-items-center",
       )}
     >
-      {factions.map((faction) => (
+      {factions.map((faction: Faction) => (
         <FactionCard
           key={faction.id}
           faction={faction}
@@ -62,4 +61,4 @@ export const FactionGrid: React.FC<FactionGridProps> = ({
   );
 };
 
-FactionGrid.displayName = 'FactionGrid';
+FactionGrid.displayName = "FactionGrid";
