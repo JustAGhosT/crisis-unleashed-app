@@ -1,3 +1,4 @@
+import HomePage from "@/app/page";
 import { useQuery } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import { useRouter } from "next/navigation";
@@ -28,7 +29,6 @@ jest.mock("@/components/factions/FactionGrid", () => ({
 }));
 
 describe("HomePage Component", () => {
-  const getHome = () => require("@/app/page").default as React.ComponentType;
   // Setup default mocks
   beforeEach(() => {
     jest.clearAllMocks();
@@ -46,7 +46,6 @@ describe("HomePage Component", () => {
   });
 
   it("renders the home page with game status", async () => {
-    const HomePage = getHome();
     render(<HomePage />);
 
     // Check heading
@@ -78,14 +77,12 @@ describe("HomePage Component", () => {
       isLoading: true,
     });
 
-    const HomePage = getHome();
     render(<HomePage />);
 
     expect(screen.getByText("Loading...")).toBeInTheDocument();
   });
 
   it("has a Build Deck link pointing to /deck-builder", () => {
-    const HomePage = getHome();
     render(<HomePage />);
     const link = screen.getByRole("link", { name: "Build Deck" });
     expect(link).toHaveAttribute("href", "/deck-builder");
@@ -99,7 +96,6 @@ describe("HomePage Component", () => {
       isError: true,
     });
 
-    const HomePage = getHome();
     render(<HomePage />);
 
     expect(screen.getByText("System Online")).toBeInTheDocument();
