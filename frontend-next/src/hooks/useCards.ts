@@ -202,7 +202,7 @@ export function useCards({
             uc.cardId === card.id ? { ...uc, isFavorite } : uc,
           ),
         );
-      } catch (err) {
+      } catch {
         toast({
           title: "Error",
           description: "Failed to update favorite status.",

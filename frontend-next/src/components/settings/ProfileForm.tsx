@@ -73,7 +73,7 @@ export function ProfileForm({ user, onSuccess, onError }: ProfileFormProps) {
       // In a real app, this would be an API call to update the profile
       await new Promise((resolve) => setTimeout(resolve, 1000));
       onSuccess();
-    } catch (error) {
+    } catch {
       onError("Failed to update profile. Please try again.");
     }
   };

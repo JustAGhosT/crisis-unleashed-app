@@ -107,7 +107,7 @@ export function useCardDetail({ cardId, userId }: UseCardDetailProps) {
         description: `${card.name} has been ${newFavoriteStatus ? "added to" : "removed from"} your favorites.`,
         variant: "success",
       });
-    } catch (err) {
+    } catch {
       toast({
         title: "Error",
         description: "Failed to update favorite status",
@@ -132,7 +132,7 @@ export function useCardDetail({ cardId, userId }: UseCardDetailProps) {
           description: `${card.name} has been added to your deck.`,
           variant: "success",
         });
-      } catch (err) {
+      } catch {
         toast({
           title: "Error",
           description: "Failed to add card to deck",

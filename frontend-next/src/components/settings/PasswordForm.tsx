@@ -46,7 +46,7 @@ export function PasswordForm({ onSuccess, onError }: PasswordFormProps) {
 
       reset();
       onSuccess();
-    } catch (error) {
+    } catch {
       onError("Failed to change password. Please try again.");
     }
   };

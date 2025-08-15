@@ -2,6 +2,12 @@
   "name": "crisis-unleashed",
   "version": "1.0.0",
   "private": true,
+  "pnpm": {
+    "overrides": {
+      "nanoid": "3.3.7",
+      "next>nanoid": "3.3.7"
+    }
+  },
   "scripts": {
     "preinstall": "pnpm install --ignore-scripts",
     "postinstall": "echo \"Skipping postinstall to prevent infinite loop. Run 'pnpm install' in the frontend directory manually.\"",

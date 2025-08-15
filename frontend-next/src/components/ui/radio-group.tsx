@@ -6,7 +6,7 @@ function cx(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
 }
 
-export interface RadioGroupProps extends React.HTMLAttributes<HTMLDivElement> {}
+export type RadioGroupProps = React.HTMLAttributes<HTMLDivElement>;
 
 export const RadioGroup = React.forwardRef<HTMLDivElement, RadioGroupProps>(
   ({ className, children, ...props }, ref) => (
@@ -17,8 +17,10 @@ export const RadioGroup = React.forwardRef<HTMLDivElement, RadioGroupProps>(
 );
 RadioGroup.displayName = "RadioGroup";
 
-export interface RadioGroupItemProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "type"> {}
+export type RadioGroupItemProps = Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  "type"
+>;
 
 export const RadioGroupItem = React.forwardRef<
   HTMLInputElement,

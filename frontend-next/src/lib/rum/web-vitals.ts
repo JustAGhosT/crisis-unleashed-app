@@ -35,7 +35,7 @@ function sendToRUM(metric: Metric) {
         keepalive: true,
       });
     }
-  } catch (e) {
+  } catch {
     // swallow
   }
 }
