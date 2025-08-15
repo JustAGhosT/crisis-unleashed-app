@@ -71,7 +71,8 @@ export async function POST(request: NextRequest) {
       issuer: "crisis-unleashed",
       audience: "crisis-unleashed-client",
     });
-    cookies().set({
+    const cookieStore = await cookies();
+    cookieStore.set({
       name: "auth_token",
       value: token,
       httpOnly: true,

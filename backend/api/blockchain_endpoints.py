@@ -3,7 +3,8 @@ API endpoints for blockchain operations using the outbox pattern.
 """
 
 from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, Query, Request
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
+from pydantic import ValidationInfo
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 import logging
@@ -116,16 +117,17 @@ class MintRequest(BaseModel):
         default_factory=dict, description="Additional NFT metadata"
     )
 
-    @validator("blockchain")
+    @field_validator("blockchain")
     def validate_blockchain(cls, v: str) -> str:
         allowed = get_supported_network_names()
         if v not in allowed:
             raise ValueError(f"Blockchain network must be one of: {allowed}")
         return v
 
-    @validator("wallet_address")
-    def validate_wallet_address(cls, v: str, values: Dict[str, Any]) -> str:
-        network_name = values.get("blockchain")
+    @field_validator("wallet_address")
+    def validate_wallet_address(cls, v: str, info: ValidationInfo) -> str:
+        data = info.data or {}
+        network_name = data.get("blockchain")
         if network_name:
             return validate_wallet_address_format(v, network_name, "wallet_address")
         return v
@@ -137,21 +139,22 @@ class TransferRequest(BaseModel):
     token_id: str = Field(..., description="Token ID to transfer")
     blockchain: str = Field(..., description="Blockchain network")
 
-    @validator("blockchain")
-    def validate_blockchain(cls, v):
+    @field_validator("blockchain")
+    def validate_blockchain(cls, v: str) -> str:
         allowed = get_supported_network_names()
         if v not in allowed:
             raise ValueError(f"Blockchain network must be one of: {allowed}")
         return v
 
-    @validator("from_address", "to_address")
-    def validate_wallet_addresses(cls, v: str, values: Dict[str, Any]) -> str:
-        network_name = values.get("blockchain")
+    @field_validator("from_address", "to_address")
+    def validate_wallet_addresses(cls, v: str, info: ValidationInfo) -> str:
+        data = info.data or {}
+        network_name = data.get("blockchain")
         if network_name:
             return validate_wallet_address_format(v, network_name)
         return v
 
-    @validator("token_id")
+    @field_validator("token_id")
     def validate_token_id(cls, v: str) -> str:
         if not v or not v.strip():
             raise ValueError("Token ID cannot be empty")

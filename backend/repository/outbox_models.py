@@ -2,7 +2,7 @@
 Data models and enums for the transaction outbox pattern.
 """
 import uuid
-from datetime import datetime
+from datetime import datetime, UTC
 from enum import Enum
 from typing import Any, Dict, Optional
 
@@ -56,6 +56,16 @@ class OutboxEntry:
         self.result = result
         self.processed_at = processed_at
 
+    @property
+    def outbox_id(self) -> str:
+        """Compatibility alias used by tests."""
+        return self.id
+
+    @property
+    def outbox_type(self) -> OutboxType:
+        """Compatibility alias used by tests."""
+        return self.type
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for MongoDB storage."""
         return {
@@ -97,7 +107,7 @@ class OutboxEntry:
                    request_data: Dict[str, Any],
                    max_attempts: int = 5) -> "OutboxEntry":
         """Create a new outbox entry."""
-        current_time = datetime.utcnow()
+        current_time = datetime.now(UTC)
         return cls(
             outbox_id=str(uuid.uuid4()),
             outbox_type=outbox_type,
@@ -125,23 +135,23 @@ class OutboxEntry:
                      error: Optional[str] = None) -> None:
         """Update the status and related fields."""
         self.status = new_status
-        self.updated_at = datetime.utcnow()
+        self.updated_at = datetime.now(UTC)
         
         if result is not None:
             self.result = result
         
         if error is not None:
             self.last_error = error
-            self.last_attempt = datetime.utcnow()
+            self.last_attempt = datetime.now(UTC)
         
         if new_status in [OutboxStatus.COMPLETED, OutboxStatus.FAILED]:
-            self.processed_at = datetime.utcnow()
+            self.processed_at = datetime.now(UTC)
 
     def increment_attempts(self, error: Optional[str] = None) -> None:
         """Increment attempt counter and update related fields."""
         self.attempts += 1
-        self.updated_at = datetime.utcnow()
-        self.last_attempt = datetime.utcnow()
+        self.updated_at = datetime.now(UTC)
+        self.last_attempt = datetime.now(UTC)
         
         if error is not None:
             self.last_error = error

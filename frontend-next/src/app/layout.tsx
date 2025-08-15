@@ -34,13 +34,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   // SSR cookie sync for initial theme selection
-  const c = cookies();
+  const c = await cookies();
   const raw = (c.get("theme:active")?.value || "").toLowerCase();
   const initialFaction: FactionKey = (FACTION_KEYS as readonly string[]).includes(raw)
     ? (raw as FactionKey)

@@ -48,7 +48,7 @@ export async function GET() {
 
     // Check for user-specific overrides in cookies
     const userFlags: Partial<FeatureFlags> = {};
-    const flagCookies = cookies();
+    const flagCookies = await cookies();
 
     for (const key of Object.keys(defaultFlags)) {
       const cookieValue = flagCookies.get(`flag_${key}`);
@@ -87,7 +87,7 @@ export async function POST(request: Request) {
     }
 
     // Store in cookie
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     cookieStore.set(`flag_${key}`, value.toString(), {
       path: "/",
       maxAge: 60 * 60 * 24 * 30, // 30 days

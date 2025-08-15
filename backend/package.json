@@ -5,7 +5,7 @@
   "scripts": {
     "start": "python -m uvicorn server:app --reload",
     "build": "python -m py_compile server.py && echo \"Backend build complete\"",
-    "test": "python -m pytest tests/ -v"
+    "test": "python -m pytest ../tests -v"
   },
 "dependencies": {},
 "packageManager": "pnpm@8.6.0"

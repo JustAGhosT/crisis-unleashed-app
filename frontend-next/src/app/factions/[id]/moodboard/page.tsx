@@ -3,15 +3,20 @@ import MoodBoard from "@/components/factions/MoodBoard";
 import { FACTION_KEYS, type FactionKey } from "@/lib/theme/faction-theme";
 import { FactionThemeProvider } from "@/lib/theme/theme-context";
 
-export default function FactionMoodBoardPage({ params }: { params: { id: string } }) {
-  const id = params.id as FactionKey;
-  if (!FACTION_KEYS.includes(id)) return notFound();
+export default async function FactionMoodBoardPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const factionId = id as FactionKey;
+  if (!FACTION_KEYS.includes(factionId)) return notFound();
 
   // Provide the theme so the component can read active tokens
   return (
-    <FactionThemeProvider initial={id}>
+    <FactionThemeProvider initial={factionId}>
       <div className="container mx-auto py-6">
-        <MoodBoard factionId={id} expanded />
+        <MoodBoard factionId={factionId} expanded />
       </div>
     </FactionThemeProvider>
   );

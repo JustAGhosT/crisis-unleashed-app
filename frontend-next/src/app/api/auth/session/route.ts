@@ -25,7 +25,8 @@ const MOCK_USERS = [
 export async function GET() {
   try {
     // Get the auth token from cookies
-    const authCookie = cookies().get("auth_token");
+    const cookieStore = await cookies();
+    const authCookie = cookieStore.get("auth_token");
 
     if (!authCookie?.value) {
       return NextResponse.json({ user: null });
@@ -38,7 +39,7 @@ export async function GET() {
     const user = MOCK_USERS.find((u) => u.id === userId);
 
     if (!user) {
-      cookies().delete("auth_token");
+      cookieStore.delete("auth_token");
       return NextResponse.json({ user: null });
     }
 
@@ -54,7 +55,8 @@ export async function GET() {
     return NextResponse.json({ user: userData });
   } catch (error) {
     console.error("Session error:", error);
-    cookies().delete("auth_token");
+    const cookieStore = await cookies();
+    cookieStore.delete("auth_token");
     return NextResponse.json({ user: null });
   }
 }
