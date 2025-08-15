@@ -10,7 +10,6 @@
   },
   "scripts": {
     "preinstall": "pnpm install --ignore-scripts",
-    "postinstall": "node scripts/patch-next-buildid.js || echo \"Next patch script failed or not needed\" && patch-package || echo \"No patch-package patches to apply\" && echo \"Skipping postinstall to prevent infinite loop. Run 'pnpm install' in the frontend directory manually.\"",
     "start": "concurrently -n \"BACKEND,FRONTEND\" -c \"bgBlue.bold,bgGreen.bold\" \"cd backend && powershell -File .\\start_server.ps1\" \"cd frontend-next && pnpm dev\"",
     "start:backend": "cd backend && powershell -File .\\start_server.ps1",
     "start:frontend": "cd frontend-next && pnpm dev",
