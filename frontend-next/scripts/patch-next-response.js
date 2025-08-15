@@ -5,7 +5,9 @@ const path = require('path');
 function ensureFile(filePath, content) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   fs.writeFileSync(filePath, content, 'utf8');
-  console.log('[patch-next-response] Wrote', filePath);
+  if (process.env.NEXT_PATCH_DEBUG === 'true') {
+    console.log('[patch-next-response] Wrote', filePath);
+  }
 }
 
 function main() {

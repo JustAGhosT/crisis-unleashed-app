@@ -29,4 +29,6 @@ if (src.includes(beforeDouble)) {
   src = src.replace(callPattern, "generateBuildId(typeof config.generateBuildId==='function'?config.generateBuildId:()=>null, _indexcjs.nanoid)");
 }
 fs.writeFileSync(target, src, 'utf8');
-console.log('[patch-next-buildid] Patched:', target);
+if (process.env.NEXT_PATCH_DEBUG === 'true') {
+  console.log('[patch-next-buildid] Patched:', target);
+}

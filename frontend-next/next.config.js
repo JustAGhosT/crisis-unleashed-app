@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
-// Debug: verify config file is actually being loaded by Next.js
-console.log('[frontend-next] Loading next.config.js');
+if (process.env.NEXT_DEBUG === 'true') {
+  console.log('[frontend-next] Loading next.config.js');
+}
 const nextConfig = {
   typescript: {
     // Enable strict mode for better type checking

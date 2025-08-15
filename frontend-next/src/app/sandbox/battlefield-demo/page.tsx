@@ -45,7 +45,9 @@ export default function BattlefieldDemoPage() {
     // naive demo state updates
     setEnergy((e) => e - (selectedCard.cost ?? 0));
     setSelectedCard(null);
-    console.info("Played card", selectedCard, "to", position);
+    if (process.env.NEXT_PUBLIC_DEBUG === 'true') {
+      console.info("Played card", selectedCard, "to", position);
+    }
   };
 
   const onNextPhase = () => {
@@ -72,7 +74,11 @@ export default function BattlefieldDemoPage() {
       <Battlefield
         selectedCard={selectedCard}
         onCardPlayed={onCardPlayed}
-        onUnitSelected={(u) => console.info("Selected unit", u)}
+        onUnitSelected={(u) => {
+          if (process.env.NEXT_PUBLIC_DEBUG === 'true') {
+            console.info("Selected unit", u);
+          }
+        }}
         onZoneHover={() => {}}
         initialUnits={initialUnits}
         rows={3}
