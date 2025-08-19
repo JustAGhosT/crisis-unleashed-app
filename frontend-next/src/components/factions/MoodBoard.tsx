@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { useFactionTheme } from "@/lib/theme/theme-context";
 import { FACTION_TOKENS, type FactionKey } from "@/lib/theme/faction-theme";
 import { getMoodBoardData } from "@/data/factions/moodboard";
-import type { ColorPaletteItem, MoodBoardData } from "@/types/moodboard";
+import type { ColorPaletteItem } from "@/types/moodboard";
 
 export type MoodBoardProps = {
   factionId?: FactionKey; // optional; defaults to active theme
@@ -18,7 +18,50 @@ export default function MoodBoard({ factionId, expanded = false, className }: Mo
   const { factionKey } = useFactionTheme();
   const active = factionId ?? factionKey;
   const tokens = FACTION_TOKENS[active] ?? FACTION_TOKENS.default;
-  const data: MoodBoardData = getMoodBoardData(active);
+  const data = getMoodBoardData(active);
+
+  // Track image load errors to provide graceful fallbacks for background images
+  const [imageErrors, setImageErrors] = React.useState<Set<string>>(new Set());
+  type CSSVars = React.CSSProperties & { [key: string]: string | number | undefined };
+  const getImageAttrs = (url: string | undefined): { cls: string; style?: CSSVars } => {
+    if (!url || imageErrors.has(url)) {
+      return { cls: "bg-muted" };
+    }
+    return { cls: "bg-[image:var(--mb-url)]", style: { ["--mb-url"]: `url(${url})` } };
+  };
+
+  // Preload images to detect broken links since onError won't fire for CSS backgrounds
+  React.useEffect(() => {
+    const urls: string[] = data
+      ? [
+          ...data.visualElements.map(v => v.iconUrl).filter(Boolean) as string[],
+          ...data.iconography.map(i => i.iconUrl).filter(Boolean) as string[],
+          ...data.visualTreatments.map(vt => vt.imageUrl).filter(Boolean) as string[],
+          ...data.examples.map(ex => ex.imageUrl).filter(Boolean) as string[],
+        ]
+      : [];
+    urls.forEach((url) => {
+      const img = new Image();
+      img.onload = () => { /* ok */ };
+      img.onerror = () => {
+        setImageErrors(prev => {
+          if (prev.has(url)) return prev;
+          const next = new Set(prev);
+          next.add(url);
+          return next;
+        });
+      };
+      img.src = url;
+    });
+  }, [data]);
+
+  if (!data) {
+    return (
+      <div className={cn("p-6 text-center text-muted-foreground", className)}>
+        No moodboard data available for {active}
+      </div>
+    );
+  }
 
   return (
     <div
@@ -52,13 +95,19 @@ export default function MoodBoard({ factionId, expanded = false, className }: Mo
             {data.visualElements.map((el, i) => (
               <Card key={i} className="bg-background/40 backdrop-blur border-border/40">
                 <CardContent className="flex items-center gap-3 p-3">
-                  <div
-                    className={cn(
-                      "h-10 w-10 shrink-0 rounded-md bg-center bg-no-repeat bg-cover border border-border/40",
-                    )}
-                    style={el.iconUrl ? { backgroundImage: `url(${el.iconUrl})` } : undefined}
-                    aria-label={el.name}
-                  />
+                  {(() => {
+                    const attrs = getImageAttrs(el.iconUrl);
+                    return (
+                      <div
+                        className={cn(
+                          "h-10 w-10 shrink-0 rounded-md bg-center bg-no-repeat bg-cover border border-border/40",
+                          attrs.cls,
+                        )}
+                        style={attrs.style}
+                        aria-label={el.name}
+                      />
+                    );
+                  })()}
                   <div className="min-w-0">
                     <div className="truncate text-sm font-medium text-foreground">{el.name}</div>
                     <div className="line-clamp-2 text-xs text-muted-foreground">{el.description}</div>
@@ -97,11 +146,19 @@ export default function MoodBoard({ factionId, expanded = false, className }: Mo
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
             {data.iconography.map((ico, i) => (
               <div key={i} className="flex flex-col items-center gap-2 rounded-md border border-border/40 bg-background/40 p-3 backdrop-blur">
-                <div
-                  className="h-12 w-12 rounded bg-center bg-no-repeat bg-cover border border-border/40"
-                  style={ico.iconUrl ? { backgroundImage: `url(${ico.iconUrl})` } : undefined}
-                  aria-label={ico.name}
-                />
+                {(() => {
+                  const attrs = getImageAttrs(ico.iconUrl);
+                  return (
+                    <div
+                      className={cn(
+                        "h-12 w-12 rounded bg-center bg-no-repeat bg-cover border border-border/40",
+                        attrs.cls,
+                      )}
+                      style={attrs.style}
+                      aria-label={ico.name}
+                    />
+                  );
+                })()}
                 <span className="truncate text-xs text-muted-foreground">{ico.name}</span>
               </div>
             ))}
@@ -113,11 +170,19 @@ export default function MoodBoard({ factionId, expanded = false, className }: Mo
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {data.visualTreatments.map((vt, i) => (
               <div key={i} className="rounded-md border border-border/40 bg-background/40 p-3 backdrop-blur">
-                <div
-                  className="mb-2 h-24 w-full rounded bg-center bg-no-repeat bg-cover border border-border/40"
-                  style={vt.imageUrl ? { backgroundImage: `url(${vt.imageUrl})` } : undefined}
-                  aria-label={vt.name}
-                />
+                {(() => {
+                  const attrs = getImageAttrs(vt.imageUrl);
+                  return (
+                    <div
+                      className={cn(
+                        "mb-2 h-24 w-full rounded bg-center bg-no-repeat bg-cover border border-border/40",
+                        attrs.cls,
+                      )}
+                      style={attrs.style}
+                      aria-label={vt.name}
+                    />
+                  );
+                })()}
                 <div className="text-sm font-medium text-foreground">{vt.name}</div>
                 <div className="text-xs text-muted-foreground">{vt.description}</div>
               </div>
@@ -135,11 +200,19 @@ export default function MoodBoard({ factionId, expanded = false, className }: Mo
                     <CardTitle className="text-base">{ex.type}</CardTitle>
                   </CardHeader>
                   <CardContent className="p-0">
-                    <div
-                      className="h-40 w-full bg-center bg-no-repeat bg-cover"
-                      style={{ backgroundImage: `url(${ex.imageUrl})` }}
-                      aria-label={ex.type}
-                    />
+                    {(() => {
+                      const attrs = getImageAttrs(ex.imageUrl);
+                      return (
+                        <div
+                          className={cn(
+                            "h-40 w-full bg-center bg-no-repeat bg-cover",
+                            attrs.cls,
+                          )}
+                          style={attrs.style}
+                          aria-label={ex.type}
+                        />
+                      );
+                    })()}
                   </CardContent>
                 </Card>
               ))}

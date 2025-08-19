@@ -176,6 +176,19 @@ export function FactionHexagon({
           onMouseEnter={() => onHover(centerFaction)}
           onMouseLeave={() => onHover(null)}
           onDoubleClick={() => onNavigate?.(centerFaction)}
+          onFocus={() => onHover(centerFaction)}
+          onBlur={() => onHover(null)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              onFocus(centerFaction);
+            } else if (e.key === ' ' && e.shiftKey) {
+              e.preventDefault();
+              onNavigate?.(centerFaction);
+            }
+          }}
+          tabIndex={0}
+          role="button"
+          aria-label={`${centerFaction.name} faction`}
         >
           <FactionCard
             faction={centerFaction}
@@ -190,6 +203,19 @@ export function FactionHexagon({
           onMouseEnter={() => onHover(topFaction)}
           onMouseLeave={() => onHover(null)}
           onDoubleClick={() => onNavigate?.(topFaction)}
+          onFocus={() => onHover(topFaction)}
+          onBlur={() => onHover(null)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              onFocus(topFaction);
+            } else if (e.key === ' ' && e.shiftKey) {
+              e.preventDefault();
+              onNavigate?.(topFaction);
+            }
+          }}
+          tabIndex={0}
+          role="button"
+          aria-label={`${topFaction.name} faction`}
         >
           <FactionCard faction={topFaction} onClick={(f) => onFocus(f)} />
         </div>
@@ -199,6 +225,19 @@ export function FactionHexagon({
           onMouseEnter={() => onHover(topRightFaction)}
           onMouseLeave={() => onHover(null)}
           onDoubleClick={() => onNavigate?.(topRightFaction)}
+          onFocus={() => onHover(topRightFaction)}
+          onBlur={() => onHover(null)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              onFocus(topRightFaction);
+            } else if (e.key === ' ' && e.shiftKey) {
+              e.preventDefault();
+              onNavigate?.(topRightFaction);
+            }
+          }}
+          tabIndex={0}
+          role="button"
+          aria-label={`${topRightFaction.name} faction`}
         >
           <FactionCard faction={topRightFaction} onClick={(f) => onFocus(f)} />
         </div>
@@ -208,6 +247,19 @@ export function FactionHexagon({
           onMouseEnter={() => onHover(bottomRightFaction)}
           onMouseLeave={() => onHover(null)}
           onDoubleClick={() => onNavigate?.(bottomRightFaction)}
+          onFocus={() => onHover(bottomRightFaction)}
+          onBlur={() => onHover(null)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              onFocus(bottomRightFaction);
+            } else if (e.key === ' ' && e.shiftKey) {
+              e.preventDefault();
+              onNavigate?.(bottomRightFaction);
+            }
+          }}
+          tabIndex={0}
+          role="button"
+          aria-label={`${bottomRightFaction.name} faction`}
         >
           <FactionCard faction={bottomRightFaction} onClick={(f) => onFocus(f)} />
         </div>
@@ -217,6 +269,19 @@ export function FactionHexagon({
           onMouseEnter={() => onHover(bottomFaction)}
           onMouseLeave={() => onHover(null)}
           onDoubleClick={() => onNavigate?.(bottomFaction)}
+          onFocus={() => onHover(bottomFaction)}
+          onBlur={() => onHover(null)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              onFocus(bottomFaction);
+            } else if (e.key === ' ' && e.shiftKey) {
+              e.preventDefault();
+              onNavigate?.(bottomFaction);
+            }
+          }}
+          tabIndex={0}
+          role="button"
+          aria-label={`${bottomFaction.name} faction`}
         >
           <FactionCard faction={bottomFaction} onClick={(f) => onFocus(f)} />
         </div>
@@ -226,6 +291,19 @@ export function FactionHexagon({
           onMouseEnter={() => onHover(bottomLeftFaction)}
           onMouseLeave={() => onHover(null)}
           onDoubleClick={() => onNavigate?.(bottomLeftFaction)}
+          onFocus={() => onHover(bottomLeftFaction)}
+          onBlur={() => onHover(null)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              onFocus(bottomLeftFaction);
+            } else if (e.key === ' ' && e.shiftKey) {
+              e.preventDefault();
+              onNavigate?.(bottomLeftFaction);
+            }
+          }}
+          tabIndex={0}
+          role="button"
+          aria-label={`${bottomLeftFaction.name} faction`}
         >
           <FactionCard faction={bottomLeftFaction} onClick={(f) => onFocus(f)} />
         </div>
@@ -235,6 +313,19 @@ export function FactionHexagon({
           onMouseEnter={() => onHover(topLeftFaction)}
           onMouseLeave={() => onHover(null)}
           onDoubleClick={() => onNavigate?.(topLeftFaction)}
+          onFocus={() => onHover(topLeftFaction)}
+          onBlur={() => onHover(null)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              onFocus(topLeftFaction);
+            } else if (e.key === ' ' && e.shiftKey) {
+              e.preventDefault();
+              onNavigate?.(topLeftFaction);
+            }
+          }}
+          tabIndex={0}
+          role="button"
+          aria-label={`${topLeftFaction.name} faction`}
         >
           <FactionCard faction={topLeftFaction} onClick={(f) => onFocus(f)} />
         </div>

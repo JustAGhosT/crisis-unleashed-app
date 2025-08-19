@@ -14,13 +14,11 @@ Core Game Systems:
 - Phase-specific ability activation rules
 
 2. Combat Resolution
-```typescript
-// Core combat flow:
-1. Attacker declares target
-2. Keyword ability pre-combat triggers
-3. Combat math resolution with modifiers
-4. Post-combat triggers and state updates
-```
+- Core combat flow:
+  1. Attacker declares target
+  2. Keyword ability pre-combat triggers
+  3. Combat math resolution with modifiers
+  4. Post-combat triggers and state updates
 
 3. Resource Management
 - Dual currency system:

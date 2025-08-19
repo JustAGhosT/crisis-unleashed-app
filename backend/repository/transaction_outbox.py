@@ -2,6 +2,7 @@
 Transaction Outbox Pattern for blockchain-database consistency.
 """
 import logging
+import uuid
 from typing import Any, Dict, List, Optional
 from datetime import datetime, timedelta
 
@@ -42,7 +43,7 @@ class TransactionOutboxRepository:
         """Create a new outbox entry (sync)."""
         now = datetime.now()
         entry_doc = {
-            "outbox_id": datetime.now().strftime("%Y%m%d%H%M%S%f"),  # simple unique id for tests
+            "outbox_id": str(uuid.uuid4()),  # guaranteed unique id
             "outbox_type": outbox_type.value if isinstance(outbox_type, OutboxType) else outbox_type,
             "status": OutboxStatus.PENDING.value,
             "request_data": request_data,
@@ -61,9 +62,15 @@ class TransactionOutboxRepository:
 
     def get_pending(self, limit: int = 100) -> List[_OutboxEntryCompat]:
         """Get entries ready for processing (sync)."""
-        docs = self.collection.find({})
-        # Tests mock find() to return list directly
-        return [_OutboxEntryCompat(doc) for doc in docs][:limit]
+        # Only fetch pending entries up to the specified limit.
+        # Prefer DB-side limit to avoid loading entire collection, but remain compatible with tests
+        # where find() may be mocked to return a list (no .limit()).
+        result = self.collection.find({"status": OutboxStatus.PENDING.value})
+        if hasattr(result, "limit"):
+            docs = result.limit(limit)
+            return [_OutboxEntryCompat(doc) for doc in docs]
+        # Fallback for list-like mocks in tests
+        return [_OutboxEntryCompat(doc) for doc in list(result)[:limit]]
 
     def mark_completed(self, outbox_id: str, result: Dict[str, Any]) -> None:
         """Mark entry as completed (sync)."""

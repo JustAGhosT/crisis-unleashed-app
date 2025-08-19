@@ -128,9 +128,10 @@ class MintRequest(BaseModel):
     def validate_wallet_address(cls, v: str, info: ValidationInfo) -> str:
         data = info.data or {}
         network_name = data.get("blockchain")
-        if network_name:
-            return validate_wallet_address_format(v, network_name, "wallet_address")
-        return v
+        if not network_name:
+            # blockchain field should be validated first, but handle edge case
+            raise ValueError("blockchain field must be validated before wallet_address")
+        return validate_wallet_address_format(v, network_name, "wallet_address")
 
 class TransferRequest(BaseModel):
     """Request model for transferring NFTs."""

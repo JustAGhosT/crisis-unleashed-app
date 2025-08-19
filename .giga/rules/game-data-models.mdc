@@ -31,7 +31,7 @@ Core game entities and data models that define the unique mechanics and rules:
 - Synergy tags for Data-Link system
 
 ## Battlefield Grid 
-- 3x3 zone-based control system
+- 5 × 6 hex grid divided into Frontline (3 rows) and Backline (3 rows)
 - Position-dependent card effects
 - Crisis event impact areas
 - Territory control scoring

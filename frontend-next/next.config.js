@@ -24,12 +24,20 @@ const nextConfig = {
       const cjsIndex = require.resolve('next/dist/server/web/exports/index.js');
       config.resolve.alias['next/dist/server/web/exports/next-response'] = cjsIndex;
       config.resolve.alias['next/dist/server/web/exports/next-response.js'] = cjsIndex;
-    } catch {}
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('[next.config] Failed to resolve CJS exports:', error.message);
+      }
+    }
     try {
       const esmIndex = require.resolve('next/dist/esm/server/web/exports/index.js');
       config.resolve.alias['next/dist/esm/server/web/exports/next-response'] = esmIndex;
       config.resolve.alias['next/dist/esm/server/web/exports/next-response.js'] = esmIndex;
-    } catch {}
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('[next.config] Failed to resolve ESM exports:', error.message);
+      }
+    }
     return config;
   },
   // Ensure Next always receives a valid generator to avoid internal crash in generate-build-id

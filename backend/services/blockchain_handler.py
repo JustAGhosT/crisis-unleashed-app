@@ -88,7 +88,7 @@ class BlockchainHandler:
             elif entry_type == OutboxType.MARKETPLACE_PURCHASE:
                 self._handle_marketplace_purchase(entry)
             else:
-                raise ValueError(f"Unsupported operation type: {entry.type}")
+                raise ValueError(f"Unsupported operation type: {entry_type}")
         except Exception as e:
             logger.error(f"Blockchain operation failed for {entry.id}: {e}")
             self.outbox_repo.increment_attempts(entry_id, str(e))
