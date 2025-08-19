@@ -5,3 +5,12 @@
   grid-template-columns: repeat(var(--bf-cols, 5), minmax(0, 1fr));
   grid-template-rows: repeat(var(--bf-rows, 3), var(--bf-row-h, 80px));
 }
+
+/* Hex cell styling (pointy-top hex via clip-path). Uses CSS variables to avoid inline dimensions. */
+.hex {
+  clip-path: polygon(
+    25% 0%, 75% 0%,
+    100% 50%, 75% 100%,
+    25% 100%, 0% 50%
+  );
+}

@@ -34,9 +34,9 @@ description: Defines core game entities and data models for cards, battlefield, 
 File: frontend-next/src/lib/card-utils.ts
 
 ### Battlefield Grid System (Importance Score: 90)
-- 6x4 grid layout with distinct zones:
+- 5 × 6 hex grid layout with distinct zones:
   - Frontline (units must be placed here first)
-  - Support (unlocked after frontline placement)
+  - Backline (units can be placed after frontline)
   - Deployment restrictions based on card types
   - Zone control scoring mechanics
 File: frontend-next/src/app/sandbox/battlefield-demo/page.tsx

@@ -50,14 +50,32 @@ TransactionNotFound = _TxnNotFoundT
 TimeExhausted = _TimeExhaustedT
 
 
-def new_web3(http_url: str) -> Optional[Any]:
-    """Create a Web3 instance for the given HTTP RPC URL, or None if unavailable.
+def new_web3(url: str) -> Optional[Any]:
+    """Create a Web3 instance for the given RPC URL.
+    - http/https -> HTTPProvider
+    - ws/wss     -> WebsocketProvider
+    Returns None if web3 isn't available or initialization fails.
     Keeps import local to avoid global side-effects if web3 isn't installed.
     """
     if not WEB3_AVAILABLE:
         return None
     try:
+        from urllib.parse import urlparse
         web3_mod = importlib.import_module("web3")
-        return web3_mod.Web3(web3_mod.HTTPProvider(http_url))
+        parsed = urlparse(url)
+        scheme = (parsed.scheme or "").lower()
+
+        if scheme in ("ws", "wss"):
+            provider_cls = getattr(web3_mod, "WebsocketProvider", None)
+            if provider_cls is None:
+                return None
+            provider = provider_cls(url)
+        elif scheme in ("http", "https"):
+            provider = web3_mod.HTTPProvider(url)
+        else:
+            # Unsupported/unknown scheme
+            return None
+
+        return web3_mod.Web3(provider)
     except Exception:
         return None

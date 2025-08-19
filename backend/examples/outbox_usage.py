@@ -83,8 +83,16 @@ def example_mint_nft() -> None:
         mark_proc = getattr(outbox_repo, "mark_processing", None)
         if callable(mark_proc):
             mark_proc(outbox_id)
-    except Exception:
-        pass
+    except Exception as e:
+        # Do not silence unexpected errors; surface them for diagnostics.
+        # We keep the example resilient by continuing execution.
+        print(f"⚠️ mark_processing failed: {e}")
+        try:
+            import traceback as _tb  # local import to keep example dependency-free
+            _tb.print_exc()
+        except Exception:
+            # Fallback in environments where traceback may be restricted
+            print("(traceback unavailable)")
 
     # Simulate blockchain operation
     try:

@@ -2,6 +2,7 @@
 Ethereum blockchain provider implementation.
 """
 import logging
+from urllib.parse import urlparse
 from typing import Any, Dict, Optional, cast
 
 from .base_provider import BaseBlockchainProvider
@@ -33,7 +34,24 @@ class EthereumProvider(BaseBlockchainProvider):
         """Initialize Web3 and contract from config safely (single source of truth)."""
         if not self.web3 and self.rpc_url:
             try:
-                self.web3 = Web3(self.rpc_url)  # type: ignore[call-arg]
+                # Detect provider type from URL scheme and initialize accordingly
+                parsed = urlparse(self.rpc_url)
+                scheme = (parsed.scheme or "").lower()
+                http_provider = getattr(Web3, "HTTPProvider", None)
+                ws_provider = getattr(Web3, "WebsocketProvider", None)
+
+                provider = None
+                if scheme in ("ws", "wss") and callable(ws_provider):
+                    provider = ws_provider(self.rpc_url)
+                elif scheme in ("http", "https") and callable(http_provider):
+                    provider = http_provider(self.rpc_url)
+
+                if provider is not None:
+                    # Provider type varies by web3 version; cast for type-checkers
+                    self.web3 = Web3(cast(Any, provider))
+                else:
+                    # Some tests/mocks patch Web3 to accept a URL directly
+                    self.web3 = Web3(self.rpc_url)  # type: ignore[call-arg]
             except Exception:
                 self.web3 = None
         if self.contract is None and self.web3 and self.contract_address:

@@ -4,7 +4,7 @@ Transaction Outbox Pattern for blockchain-database consistency.
 import logging
 import uuid
 from typing import Any, Dict, List, Optional, Iterable, cast
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from itertools import islice
 
 from .outbox_models import OutboxStatus, OutboxType
@@ -42,7 +42,7 @@ class TransactionOutboxRepository:
         max_attempts: int = 5,
     ) -> _OutboxEntryCompat:
         """Create a new outbox entry (sync)."""
-        now = datetime.now()
+        now = datetime.now(timezone.utc)
         entry_doc = {
             "outbox_id": str(uuid.uuid4()),  # guaranteed unique id
             "outbox_type": outbox_type.value if isinstance(outbox_type, OutboxType) else outbox_type,
@@ -99,7 +99,7 @@ class TransactionOutboxRepository:
                 "$set": {
                     "status": OutboxStatus.COMPLETED.value,
                     "result": result,
-                    "updated_at": datetime.now(),
+                    "updated_at": datetime.now(timezone.utc),
                 }
             },
         )
@@ -112,7 +112,7 @@ class TransactionOutboxRepository:
                 "$set": {
                     "status": OutboxStatus.FAILED.value,
                     "last_error": error,
-                    "updated_at": datetime.now(),
+                    "updated_at": datetime.now(timezone.utc),
                 }
             },
         )
@@ -120,7 +120,7 @@ class TransactionOutboxRepository:
     def increment_attempts(self, outbox_id: str, error: Optional[str] = None) -> None:
         """Increment attempt counter (sync)."""
         # Build the $set document first to avoid indexed assignment on an unknown type
-        set_doc: Dict[str, Any] = {"updated_at": datetime.now()}
+        set_doc: Dict[str, Any] = {"updated_at": datetime.now(timezone.utc)}
         if error is not None:
             set_doc["last_error"] = error
         update: Dict[str, Any] = {"$inc": {"attempts": 1}, "$set": set_doc}

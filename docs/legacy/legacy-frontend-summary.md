@@ -5,8 +5,8 @@
 ### 1. **✅ Synthetic Faction Missing**
 
 **Problem**: Synthetic faction was not appearing in the faction hub  
-**Root Cause**: Missing theme definition in `factionThemes.ts`  
-**Solution**: Added complete synthetic faction theme with all required properties
+**Root Cause (legacy)**: Missing theme definition in `frontend/src/theme/factionThemes.ts` (module removed in the current refactor)  
+**Solution (legacy)**: Added a complete synthetic faction theme with all required properties in the legacy theme module
 
 **Verification**:
 

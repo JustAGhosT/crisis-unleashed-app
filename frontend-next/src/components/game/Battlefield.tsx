@@ -2,8 +2,10 @@
 
 import clsx from "clsx";
 import styles from "./battlefield.module.css";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { offsetOddRToAxial, axialNeighbors, axialToOffsetOddR, axialDistance } from "@/lib/hex";
 import type { BattlefieldUnit, BattlefieldZone, Card, PlayerId } from "@/types/game";
+import type { Phase } from "@/components/game/TurnManager";
 
 export interface BattlefieldProps {
   selectedCard: Card | null;
@@ -15,6 +17,13 @@ export interface BattlefieldProps {
   initialUnits?: Record<string, BattlefieldUnit>;
   rows?: number;
   cols?: number;
+  // Action economy
+  actionsLeft?: number; // if provided, movement/attacks require actionsLeft > 0
+  onActionUsed?: () => void; // called when a move or attack consumes an action
+  // Optional movement cost function to support terrain/zone/unit modifiers
+  movementCostFn?: (unit: BattlefieldUnit, src: BattlefieldZone, dst: BattlefieldZone, dist: number) => number;
+  // Optional: current phase to reset transient selection/hover state on change
+  currentPhase?: Phase;
 }
 
 export const Battlefield: React.FC<BattlefieldProps> = ({
@@ -24,22 +33,33 @@ export const Battlefield: React.FC<BattlefieldProps> = ({
   onZoneHover,
   playerId = "player1",
   initialUnits = {},
-  rows = 3,
+  rows = 6,
   cols = 5,
+  actionsLeft,
+  onActionUsed,
+  movementCostFn,
+  currentPhase,
 }) => {
   const [hoveredZone, setHoveredZone] = useState<string | null>(null);
-  const [battlefieldUnits] = useState<Record<string, BattlefieldUnit>>(initialUnits);
+  const [neighborPositions, setNeighborPositions] = useState<Set<string>>(new Set());
+  const [battlefieldUnits, setBattlefieldUnits] = useState<Record<string, BattlefieldUnit>>(initialUnits);
+  const [selectedUnitPos, setSelectedUnitPos] = useState<string | null>(null);
+  const [legalMovePositions, setLegalMovePositions] = useState<Set<string>>(new Set());
+  const [adjacentEnemyPositions, setAdjacentEnemyPositions] = useState<Set<string>>(new Set());
 
   const battlefieldGrid = useMemo(() => {
     const grid: BattlefieldZone[] = [];
+    const midLow = Math.floor(rows / 2) - 1; // for 6 rows -> 2
+    const midHigh = Math.floor(rows / 2);     // for 6 rows -> 3
     for (let row = 0; row < rows; row++) {
       for (let col = 0; col < cols; col++) {
         const position = `${row}-${col}`;
-        const isPlayerZone = row === rows - 1;
-        const isEnemyZone = row === 0;
-        const isFrontline = row === 1 || row === rows - 2;
-        const isBackline = isPlayerZone || isEnemyZone;
-        const isNeutralZone = !isPlayerZone && !isEnemyZone;
+        const isEnemyZone = row < 3;            // top 3 rows
+        const isPlayerZone = row >= rows - 3;   // bottom 3 rows
+        const isFrontline = row === midLow || row === midHigh; // central band
+        const isBackline = !isFrontline && (isPlayerZone || isEnemyZone);
+        const isNeutralZone = false; // base config: no neutral rows
+        const axial = offsetOddRToAxial(row, col);
         grid.push({
           position,
           unit: battlefieldUnits[position] || null,
@@ -48,29 +68,186 @@ export const Battlefield: React.FC<BattlefieldProps> = ({
           isNeutralZone,
           isFrontline,
           isBackline,
+          axial,
         });
       }
     }
     return grid;
   }, [battlefieldUnits, rows, cols]);
 
+  const getZoneByPosition = useCallback((pos: string): BattlefieldZone | undefined => {
+    return battlefieldGrid.find((z) => z.position === pos);
+  }, [battlefieldGrid]);
+
+  const effectiveMoveCost = useCallback((unit: BattlefieldUnit, src: BattlefieldZone, dst: BattlefieldZone, dist: number) => {
+    if (movementCostFn) return movementCostFn(unit, src, dst, dist);
+    // Default: base distance
+    let cost = dist;
+    // Slight friction entering frontline
+    if (dst.isFrontline) cost += 1;
+    // Simple ZOC: if unit has zoc and is leaving adjacency to an enemy, add +1
+    if (unit.zoc && src.axial) {
+      const leavingEnemyAdj = axialNeighbors(src.axial)
+        .map(axialToOffsetOddR)
+        .some(({ row, col }) => {
+          const p = `${row}-${col}`;
+          const u = battlefieldUnits[p];
+          return !!u && u.player !== unit.player;
+        });
+      if (leavingEnemyAdj) cost += 1;
+    }
+    return cost;
+  }, [movementCostFn, battlefieldUnits]);
+
   const handleZoneClick = useCallback(
     (position: string, zone: BattlefieldZone) => {
+      // Helper to check action availability
+      const canAct = (actionsLeft === undefined) || (actionsLeft > 0);
+
+      // If a unit is selected and clicking a unit -> attempt attack (respect friendlyFire)
+      if (selectedUnitPos && zone.unit) {
+        const srcZone = getZoneByPosition(selectedUnitPos);
+        if (srcZone?.axial && zone.axial && canAct) {
+          const dist = axialDistance(srcZone.axial, zone.axial);
+          const attacker = battlefieldUnits[selectedUnitPos];
+          const target = zone.unit;
+          if (!attacker || !target) return;
+          const isFriendly = target.player === attacker.player;
+          if (isFriendly && !attacker.friendlyFire) {
+            // ignore attack on friendlies unless friendlyFire enabled
+          } else {
+            // Determine attack ranges from unit attributes
+            const meleeOnly = attacker.meleeOnly === true;
+            const rangeMin = meleeOnly ? 1 : (attacker.rangeMin ?? (attacker.type === "ranged" ? 2 : 1));
+            const rangeMax = meleeOnly ? 1 : (attacker.rangeMax ?? (attacker.type === "ranged" ? 3 : 1));
+            const inRange = dist >= rangeMin && dist <= rangeMax && dist > 0;
+            if (inRange) {
+              setBattlefieldUnits((prev) => {
+                const t = prev[position];
+                if (!t) return prev;
+                const next = { ...prev };
+                const remaining = (t.health ?? 0) - (attacker.attack ?? 0);
+                if (remaining <= 0) {
+                  delete next[position];
+                } else {
+                  next[position] = { ...t, health: remaining };
+                }
+                return next;
+              });
+              onActionUsed?.();
+              // Keep selection to allow follow-up moves/attacks if actions remain
+              return;
+            }
+          }
+        }
+      }
+
+      // If a legal empty target is clicked while a unit is selected: move
+      if (selectedUnitPos && legalMovePositions.has(position) && !zone.unit && canAct) {
+        setBattlefieldUnits((prev) => {
+          const moving = prev[selectedUnitPos!];
+          if (!moving) return prev;
+          const next = { ...prev };
+          delete next[selectedUnitPos!];
+          next[position] = moving;
+          return next;
+        });
+        setSelectedUnitPos(null);
+        setLegalMovePositions(new Set());
+        setAdjacentEnemyPositions(new Set());
+        onActionUsed?.();
+        return;
+      }
+
+      // Clicking a unit selects it (only player's units moveable in this demo)
       if (zone.unit) {
         onUnitSelected?.(zone.unit);
-      } else if (selectedCard) {
+        const isPlayerUnit = zone.unit.player === playerId;
+        if (isPlayerUnit) {
+          // Toggle selection
+          const newSel = selectedUnitPos === position ? null : position;
+          setSelectedUnitPos(newSel);
+          if (newSel) {
+            // Compute legal moves by axial distance and occupancy
+            const src = zone.axial!;
+            const speed = zone.unit.moveSpeed ?? 0;
+            const legal = new Set<string>();
+            for (let rIdx = 0; rIdx < rows; rIdx++) {
+              for (let cIdx = 0; cIdx < cols; cIdx++) {
+                const pos = `${rIdx}-${cIdx}`;
+                if (pos === position) continue;
+                const targetAxial = offsetOddRToAxial(rIdx, cIdx);
+                // Only consider within speed and empty tiles
+                const d = axialDistance(src, targetAxial);
+                const srcZone = getZoneByPosition(position);
+                const dstZone = getZoneByPosition(pos);
+                if (srcZone && dstZone) {
+                  const mover = battlefieldUnits[position]!;
+                  const cost = effectiveMoveCost(mover, srcZone, dstZone, d);
+                  if (cost <= speed && !battlefieldUnits[pos]) {
+                    legal.add(pos);
+                  }
+                }
+              }
+            }
+            setLegalMovePositions(legal);
+            // Compute adjacent enemies (for melee targeting cues)
+            const adj = new Set<string>();
+            axialNeighbors(src)
+              .map(axialToOffsetOddR)
+              .filter(({ row, col }) => row >= 0 && row < rows && col >= 0 && col < cols)
+              .forEach(({ row, col }) => {
+                const p = `${row}-${col}`;
+                const u = battlefieldUnits[p];
+                if (u && u.player !== playerId) adj.add(p);
+              });
+            setAdjacentEnemyPositions(adj);
+          } else {
+            setLegalMovePositions(new Set());
+            setAdjacentEnemyPositions(new Set());
+          }
+        }
+        return;
+      }
+
+      // Otherwise, card play logic
+      if (selectedCard) {
         onCardPlayed(position);
       }
     },
-    [selectedCard, onCardPlayed, onUnitSelected]
+    [selectedCard, onCardPlayed, onUnitSelected, selectedUnitPos, legalMovePositions, battlefieldUnits, playerId, rows, cols, actionsLeft, getZoneByPosition, effectiveMoveCost, onActionUsed]
   );
+
+  useEffect(() => {
+    if (!currentPhase) return;
+    setSelectedUnitPos(null);
+    setLegalMovePositions(new Set());
+    setAdjacentEnemyPositions(new Set());
+    setNeighborPositions(new Set());
+    setHoveredZone(null);
+  }, [currentPhase]);
 
   const handleZoneHover = useCallback(
     (position: string | null) => {
       setHoveredZone(position);
       onZoneHover?.(position);
+      if (!position) {
+        setNeighborPositions(new Set());
+        return;
+      }
+      // Find hovered zone, compute axial neighbors, map back to row/col positions within bounds
+      const zone = battlefieldGrid.find((z) => z.position === position);
+      if (!zone || !zone.axial) {
+        setNeighborPositions(new Set());
+        return;
+      }
+      const neighbors = axialNeighbors(zone.axial)
+        .map(axialToOffsetOddR)
+        .filter(({ row, col }) => row >= 0 && row < rows && col >= 0 && col < cols)
+        .map(({ row, col }) => `${row}-${col}`);
+      setNeighborPositions(new Set(neighbors));
     },
-    [onZoneHover]
+    [onZoneHover, battlefieldGrid, rows, cols]
   );
 
   const renderUnit = (unit: BattlefieldUnit) => {
@@ -129,29 +306,43 @@ export const Battlefield: React.FC<BattlefieldProps> = ({
         {battlefieldGrid.map((zone) => {
           const isActiveZone = hoveredZone === zone.position && !!selectedCard;
           const isPlayableZone = isActiveZone && (zone.isPlayerZone || (zone.isNeutralZone && !zone.unit));
+          const isNeighbor = neighborPositions.has(zone.position);
+          const isLegalMove = legalMovePositions.has(zone.position) && !zone.unit;
+          const isSelected = selectedUnitPos === zone.position;
           return (
             <div
               key={zone.position}
               className={clsx(
-                "relative flex items-center justify-center rounded-lg transition-all duration-200",
+                "relative flex items-center justify-center transition-all duration-200",
+                styles.hex,
                 "border-2 border-opacity-30",
                 {
                   "bg-blue-900/20 border-blue-500/60": zone.isPlayerZone,
                   "bg-red-900/20 border-red-500/60": zone.isEnemyZone,
                   "bg-gray-800/30 border-gray-600/80": zone.isNeutralZone,
                   "ring-2 ring-offset-2 ring-offset-gray-900 ring-primary": isActiveZone,
-                  "cursor-pointer hover:bg-opacity-40": isPlayableZone,
+                  "outline outline-1 outline-yellow-400/60": isNeighbor && process.env.NODE_ENV === "development",
+                  "cursor-pointer hover:bg-opacity-40": isPlayableZone || isLegalMove || isSelected,
+                  "ring-2 ring-emerald-400/70": isLegalMove,
+                  "ring-2 ring-cyan-400/70": isSelected,
+                  "outline outline-2 outline-red-500/70": selectedUnitPos && adjacentEnemyPositions.has(zone.position),
                 }
               )}
               onMouseEnter={() => handleZoneHover(zone.position)}
               onMouseLeave={() => handleZoneHover(null)}
               onClick={() => handleZoneClick(zone.position, zone)}
+              data-pos={zone.position}
+              data-player-zone={zone.isPlayerZone ? "true" : "false"}
+              data-enemy-zone={zone.isEnemyZone ? "true" : "false"}
+              data-frontline={zone.isFrontline ? "true" : "false"}
+              data-backline={zone.isBackline ? "true" : "false"}
+              data-legal-move={isLegalMove ? "true" : "false"}
             >
               <div className="absolute inset-0 rounded-lg opacity-20 transition-opacity" />
-              <div className="absolute inset-0 bg-grid-pattern opacity-5 rounded-lg" />
+              <div className="absolute inset-0 bg-grid-pattern opacity-5" />
               {zone.unit && renderUnit(zone.unit)}
               {process.env.NODE_ENV === "development" && (
-                <div className="absolute bottom-1 right-1 text-[10px] opacity-40">{zone.position}</div>
+                <div className="absolute bottom-1 right-1 text-[10px] opacity-60">{zone.position}</div>
               )}
             </div>
           );

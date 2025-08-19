@@ -158,11 +158,24 @@ class EtherlinkProvider(BaseBlockchainProvider):
                     receipt = w3.eth.get_transaction_receipt(tx_hash)
 
                     if receipt:
+                        # Normalize transaction hash to string safely
+                        txh = getattr(receipt, "transactionHash", None)
+                        txh_str: str
+                        try:
+                            if hasattr(txh, "hex") and callable(getattr(txh, "hex")):
+                                txh_str = txh.hex()  # type: ignore[assignment]
+                            elif isinstance(txh, (bytes, bytearray)):
+                                txh_str = txh.hex()
+                            else:
+                                txh_str = str(txh)
+                        except Exception:
+                            txh_str = str(txh)
+
                         return {
                             "blockNumber": receipt.blockNumber,
                             "gasUsed": receipt.gasUsed,
                             "status": receipt.status,
-                            "transactionHash": receipt.transactionHash.hex(),
+                            "transactionHash": txh_str,
                         }
 
             except TransactionNotFound:

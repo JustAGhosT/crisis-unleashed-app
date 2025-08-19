@@ -11,6 +11,7 @@ export default function BattlefieldDemoPage() {
   const [phase, setPhase] = useState<Phase>("deploy");
   const [energy, setEnergy] = useState(3);
   const [momentum, setMomentum] = useState(2);
+  const [actionsLeft, setActionsLeft] = useState<number>(2);
 
   const [selectedCard, setSelectedCard] = useState<Card | null>(null);
 
@@ -33,8 +34,12 @@ export default function BattlefieldDemoPage() {
 
   const initialUnits = useMemo<Record<string, BattlefieldUnit>>(
     () => ({
-      "0-2": { id: "e1", name: "Shade", player: "enemy", attack: 1, health: 2, type: "assassin" },
-      "2-1": { id: "p1", name: "Vanguard", player: "player1", attack: 2, health: 2, type: "tank" },
+      // Enemy melee unit
+      "0-2": { id: "e1", name: "Shade", player: "enemy", attack: 1, health: 2, type: "assassin", moveSpeed: 2, meleeOnly: true },
+      // Player frontline tank with ZOC
+      "2-1": { id: "p1", name: "Vanguard", player: "player1", attack: 2, health: 3, type: "tank", moveSpeed: 2, meleeOnly: true, zoc: true },
+      // Player ranged archer backline (example)
+      "4-3": { id: "p2", name: "Archer", player: "player1", attack: 2, health: 2, type: "ranged", moveSpeed: 2, rangeMin: 2, rangeMax: 3 },
     }),
     []
   );
@@ -58,6 +63,7 @@ export default function BattlefieldDemoPage() {
   const onEndTurn = () => {
     setPhase("deploy");
     setEnergy((e) => Math.min(10, e + 1));
+    setActionsLeft(2);
   };
 
   return (
@@ -81,8 +87,11 @@ export default function BattlefieldDemoPage() {
         }}
         onZoneHover={() => {}}
         initialUnits={initialUnits}
-        rows={3}
+        rows={6}
         cols={5}
+        actionsLeft={actionsLeft}
+        onActionUsed={() => setActionsLeft((a) => Math.max(0, a - 1))}
+        currentPhase={phase}
       />
 
       {/* Player hand */}
