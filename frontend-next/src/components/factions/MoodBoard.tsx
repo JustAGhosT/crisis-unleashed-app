@@ -4,9 +4,10 @@ import * as React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useFactionTheme } from "@/lib/theme/theme-context";
-import { FACTION_TOKENS, type FactionKey } from "@/lib/theme/faction-theme";
+import { FACTION_TOKENS, DEFAULT_TOKENS, type FactionKey } from "@/lib/theme/faction-theme";
 import { getMoodBoardData } from "@/data/factions/moodboard";
 import type { ColorPaletteItem } from "@/types/moodboard";
+import styles from "./MoodBoard.module.css";
 
 export type MoodBoardProps = {
   factionId?: FactionKey; // optional; defaults to active theme
@@ -17,7 +18,7 @@ export type MoodBoardProps = {
 export default function MoodBoard({ factionId, expanded = false, className }: MoodBoardProps) {
   const { factionKey } = useFactionTheme();
   const active = factionId ?? factionKey;
-  const tokens = FACTION_TOKENS[active] ?? FACTION_TOKENS.default;
+  const tokens = FACTION_TOKENS[active] ?? DEFAULT_TOKENS;
   const data = getMoodBoardData(active);
 
   // Track image load errors to provide graceful fallbacks for background images
@@ -27,7 +28,11 @@ export default function MoodBoard({ factionId, expanded = false, className }: Mo
     if (!url || imageErrors.has(url)) {
       return { cls: "bg-muted" };
     }
-    return { cls: "bg-[image:var(--mb-url)]", style: { ["--mb-url"]: `url(${url})` } };
+    // Use CSS module helper classes; set only the CSS variable inline.
+    return {
+      cls: cn(styles.bgImage, styles.bgImageVar),
+      style: { ["--mb-url"]: `url(${url})` } as CSSVars,
+    };
   };
 
   // Preload images to detect broken links since onError won't fire for CSS backgrounds
@@ -75,9 +80,6 @@ export default function MoodBoard({ factionId, expanded = false, className }: Mo
         "overflow-hidden",
         className,
       )}
-      style={{
-        // allow theme-specific CSS variables if desired later
-      }}
     >
       {/* Top/Bottom faction glow */}
       <div className={cn("pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b blur-2xl", tokens.glowTop)} />
@@ -100,7 +102,8 @@ export default function MoodBoard({ factionId, expanded = false, className }: Mo
                     return (
                       <div
                         className={cn(
-                          "h-10 w-10 shrink-0 rounded-md bg-center bg-no-repeat bg-cover border border-border/40",
+                          "h-10 w-10 shrink-0 rounded-md border border-border/40",
+                          styles.bgImage,
                           attrs.cls,
                         )}
                         style={attrs.style}
@@ -175,7 +178,8 @@ export default function MoodBoard({ factionId, expanded = false, className }: Mo
                   return (
                     <div
                       className={cn(
-                        "mb-2 h-24 w-full rounded bg-center bg-no-repeat bg-cover border border-border/40",
+                        "mb-2 h-24 w-full rounded border border-border/40",
+                        styles.bgImage,
                         attrs.cls,
                       )}
                       style={attrs.style}
@@ -205,7 +209,8 @@ export default function MoodBoard({ factionId, expanded = false, className }: Mo
                       return (
                         <div
                           className={cn(
-                            "h-40 w-full bg-center bg-no-repeat bg-cover",
+                            "h-40 w-full",
+                            styles.bgImage,
                             attrs.cls,
                           )}
                           style={attrs.style}
@@ -236,7 +241,10 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function ColorSwatch({ item }: { item: ColorPaletteItem }) {
   return (
     <div className="flex items-center gap-3 rounded-md border border-border/40 bg-background/40 p-3 backdrop-blur">
-      <div className="h-10 w-10 rounded-md border border-border/40" style={{ backgroundColor: item.hex }} />
+      <div
+        className={cn("h-10 w-10 rounded-md border border-border/40", styles.swatchColor)}
+        style={{ ["--swatch-color"]: item.hex } as React.CSSProperties}
+      />
       <div className="min-w-0">
         <div className="truncate text-sm font-medium text-foreground">{item.name}</div>
         <div className="text-xs text-muted-foreground">{item.hex}</div>

@@ -1,56 +1,73 @@
 ---
-description: Specification for frontend architecture including React component hierarchy, state management, and UI/UX implementation
+description: Specifications for analyzing frontend architecture patterns, React component hierarchies, and UI/UX implementations
 ---
 
 
 # frontend-architecture
 
-## Core UI Architecture
+### Component Hierarchy
 
-### Faction System UI Components (frontend/src/components/factions/)
-- Component hierarchy implementing 7 distinct faction interfaces
-- Each faction has unique visual themes and interaction patterns:
-  - Solaris: Radial layouts with energy visualization
-  - Umbral: Shadow-based reveal mechanics  
-  - Neuralis: Neural network-inspired connections
-  - Aeonic: Time-flow based animations
-  - Primordial: Organic growth patterns
-  - Infernal: Heat/flame visual system
-  - Synthetic: Grid-based mechanical layouts
+The frontend architecture implements a layered component hierarchy focused around the card game domain:
 
-### Game State Management
-- Multi-phase turn system with distinct UI states:
-  1. Deploy Phase: Card placement interface
-  2. Action Phase: Combat and ability activation
-  3. End Phase: Resource reconciliation
-- Resource visualization for energy/momentum systems
-- Crisis event overlay system for battlefield modifiers
+1. Core Game Components (Importance: 90)
+- `src/components/game/Battlefield.tsx`: Implements the main game board with:
+  - Zone-based card placement logic 
+  - Combat resolution areas
+  - Resource zones for energy/momentum tracking
+  - Faction-specific battlefield modifications
 
-### Battlefield Grid Implementation (frontend/src/features/battlefield/)
-- Hexagonal grid system with faction-colored zones
-- Unit placement validation with zone control visualization
-- Combat resolution animation system
-- Crisis event visual effects system
+2. Deck Building System (Importance: 85)
+- `src/components/deck-builder/DeckBuilder.tsx`: Manages deck construction with:
+  - Faction validation rules
+  - Card quantity limits (3x normal, 1x legendary)
+  - Resource curve analysis
+  - Deck statistics tracking
 
-### Progressive Feature System
-- Feature flag-based component loading
-- Phased rollout architecture:
-  1. Core UI components
-  2. Faction-specific interfaces
-  3. Advanced game mechanics
-  4. Social features
+3. Card Management (Importance: 80)
+- `src/lib/card-utils.ts`: Implements card manipulation logic:
+  - Card type validation
+  - Faction requirements
+  - Energy cost calculations
+  - Synergy detection between cards
 
-### Card Display System
-- Faction-specific card templates
-- Dynamic stat/ability visualization
-- Synergy highlight system for compatible cards
-- Special effect system for card combinations
+4. Faction System (Importance: 85)
+- `src/lib/theme/faction-theme.ts`: Controls faction-specific:
+  - Visual theming
+  - Card compatibility rules
+  - Resource modifications
+  - Special ability access
 
-Importance Score: 85/100
-- Core game mechanics visualization
-- Complex faction-specific interfaces
-- Unique battlefield management system
-- Custom card interaction patterns
+### State Management
+
+1. Game State (Importance: 90)
+- `src/lib/realtime/connection.ts`: Manages:
+  - Turn phase tracking
+  - Resource pools
+  - Card zones
+  - Action resolution queue
+
+2. Deck State (Importance: 85)
+- `src/lib/deck-builder/deck-builder-context.tsx`: Handles:
+  - Card collection updates
+  - Deck modification tracking
+  - Validation state
+  - Save/load operations
+
+### UI Architecture
+
+1. Theme System (Importance: 75)
+- `src/lib/theme/theme-provider.tsx`: Provides:
+  - Faction-based visual theming
+  - Dynamic color schemes
+  - Component styling rules
+  - Animation configurations
+
+2. Game Interface (Importance: 80)
+- `src/components/game/PlayerHUD.tsx`: Displays:
+  - Resource trackers
+  - Action indicators
+  - Card zone status
+  - Turn phase markers
 
 $END$
 

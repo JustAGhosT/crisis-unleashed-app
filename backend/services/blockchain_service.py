@@ -3,10 +3,11 @@ Main blockchain service that coordinates different blockchain providers.
 """
 
 import asyncio
+import concurrent.futures
 import inspect
 import logging
 import os
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple, Callable
 
 from .blockchain import BlockchainProviderFactory, BaseBlockchainProvider
 
@@ -47,6 +48,41 @@ class BlockchainService:
                 loop = asyncio.get_event_loop()
                 return loop.run_until_complete(value)  # type: ignore[arg-type]
         return value
+
+    def _call_with_timeout(self, func: Callable[[], Any], timeout: float) -> Any:
+        """Call a function that may return a value or an awaitable, enforcing a timeout.
+
+        - If the function is async or returns an awaitable, use asyncio.wait_for.
+        - If the function is sync, run it in a thread and wait with a timeout.
+        """
+        try:
+            if inspect.iscoroutinefunction(func):
+                coro = func()
+                try:
+                    return asyncio.run(asyncio.wait_for(coro, timeout))
+                except RuntimeError:
+                    loop = asyncio.get_event_loop()
+                    return loop.run_until_complete(asyncio.wait_for(coro, timeout))
+
+            # Possibly sync function but may return an awaitable
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+                future = executor.submit(func)
+                try:
+                    result = future.result(timeout=timeout)
+                except concurrent.futures.TimeoutError:
+                    raise TimeoutError()
+
+            # If the sync call returned an awaitable/coroutine, await it with timeout
+            if asyncio.iscoroutine(result) or inspect.isawaitable(result):
+                try:
+                    return asyncio.run(asyncio.wait_for(result, timeout))  # type: ignore[arg-type]
+                except RuntimeError:
+                    loop = asyncio.get_event_loop()
+                    return loop.run_until_complete(asyncio.wait_for(result, timeout))  # type: ignore[arg-type]
+
+            return result
+        except asyncio.TimeoutError:
+            raise TimeoutError()
 
     def _load_default_configs(self) -> Dict[str, Dict[str, Any]]:
         """Load default configurations from environment variables."""
@@ -281,10 +317,17 @@ class BlockchainService:
         if not self._providers:
             return False
         any_connected = False
+        # Default to 2 seconds, allow override via env
+        try:
+            timeout_s = float(os.environ.get("BLOCKCHAIN_HEALTHCHECK_TIMEOUT", "2.0"))
+        except ValueError:
+            timeout_s = 2.0
         for provider in self._providers.values():
             try:
-                connected = self._maybe_await(provider.is_connected())
+                connected = self._call_with_timeout(provider.is_connected, timeout_s)
                 any_connected = any_connected or bool(connected)
+            except TimeoutError:
+                logger.warning("Provider health check timed out for %s", type(provider).__name__)
             except Exception:
                 # Treat exceptions as disconnected
                 continue

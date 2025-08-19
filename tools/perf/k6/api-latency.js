@@ -15,7 +15,20 @@ export const options = {
   },
 };
 
-const baseUrl = __ENV.API_BASE_URL;
+// Fail fast if API_BASE_URL is not provided, and normalize trailing slashes
+const rawBaseUrl = __ENV.API_BASE_URL;
+if (!rawBaseUrl) {
+  throw new Error(
+    'API_BASE_URL is required. Example: API_BASE_URL=http://localhost:3000 k6 run tools/perf/k6/api-latency.js'
+  );
+}
+// Remove any trailing slashes to avoid // in requests
+const baseUrl = String(rawBaseUrl).replace(/\/+$/, '');
+
+function joinUrl(base, path) {
+  const p = String(path || '');
+  return `${base}${p.startsWith('/') ? p : `/${p}`}`;
+}
 
 export default function () {
   const endpoints = [
@@ -25,7 +38,8 @@ export default function () {
   ];
 
   endpoints.forEach((p) => {
-    const res = http.get(`${baseUrl}${p}`);
+    const url = joinUrl(baseUrl, p);
+    const res = http.get(url);
     check(res, {
       'status is 200': (r) => r.status === 200,
     });

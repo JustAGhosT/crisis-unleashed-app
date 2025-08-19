@@ -1,0 +1,13 @@
+.bgImage {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.bgImageVar {
+  background-image: var(--mb-url);
+}
+
+.swatchColor {
+  background-color: var(--swatch-color);
+}

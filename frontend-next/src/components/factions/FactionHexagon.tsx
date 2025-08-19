@@ -180,8 +180,9 @@ export function FactionHexagon({
           onBlur={() => onHover(null)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
-              onFocus(centerFaction);
-            } else if (e.key === ' ' && e.shiftKey) {
+              e.preventDefault();
+              onNavigate?.(centerFaction);
+            } else if (e.key === ' ') {
               e.preventDefault();
               onNavigate?.(centerFaction);
             }
@@ -207,8 +208,9 @@ export function FactionHexagon({
           onBlur={() => onHover(null)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
-              onFocus(topFaction);
-            } else if (e.key === ' ' && e.shiftKey) {
+              e.preventDefault();
+              onNavigate?.(topFaction);
+            } else if (e.key === ' ') {
               e.preventDefault();
               onNavigate?.(topFaction);
             }
@@ -229,8 +231,9 @@ export function FactionHexagon({
           onBlur={() => onHover(null)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
-              onFocus(topRightFaction);
-            } else if (e.key === ' ' && e.shiftKey) {
+              e.preventDefault();
+              onNavigate?.(topRightFaction);
+            } else if (e.key === ' ') {
               e.preventDefault();
               onNavigate?.(topRightFaction);
             }
@@ -251,8 +254,9 @@ export function FactionHexagon({
           onBlur={() => onHover(null)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
-              onFocus(bottomRightFaction);
-            } else if (e.key === ' ' && e.shiftKey) {
+              e.preventDefault();
+              onNavigate?.(bottomRightFaction);
+            } else if (e.key === ' ') {
               e.preventDefault();
               onNavigate?.(bottomRightFaction);
             }
@@ -273,8 +277,9 @@ export function FactionHexagon({
           onBlur={() => onHover(null)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
-              onFocus(bottomFaction);
-            } else if (e.key === ' ' && e.shiftKey) {
+              e.preventDefault();
+              onNavigate?.(bottomFaction);
+            } else if (e.key === ' ') {
               e.preventDefault();
               onNavigate?.(bottomFaction);
             }
@@ -295,8 +300,9 @@ export function FactionHexagon({
           onBlur={() => onHover(null)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
-              onFocus(bottomLeftFaction);
-            } else if (e.key === ' ' && e.shiftKey) {
+              e.preventDefault();
+              onNavigate?.(bottomLeftFaction);
+            } else if (e.key === ' ') {
               e.preventDefault();
               onNavigate?.(bottomLeftFaction);
             }
@@ -317,8 +323,9 @@ export function FactionHexagon({
           onBlur={() => onHover(null)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
-              onFocus(topLeftFaction);
-            } else if (e.key === ' ' && e.shiftKey) {
+              e.preventDefault();
+              onNavigate?.(topLeftFaction);
+            } else if (e.key === ' ') {
               e.preventDefault();
               onNavigate?.(topLeftFaction);
             }

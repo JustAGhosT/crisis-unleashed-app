@@ -1,5 +1,5 @@
 ---
-description: Documents data flow and state management between major game components including the battlefield, card hands, and turn management system
+description: Analyzes and documents data flow patterns between major game components including state updates and communication paths
 ---
 
 # === USER INSTRUCTIONS ===
@@ -8,50 +8,69 @@ globs: frontend-next/src/**/*.{ts,tsx},frontend/src/features/**/*.{ts,tsx},front
 
 # component-dataflow
 
-Major component data flows:
+### Core Game Component Data Flow
 
-1. Battlefield → Card Hand
-- Battlefield validates card placement targets based on zone control state
-- Sends target validation requests to CardHand before allowing drops
-- Updates zone control states when cards are successfully played
-- Notifies CardHand of changes to valid play zones
+**Battlefield -> TurnManager**
+- Sends unit placement events and battlefield state changes
+- Notifies when combat phase begins/ends
+- Transmits zone control updates
+- **Importance Score**: 85
 
-2. TurnManager → GameInterface
-- Manages phase transitions (Deploy → Action → End)
-- Updates resource pools at phase boundaries
-- Broadcasts turn state changes to PlayerHUD
-- Validates action timing based on current phase
+**TurnManager -> PlayerHUD** 
+- Updates energy/momentum resources each turn
+- Broadcasts turn phase transitions
+- Signals when actions are available/unavailable
+- **Importance Score**: 80
 
-3. CardHand → PlayerHUD
-- Transmits card selection events 
-- Updates energy costs and requirements display
-- Validates card plays against current resource state
-- Notifies of failed validation conditions
+**CardHand -> Battlefield**
+- Transmits card play attempts with targeting data
+- Sends unit deployment requests
+- Notifies of special ability activations
+- **Importance Score**: 90
 
-4. GameInterface → Battlefield
-- Routes player input events to appropriate zones
-- Manages targeting system state between components
-- Updates visual state based on valid play zones
-- Handles unit activation and movement requests
+**GameInterface -> All Components**
+- Distributes game state updates
+- Manages synchronization of component states
+- Routes player actions to appropriate handlers
+- **Importance Score**: 85
 
-Key State Updates:
+### State Update Flow
 
-1. Resource Management
-- TurnManager → PlayerHUD: Energy/Momentum updates
-- CardHand → PlayerHUD: Resource consumption events
-- Battlefield → PlayerHUD: Zone control bonuses
+1. Card Play Sequence:
+```
+CardHand -> GameInterface -> TurnManager (validate) -> Battlefield (resolve) -> PlayerHUD (update)
+```
 
-2. Card State 
-- CardHand → Battlefield: Card play attempts
-- Battlefield → CardHand: Play validation results
-- TurnManager → CardHand: Phase-based play restrictions
+2. Turn Phase Transitions:
+```
+TurnManager -> GameInterface -> All Components (sync) -> PlayerHUD (update)
+```
 
-3. Combat Resolution
-- Battlefield → GameInterface: Combat initiation
-- GameInterface → PlayerHUD: Damage resolution
-- Battlefield → CardHand: Unit state changes
+3. Combat Resolution:
+```
+Battlefield -> GameInterface -> TurnManager (validate) -> PlayerHUD (update)
+```
 
-The data flow architecture emphasizes maintaining consistent game state across components while enforcing the core game rules around energy costs, zone control, and turn phases.
+### Critical Paths
+
+**Resource Management**
+- TurnManager maintains source of truth for energy/momentum
+- PlayerHUD subscribes to resource updates
+- CardHand validates plays against current resources
+- **Importance Score**: 85
+
+**Combat State**
+- Battlefield owns combat zone state
+- TurnManager validates combat timing
+- GameInterface synchronizes state across components
+- **Importance Score**: 90
+
+File Paths:
+- frontend-next/src/components/game/Battlefield.tsx
+- frontend-next/src/components/game/TurnManager.tsx
+- frontend-next/src/components/game/CardHand.tsx
+- frontend-next/src/components/game/PlayerHUD.tsx
+- frontend-next/src/components/game/GameInterface.tsx
 
 $END$
 

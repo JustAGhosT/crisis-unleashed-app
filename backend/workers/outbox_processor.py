@@ -84,7 +84,8 @@ class OutboxProcessor:
     async def _process_batch(self) -> None:
         """Process a batch of pending entries."""
         try:
-            results = await self.blockchain_handler.process_pending_entries(
+            # BlockchainHandler exposes a synchronous API
+            results = self.blockchain_handler.process_pending_entries(
                 max_entries=self.max_entries_per_batch
             )
             
@@ -105,15 +106,14 @@ class OutboxProcessor:
     
     async def get_health_status(self) -> Dict[str, Any]:
         """Get processor health status."""
-        stats = await self.blockchain_handler.get_processing_stats()
+        stats = self.blockchain_handler.get_processing_stats()
         
         return {
             "is_running": self.is_running,
             "processing_interval": self.processing_interval,
             "max_batch_size": self.max_entries_per_batch,
             "last_check": datetime.now(timezone.utc).isoformat(),
-            "blockchain_health": stats.get("blockchain_health", {}),
-            "supported_networks": stats.get("supported_networks", [])
+            **stats,
         }
 
 class OutboxMonitor:
@@ -122,14 +122,14 @@ class OutboxMonitor:
     def __init__(self, outbox_repo: TransactionOutboxRepository):
         self.outbox_repo = outbox_repo
     
-    async def get_queue_status(self) -> Dict[str, Any]:
+    def get_queue_status(self) -> Dict[str, Any]:
         """Get current queue status."""
-        # Use the new get_processing_stats method for efficient counting
-        status_counts = await self.outbox_repo.get_processing_stats()
+        # Use the sync get_processing_stats method for efficient counting
+        status_counts = self.outbox_repo.get_processing_stats()
         
         return {
             "status_counts": status_counts,
             "total_entries": sum(status_counts.values()),
             "needs_attention": status_counts.get("manual_review", 0) > 0,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }

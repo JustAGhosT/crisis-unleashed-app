@@ -1,7 +1,8 @@
 "use client";
 
 import clsx from "clsx";
-import React, { useMemo } from "react";
+import styles from "./playerhud.module.css";
+import React, { useMemo, useId } from "react";
 
 export interface PlayerHUDProps {
   player?: "player1" | "enemy" | string;
@@ -23,6 +24,7 @@ const Circular: React.FC<{
   label: string;
   className?: string;
 }> = ({ value, max, size = 70, strokeWidth = 6, color, label, className }) => {
+  const gradId = useId();
   const { radius, circumference, progress } = useMemo(() => {
     const r = (size - strokeWidth) / 2;
     const c = r * 2 * Math.PI;
@@ -62,10 +64,11 @@ const Circular: React.FC<{
             strokeDashoffset={circumference - progress}
             strokeLinecap="round"
             fill="none"
-            className="transition-all stroke-[url(#grad)]"
+            stroke={`url(#${gradId})`}
+            className="transition-all"
           />
           <defs>
-            <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor={colorStops[0]} />
               <stop offset="100%" stopColor={colorStops[1]} />
             </linearGradient>
@@ -92,6 +95,10 @@ export const PlayerHUD: React.FC<PlayerHUDProps> = ({
 }) => {
   const isEnemy = player === "enemy";
   const healthPct = useMemo(() => Math.max(0, Math.min(health, 100)) / 100, [health]);
+  // Typed CSS variable for clip-path without using `any` or invalid lint suppressions
+  const clipStyle: React.CSSProperties & { ["--clip"]?: string } = {
+    ["--clip"]: `polygon(0 0, ${healthPct * 100}% 0, ${healthPct * 100}% 100%, 0 100%)`,
+  };
   return (
     <div
       className={clsx(
@@ -119,13 +126,10 @@ export const PlayerHUD: React.FC<PlayerHUDProps> = ({
       <div className="grid grid-cols-3 gap-4">
         <div className={"flex flex-col items-center p-3 rounded-lg bg-gradient-to-br from-gray-900/50 to-gray-800/50 border border-white/5"}>
           <div
-            className="absolute -z-10 opacity-30"
-            style={{
-              // minimal, controlled inline style only for dynamic clip-path via CSS variable
-              // prefer CSS variables approach
-              // eslint-disable-next-line react-perf/jsx-no-new-object-as-prop
-              ["--clip" as any]: `polygon(0 0, ${healthPct * 100}% 0, ${healthPct * 100}% 100%, 0 100%)`,
-            }}
+            className={clsx("absolute -z-10 opacity-30", styles.healthClip)}
+            // Using a CSS variable to drive clip-path; minimal inline style per guidelines
+            // eslint-disable-next-line
+            style={clipStyle}
           />
           <Circular value={health} max={100} color="red" label="HP" className="mb-2" />
           <div className="text-center">

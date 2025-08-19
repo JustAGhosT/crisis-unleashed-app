@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import jwt from "jsonwebtoken";
 export const dynamic = "force-dynamic";
 
 // In a real application, this would be stored in a database
@@ -32,15 +33,37 @@ export async function GET() {
       return NextResponse.json({ user: null });
     }
 
-    // Parse the token
-    const { userId } = JSON.parse(authCookie.value);
+    // Verify and decode the JWT set by login
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      console.error("JWT_SECRET is not set");
+      const resp = NextResponse.json({ user: null });
+      resp.cookies.delete({ name: "auth_token", path: "/" });
+      return resp;
+    }
+
+    let userId: string | undefined;
+    try {
+      const payload = jwt.verify(authCookie.value, secret, {
+        algorithms: ["HS256"],
+        issuer: "crisis-unleashed",
+        audience: "crisis-unleashed-client",
+      }) as jwt.JwtPayload;
+      userId = typeof payload.sub === "string" ? payload.sub : undefined;
+    } catch {
+      // Invalid/expired token – clear cookie and return null session
+      const resp = NextResponse.json({ user: null });
+      resp.cookies.delete({ name: "auth_token", path: "/" });
+      return resp;
+    }
 
     // Find the user (in a real app, this would query a database)
     const user = MOCK_USERS.find((u) => u.id === userId);
 
     if (!user) {
-      cookieStore.delete("auth_token");
-      return NextResponse.json({ user: null });
+      const resp = NextResponse.json({ user: null });
+      resp.cookies.delete({ name: "auth_token", path: "/" });
+      return resp;
     }
 
     // Return user data without password
@@ -55,8 +78,8 @@ export async function GET() {
     return NextResponse.json({ user: userData });
   } catch (error) {
     console.error("Session error:", error);
-    const cookieStore = await cookies();
-    cookieStore.delete("auth_token");
-    return NextResponse.json({ user: null });
+    const resp = NextResponse.json({ user: null });
+    resp.cookies.delete({ name: "auth_token", path: "/" });
+    return resp;
   }
 }

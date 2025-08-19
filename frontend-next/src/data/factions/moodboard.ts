@@ -68,6 +68,19 @@ export const umbralMoodBoardData: MoodBoardData = {
   ],
 };
 
+// Fallback used when a faction key does not have a populated moodboard yet
+// Provide a static default that uses a valid faction key for type safety.
+export const DEFAULT_MOODBOARD: MoodBoardData = {
+  factionId: "solaris",
+  tagline: "Faction Aesthetics",
+  visualElements: [],
+  colorPalette: [],
+  typography: [],
+  iconography: [],
+  visualTreatments: [],
+  examples: [],
+};
+
 const MOODBOARD_MAP: Record<FactionKey, MoodBoardData> = {
   solaris: solarisMoodBoardData,
   umbral: umbralMoodBoardData,
@@ -76,9 +89,8 @@ const MOODBOARD_MAP: Record<FactionKey, MoodBoardData> = {
   infernal: { factionId: "infernal", tagline: "Dimensional Power & Blood Sacrifice", visualElements: [], colorPalette: [], typography: [], iconography: [], visualTreatments: [], examples: [] },
   neuralis: { factionId: "neuralis", tagline: "Mind & Consciousness Exploration", visualElements: [], colorPalette: [], typography: [], iconography: [], visualTreatments: [], examples: [] },
   synthetic: { factionId: "synthetic", tagline: "Optimization & Mechanical Perfection", visualElements: [], colorPalette: [], typography: [], iconography: [], visualTreatments: [], examples: [] },
-  default: { factionId: "default", tagline: "Faction Aesthetics", visualElements: [], colorPalette: [], typography: [], iconography: [], visualTreatments: [], examples: [] },
 };
 
 export function getMoodBoardData(faction: FactionKey): MoodBoardData {
-  return MOODBOARD_MAP[faction] ?? MOODBOARD_MAP.default;
+  return MOODBOARD_MAP[faction] ?? DEFAULT_MOODBOARD;
 }

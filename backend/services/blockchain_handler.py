@@ -7,7 +7,6 @@ from typing import Any, Dict, List, TypedDict
 
 from ..repository import (
     TransactionOutboxRepository,
-    OutboxEntry,
     OutboxType,
 )
 from .blockchain_service import BlockchainService
@@ -51,9 +50,10 @@ class BlockchainHandler:
                 self._process_entry(entry)
                 successful += 1
             except Exception as e:
-                logger.error(f"Failed to process entry {entry.id}: {e}")
+                entry_id = getattr(entry, 'outbox_id', getattr(entry, 'id', 'unknown'))
+                logger.error(f"Failed to process entry {entry_id}: {e}")
                 failed += 1
-                errors.append({"entry_id": getattr(entry, 'outbox_id', entry.id), "error": str(e)})
+                errors.append({"entry_id": entry_id, "error": str(e)})
             total_processed += 1
 
         results = {
@@ -68,16 +68,17 @@ class BlockchainHandler:
         )
         return results
 
-    def _process_entry(self, entry: OutboxEntry) -> None:
+    def _process_entry(self, entry: Any) -> None:
         """Process a single outbox entry (sync)."""
-        entry_id = getattr(entry, 'outbox_id', entry.id)
+        entry_id = getattr(entry, 'outbox_id', getattr(entry, 'id', 'unknown'))
         entry_type = getattr(entry, 'outbox_type', getattr(entry, 'type', None))
         # mark processing (best-effort if repo provides it)
-        if hasattr(self.outbox_repo, 'mark_processing'):
-            try:
-                self.outbox_repo.mark_processing(entry_id)
-            except Exception:
-                pass
+        try:
+            mark_proc = getattr(self.outbox_repo, 'mark_processing', None)
+            if callable(mark_proc):
+                mark_proc(entry_id)
+        except Exception:
+            pass
         try:
             if entry_type == OutboxType.MINT_NFT:
                 self._handle_mint_nft(entry)
@@ -90,16 +91,16 @@ class BlockchainHandler:
             else:
                 raise ValueError(f"Unsupported operation type: {entry_type}")
         except Exception as e:
-            logger.error(f"Blockchain operation failed for {entry.id}: {e}")
+            logger.error(f"Blockchain operation failed for {entry_id}: {e}")
             self.outbox_repo.increment_attempts(entry_id, str(e))
             raise
 
-    def _handle_mint_nft(self, entry: OutboxEntry) -> None:
+    def _handle_mint_nft(self, entry: Any) -> None:
         """Handle NFT minting operation (sync, matches test expectations)."""
         data = entry.request_data
         blockchain = data["blockchain"]
-        entry_id = getattr(entry, 'outbox_id', entry.id)
-        logger.info(f"Minting NFT on {blockchain} for entry {entry.id}")
+        entry_id = getattr(entry, 'outbox_id', getattr(entry, 'id', 'unknown'))
+        logger.info(f"Minting NFT on {blockchain} for entry {entry_id}")
         tx_hash = self.blockchain_service.mint_nft(
             blockchain=blockchain,
             recipient=data["recipient"],
@@ -116,12 +117,12 @@ class BlockchainHandler:
         else:
             raise Exception("Transaction failed on blockchain")
 
-    def _handle_transfer_nft(self, entry: OutboxEntry) -> None:
+    def _handle_transfer_nft(self, entry: Any) -> None:
         """Handle NFT transfer operation (sync, matches test expectations)."""
         data = entry.request_data
         blockchain = data["blockchain"]
-        entry_id = getattr(entry, 'outbox_id', entry.id)
-        logger.info(f"Transferring NFT on {blockchain} for entry {entry.id}")
+        entry_id = getattr(entry, 'outbox_id', getattr(entry, 'id', 'unknown'))
+        logger.info(f"Transferring NFT on {blockchain} for entry {entry_id}")
         tx_hash = self.blockchain_service.transfer_nft(
             blockchain=blockchain,
             from_address=data["from_address"],
@@ -138,11 +139,12 @@ class BlockchainHandler:
         else:
             raise Exception("Transfer failed on blockchain")
 
-    def _handle_marketplace_list(self, entry: OutboxEntry) -> None:
+    def _handle_marketplace_list(self, entry: Any) -> None:
         """Handle marketplace listing operation."""
         data = entry.request_data
         # Placeholder for marketplace listing logic
-        logger.info(f"Marketplace listing not yet implemented for entry {entry.id}")
+        entry_id = getattr(entry, 'outbox_id', getattr(entry, 'id', 'unknown'))
+        logger.info(f"Marketplace listing not yet implemented for entry {entry_id}")
         # For now, simulate success
         result = {
             "operation": "marketplace_list",
@@ -150,13 +152,14 @@ class BlockchainHandler:
             "price": data.get("price"),
             "status": "listed",
         }
-        self.outbox_repo.mark_completed(getattr(entry, 'outbox_id', entry.id), result)
+        self.outbox_repo.mark_completed(getattr(entry, 'outbox_id', getattr(entry, 'id', 'unknown')), result)
 
-    def _handle_marketplace_purchase(self, entry: OutboxEntry) -> None:
+    def _handle_marketplace_purchase(self, entry: Any) -> None:
         """Handle marketplace purchase operation."""
         data = entry.request_data
         # Placeholder for marketplace purchase logic
-        logger.info(f"Marketplace purchase not yet implemented for entry {entry.id}")
+        entry_id = getattr(entry, 'outbox_id', getattr(entry, 'id', 'unknown'))
+        logger.info(f"Marketplace purchase not yet implemented for entry {entry_id}")
         # For now, simulate success
         result = {
             "operation": "marketplace_purchase",
@@ -165,7 +168,7 @@ class BlockchainHandler:
             "price": data.get("price"),
             "status": "purchased",
         }
-        self.outbox_repo.mark_completed(getattr(entry, 'outbox_id', entry.id), result)
+        self.outbox_repo.mark_completed(getattr(entry, 'outbox_id', getattr(entry, 'id', 'unknown')), result)
 
     def get_processing_stats(self) -> Dict[str, Any]:
         """Get statistics about outbox processing (sync)."""

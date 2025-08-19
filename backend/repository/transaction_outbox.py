@@ -3,8 +3,9 @@ Transaction Outbox Pattern for blockchain-database consistency.
 """
 import logging
 import uuid
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Iterable, cast
 from datetime import datetime, timedelta
+from itertools import islice
 
 from .outbox_models import OutboxStatus, OutboxType
 
@@ -66,11 +67,29 @@ class TransactionOutboxRepository:
         # Prefer DB-side limit to avoid loading entire collection, but remain compatible with tests
         # where find() may be mocked to return a list (no .limit()).
         result = self.collection.find({"status": OutboxStatus.PENDING.value})
-        if hasattr(result, "limit"):
-            docs = result.limit(limit)
-            return [_OutboxEntryCompat(doc) for doc in docs]
-        # Fallback for list-like mocks in tests
-        return [_OutboxEntryCompat(doc) for doc in list(result)[:limit]]
+        limit_value = max(0, int(limit))
+
+        # Prefer DB/cursor-side limiting when available
+        limit_method = getattr(result, "limit", None)
+        if callable(limit_method):
+            docs = limit_method(limit_value)
+            iterable_docs = cast(Iterable[Dict[str, Any]], docs)
+            return [_OutboxEntryCompat(doc) for doc in iterable_docs]
+
+        # If tests return list/tuple, slice directly
+        if isinstance(result, (list, tuple)):
+            return [_OutboxEntryCompat(doc) for doc in result[:limit_value]]
+
+        # If it's any other iterable, stream via islice to avoid materializing
+        if hasattr(result, "__iter__"):
+            iterable_docs = cast(Iterable[Dict[str, Any]], result)
+            return [_OutboxEntryCompat(doc) for doc in islice(iterable_docs, 0, limit_value)]
+
+        # Unsupported type: fail fast with a clear message for test authors
+        raise TypeError(
+            "collection.find(...) returned an unsupported type. Expected a cursor with .limit(), "
+            "a list/tuple, or an iterable."
+        )
 
     def mark_completed(self, outbox_id: str, result: Dict[str, Any]) -> None:
         """Mark entry as completed (sync)."""
@@ -100,9 +119,11 @@ class TransactionOutboxRepository:
 
     def increment_attempts(self, outbox_id: str, error: Optional[str] = None) -> None:
         """Increment attempt counter (sync)."""
-        update = {"$inc": {"attempts": 1}, "$set": {"updated_at": datetime.now()}}
+        # Build the $set document first to avoid indexed assignment on an unknown type
+        set_doc: Dict[str, Any] = {"updated_at": datetime.now()}
         if error is not None:
-            update["$set"]["last_error"] = error
+            set_doc["last_error"] = error
+        update: Dict[str, Any] = {"$inc": {"attempts": 1}, "$set": set_doc}
         self.collection.update_one({"outbox_id": outbox_id}, update)
 
     def get_processing_stats(self) -> Dict[str, int]:

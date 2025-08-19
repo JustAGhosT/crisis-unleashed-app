@@ -1,5 +1,5 @@
 ---
-description: Specification for core game entities including cards, battlefield grid, player stats, and game state data models
+description: Defines core game entities and data models for cards, battlefield, players and game state
 ---
 
 # === USER INSTRUCTIONS ===
@@ -18,52 +18,52 @@ description: Specification for core game entities including cards, battlefield g
   - Occupation Rules: Maximum 1 unit per hex
   - Movement System: Based on unit movement speed attribute and hex adjacency
   - Zone Effects: Different zones may modify movement costs and unit abilities
+
+- 5 × 6 hex grid divided into Frontline (3 rows) and Backline (3 rows)
 # === END USER INSTRUCTIONS ===
 
 # game-data-models
 
-Core game entities and data models that define the unique mechanics and rules:
+### Card Model System (Importance Score: 95)
+- Core card entity definition with properties:
+  - Combat stats (attack, health, initiative)
+  - Resource costs (energy, momentum)
+  - Card type categorization (unit, spell, artifact)
+  - Faction alignment rules
+  - Unique flags and restrictions
+File: frontend-next/src/lib/card-utils.ts
 
-## Card Model
-- Faction-specific card attributes
-- Energy/Momentum cost system
-- Rarity tiers (Common to Legendary) affecting power level
-- Synergy tags for Data-Link system
+### Battlefield Grid System (Importance Score: 90)
+- 6x4 grid layout with distinct zones:
+  - Frontline (units must be placed here first)
+  - Support (unlocked after frontline placement)
+  - Deployment restrictions based on card types
+  - Zone control scoring mechanics
+File: frontend-next/src/app/sandbox/battlefield-demo/page.tsx
 
-## Battlefield Grid 
-- 5 × 6 hex grid divided into Frontline (3 rows) and Backline (3 rows)
-- Position-dependent card effects
-- Crisis event impact areas
-- Territory control scoring
+### Player Stats Model (Importance Score: 85)
+Core stats tracking:
+- Health (0-30)
+- Energy (resets each turn, max varies by faction)
+- Momentum (accumulates through actions, spent on special abilities)
+- Active effects and status conditions
+File: frontend-next/src/components/game/PlayerHUD.tsx
 
-## Player Stats
-- Health (0-20)
-- Energy (scales 1-10 per turn)
-- Momentum (0-5, generated through combat)
-- Faction alignment affecting resource generation
+### Game State Model (Importance Score: 80)
+Turn-based state machine:
+- Phase tracking (deploy, action, end)
+- Initiative system for unit activation order
+- Resource accumulation/spending
+- Victory condition monitoring
+File: frontend-next/src/types/game.ts
 
-## Game State
-- Three-phase turn system (Deploy/Action/End)
-- Crisis event countdown and effects
-- Card synergy tracking via Data-Link
-- Zone control state
-- Resource pool management
-
-## Combat Resolution
-- Position-based damage calculation
-- Zone control multipliers
-- Crisis event modifiers
-- Faction synergy bonuses
-
-Key file paths:
-```
-backend/app_types/game_state.py
-backend/types_old/faction.py
-frontend/src/types/game.types.ts
-```
-
-Importance Score: 90/100
-(Critical game mechanics and state management defining unique gameplay)
+### Deck Construction Rules (Importance Score: 75)
+- Deck size limits (40-60 cards)
+- Card copy restrictions:
+  - Maximum 3x non-unique cards
+  - 1x legendary/unique cards
+  - Single faction alignment requirement
+File: frontend-next/src/lib/deck-builder/deck-builder-context.tsx
 
 $END$
 

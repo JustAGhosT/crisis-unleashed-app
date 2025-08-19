@@ -1,4 +1,7 @@
 /* Create shims for Next internal next-response path in CJS and ESM builds */
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-require-imports */
+/* eslint-disable import/no-commonjs */
 const fs = require('fs');
 const path = require('path');
 
@@ -11,10 +14,18 @@ function ensureFile(filePath, content) {
 }
 
 function main() {
-  // Resolve CJS and ESM exports directories from the frontend-next workspace
-  const frontendNextDir = path.resolve(__dirname, '..', 'frontend-next');
-  const cjsExportsDir = require.resolve('next/dist/server/web/exports/index.js', { paths: [frontendNextDir] });
-  const esmExportsDir = require.resolve('next/dist/esm/server/web/exports/index.js', { paths: [frontendNextDir] });
+  // Resolve CJS and ESM exports directories from the package root (this script sits in frontend-next/scripts)
+  const frontendRoot = path.resolve(__dirname, '..');
+  let cjsExportsDir;
+  let esmExportsDir;
+  try {
+    cjsExportsDir = require.resolve('next/dist/server/web/exports/index.js', { paths: [frontendRoot] });
+    esmExportsDir = require.resolve('next/dist/esm/server/web/exports/index.js', { paths: [frontendRoot] });
+  } catch {
+    // Fallback: default Node resolution (in case Next is hoisted)
+    cjsExportsDir = require.resolve('next/dist/server/web/exports/index.js');
+    esmExportsDir = require.resolve('next/dist/esm/server/web/exports/index.js');
+  }
 
   const cjsDir = path.dirname(cjsExportsDir);
   const esmDir = path.dirname(esmExportsDir);

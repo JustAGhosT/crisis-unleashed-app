@@ -1,0 +1,7 @@
+.grid {
+  display: grid;
+  gap: 0.5rem; /* matches gap-2 */
+  padding: 0.5rem; /* matches p-2 */
+  grid-template-columns: repeat(var(--bf-cols, 5), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--bf-rows, 3), var(--bf-row-h, 80px));
+}

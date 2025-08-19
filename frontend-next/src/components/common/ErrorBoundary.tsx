@@ -31,9 +31,17 @@ export class ErrorBoundary extends React.Component<
     if (this.state.hasError) {
       return (
         this.props.fallback ?? (
-          <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-destructive">
+          <div
+            role="alert"
+            aria-live="polite"
+            aria-atomic="true"
+            className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-destructive"
+          >
             <p className="font-semibold">Something went wrong.</p>
-            <p className="text-xs opacity-80">{this.state.error?.message}</p>
+            <p className="text-xs opacity-80">Please try again.</p>
+            {process.env.NODE_ENV !== "production" && (
+              <p className="mt-2 text-[10px] font-mono opacity-80">{this.state.error?.message}</p>
+            )}
           </div>
         )
       );

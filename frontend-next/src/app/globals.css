@@ -159,4 +159,10 @@
   .w-cost-bar {
     width: var(--cost-bar-w);
   }
+
+  /* Battlefield grid using CSS variables to avoid dynamic class purge (Option A) */
+  .battlefield-grid {
+    grid-template-columns: repeat(var(--bf-cols), minmax(0, 1fr));
+    grid-template-rows: repeat(var(--bf-rows), var(--bf-row-h, 80px));
+  }
 }

@@ -26,8 +26,8 @@ export function useFactionKey(): FactionKey {
     const cookieVal = parseCookie("theme:active");
     if (cookieVal && isFactionKey(cookieVal)) return cookieVal as FactionKey;
 
-    // 3) Default
-    return "default";
+    // 3) Default to a concrete faction key
+    return "solaris";
   }, [factionParam]);
 }
 

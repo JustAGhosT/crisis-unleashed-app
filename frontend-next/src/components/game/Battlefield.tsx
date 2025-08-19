@@ -1,6 +1,7 @@
 "use client";
 
 import clsx from "clsx";
+import styles from "./battlefield.module.css";
 import React, { useCallback, useMemo, useState } from "react";
 import type { BattlefieldUnit, BattlefieldZone, Card, PlayerId } from "@/types/game";
 
@@ -22,7 +23,6 @@ export const Battlefield: React.FC<BattlefieldProps> = ({
   onUnitSelected,
   onZoneHover,
   playerId = "player1",
-  enemyId: _enemyId = "enemy",
   initialUnits = {},
   rows = 3,
   cols = 5,
@@ -108,16 +108,23 @@ export const Battlefield: React.FC<BattlefieldProps> = ({
   const clamp = (val: number, min: number, max: number) => Math.max(min, Math.min(max, val));
   const c = clamp(cols, 3, 7);
   const r = clamp(rows, 2, 6);
+  // Use CSS variables for grid sizing to avoid dynamic Tailwind class purging
+  const gridStyle: React.CSSProperties & { ["--bf-cols"]?: number; ["--bf-rows"]?: number; ["--bf-row-h"]?: string } = {
+    ["--bf-cols"]: c,
+    ["--bf-rows"]: r,
+    ["--bf-row-h"]: "80px",
+  };
 
   return (
     <div className="w-full">
       <div
         className={clsx(
-          "grid gap-2 p-2 bg-gray-950/30 rounded-xl border border-gray-700/40",
-          // dynamic grid template via Tailwind arbitrary values
-          `grid-cols-[repeat(${c},minmax(0,1fr))]`,
-          `grid-rows-[repeat(${r},80px)]`
+          styles.grid,
+          "bg-gray-950/30 rounded-xl border border-gray-700/40"
         )}
+        /* Using CSS variables inline to drive module-defined grid; minimal, intentional inline style */
+        // eslint-disable-next-line
+        style={gridStyle}
       >
         {battlefieldGrid.map((zone) => {
           const isActiveZone = hoveredZone === zone.position && !!selectedCard;

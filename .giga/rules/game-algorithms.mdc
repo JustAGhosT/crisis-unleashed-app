@@ -1,72 +1,62 @@
 ---
-description: Defines and documents core game mechanics, algorithms and systems for card battles, resource management, and faction interactions
+description: Specification for analyzing game algorithms, card mechanics, and battle systems in a digital card game
 ---
 
-
-# game-algorithms
-
-Core Game Systems:
-
-1. Turn Sequencing
-- Three-phase turn structure: Deploy, Action, End
-- Resource reset mechanics between phases
-- Custom validation for action timing/sequencing
-- Phase-specific ability activation rules
-
-2. Combat Resolution
+# === USER INSTRUCTIONS ===
 - Core combat flow:
   1. Attacker declares target
   2. Keyword ability pre-combat triggers
   3. Combat math resolution with modifiers
   4. Post-combat triggers and state updates
+# === END USER INSTRUCTIONS ===
 
-3. Resource Management
-- Dual currency system:
-  - Energy: Fixed per-turn allocation (1-10)
-  - Momentum: Combat-generated resource (0-5)
-- Faction-specific resource modifiers
-- Card cost validation against available resources
+# game-algorithms
 
-4. Crisis Event System
-- Dynamic battlefield modifiers
-- Event countdown mechanics
-- Cascading effect resolution
-- Impact calculation on game zones
+### Core Battle System (Importance Score: 95)
+Location: `frontend-next/src/components/game/Battlefield.tsx`
+- Grid-based battlefield with distinct zones (frontline, backline, support)
+- Zone control mechanics with adjacency bonuses
+- Unit placement validation with faction-specific restrictions
+- Custom pathfinding for unit movement and targeting
 
-5. Faction Mechanics
-- Seven unique faction implementations:
-  - Solaris: Energy manipulation
-  - Umbral: Stealth/information warfare
-  - Neuralis: Mind control
-  - Aeonic: Time manipulation
-  - Primordial: Growth systems
-  - Infernal: Risk/reward
-  - Synthetic: Optimization
+### Card Deployment Logic (Importance Score: 90)
+Location: `frontend-next/src/lib/card-utils.ts`
+- Energy cost validation against player resources
+- Placement zone restrictions based on card type
+- Synergy detection between deployed cards
+- Multi-target validation for special abilities
 
-6. Card Synergy System ("Data-Link")
-- Card combination detection
-- Faction-based synergy bonuses
-- Multi-card effect chains
-- Keyword interaction handling
+### Turn Sequencing (Importance Score: 85)
+Location: `frontend-next/src/components/game/TurnManager.tsx`
+- Phase system: Deploy, Action, Combat, End
+- Resource regeneration between phases
+- Action point allocation and spending
+- Turn timer with catch-up mechanics
 
-7. Battlefield Management
-- Zone control scoring
-- Unit positioning validation
-- Territory control mechanics
-- Multi-zone effect propagation
+### Combat Resolution (Importance Score: 85)
+Location: `frontend-next/src/lib/combat/resolution.ts`
+- Initiative-based attack ordering
+- Damage calculation with faction modifiers
+- Status effect application and stacking
+- Death trigger resolution queue
 
-File Paths:
-- src/game/mechanics/turn-manager.ts
-- src/game/combat/resolver.ts
-- src/game/resources/energy-system.ts
-- src/game/crisis/event-manager.ts
-- src/game/factions/faction-abilities.ts
-- src/game/cards/synergy-calculator.ts
-- src/game/battlefield/zone-controller.ts
+### Faction Mechanics (Importance Score: 80)
+Location: `frontend-next/src/lib/faction/mechanics.ts`
+- Unique faction abilities:
+  - Energy manipulation (Energy faction)
+  - Time reversal (Time faction) 
+  - Growth accumulation (Growth faction)
+  - Sacrifice triggers (Death faction)
+  - Mind control duration (Mind faction)
+  - Stealth mechanics (Shadow faction)
+  - Synthetic combinations (Synthetic faction)
 
-The algorithms focus heavily on the unique faction-based gameplay mechanics, crisis event system, and dual resource management that defines the core gameplay experience.
-
-Importance Score: 95/100
+### Card Interaction System (Importance Score: 75)
+Location: `frontend-next/src/lib/cards/interactions.ts`
+- Chain reaction triggers between cards
+- Conditional effect activation
+- Response window system
+- Priority resolution for simultaneous effects
 
 $END$
 

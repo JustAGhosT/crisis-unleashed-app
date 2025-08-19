@@ -24,13 +24,15 @@ __version__ = "1.0.0"
 __author__ = "Crisis Unleashed Team"
 __description__ = "Backend API for Crisis Unleashed card game"
 
-# Main package imports
-from . import api
-from . import repository
-from . import services
+# Lazy submodule loading to avoid importing heavy dependencies (e.g., FastAPI) during test discovery.
+# This preserves the public API: backend.api, backend.repository, backend.services
 
-__all__ = [
-    "api",
-    "repository", 
-    "services"
-]
+__all__ = ["api", "repository", "services"]
+
+def __getattr__(name):  # PEP 562
+    if name in {"api", "repository", "services"}:
+        import importlib
+        module = importlib.import_module(f".{name}", __name__)
+        globals()[name] = module
+        return module
+    raise AttributeError(f"module '{__name__}' has no attribute '{name}'")

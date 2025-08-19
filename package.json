@@ -9,7 +9,6 @@
     }
   },
   "scripts": {
-    "preinstall": "pnpm install --ignore-scripts",
     "start": "concurrently -n \"BACKEND,FRONTEND\" -c \"bgBlue.bold,bgGreen.bold\" \"cd backend && powershell -File .\\start_server.ps1\" \"cd frontend-next && pnpm dev\"",
     "start:backend": "cd backend && powershell -File .\\start_server.ps1",
     "start:frontend": "cd frontend-next && pnpm dev",
@@ -19,7 +18,8 @@
     "test:coverage": "cd frontend-next && pnpm test:coverage",
     "lint": "pnpm --filter frontend-next lint",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
-    "setup": "cd frontend-next && pnpm install"
+    "setup": "cd frontend-next && pnpm install",
+    "bootstrap": "pnpm install -w"
   },
   "workspaces": [
     "frontend-next",

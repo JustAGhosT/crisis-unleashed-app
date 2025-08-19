@@ -40,47 +40,64 @@ The system integrates these components through a service-oriented architecture, 
 - Explain your OBSERVATIONS clearly, then provide REASONING to identify the exact issue. Add console logs when needed to gather more information.
 
 
-The NeuralLiquid game system implements a complex trading card game with blockchain integration, built around three core pillars:
+## Core Business Systems
 
-## Faction System (85/100)
-- Seven distinct factions with unique mechanics:
-  - Solaris Nexus: Energy manipulation/prediction
-  - Umbral Eclipse: Stealth/information warfare
-  - Neuralis Conclave: Mind control mechanics
-  - Aeonic Dominion: Time manipulation
-  - Primordial Genesis: Growth/adaptation
-  - Infernal Core: Risk-reward sacrifice
-  - Synthetic Directive: Optimization systems
+### 1. Faction System (Score: 90)
+- Seven unique metaphysical factions with distinct mechanics
+- Custom faction relationship mapping via hexagonal grid
+- Faction-specific abilities and resource manipulation
+- Inter-faction synergy calculations and power dynamics
+- Path: `backend/app_types/faction.py`
 
-## Game State Management (85/100)
-1. Turn Structure
-- Three-phase system: Deploy/Action/End
-- Dual resource management: Energy/Momentum
-- Crisis event integration affecting gameplay state
+### 2. Card Game Engine (Score: 85)
+- Complex deck building constraints by faction and rarity
+- Real-time deck validation with multi-dimensional rules
+- Energy cost and resource management systems
+- Custom battlefield positioning mechanics
+- Path: `frontend-next/src/components/deck-builder/DeckBuilder.tsx`
 
-2. Combat Resolution
-- Zone-based positioning system
-- Battlefield state tracking
-- Crisis modifier application
-- Faction-specific bonuses
+### 3. Blockchain Integration (Score: 85)
+- Multi-chain NFT minting and transfer system
+- Transaction outbox pattern for blockchain consistency
+- Chain-specific implementations for Ethereum/Etherlink
+- Custom state machine for transaction processing
+- Path: `backend/services/blockchain_service.py`
 
-## Blockchain Integration (75/100)
-1. Multi-Chain NFT Operations
-- Outbox pattern for transaction reliability
-- Network-specific validation rules
-- Chain-agnostic operation interface
+### 4. Game State Management (Score: 80)
+- Turn-based phase system (deploy, action, end)
+- Resource tracking (energy, momentum)
+- Real-time game state synchronization
+- Custom zone control and unit placement rules
+- Path: `frontend-next/src/components/game/Battlefield.tsx`
 
-2. Asset Management
-- Faction-based NFT attributes
-- Rarity system implementation
-- Cross-chain asset tracking
+### 5. Collection System (Score: 75)
+- Card ownership and rarity tracking
+- Faction-based collection organization
+- Multi-dimensional card categorization
+- Collection completion analytics
+- Path: `frontend-next/src/components/cards/CardCollection.tsx`
 
-Key Integration Points:
-1. plans/board-game-interface.md: Core game mechanics
-2. backend/services/blockchain_service.py: Chain integration
-3. frontend/src/components/factions/FactionGrid.tsx: Faction UI system
+## Supporting Systems
 
-The system's uniqueness comes from combining complex faction mechanics with blockchain-based asset management while maintaining game state consistency across distributed components.
+### 1. Feature Flag System (Score: 70)
+- Environment-driven flag configuration
+- Real-time feature toggling
+- Admin control interface
+- Path: `frontend-next/src/lib/feature-flags/feature-flag-provider.tsx`
+
+### 2. Faction Theme Engine (Score: 65)
+- Dynamic faction-based UI theming
+- Custom color schemes and visual elements
+- Faction-specific animations and effects
+- Path: `frontend-next/src/lib/theme/faction-theme.ts`
+
+### 3. Game Statistics (Score: 60)
+- Deck analytics and metrics
+- Player performance tracking
+- Resource utilization analysis
+- Path: `frontend-next/src/components/deck-builder/DeckStatsPanel.tsx`
+
+The system implements a unique card game centered around metaphysical factions, with complex deck building rules, blockchain integration, and real-time gameplay mechanics. Core business logic focuses on faction interactions, resource management, and strategic gameplay elements.
 
 $END$
 

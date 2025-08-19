@@ -78,7 +78,7 @@ export const VirtualizedReorderableList: React.FC<
     >
       {/* Spacer to preserve scroll height */}
       <div ref={spacerRef} className={styles.vlistSpacer} />
-      <div ref={offsetRef} className={`${styles.vlistOffset} absolute left-0 right-0`}>
+      <div ref={offsetRef} className={`${styles.vlistOffset} absolute left-0 right-0 top-0`}>
         <div className="space-y-2" role="list" aria-label="Virtualized deck list">
           {slice.map((item) => (
             <div key={getRowId(item)} role="listitem">
