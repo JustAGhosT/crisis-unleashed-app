@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
+import type { JwtPayload } from "jsonwebtoken";
 export const dynamic = "force-dynamic";
 
 // In a real application, this would be stored in a database
@@ -38,7 +39,7 @@ export async function GET() {
     if (!secret) {
       console.error("JWT_SECRET is not set");
       const resp = NextResponse.json({ user: null });
-      resp.cookies.delete({ name: "auth_token", path: "/" });
+      resp.cookies.delete("auth_token");
       return resp;
     }
 
@@ -48,12 +49,12 @@ export async function GET() {
         algorithms: ["HS256"],
         issuer: "crisis-unleashed",
         audience: "crisis-unleashed-client",
-      }) as jwt.JwtPayload;
+      }) as JwtPayload;
       userId = typeof payload.sub === "string" ? payload.sub : undefined;
     } catch {
       // Invalid/expired token – clear cookie and return null session
       const resp = NextResponse.json({ user: null });
-      resp.cookies.delete({ name: "auth_token", path: "/" });
+      resp.cookies.delete("auth_token");
       return resp;
     }
 
@@ -62,7 +63,7 @@ export async function GET() {
 
     if (!user) {
       const resp = NextResponse.json({ user: null });
-      resp.cookies.delete({ name: "auth_token", path: "/" });
+      resp.cookies.delete("auth_token");
       return resp;
     }
 
@@ -79,7 +80,7 @@ export async function GET() {
   } catch (error) {
     console.error("Session error:", error);
     const resp = NextResponse.json({ user: null });
-    resp.cookies.delete({ name: "auth_token", path: "/" });
+    resp.cookies.delete("auth_token");
     return resp;
   }
 }

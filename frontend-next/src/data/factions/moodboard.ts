@@ -68,11 +68,11 @@ export const umbralMoodBoardData: MoodBoardData = {
   ],
 };
 
-// Fallback used when a faction key does not have a populated moodboard yet
-// Provide a static default that uses a valid faction key for type safety.
+// Legacy generic fallback (not used by getMoodBoardData to avoid misleading faction IDs)
+// Kept for backward compatibility if imported elsewhere.
 export const DEFAULT_MOODBOARD: MoodBoardData = {
-  factionId: "solaris",
-  tagline: "Faction Aesthetics",
+  factionId: "umbral", // pick a non-Solaris key to avoid implying Solaris visuals
+  tagline: "Generic Fallback (Legacy)",
   visualElements: [],
   colorPalette: [],
   typography: [],
@@ -81,16 +81,36 @@ export const DEFAULT_MOODBOARD: MoodBoardData = {
   examples: [],
 };
 
+// Helper to generate explicit placeholders per faction
+const makePlaceholderMoodBoard = (factionId: FactionKey, tagline: string): MoodBoardData => ({
+  factionId,
+  tagline,
+  visualElements: [],
+  colorPalette: [],
+  typography: [],
+  iconography: [],
+  visualTreatments: [],
+  examples: [],
+});
+
+// Clearly named placeholders for unimplemented factions
+export const AEONIC_PLACEHOLDER = makePlaceholderMoodBoard("aeonic", "Time Manipulation & Temporal Mastery (Placeholder)");
+export const PRIMORDIAL_PLACEHOLDER = makePlaceholderMoodBoard("primordial", "Evolutionary Growth & Biological Harmony (Placeholder)");
+export const INFERNAL_PLACEHOLDER = makePlaceholderMoodBoard("infernal", "Dimensional Power & Blood Sacrifice (Placeholder)");
+export const NEURALIS_PLACEHOLDER = makePlaceholderMoodBoard("neuralis", "Mind & Consciousness Exploration (Placeholder)");
+export const SYNTHETIC_PLACEHOLDER = makePlaceholderMoodBoard("synthetic", "Optimization & Mechanical Perfection (Placeholder)");
+
 const MOODBOARD_MAP: Record<FactionKey, MoodBoardData> = {
   solaris: solarisMoodBoardData,
   umbral: umbralMoodBoardData,
-  aeonic: { factionId: "aeonic", tagline: "Time Manipulation & Temporal Mastery", visualElements: [], colorPalette: [], typography: [], iconography: [], visualTreatments: [], examples: [] },
-  primordial: { factionId: "primordial", tagline: "Evolutionary Growth & Biological Harmony", visualElements: [], colorPalette: [], typography: [], iconography: [], visualTreatments: [], examples: [] },
-  infernal: { factionId: "infernal", tagline: "Dimensional Power & Blood Sacrifice", visualElements: [], colorPalette: [], typography: [], iconography: [], visualTreatments: [], examples: [] },
-  neuralis: { factionId: "neuralis", tagline: "Mind & Consciousness Exploration", visualElements: [], colorPalette: [], typography: [], iconography: [], visualTreatments: [], examples: [] },
-  synthetic: { factionId: "synthetic", tagline: "Optimization & Mechanical Perfection", visualElements: [], colorPalette: [], typography: [], iconography: [], visualTreatments: [], examples: [] },
+  aeonic: AEONIC_PLACEHOLDER,
+  primordial: PRIMORDIAL_PLACEHOLDER,
+  infernal: INFERNAL_PLACEHOLDER,
+  neuralis: NEURALIS_PLACEHOLDER,
+  synthetic: SYNTHETIC_PLACEHOLDER,
 };
 
 export function getMoodBoardData(faction: FactionKey): MoodBoardData {
-  return MOODBOARD_MAP[faction] ?? DEFAULT_MOODBOARD;
+  // All FactionKey values are present in MOODBOARD_MAP; avoid using a misleading default.
+  return MOODBOARD_MAP[faction];
 }

@@ -45,10 +45,16 @@ export default function MoodBoard({ factionId, expanded = false, className }: Mo
           ...data.examples.map(ex => ex.imageUrl).filter(Boolean) as string[],
         ]
       : [];
+
+    const imgs: HTMLImageElement[] = [];
+    let cancelled = false;
+
     urls.forEach((url) => {
       const img = new Image();
+      imgs.push(img);
       img.onload = () => { /* ok */ };
       img.onerror = () => {
+        if (cancelled) return;
         setImageErrors(prev => {
           if (prev.has(url)) return prev;
           const next = new Set(prev);
@@ -58,6 +64,20 @@ export default function MoodBoard({ factionId, expanded = false, className }: Mo
       };
       img.src = url;
     });
+
+    return () => {
+      cancelled = true;
+      for (const img of imgs) {
+        // Detach listeners and abort pending loads to free resources
+        img.onload = null;
+        img.onerror = null;
+        try {
+          img.src = "";
+        } catch {
+          // ignore
+        }
+      }
+    };
   }, [data]);
 
   if (!data) {
@@ -106,6 +126,7 @@ export default function MoodBoard({ factionId, expanded = false, className }: Mo
                           styles.bgImage,
                           attrs.cls,
                         )}
+                        // eslint-disable-next-line
                         style={attrs.style}
                         aria-label={el.name}
                       />
@@ -157,6 +178,7 @@ export default function MoodBoard({ factionId, expanded = false, className }: Mo
                         "h-12 w-12 rounded bg-center bg-no-repeat bg-cover border border-border/40",
                         attrs.cls,
                       )}
+                      // eslint-disable-next-line
                       style={attrs.style}
                       aria-label={ico.name}
                     />
@@ -182,6 +204,7 @@ export default function MoodBoard({ factionId, expanded = false, className }: Mo
                         styles.bgImage,
                         attrs.cls,
                       )}
+                      // eslint-disable-next-line
                       style={attrs.style}
                       aria-label={vt.name}
                     />
@@ -213,6 +236,7 @@ export default function MoodBoard({ factionId, expanded = false, className }: Mo
                             styles.bgImage,
                             attrs.cls,
                           )}
+                          // eslint-disable-next-line
                           style={attrs.style}
                           aria-label={ex.type}
                         />
@@ -243,6 +267,7 @@ function ColorSwatch({ item }: { item: ColorPaletteItem }) {
     <div className="flex items-center gap-3 rounded-md border border-border/40 bg-background/40 p-3 backdrop-blur">
       <div
         className={cn("h-10 w-10 rounded-md border border-border/40", styles.swatchColor)}
+        // eslint-disable-next-line
         style={{ ["--swatch-color"]: item.hex } as React.CSSProperties}
       />
       <div className="min-w-0">

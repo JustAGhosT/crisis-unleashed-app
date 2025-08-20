@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import Battlefield from "@/components/game/Battlefield";
 
 describe("Battlefield zone invariants (6 rows x 5 cols)", () => {
@@ -8,7 +8,7 @@ describe("Battlefield zone invariants (6 rows x 5 cols)", () => {
       <Battlefield
         selectedCard={null}
         onCardPlayed={() => {}}
-        initialUnits={{}}
+        units={{}}
         rows={6}
         cols={5}
       />

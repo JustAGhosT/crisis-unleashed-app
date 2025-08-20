@@ -48,12 +48,13 @@
 
 ### **Data Layer Fixes**
 
-1. **Added Synthetic Theme** to `factionThemes.ts`:
+1. **Migrated to new theming tokens** (legacy module removed):
 
+   - Legacy `frontend/src/theme/factionThemes.ts` was removed during refactor
+   - New tokens live in `frontend-next/src/lib/theme/faction-theme.ts`
+   - Synthetic Directive added/verified in `DEFAULT_TOKENS`
    - Primary color: `#C0C0C0` (Silver)
-   - Complete color palette
-   - Card and button themes
-   - Gradient definitions
+   - Tokenized color palette, component tokens (cards/buttons), and gradients
 
 2. **Verified Faction Utils** in `factionUtils.ts`:
 

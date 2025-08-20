@@ -160,16 +160,14 @@ class EtherlinkProvider(BaseBlockchainProvider):
                     if receipt:
                         # Normalize transaction hash to string safely
                         txh = getattr(receipt, "transactionHash", None)
-                        txh_str: str
-                        try:
-                            if hasattr(txh, "hex") and callable(getattr(txh, "hex")):
-                                txh_str = txh.hex()  # type: ignore[assignment]
-                            elif isinstance(txh, (bytes, bytearray)):
-                                txh_str = txh.hex()
-                            else:
-                                txh_str = str(txh)
-                        except Exception:
-                            txh_str = str(txh)
+                        # Handle common representations: bytes, hex str, or None
+                        if isinstance(txh, (bytes, bytearray)):
+                            txh_str = txh.hex()
+                        elif isinstance(txh, str):
+                            txh_str = txh
+                        else:
+                            # Fallback: use provided tx_hash or stringified value
+                            txh_str = tx_hash if txh is None else str(txh)
 
                         return {
                             "blockNumber": receipt.blockNumber,

@@ -1,7 +1,6 @@
 """
 Factory for creating blockchain providers.
 """
-import asyncio
 import logging
 import os
 import threading
@@ -209,11 +208,9 @@ class BlockchainProviderFactory:
         """
         with cls._lock:
             # Disconnect all providers before clearing (synchronously)
-            disconnect_tasks: list[None] = []
             for blockchain, provider in cls._instances.items():
                 try:
                     provider.disconnect()
-                    disconnect_tasks.append(None)
                     logger.debug(f"Disconnected {blockchain} provider")
                 except Exception as e:
                     logger.error(f"Error disconnecting {blockchain} provider: {e}")

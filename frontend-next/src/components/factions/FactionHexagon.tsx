@@ -49,6 +49,37 @@ export function FactionHexagon({
   const getColor = (f: Faction | null | undefined, fallback = "#ffffffcc") =>
     f?.colors?.primary ?? fallback;
 
+  const renderFactionNode = (
+    faction: Faction,
+    positionClass: string,
+    options?: { size?: "lg" | "md"; interactive?: boolean },
+  ) => (
+    <div
+      className={cn("absolute", positionClass)}
+      onMouseEnter={() => onHover(faction)}
+      onMouseLeave={() => onHover(null)}
+      onDoubleClick={() => onNavigate?.(faction)}
+      onFocus={() => onHover(faction)}
+      onBlur={() => onHover(null)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onNavigate?.(faction);
+        }
+      }}
+      tabIndex={0}
+      role="button"
+      aria-label={`${faction.name} faction`}
+    >
+      <FactionCard
+        faction={faction}
+        {...(options?.size ? { size: options.size } : {})}
+        onClick={(f) => onFocus(f)}
+        {...(options?.interactive ? { interactive: true } : {})}
+      />
+    </div>
+  );
+
   return (
     <div
       className={cn(
@@ -171,171 +202,23 @@ export function FactionHexagon({
         aria-hidden
       >
         {/* Center */}
-        <div
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-          onMouseEnter={() => onHover(centerFaction)}
-          onMouseLeave={() => onHover(null)}
-          onDoubleClick={() => onNavigate?.(centerFaction)}
-          onFocus={() => onHover(centerFaction)}
-          onBlur={() => onHover(null)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              onNavigate?.(centerFaction);
-            } else if (e.key === ' ') {
-              e.preventDefault();
-              onNavigate?.(centerFaction);
-            }
-          }}
-          tabIndex={0}
-          role="button"
-          aria-label={`${centerFaction.name} faction`}
-        >
-          <FactionCard
-            faction={centerFaction}
-            size="lg"
-            onClick={(f) => onFocus(f)}
-            interactive
-          />
-        </div>
+        {renderFactionNode(
+          centerFaction,
+          "left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2",
+          { size: "lg", interactive: true },
+        )}
         {/* Top */}
-        <div
-          className="absolute left-1/2 top-[6%] -translate-x-1/2"
-          onMouseEnter={() => onHover(topFaction)}
-          onMouseLeave={() => onHover(null)}
-          onDoubleClick={() => onNavigate?.(topFaction)}
-          onFocus={() => onHover(topFaction)}
-          onBlur={() => onHover(null)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              onNavigate?.(topFaction);
-            } else if (e.key === ' ') {
-              e.preventDefault();
-              onNavigate?.(topFaction);
-            }
-          }}
-          tabIndex={0}
-          role="button"
-          aria-label={`${topFaction.name} faction`}
-        >
-          <FactionCard faction={topFaction} onClick={(f) => onFocus(f)} />
-        </div>
+        {renderFactionNode(topFaction, "left-1/2 top-[6%] -translate-x-1/2")}
         {/* Top-right */}
-        <div
-          className="absolute right-[6%] top-[30%]"
-          onMouseEnter={() => onHover(topRightFaction)}
-          onMouseLeave={() => onHover(null)}
-          onDoubleClick={() => onNavigate?.(topRightFaction)}
-          onFocus={() => onHover(topRightFaction)}
-          onBlur={() => onHover(null)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              onNavigate?.(topRightFaction);
-            } else if (e.key === ' ') {
-              e.preventDefault();
-              onNavigate?.(topRightFaction);
-            }
-          }}
-          tabIndex={0}
-          role="button"
-          aria-label={`${topRightFaction.name} faction`}
-        >
-          <FactionCard faction={topRightFaction} onClick={(f) => onFocus(f)} />
-        </div>
+        {renderFactionNode(topRightFaction, "right-[6%] top-[30%]")}
         {/* Bottom-right */}
-        <div
-          className="absolute bottom-[6%] right-[6%]"
-          onMouseEnter={() => onHover(bottomRightFaction)}
-          onMouseLeave={() => onHover(null)}
-          onDoubleClick={() => onNavigate?.(bottomRightFaction)}
-          onFocus={() => onHover(bottomRightFaction)}
-          onBlur={() => onHover(null)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              onNavigate?.(bottomRightFaction);
-            } else if (e.key === ' ') {
-              e.preventDefault();
-              onNavigate?.(bottomRightFaction);
-            }
-          }}
-          tabIndex={0}
-          role="button"
-          aria-label={`${bottomRightFaction.name} faction`}
-        >
-          <FactionCard faction={bottomRightFaction} onClick={(f) => onFocus(f)} />
-        </div>
+        {renderFactionNode(bottomRightFaction, "bottom-[6%] right-[6%]")}
         {/* Bottom */}
-        <div
-          className="absolute bottom-[6%] left-1/2 -translate-x-1/2"
-          onMouseEnter={() => onHover(bottomFaction)}
-          onMouseLeave={() => onHover(null)}
-          onDoubleClick={() => onNavigate?.(bottomFaction)}
-          onFocus={() => onHover(bottomFaction)}
-          onBlur={() => onHover(null)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              onNavigate?.(bottomFaction);
-            } else if (e.key === ' ') {
-              e.preventDefault();
-              onNavigate?.(bottomFaction);
-            }
-          }}
-          tabIndex={0}
-          role="button"
-          aria-label={`${bottomFaction.name} faction`}
-        >
-          <FactionCard faction={bottomFaction} onClick={(f) => onFocus(f)} />
-        </div>
+        {renderFactionNode(bottomFaction, "bottom-[6%] left-1/2 -translate-x-1/2")}
         {/* Bottom-left */}
-        <div
-          className="absolute bottom-[6%] left-[6%]"
-          onMouseEnter={() => onHover(bottomLeftFaction)}
-          onMouseLeave={() => onHover(null)}
-          onDoubleClick={() => onNavigate?.(bottomLeftFaction)}
-          onFocus={() => onHover(bottomLeftFaction)}
-          onBlur={() => onHover(null)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              onNavigate?.(bottomLeftFaction);
-            } else if (e.key === ' ') {
-              e.preventDefault();
-              onNavigate?.(bottomLeftFaction);
-            }
-          }}
-          tabIndex={0}
-          role="button"
-          aria-label={`${bottomLeftFaction.name} faction`}
-        >
-          <FactionCard faction={bottomLeftFaction} onClick={(f) => onFocus(f)} />
-        </div>
+        {renderFactionNode(bottomLeftFaction, "bottom-[6%] left-[6%]")}
         {/* Top-left */}
-        <div
-          className="absolute left-[6%] top-[30%]"
-          onMouseEnter={() => onHover(topLeftFaction)}
-          onMouseLeave={() => onHover(null)}
-          onDoubleClick={() => onNavigate?.(topLeftFaction)}
-          onFocus={() => onHover(topLeftFaction)}
-          onBlur={() => onHover(null)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              onNavigate?.(topLeftFaction);
-            } else if (e.key === ' ') {
-              e.preventDefault();
-              onNavigate?.(topLeftFaction);
-            }
-          }}
-          tabIndex={0}
-          role="button"
-          aria-label={`${topLeftFaction.name} faction`}
-        >
-          <FactionCard faction={topLeftFaction} onClick={(f) => onFocus(f)} />
-        </div>
+        {renderFactionNode(topLeftFaction, "left-[6%] top-[30%]")}
       </div>
     </div>
   );

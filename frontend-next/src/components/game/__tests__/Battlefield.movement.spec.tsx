@@ -2,7 +2,6 @@ import React from "react";
 import { render, fireEvent } from "@testing-library/react";
 import Battlefield from "@/components/game/Battlefield";
 import type { BattlefieldUnit, BattlefieldZone } from "@/types/game";
-import { offsetOddRToAxial } from "@/lib/hex";
 
 // Helper to query zones
 const getZone = (container: HTMLElement, pos: string): HTMLElement => {
@@ -43,7 +42,7 @@ describe("Battlefield movement legality with movementCostFn", () => {
       <Battlefield
         selectedCard={null}
         onCardPlayed={() => {}}
-        initialUnits={initialUnits}
+        units={initialUnits}
         rows={rows}
         cols={cols}
         movementCostFn={movementCostFn}

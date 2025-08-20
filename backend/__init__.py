@@ -29,7 +29,16 @@ __description__ = "Backend API for Crisis Unleashed card game"
 
 __all__ = ["api", "repository", "services"]
 
-def __getattr__(name):  # PEP 562
+from types import ModuleType
+from typing import Any, Optional
+
+# Placeholders for static analyzers; actual modules are loaded lazily in __getattr__
+# They remain None until first attribute access.
+api: Optional[ModuleType] = None
+repository: Optional[ModuleType] = None
+services: Optional[ModuleType] = None
+
+def __getattr__(name: str) -> Any:  # PEP 562
     if name in {"api", "repository", "services"}:
         import importlib
         module = importlib.import_module(f".{name}", __name__)

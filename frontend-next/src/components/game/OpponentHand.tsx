@@ -26,11 +26,13 @@ export const OpponentHand: React.FC<OpponentHandProps> = ({
           <button
             key={c.id}
             type="button"
-            disabled={disabled}
-            onClick={() => onSelectCard?.(c)}
+            disabled={disabled || isOpponent}
+            onClick={!isOpponent && onSelectCard ? () => onSelectCard(c) : undefined}
             className={clsx(
               "relative h-28 w-20 shrink-0 rounded-md border text-left",
-              "transition-transform duration-150 hover:-translate-y-1",
+              // Only elevate on hover for player's hand
+              !isOpponent && !disabled ? "transition-transform duration-150 hover:-translate-y-1" : "",
+              (disabled || isOpponent) ? "cursor-not-allowed opacity-90" : "cursor-pointer",
               isOpponent
                 ? "bg-gradient-to-br from-gray-800 to-gray-700 border-gray-600"
                 : "bg-gradient-to-br from-gray-900 to-gray-800 border-gray-700"

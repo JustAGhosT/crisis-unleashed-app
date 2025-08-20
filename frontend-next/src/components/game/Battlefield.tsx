@@ -14,7 +14,11 @@ export interface BattlefieldProps {
   onZoneHover?: (position: string | null) => void;
   playerId?: PlayerId;
   enemyId?: PlayerId;
-  initialUnits?: Record<string, BattlefieldUnit>;
+  // Controlled units map: parent is source of truth
+  units: Record<string, BattlefieldUnit>;
+  // Intents to mutate state are emitted via callbacks
+  onMove?: (from: string, to: string) => void;
+  onAttack?: (from: string, to: string) => void;
   rows?: number;
   cols?: number;
   // Action economy
@@ -32,7 +36,9 @@ export const Battlefield: React.FC<BattlefieldProps> = ({
   onUnitSelected,
   onZoneHover,
   playerId = "player1",
-  initialUnits = {},
+  units,
+  onMove,
+  onAttack,
   rows = 6,
   cols = 5,
   actionsLeft,
@@ -42,7 +48,6 @@ export const Battlefield: React.FC<BattlefieldProps> = ({
 }) => {
   const [hoveredZone, setHoveredZone] = useState<string | null>(null);
   const [neighborPositions, setNeighborPositions] = useState<Set<string>>(new Set());
-  const [battlefieldUnits, setBattlefieldUnits] = useState<Record<string, BattlefieldUnit>>(initialUnits);
   const [selectedUnitPos, setSelectedUnitPos] = useState<string | null>(null);
   const [legalMovePositions, setLegalMovePositions] = useState<Set<string>>(new Set());
   const [adjacentEnemyPositions, setAdjacentEnemyPositions] = useState<Set<string>>(new Set());
@@ -62,7 +67,7 @@ export const Battlefield: React.FC<BattlefieldProps> = ({
         const axial = offsetOddRToAxial(row, col);
         grid.push({
           position,
-          unit: battlefieldUnits[position] || null,
+          unit: units[position] || null,
           isPlayerZone,
           isEnemyZone,
           isNeutralZone,
@@ -73,7 +78,7 @@ export const Battlefield: React.FC<BattlefieldProps> = ({
       }
     }
     return grid;
-  }, [battlefieldUnits, rows, cols]);
+  }, [units, rows, cols]);
 
   const getZoneByPosition = useCallback((pos: string): BattlefieldZone | undefined => {
     return battlefieldGrid.find((z) => z.position === pos);
@@ -91,13 +96,13 @@ export const Battlefield: React.FC<BattlefieldProps> = ({
         .map(axialToOffsetOddR)
         .some(({ row, col }) => {
           const p = `${row}-${col}`;
-          const u = battlefieldUnits[p];
+          const u = units[p];
           return !!u && u.player !== unit.player;
         });
       if (leavingEnemyAdj) cost += 1;
     }
     return cost;
-  }, [movementCostFn, battlefieldUnits]);
+  }, [movementCostFn, units]);
 
   const handleZoneClick = useCallback(
     (position: string, zone: BattlefieldZone) => {
@@ -109,7 +114,7 @@ export const Battlefield: React.FC<BattlefieldProps> = ({
         const srcZone = getZoneByPosition(selectedUnitPos);
         if (srcZone?.axial && zone.axial && canAct) {
           const dist = axialDistance(srcZone.axial, zone.axial);
-          const attacker = battlefieldUnits[selectedUnitPos];
+          const attacker = units[selectedUnitPos];
           const target = zone.unit;
           if (!attacker || !target) return;
           const isFriendly = target.player === attacker.player;
@@ -122,18 +127,7 @@ export const Battlefield: React.FC<BattlefieldProps> = ({
             const rangeMax = meleeOnly ? 1 : (attacker.rangeMax ?? (attacker.type === "ranged" ? 3 : 1));
             const inRange = dist >= rangeMin && dist <= rangeMax && dist > 0;
             if (inRange) {
-              setBattlefieldUnits((prev) => {
-                const t = prev[position];
-                if (!t) return prev;
-                const next = { ...prev };
-                const remaining = (t.health ?? 0) - (attacker.attack ?? 0);
-                if (remaining <= 0) {
-                  delete next[position];
-                } else {
-                  next[position] = { ...t, health: remaining };
-                }
-                return next;
-              });
+              onAttack?.(selectedUnitPos, position);
               onActionUsed?.();
               // Keep selection to allow follow-up moves/attacks if actions remain
               return;
@@ -144,14 +138,7 @@ export const Battlefield: React.FC<BattlefieldProps> = ({
 
       // If a legal empty target is clicked while a unit is selected: move
       if (selectedUnitPos && legalMovePositions.has(position) && !zone.unit && canAct) {
-        setBattlefieldUnits((prev) => {
-          const moving = prev[selectedUnitPos!];
-          if (!moving) return prev;
-          const next = { ...prev };
-          delete next[selectedUnitPos!];
-          next[position] = moving;
-          return next;
-        });
+        onMove?.(selectedUnitPos, position);
         setSelectedUnitPos(null);
         setLegalMovePositions(new Set());
         setAdjacentEnemyPositions(new Set());
@@ -182,9 +169,9 @@ export const Battlefield: React.FC<BattlefieldProps> = ({
                 const srcZone = getZoneByPosition(position);
                 const dstZone = getZoneByPosition(pos);
                 if (srcZone && dstZone) {
-                  const mover = battlefieldUnits[position]!;
+                  const mover = units[position]!;
                   const cost = effectiveMoveCost(mover, srcZone, dstZone, d);
-                  if (cost <= speed && !battlefieldUnits[pos]) {
+                  if (cost <= speed && !units[pos]) {
                     legal.add(pos);
                   }
                 }
@@ -198,7 +185,7 @@ export const Battlefield: React.FC<BattlefieldProps> = ({
               .filter(({ row, col }) => row >= 0 && row < rows && col >= 0 && col < cols)
               .forEach(({ row, col }) => {
                 const p = `${row}-${col}`;
-                const u = battlefieldUnits[p];
+                const u = units[p];
                 if (u && u.player !== playerId) adj.add(p);
               });
             setAdjacentEnemyPositions(adj);
@@ -215,7 +202,7 @@ export const Battlefield: React.FC<BattlefieldProps> = ({
         onCardPlayed(position);
       }
     },
-    [selectedCard, onCardPlayed, onUnitSelected, selectedUnitPos, legalMovePositions, battlefieldUnits, playerId, rows, cols, actionsLeft, getZoneByPosition, effectiveMoveCost, onActionUsed]
+    [selectedCard, onCardPlayed, onUnitSelected, selectedUnitPos, legalMovePositions, units, playerId, rows, cols, actionsLeft, getZoneByPosition, effectiveMoveCost, onActionUsed, onMove, onAttack]
   );
 
   useEffect(() => {

@@ -4,7 +4,7 @@ export async function POST() {
   try {
     // Clear the auth cookie with explicit path
     const resp = NextResponse.json({ success: true });
-    resp.cookies.delete({ name: "auth_token", path: "/" });
+    resp.cookies.delete("auth_token");
     return resp;
   } catch (error) {
     console.error("Logout error:", error);

@@ -6,10 +6,28 @@ const fs = require('fs');
 const path = require('path');
 
 function ensureFile(filePath, content) {
-  fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  fs.writeFileSync(filePath, content, 'utf8');
-  if (process.env.NEXT_PATCH_DEBUG === 'true') {
-    console.log('[patch-next-response] Wrote', filePath);
+  const dir = path.dirname(filePath);
+  try {
+    fs.mkdirSync(dir, { recursive: true });
+  } catch (e) {
+    console.error('[patch-next-response] Failed to create directory:', dir, '-', e && e.message);
+    if (process.env.NEXT_PATCH_DEBUG === 'true' && e && e.stack) {
+      console.error(e.stack);
+    }
+    throw e;
+  }
+
+  try {
+    fs.writeFileSync(filePath, content, 'utf8');
+    if (process.env.NEXT_PATCH_DEBUG === 'true') {
+      console.log('[patch-next-response] Wrote', filePath);
+    }
+  } catch (e) {
+    console.error('[patch-next-response] Failed to write file:', filePath, '-', e && e.message);
+    if (process.env.NEXT_PATCH_DEBUG === 'true' && e && e.stack) {
+      console.error(e.stack);
+    }
+    throw e;
   }
 }
 

@@ -17,6 +17,9 @@
     "test:watch": "cd frontend-next && pnpm test:watch",
     "test:coverage": "cd frontend-next && pnpm test:coverage",
     "lint": "pnpm --filter frontend-next lint",
+    "lint:py": "powershell -NoProfile -File .\\scripts\\lint-python.ps1",
+    "lint:ps": "powershell -NoProfile -File .\\scripts\\lint-powershell.ps1",
+    "lint:repo": "pnpm run lint:py && pnpm run lint:ps && pnpm run lint",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
     "setup": "cd frontend-next && pnpm install",
     "bootstrap": "pnpm install -w"

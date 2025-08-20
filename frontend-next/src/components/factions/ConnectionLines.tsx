@@ -35,20 +35,23 @@ export function ConnectionLines({
       preserveAspectRatio="xMidYMid meet"
       aria-hidden
     >
-      {connections.map((connection, i) => (
-        <line
-          key={i}
-          x1={connection.from.x}
-          y1={connection.from.y}
-          x2={connection.to.x}
-          y2={connection.to.y}
-          stroke={connection.from.color}
-          className={cn(
-            "transition-colors duration-300",
-            connection.active ? "opacity-80" : "opacity-30",
-          )}
-        />
-      ))}
+      {connections.map((connection) => {
+        const key = `${connection.from.x},${connection.from.y}->${connection.to.x},${connection.to.y}:${connection.from.color}`;
+        return (
+          <line
+            key={key}
+            x1={connection.from.x}
+            y1={connection.from.y}
+            x2={connection.to.x}
+            y2={connection.to.y}
+            stroke={connection.from.color}
+            className={cn(
+              "transition-colors duration-300",
+              connection.active ? "opacity-80" : "opacity-30",
+            )}
+          />
+        );
+      })}
 
       {centerNode && (
         <circle

@@ -3,12 +3,12 @@ import MoodBoard from "@/components/factions/MoodBoard";
 import { FACTION_KEYS, type FactionKey } from "@/lib/theme/faction-theme";
 import { FactionThemeProvider } from "@/lib/theme/theme-context";
 
-export default async function FactionMoodBoardPage({
+export default function FactionMoodBoardPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }) {
-  const { id } = await params;
+  const { id } = params;
   const factionId = id as FactionKey;
   if (!FACTION_KEYS.includes(factionId)) return notFound();
 

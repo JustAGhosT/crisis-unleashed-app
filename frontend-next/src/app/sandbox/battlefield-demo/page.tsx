@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Battlefield from "@/components/game/Battlefield";
 import TurnManager, { type Phase } from "@/components/game/TurnManager";
 import PlayerHUD from "@/components/game/PlayerHUD";
@@ -14,6 +14,7 @@ export default function BattlefieldDemoPage() {
   const [actionsLeft, setActionsLeft] = useState<number>(2);
 
   const [selectedCard, setSelectedCard] = useState<Card | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const playerHand = useMemo<Card[]>(
     () => [
@@ -44,12 +45,35 @@ export default function BattlefieldDemoPage() {
     []
   );
 
+  // Controlled units state for Battlefield
+  const [units, setUnits] = useState<Record<string, BattlefieldUnit>>(initialUnits);
+  // Keep in sync if initialUnits changes (e.g., reset scenario)
+  useEffect(() => {
+    setUnits(initialUnits);
+  }, [initialUnits]);
+
   const onCardPlayed = (position: string) => {
-    if (!selectedCard) return;
-    if (energy < (selectedCard.cost ?? 0)) return;
+    if (!selectedCard) {
+      const msg = "Select a card before playing.";
+      setErrorMessage(msg);
+      if (process.env.NEXT_PUBLIC_DEBUG === 'true') {
+        console.warn("Card play failed:", msg);
+      }
+      return;
+    }
+    const cost = selectedCard.cost ?? 0;
+    if (energy < cost) {
+      const msg = `Not enough energy (${energy}/${cost}) to play ${selectedCard.name}.`;
+      setErrorMessage(msg);
+      if (process.env.NEXT_PUBLIC_DEBUG === 'true') {
+        console.warn("Card play failed:", msg);
+      }
+      return;
+    }
     // naive demo state updates
-    setEnergy((e) => e - (selectedCard.cost ?? 0));
+    setEnergy((e) => e - cost);
     setSelectedCard(null);
+    setErrorMessage(null);
     if (process.env.NEXT_PUBLIC_DEBUG === 'true') {
       console.info("Played card", selectedCard, "to", position);
     }
@@ -77,16 +101,47 @@ export default function BattlefieldDemoPage() {
       <OpponentHand cards={opponentHand} isOpponent />
 
       {/* Battlefield */}
+      {errorMessage && (
+        <div role="alert" className="rounded-md border border-red-300 bg-red-50 text-red-800 p-2">
+          {errorMessage}
+        </div>
+      )}
+
       <Battlefield
         selectedCard={selectedCard}
         onCardPlayed={onCardPlayed}
+        units={units}
+        onMove={(from, to) => {
+          setUnits((prev) => {
+            const moving = prev[from];
+            if (!moving || prev[to]) return prev;
+            const next = { ...prev };
+            delete next[from];
+            next[to] = moving;
+            return next;
+          });
+        }}
+        onAttack={(from, to) => {
+          setUnits((prev) => {
+            const attacker = prev[from];
+            const target = prev[to];
+            if (!attacker || !target) return prev;
+            const remaining = (target.health ?? 0) - (attacker.attack ?? 0);
+            const next = { ...prev };
+            if (remaining <= 0) {
+              delete next[to];
+            } else {
+              next[to] = { ...target, health: remaining };
+            }
+            return next;
+          });
+        }}
         onUnitSelected={(u) => {
           if (process.env.NEXT_PUBLIC_DEBUG === 'true') {
             console.info("Selected unit", u);
           }
         }}
         onZoneHover={() => {}}
-        initialUnits={initialUnits}
         rows={6}
         cols={5}
         actionsLeft={actionsLeft}
@@ -98,7 +153,10 @@ export default function BattlefieldDemoPage() {
       <OpponentHand
         cards={playerHand}
         isOpponent={false}
-        onSelectCard={(c) => setSelectedCard(c)}
+        onSelectCard={(c) => {
+          setSelectedCard(c);
+          setErrorMessage(null);
+        }}
       />
 
       {/* Turn manager */}
