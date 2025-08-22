@@ -155,9 +155,8 @@ class TransferRequest(BaseModel):
             # Align with MintRequest: fail fast if blockchain isn't available yet
             raise ValueError("blockchain field must be validated before wallet addresses")
         # Provide precise field name in error messages (from_address/to_address)
-        _name = getattr(info, "field_name", None)
-        field_name: str = _name if isinstance(_name, str) else "wallet_address"
-        return validate_wallet_address_format(v, network_name, f"{field_name}")
+        field_name = info.field_name if info.field_name else "wallet_address"
+        return validate_wallet_address_format(v, network_name, field_name)
 
     @field_validator("token_id")
     def validate_token_id(cls, v: str) -> str:

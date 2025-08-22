@@ -32,7 +32,7 @@ class BlockchainHandler:
         self.outbox_repo = outbox_repo
         self.blockchain_service = blockchain_service
 
-# Add this helper alongside other private methods in the class
+    # Add this helper alongside other private methods in the class
     def _get_entry_id(self, entry: Any) -> str:
         """Extract entry ID from entry object, handling different attribute names."""
         return getattr(entry, 'outbox_id', getattr(entry, 'id', 'unknown'))
@@ -74,7 +74,7 @@ class BlockchainHandler:
 
     def _process_entry(self, entry: Any) -> None:
         """Process a single outbox entry (sync)."""
-        entry_id = getattr(entry, 'outbox_id', getattr(entry, 'id', 'unknown'))
+        entry_id = self._get_entry_id(entry)
         entry_type = getattr(entry, 'outbox_type', getattr(entry, 'type', None))
         # mark processing (best-effort if repo provides it)
         try:
@@ -103,7 +103,7 @@ class BlockchainHandler:
         """Handle NFT minting operation (sync, matches test expectations)."""
         data = entry.request_data
         blockchain = data["blockchain"]
-        entry_id = getattr(entry, 'outbox_id', getattr(entry, 'id', 'unknown'))
+        entry_id = self._get_entry_id(entry)
         logger.info(f"Minting NFT on {blockchain} for entry {entry_id}")
         tx_hash = self.blockchain_service.mint_nft(
             blockchain=blockchain,
@@ -125,7 +125,7 @@ class BlockchainHandler:
         """Handle NFT transfer operation (sync, matches test expectations)."""
         data = entry.request_data
         blockchain = data["blockchain"]
-        entry_id = getattr(entry, 'outbox_id', getattr(entry, 'id', 'unknown'))
+        entry_id = self._get_entry_id(entry)
         logger.info(f"Transferring NFT on {blockchain} for entry {entry_id}")
         tx_hash = self.blockchain_service.transfer_nft(
             blockchain=blockchain,
@@ -147,7 +147,7 @@ class BlockchainHandler:
         """Handle marketplace listing operation."""
         data = entry.request_data
         # Placeholder for marketplace listing logic
-        entry_id = getattr(entry, 'outbox_id', getattr(entry, 'id', 'unknown'))
+        entry_id = self._get_entry_id(entry)
         logger.info(f"Marketplace listing not yet implemented for entry {entry_id}")
         # For now, simulate success
         result = {
@@ -162,7 +162,7 @@ class BlockchainHandler:
         """Handle marketplace purchase operation."""
         data = entry.request_data
         # Placeholder for marketplace purchase logic
-        entry_id = getattr(entry, 'outbox_id', getattr(entry, 'id', 'unknown'))
+        entry_id = self._get_entry_id(entry)
         logger.info(f"Marketplace purchase not yet implemented for entry {entry_id}")
         # For now, simulate success
         result = {

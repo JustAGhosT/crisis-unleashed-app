@@ -194,9 +194,35 @@ class EtherlinkProvider(BaseBlockchainProvider):
             return "unknown"
 
         try:
-            # In simulation, return pending status string
+            if WEB3_AVAILABLE and self.web3:
+                w3 = self.web3
+                if w3 is None:
+                    return "unknown"
+                receipt = w3.eth.get_transaction_receipt(tx_hash)
+                if receipt is None:
+                    return "pending"
+                # Try dict-like access first, then attributes
+                try:
+                    status_val = receipt.get("status")  # type: ignore[assignment]
+                    block_number = receipt.get("blockNumber")
+                except Exception:
+                    status_val = getattr(receipt, "status", None)
+                    block_number = getattr(receipt, "blockNumber", None)
+
+                if status_val == 1:
+                    return "confirmed"
+                if status_val == 0:
+                    return "failed"
+                if block_number is None:
+                    return "pending"
+                return "unknown"
+
+            # Simulation mode: make behavior explicit
+            return "pending_simulated"
+        except TransactionNotFound:
             return "pending"
-        except Exception:
+        except Exception as e:
+            logger.error(f"Error getting transaction status for {tx_hash}: {e}")
             return "error"
     
     def get_nft_owner(self, token_id: str) -> Optional[str]:

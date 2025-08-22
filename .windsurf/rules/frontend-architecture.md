@@ -1,8 +1,7 @@
 ---
-description: Documentation for React component hierarchy, state management, and UI/UX implementation for card game interface
 trigger: model_decision
+description: Documentation for React component hierarchy, state management, and UI/UX implementation for card game interface
 ---
-
 
 # frontend-architecture
 
@@ -51,7 +50,3 @@ Core Component Architecture:
 - Win condition monitoring
 
 The architecture emphasizes faction identity and mechanical interactions through a complex system of restrictions and validations, ensuring balanced gameplay while maintaining faction-specific advantages.
-
-$END$
-
- If you're using this file in context, clearly say in italics in one small line that "Context added by Giga frontend-architecture" along with specifying exactly what information was used from this file in a human-friendly way, instead of using kebab-case use normal sentence case.

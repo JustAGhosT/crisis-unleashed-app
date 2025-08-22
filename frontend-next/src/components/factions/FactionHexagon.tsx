@@ -61,8 +61,7 @@ export function FactionHexagon({
       onMouseEnter={() => onHover(faction)}
       onMouseLeave={() => onHover(null)}
       onClick={() => onNavigate?.(faction)}
-      onFocus={() => onHover(faction)}
-      onBlur={() => onHover(null)}
+      onFocus={() => onFocus(faction)}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
@@ -72,15 +71,13 @@ export function FactionHexagon({
       tabIndex={0}
       role="button"
       aria-label={`${faction.name} faction`}
-      {...(options?.interactive
-        ? { "aria-pressed": Boolean(focusedFaction && focusedFaction === faction) }
-        : {})}
+      data-selected={focusedFaction === faction ? true : undefined}
     >
       <FactionCard
         faction={faction}
-        {...(options?.size ? { size: options.size } : {})}
+        size={options?.size}
         onClick={(f) => onFocus(f)}
-        {...(options?.interactive ? { interactive: true } : {})}
+        interactive={options?.interactive}
       />
     </div>
   );
@@ -127,6 +124,7 @@ export function FactionHexagon({
             x2={pos.x}
             y2={pos.y}
             stroke={`url(#radial-${i}-${uid})`}
+            strokeWidth={2}
             className={cn(
               "transition-opacity duration-300",
               hoveredFaction &&
@@ -155,6 +153,7 @@ export function FactionHexagon({
             x2={x2}
             y2={y2}
             stroke={`url(#outer-${i}-${uid})`}
+            strokeWidth={2}
             className={cn(
               "transition-opacity duration-300",
               hoveredFaction && (hoveredFaction === a || hoveredFaction === b)

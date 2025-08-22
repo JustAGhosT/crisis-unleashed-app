@@ -38,6 +38,47 @@ export default function ThemeSettingsPage() {
   // New theme settings with enhanced options
   const NewThemeSettings = () => {
     const currentTheme = theme === "system" ? `system (${systemTheme})` : theme;
+    const [reducedMotion, setReducedMotion] = useState<boolean>(false);
+    const [highContrast, setHighContrast] = useState<boolean>(false);
+
+    // Initialize from localStorage and system prefs (client-only)
+    useEffect(() => {
+      try {
+        const rmStored = typeof window !== "undefined" ? localStorage.getItem("reduced-motion") : null;
+        const hcStored = typeof window !== "undefined" ? localStorage.getItem("high-contrast") : null;
+        // System prefers-reduced-motion
+        const prefersReduced = typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const initialRM = rmStored !== null ? rmStored === "true" : !!prefersReduced;
+        const initialHC = hcStored !== null ? hcStored === "true" : false;
+        setReducedMotion(initialRM);
+        setHighContrast(initialHC);
+      } catch {
+        // ignore
+      }
+    }, []);
+
+    // Apply document root classes and persist on change
+    useEffect(() => {
+      if (typeof document === "undefined") return;
+      const root = document.documentElement;
+      if (reducedMotion) {
+        root.classList.add("reduced-motion");
+      } else {
+        root.classList.remove("reduced-motion");
+      }
+      try { localStorage.setItem("reduced-motion", String(reducedMotion)); } catch {}
+    }, [reducedMotion]);
+
+    useEffect(() => {
+      if (typeof document === "undefined") return;
+      const root = document.documentElement;
+      if (highContrast) {
+        root.classList.add("high-contrast");
+      } else {
+        root.classList.remove("high-contrast");
+      }
+      try { localStorage.setItem("high-contrast", String(highContrast)); } catch {}
+    }, [highContrast]);
 
     return (
       <div className="space-y-6">
@@ -131,7 +172,15 @@ export default function ThemeSettingsPage() {
                 </p>
               </div>
               <div className="relative inline-block w-10 mr-2 align-middle select-none">
-                <input type="checkbox" id="reduced-motion" name="reduced-motion" className="sr-only" aria-labelledby="reduced-motion-label" />
+                <input
+                  type="checkbox"
+                  id="reduced-motion"
+                  name="reduced-motion"
+                  className="sr-only"
+                  aria-labelledby="reduced-motion-label"
+                  checked={reducedMotion}
+                  onChange={(e) => setReducedMotion(e.target.checked)}
+                />
                 <label htmlFor="reduced-motion" className="block overflow-hidden h-6 rounded-full bg-gray-300 dark:bg-gray-600 cursor-pointer">
                   <span className="block h-6 w-6 rounded-full bg-white shadow transform transition-transform duration-200 ease-in-out"></span>
                 </label>
@@ -148,7 +197,15 @@ export default function ThemeSettingsPage() {
                 </p>
               </div>
               <div className="relative inline-block w-10 mr-2 align-middle select-none">
-                <input type="checkbox" id="high-contrast" name="high-contrast" className="sr-only" aria-labelledby="high-contrast-label" />
+                <input
+                  type="checkbox"
+                  id="high-contrast"
+                  name="high-contrast"
+                  className="sr-only"
+                  aria-labelledby="high-contrast-label"
+                  checked={highContrast}
+                  onChange={(e) => setHighContrast(e.target.checked)}
+                />
                 <label htmlFor="high-contrast" className="block overflow-hidden h-6 rounded-full bg-gray-300 dark:bg-gray-600 cursor-pointer">
                   <span className="block h-6 w-6 rounded-full bg-white shadow transform transition-transform duration-200 ease-in-out"></span>
                 </label>

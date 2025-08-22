@@ -3,12 +3,6 @@ trigger: model_decision
 description: Documents core game entities and models including cards, grid, stats and state
 ---
 
-# === USER INSTRUCTIONS ===
-trigger: model_decision
-```
-# === END USER INSTRUCTIONS ===
-
-# game-data-models
 
 Core Game Entities:
 

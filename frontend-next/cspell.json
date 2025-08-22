@@ -8,7 +8,6 @@
     "public/**"
   ],
   "words": [
-    "adminpass",
     "aeonic",
     "afdesign",
     "afphoto",
@@ -37,7 +36,6 @@
     "carmilla",
     "cbbrtczfqq",
     "celestials",
-    "changeme",
     "Chronal",
     "Chrono",
     "Chronomancer",
@@ -235,7 +233,6 @@
     "Telepath",
     "terraformation",
     "terraforming",
-    "testuser",
     "Tezos",
     "Thalus",
     "Theles",
@@ -257,7 +254,6 @@
     "unhover",
     "unkillable",
     "untargetable",
-    "userpass",
     "uvicorn",
     "valuenow",
     "Veilstone",
@@ -273,5 +269,11 @@
     "Wrathbound",
     "Wrathwell",
     "Zeth"
+  ],
+  "flagWords": [
+    "adminpass",
+    "changeme",
+    "testuser",
+    "userpass"
   ]
 }

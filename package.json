@@ -11,9 +11,11 @@
     }
   },
   "scripts": {
-    "start": "concurrently -n \"BACKEND,FRONTEND\" -c \"bgBlue.bold,bgGreen.bold\" \"cd backend && powershell -File .\\start_server.ps1\" \"cd frontend-next && pnpm dev\"",
-    "start:backend": "cd backend && powershell -File .\\start_server.ps1",
-    "start:frontend": "cd frontend-next && pnpm dev",
+    "start": "concurrently -n \"BACKEND,FRONTEND\" -c \"bgBlue.bold,bgGreen.bold\" \"pnpm run backend\" \"pnpm run frontend\"",
+    "backend": "cd backend && powershell -File .\\start_server.ps1",
+    "frontend": "cd frontend-next && powershell -File .\\start_frontend.ps1",
+    "start:backend": "pnpm run backend",
+    "start:frontend": "pnpm run frontend",
     "build": "pnpm --filter frontend-next build",
     "test": "cd frontend-next && pnpm test",
     "test:watch": "cd frontend-next && pnpm test:watch",

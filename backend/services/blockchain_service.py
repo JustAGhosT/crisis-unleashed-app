@@ -144,7 +144,7 @@ class BlockchainService:
                 "marketplace_contract_address": os.environ.get(
                     "ETHERLINK_TESTNET_MARKETPLACE_CONTRACT_ADDRESS"
                 ),
-                "chain_id": 42793,
+                "chain_id": 128123,
             },
             "solana_mainnet": {
                 "name": "solana_mainnet",
@@ -254,8 +254,7 @@ class BlockchainService:
             token_id: Token ID to transfer
 
         Returns:
-         Returns:
-             Transaction hash string
+            Transaction hash string
         """
         provider = self.get_provider(blockchain)
         return self._maybe_await(

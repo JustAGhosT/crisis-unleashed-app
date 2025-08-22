@@ -17,6 +17,8 @@ class EthereumProvider(BaseBlockchainProvider):
     def __init__(self, network_config: Dict[str, Any]):
         super().__init__(network_config)
         self.rpc_url = network_config.get("provider_url") or network_config.get("rpc_url")
+        if not self.rpc_url:
+            logger.warning("No RPC URL configured for EthereumProvider")
         self.contract_address = network_config.get("contract_address") or network_config.get("nft_contract_address")
         self.contract_abi = network_config.get("contract_abi") or []
         self.web3: Optional[Any] = None
@@ -91,8 +93,14 @@ class EthereumProvider(BaseBlockchainProvider):
         tx_params: Dict[str, Any] = {
             "from": from_address,
             "gas": self.network_config.get("gas_limit", 200000),
-            "gasPrice": getattr(self.web3.eth, "gas_price", None),  # type: ignore[union-attr]
         }
+        # Gas price handling: only set if retrievable and not None
+        try:
+            gp = getattr(self.web3.eth, "gas_price")  # type: ignore[union-attr]
+        except Exception:
+            gp = None
+        if gp is not None:
+            tx_params["gasPrice"] = gp
         # Optionally set chainId if provided in config or available from node
         chain_id = self.network_config.get("chain_id")
         if chain_id is None:
@@ -108,7 +116,7 @@ class EthereumProvider(BaseBlockchainProvider):
             try:
                 tx_params["nonce"] = self.web3.eth.get_transaction_count(from_address)  # type: ignore[union-attr]
             except Exception:
-                pass
+                logger.debug("Failed to fetch nonce; proceeding without explicit nonce")
 
         # Optional gas estimation if explicitly enabled (avoids issues with mocks)
         if self.network_config.get("estimate_gas", False):
@@ -117,7 +125,7 @@ class EthereumProvider(BaseBlockchainProvider):
                 tx_params["gas"] = estimated_gas
             except Exception:
                 # Fallback to configured/default gas
-                pass
+                logger.debug("Gas estimation failed; using configured/default gas limit")
 
         # Remove None values to avoid web3 validation issues
         tx_params = {k: v for k, v in tx_params.items() if v is not None}
@@ -134,19 +142,16 @@ class EthereumProvider(BaseBlockchainProvider):
                     raw_tx = getattr(signed, "rawTransaction", None)
                     if raw_tx is not None:
                         tx_hash = self.web3.eth.send_raw_transaction(raw_tx)  # type: ignore[union-attr]
-                        return tx_hash
+                        return self._to_hex(tx_hash)
+                    else:
+                        logger.warning("Signed transaction missing rawTransaction; falling back to send_transaction")
                 except Exception:
                     # If signing fails, fall back to sending the unsigned tx (useful in test/mocked environments)
-                    pass
+                    logger.warning("Local signing failed; falling back to send_transaction")
 
-        # Default path: prefer send_raw_transaction if available (common in tests/mocks),
-        # otherwise fall back to send_transaction.
-        send_raw = getattr(self.web3.eth, "send_raw_transaction", None)  # type: ignore[union-attr]
-        if callable(send_raw):
-            return cast(str, send_raw(tx))
-
+        # Default path: send unsigned transaction via provider
         tx_hash = self.web3.eth.send_transaction(tx)  # type: ignore[union-attr]
-        return cast(str, tx_hash)
+        return self._to_hex(tx_hash)
 
     def mint_nft(self, recipient: str, card_id: str, metadata: Dict[str, Any]) -> str:
         self._ensure_connected()
@@ -173,14 +178,32 @@ class EthereumProvider(BaseBlockchainProvider):
     def get_transaction_status(self, tx_hash: str) -> str:
         self._ensure_connected()
         receipt = self.web3.eth.get_transaction_receipt(tx_hash)  # type: ignore[union-attr]
-        status_val = None
-        if receipt is not None:
-            try:
-                status_val = receipt.get("status", 0)  # type: ignore[assignment]
-            except Exception:
-                # If receipt is a mock object, fallback to attribute access
-                status_val = getattr(receipt, "status", 0)
-        return "confirmed" if status_val == 1 else "pending"
+        if receipt is None:
+            return "pending"
+        # Try dict-like access first
+        try:
+            status_val = receipt.get("status")  # type: ignore[assignment]
+            block_number = receipt.get("blockNumber")
+        except Exception:
+            status_val = getattr(receipt, "status", None)
+            block_number = getattr(receipt, "blockNumber", None)
+
+        if status_val == 1:
+            return "confirmed"
+        if status_val == 0:
+            return "failed"
+        # If no explicit status, infer from block inclusion
+        if block_number is None:
+            return "pending"
+        return "unknown"
+
+    # --- Helpers ---
+    def _to_hex(self, tx_hash: Any) -> str:
+        """Normalize various tx hash types (HexBytes, str) to hex string."""
+        try:
+            return tx_hash.hex() if hasattr(tx_hash, "hex") else cast(str, tx_hash)
+        except Exception:
+            return str(tx_hash)
 
     def get_nft_owner(self, token_id: str) -> Optional[str]:
         self._ensure_connected()
