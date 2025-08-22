@@ -293,7 +293,8 @@ async def shutdown_event() -> None:
             logger.info("Outbox processor stopped")
 
         # Close database connection
-        client.close()  # type: ignore
+        # Motor's AsyncIOMotorClient.close() is a synchronous method; do not await
+        client.close()
         logger.info("Database connection closed")
 
         logger.info("🛑 Crisis Unleashed Backend shut down successfully!")

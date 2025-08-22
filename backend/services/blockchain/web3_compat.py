@@ -29,7 +29,7 @@ if WEB3_AVAILABLE:
         pass
 else:
     try:
-        from ..app_types.web3_types import (
+        from ...app_types.web3_types import (
             MockTransactionNotFound as _TxNotFound,
             MockTimeExhausted as _TimeExhausted,
         )

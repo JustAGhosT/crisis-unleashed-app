@@ -25,14 +25,14 @@ export interface BattlefieldUnit {
   zoc?: boolean;
 }
 
+export type ZoneType = 'player' | 'enemy' | 'neutral';
+export type ZonePosition = 'frontline' | 'backline' | 'middle';
+
 export interface BattlefieldZone {
   position: string; // `${row}-${col}`
   unit: BattlefieldUnit | null;
-  isPlayerZone: boolean;
-  isEnemyZone: boolean;
-  isNeutralZone: boolean;
-  isFrontline: boolean;
-  isBackline: boolean;
+  zoneType: ZoneType;
+  zonePosition: ZonePosition;
   // Axial hex coordinates (pointy-top). Enables true hex adjacency and movement.
   axial?: { q: number; r: number };
 }

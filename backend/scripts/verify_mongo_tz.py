@@ -129,11 +129,8 @@ def analyze_file(path: str) -> list[Finding]:
         uri = m.group(0)
         # Calculate line number from match position
         match_pos = m.start()
-        line_no = 1
-        for i, start in enumerate(line_starts[1:], 1):
-            if match_pos < start:
-                line_no = i
-                break
+        # Find the line number by counting how many line starts are before or at the match position
+        line_no = sum(1 for start in line_starts if start <= match_pos)
         # Normalize for case-insensitive key lookup
         lower = uri.lower()
         tzutc: Optional[bool] = None

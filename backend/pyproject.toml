@@ -4,7 +4,6 @@ line-length = 100
 indent-width = 4
 # backend/pyproject.toml
 
-[tool.ruff]
 extend-exclude = [
   ".venv",
   "**/__pycache__",
