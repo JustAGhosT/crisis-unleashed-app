@@ -1,6 +1,9 @@
-export const metadata = {
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
   title: "Feature Flags",
   description: "Admin interface for managing feature flags",
+  robots: { index: false, follow: false },
 };
 
 export default function FeatureFlagsPage() {

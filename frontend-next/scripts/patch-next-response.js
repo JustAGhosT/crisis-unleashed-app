@@ -5,8 +5,7 @@
 const fs = require('fs');
 const path = require('path');
 
-function ensureFile(filePath, content) {
-  const dir = path.dirname(filePath);
+function ensureDir(dir) {
   try {
     fs.mkdirSync(dir, { recursive: true });
   } catch (e) {
@@ -16,7 +15,9 @@ function ensureFile(filePath, content) {
     }
     throw e;
   }
+}
 
+function writeFile(filePath, content) {
   try {
     fs.writeFileSync(filePath, content, 'utf8');
     if (process.env.NEXT_PATCH_DEBUG === 'true') {
@@ -29,6 +30,12 @@ function ensureFile(filePath, content) {
     }
     throw e;
   }
+}
+
+function ensureFile(filePath, content) {
+  const dir = path.dirname(filePath);
+  ensureDir(dir);
+  writeFile(filePath, content);
 }
 
 function main() {

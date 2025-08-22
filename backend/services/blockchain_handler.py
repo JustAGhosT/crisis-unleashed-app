@@ -156,7 +156,7 @@ class BlockchainHandler:
             "price": data.get("price"),
             "status": "listed",
         }
-        self.outbox_repo.mark_completed(getattr(entry, 'outbox_id', getattr(entry, 'id', 'unknown')), result)
+        self.outbox_repo.mark_completed(entry_id, result)
 
     def _handle_marketplace_purchase(self, entry: Any) -> None:
         """Handle marketplace purchase operation."""
@@ -172,7 +172,7 @@ class BlockchainHandler:
             "price": data.get("price"),
             "status": "purchased",
         }
-        self.outbox_repo.mark_completed(getattr(entry, 'outbox_id', getattr(entry, 'id', 'unknown')), result)
+        self.outbox_repo.mark_completed(entry_id, result)
 
     def get_processing_stats(self) -> Dict[str, Any]:
         """Get statistics about outbox processing (sync)."""

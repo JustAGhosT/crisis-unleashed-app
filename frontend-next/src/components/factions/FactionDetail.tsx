@@ -1,9 +1,8 @@
 "use client";
 
-import * as React from "react";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Faction } from "@/types/faction";
-import { Button } from "@/components/ui/button";
 
 export type FactionDetailProps = {
   faction: Faction;
@@ -17,9 +16,9 @@ export type FactionDetailProps = {
  * Avoids global CSS variables; uses a CSS var locally for dynamic background image only.
  */
 export function FactionDetail({ faction, onClose, onExplore, className }: FactionDetailProps) {
-  // Use Option A: CSS variables + helper classes instead of inline styles
-  const themeClass = `faction-theme-${faction.id}`;
-  const bgClass = `faction-bg-${faction.id}`;
+  const safeId = faction.id.replace(/[^a-zA-Z0-9-_]/g, '');
+  const themeClass = `faction-theme-${safeId}`;
+  const bgClass = `faction-bg-${safeId}`;
 
   return (
     <div

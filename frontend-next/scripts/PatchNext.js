@@ -26,7 +26,14 @@ try {
   }
 }
 
-let src = fs.readFileSync(buildFilePath, 'utf8');
+let src;
+try {
+  src = fs.readFileSync(buildFilePath, 'utf8');
+} catch (err) {
+  console.error('[PatchNext] Failed to read build file:', buildFilePath);
+  console.error(err && err.message);
+  process.exit(2);
+}
 
 // If already patched (guard present), exit idempotently
 const alreadyGuarded = src.includes("typeof config.generateBuildId==='function'?config.generateBuildId:()=>null");

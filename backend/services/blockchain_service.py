@@ -144,22 +144,23 @@ class BlockchainService:
                 "marketplace_contract_address": os.environ.get(
                     "ETHERLINK_TESTNET_MARKETPLACE_CONTRACT_ADDRESS"
                 ),
-                "solana_mainnet": {
-                    "name": "solana_mainnet",
-                    "rpc_url": os.environ.get(
-                        "SOLANA_MAINNET_RPC_URL", "https://api.mainnet-beta.solana.com"
-                    ),
-                    "program_id": os.environ.get("SOLANA_MAINNET_PROGRAM_ID"),
-                    "chain_id": int(os.environ.get("SOLANA_MAINNET_CHAIN_ID", "101")),
-                },
-                "solana_testnet": {
-                    "name": "solana_testnet",
-                    "rpc_url": os.environ.get(
-                        "SOLANA_TESTNET_RPC_URL", "https://api.devnet.solana.com"
-                    ),
-                    "program_id": os.environ.get("SOLANA_TESTNET_PROGRAM_ID"),
-                    "chain_id": int(os.environ.get("SOLANA_TESTNET_CHAIN_ID", "103")),
-                },
+                "chain_id": 42793,
+            },
+            "solana_mainnet": {
+                "name": "solana_mainnet",
+                "rpc_url": os.environ.get(
+                    "SOLANA_MAINNET_RPC_URL", "https://api.mainnet-beta.solana.com"
+                ),
+                "program_id": os.environ.get("SOLANA_MAINNET_PROGRAM_ID"),
+                "chain_id": int(os.environ.get("SOLANA_MAINNET_CHAIN_ID", "101")),
+            },
+            "solana_testnet": {
+                "name": "solana_testnet",
+                "rpc_url": os.environ.get(
+                    "SOLANA_TESTNET_RPC_URL", "https://api.devnet.solana.com"
+                ),
+                "program_id": os.environ.get("SOLANA_TESTNET_PROGRAM_ID"),
+                "chain_id": int(os.environ.get("SOLANA_TESTNET_CHAIN_ID", "103")),
             },
         }
 

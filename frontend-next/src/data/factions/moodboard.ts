@@ -112,5 +112,9 @@ const MOODBOARD_MAP: Record<FactionKey, MoodBoardData> = {
 
 export function getMoodBoardData(faction: FactionKey): MoodBoardData {
   // All FactionKey values are present in MOODBOARD_MAP; avoid using a misleading default.
+  if (!(faction in MOODBOARD_MAP)) {
+    console.warn(`Unknown faction key: ${faction}, falling back to placeholder`);
+    return makePlaceholderMoodBoard(faction as FactionKey, `Unknown Faction (${faction})`);
+  }
   return MOODBOARD_MAP[faction];
 }

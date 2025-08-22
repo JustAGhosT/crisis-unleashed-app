@@ -6,12 +6,12 @@ import { FactionThemeProvider } from "@/lib/theme/theme-context";
 const isFactionKey = (v: string): v is FactionKey =>
   (FACTION_KEYS as readonly string[]).includes(v);
 
-export default async function FactionMoodBoardPage({
+export default function FactionMoodBoardPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }) {
-  const { id } = await params;
+  const { id } = params;
   if (!isFactionKey(id)) return notFound();
   const factionId: FactionKey = id;
 

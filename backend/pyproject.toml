@@ -2,7 +2,10 @@
 # Fast, strict-enough defaults. Keep it lean.
 line-length = 100
 indent-width = 4
-exclude = [
+# backend/pyproject.toml
+
+[tool.ruff]
+extend-exclude = [
   ".venv",
   "**/__pycache__",
   # Exclude legacy types and mocks folders from linting noise for now

@@ -23,7 +23,7 @@ class InMemoryCollection:
         self._docs.append(dict(doc))
 
     def update_one(self, filt: Dict[str, Any], update: Dict[str, Any]) -> None:
-        for d in self._docs:
+        for i, d in enumerate(self._docs):
             if all(d.get(k) == v for k, v in filt.items()):
                 # Create a shallow copy to avoid in-place mutations
                 updated_doc = dict(d)
@@ -34,7 +34,7 @@ class InMemoryCollection:
                 for k, v in update.get("$inc", {}).items():
                     updated_doc[k] = int(updated_doc.get(k, 0)) + int(v)
                 # Replace the original with the updated copy
-                self._docs[self._docs.index(d)] = updated_doc
+                self._docs[i] = updated_doc
                 break
 
     # Reads

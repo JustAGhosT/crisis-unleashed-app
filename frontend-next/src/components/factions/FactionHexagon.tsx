@@ -28,6 +28,8 @@ export function FactionHexagon({
   onNavigate,
   className,
 }: FactionHexagonProps) {
+  const uid = React.useId().replace(/:/g, "");
+
   if (factions.length !== 7) {
     if (process.env.NODE_ENV !== "production") {
       // eslint-disable-next-line no-console
@@ -55,10 +57,10 @@ export function FactionHexagon({
     options?: { size?: "lg" | "md"; interactive?: boolean },
   ) => (
     <div
-      className={cn("absolute", positionClass)}
+      className={cn("absolute cursor-pointer", positionClass)}
       onMouseEnter={() => onHover(faction)}
       onMouseLeave={() => onHover(null)}
-      onDoubleClick={() => onNavigate?.(faction)}
+      onClick={() => onNavigate?.(faction)}
       onFocus={() => onHover(faction)}
       onBlur={() => onHover(null)}
       onKeyDown={(e) => {
@@ -70,6 +72,9 @@ export function FactionHexagon({
       tabIndex={0}
       role="button"
       aria-label={`${faction.name} faction`}
+      {...(options?.interactive
+        ? { "aria-pressed": Boolean(focusedFaction && focusedFaction === faction) }
+        : {})}
     >
       <FactionCard
         faction={faction}
@@ -121,7 +126,7 @@ export function FactionHexagon({
             y1={400}
             x2={pos.x}
             y2={pos.y}
-            stroke={`url(#radial-${i})`}
+            stroke={`url(#radial-${i}-${uid})`}
             className={cn(
               "transition-opacity duration-300",
               hoveredFaction &&
@@ -149,7 +154,7 @@ export function FactionHexagon({
             y1={y1}
             x2={x2}
             y2={y2}
-            stroke={`url(#outer-${i})`}
+            stroke={`url(#outer-${i}-${uid})`}
             className={cn(
               "transition-opacity duration-300",
               hoveredFaction && (hoveredFaction === a || hoveredFaction === b)
@@ -171,7 +176,7 @@ export function FactionHexagon({
               [centerFaction, topLeftFaction],
             ] as const
           ).map(([a, b], i) => (
-            <linearGradient id={`radial-${i}`} key={`radial-${i}`} x1="0%" y1="0%" x2="100%" y2="0%">
+            <linearGradient id={`radial-${i}-${uid}`} key={`radial-${i}-${uid}`} x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stopColor={getColor(a)} />
               <stop offset="100%" stopColor={getColor(b)} />
             </linearGradient>
@@ -187,7 +192,7 @@ export function FactionHexagon({
               [bottomLeftFaction, topLeftFaction],
             ] as const
           ).map(([a, b], i) => (
-            <linearGradient id={`outer-${i}`} key={`outer-${i}`} x1="0%" y1="0%" x2="100%" y2="0%">
+            <linearGradient id={`outer-${i}-${uid}`} key={`outer-${i}-${uid}`} x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stopColor={getColor(a)} />
               <stop offset="100%" stopColor={getColor(b)} />
             </linearGradient>

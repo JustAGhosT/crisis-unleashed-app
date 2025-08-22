@@ -101,7 +101,8 @@ export const Battlefield: React.FC<BattlefieldProps> = ({
         });
       if (leavingEnemyAdj) cost += 1;
     }
-    return cost;
+    // Cap maximum cost to prevent movement lockouts from stacked modifiers
+    return Math.min(cost, dist * 2);
   }, [movementCostFn, units]);
 
   const handleZoneClick = useCallback(
@@ -112,14 +113,16 @@ export const Battlefield: React.FC<BattlefieldProps> = ({
       // If a unit is selected and clicking a unit -> attempt attack (respect friendlyFire)
       if (selectedUnitPos && zone.unit) {
         const srcZone = getZoneByPosition(selectedUnitPos);
-        if (srcZone?.axial && zone.axial && canAct) {
+        const attacker = units[selectedUnitPos];
+        const target = zone.unit;
+        if (!attacker || !target || !srcZone?.axial || !zone.axial) return;
+        
+        if (canAct) {
           const dist = axialDistance(srcZone.axial, zone.axial);
-          const attacker = units[selectedUnitPos];
-          const target = zone.unit;
-          if (!attacker || !target) return;
           const isFriendly = target.player === attacker.player;
           if (isFriendly && !attacker.friendlyFire) {
-            // ignore attack on friendlies unless friendlyFire enabled
+            console.warn("Cannot attack friendly units without friendlyFire enabled");
+            return;
           } else {
             // Determine attack ranges from unit attributes
             const meleeOnly = attacker.meleeOnly === true;

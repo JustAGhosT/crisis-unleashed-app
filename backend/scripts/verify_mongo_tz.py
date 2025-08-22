@@ -120,8 +120,20 @@ def analyze_file(path: str) -> list[Finding]:
                     findings.append(Finding(path, node.lineno, "codec", name, tz))
 
     # Second: regex scan for URIs with tzUTC
+    lines = src.split('\n')
+    line_starts = [0]
+    for line in lines:
+        line_starts.append(line_starts[-1] + len(line) + 1)
+
     for m in URI_PATTERN.finditer(src):
         uri = m.group(0)
+        # Calculate line number from match position
+        match_pos = m.start()
+        line_no = 1
+        for i, start in enumerate(line_starts[1:], 1):
+            if match_pos < start:
+                line_no = i
+                break
         # Normalize for case-insensitive key lookup
         lower = uri.lower()
         tzutc: Optional[bool] = None
@@ -129,7 +141,7 @@ def analyze_file(path: str) -> list[Finding]:
             tzutc = True
         elif "tzutc=false" in lower:
             tzutc = False
-        findings.append(Finding(path, 1, "uri", "connection_string", tzutc, extra=uri))
+        findings.append(Finding(path, line_no, "uri", "connection_string", tzutc, extra=uri))
 
     return findings
 

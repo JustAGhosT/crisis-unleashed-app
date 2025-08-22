@@ -98,9 +98,13 @@ class TransactionOutboxRepository:
         result = self.collection.find({"status": OutboxStatus.PENDING.value})
         limit_value = max(0, int(limit))
 
+        # In PyMongo, limit(0) disables the limit (i.e., returns all). Our API treats 0 as "return none".
+        if limit_value == 0:
+            return []
+
         # Prefer DB/cursor-side limiting when available
         limit_method = getattr(result, "limit", None)
-        if callable(limit_method):
+        if callable(limit_method) and limit_value > 0:
             docs = limit_method(limit_value)
             iterable_docs = cast(Iterable[Dict[str, Any]], docs)
             return [_OutboxEntryCompat(doc) for doc in iterable_docs]

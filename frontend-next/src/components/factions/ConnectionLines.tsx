@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import { cn } from "@/lib/utils";
 
 export type ConnectionPoint = {
@@ -33,7 +32,7 @@ export function ConnectionLines({
       className={cn("pointer-events-none h-full w-full", className)}
       viewBox={viewBox}
       preserveAspectRatio="xMidYMid meet"
-      aria-hidden
+      aria-hidden="true"
     >
       {connections.map((connection) => {
         const key = `${connection.from.x},${connection.from.y}->${connection.to.x},${connection.to.y}:${connection.from.color}`;

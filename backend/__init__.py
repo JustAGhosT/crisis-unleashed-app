@@ -29,14 +29,14 @@ __description__ = "Backend API for Crisis Unleashed card game"
 
 __all__ = ["api", "repository", "services"]
 
-from types import ModuleType
-from typing import Any, Optional
+from typing import Any, TYPE_CHECKING
 
-# Placeholders for static analyzers; actual modules are loaded lazily in __getattr__
-# They remain None until first attribute access.
-api: Optional[ModuleType] = None
-repository: Optional[ModuleType] = None
-services: Optional[ModuleType] = None
+# For static analyzers only; no runtime attributes are created.
+# This preserves lazy loading while providing type context.
+if TYPE_CHECKING:  # pragma: no cover - type-checkers only
+    from . import api as api  # type: ignore
+    from . import repository as repository  # type: ignore
+    from . import services as services  # type: ignore
 
 def __getattr__(name: str) -> Any:  # PEP 562
     if name in {"api", "repository", "services"}:
@@ -45,3 +45,6 @@ def __getattr__(name: str) -> Any:  # PEP 562
         globals()[name] = module
         return module
     raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
+
+def __dir__() -> list[str]:  # Improve IDE discoverability of lazy attributes
+    return sorted(list(globals().keys()) + ["api", "repository", "services"])
