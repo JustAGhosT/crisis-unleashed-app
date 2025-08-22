@@ -13,7 +13,7 @@ from typing import Any, Optional, TYPE_CHECKING
 try:  # pragma: no cover - import detection only
     importlib.import_module("web3")
     WEB3_AVAILABLE: bool = True
-except Exception:  # pragma: no cover
+except ImportError:  # pragma: no cover
     WEB3_AVAILABLE = False
 
 # Explicit class types to keep type-checkers happy across reassignments
@@ -25,17 +25,17 @@ if WEB3_AVAILABLE:
         _w3_exc_mod = importlib.import_module("web3.exceptions")
         _TxnNotFoundT = getattr(_w3_exc_mod, "TransactionNotFound", Exception)
         _TimeExhaustedT = getattr(_w3_exc_mod, "TimeExhausted", Exception)
-    except Exception:
+    except ImportError:
         pass
 else:
     try:
-        from ...types.web3_types import (
+        from ..app_types.web3_types import (
             MockTransactionNotFound as _TxNotFound,
             MockTimeExhausted as _TimeExhausted,
         )
         _TxnNotFoundT = _TxNotFound
         _TimeExhaustedT = _TimeExhausted
-    except Exception:
+    except ImportError:
         class _FallbackTransactionNotFound(Exception):
             """Fallback TransactionNotFound when web3/types are unavailable."""
 

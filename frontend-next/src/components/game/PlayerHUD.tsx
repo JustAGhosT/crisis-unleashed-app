@@ -3,6 +3,7 @@
 import clsx from "clsx";
 import styles from "./playerhud.module.css";
 import React, { useMemo, useId } from "react";
+import { DEFAULT_MAX_HEALTH } from "@/lib/config/gameBalance";
 
 /**
  * Inline style usage policy: We avoid inline styles per Option A. The only exception here is setting the
@@ -12,7 +13,8 @@ import React, { useMemo, useId } from "react";
 
 export interface PlayerHUDProps {
   player?: "player1" | "enemy" | string;
-  health: number; // 0..100
+  health: number; // 0..maxHealth
+  maxHealth?: number; // default DEFAULT_MAX_HEALTH
   momentum: number; // 0..10
   energy: number; // 0..maxEnergy
   maxEnergy?: number; // default 10
@@ -92,6 +94,7 @@ const Circular: React.FC<{
 export const PlayerHUD: React.FC<PlayerHUDProps> = ({
   player = "player1",
   health = 0,
+  maxHealth = DEFAULT_MAX_HEALTH,
   momentum = 0,
   energy = 0,
   maxEnergy = 10,
@@ -100,7 +103,10 @@ export const PlayerHUD: React.FC<PlayerHUDProps> = ({
   className = "",
 }) => {
   const isEnemy = player === "enemy";
-  const healthPct = useMemo(() => Math.max(0, Math.min(health, 100)) / 100, [health]);
+  const healthPct = useMemo(() => {
+    const clamped = Math.max(0, Math.min(health, maxHealth));
+    return maxHealth > 0 ? clamped / maxHealth : 0;
+  }, [health, maxHealth]);
   // Typed CSS variable for clip-path without using `any` or invalid lint suppressions
   const clipStyle: React.CSSProperties & { ["--clip"]?: string } = {
     ["--clip"]: `polygon(0 0, ${healthPct * 100}% 0, ${healthPct * 100}% 100%, 0 100%)`,
@@ -137,7 +143,7 @@ export const PlayerHUD: React.FC<PlayerHUDProps> = ({
             // eslint-disable-next-line
             style={clipStyle}
           />
-          <Circular value={health} max={100} color="red" label="HP" className="mb-2" />
+          <Circular value={health} max={maxHealth} color="red" label="HP" className="mb-2" />
           <div className="text-center">
             <div className="text-2xl font-bold text-red-400">{health}</div>
             <div className="text-xs text-gray-400 uppercase tracking-wider">Health</div>

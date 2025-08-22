@@ -41,7 +41,7 @@ export default function ThemeSettingsPage() {
     const [reducedMotion, setReducedMotion] = useState<boolean>(false);
     const [highContrast, setHighContrast] = useState<boolean>(false);
 
-    // Initialize from localStorage and system prefs (client-only)
+    // Initialize from localStorage and system preferences (client-only)
     useEffect(() => {
       try {
         const rmStored = typeof window !== "undefined" ? localStorage.getItem("reduced-motion") : null;

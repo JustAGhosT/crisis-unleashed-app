@@ -131,7 +131,7 @@ class BlockchainService:
                 "marketplace_contract_address": os.environ.get(
                     "ETHERLINK_MAINNET_MARKETPLACE_CONTRACT_ADDRESS"
                 ),
-                "chain_id": 128123,
+                "chain_id": 1337,
             },
             "etherlink_testnet": {
                 "name": "etherlink_testnet",

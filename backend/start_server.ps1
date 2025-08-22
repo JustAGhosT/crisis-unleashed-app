@@ -24,18 +24,30 @@ $env:PYTHONPATH = $PWD
 # Define the port to use
 $backendPort = 8010
 
-# Check if the backend port is already in use and kill the process if needed
-try {
-    $processUsingBackendPort = Get-NetTCPConnection -LocalPort $backendPort -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess
-    if ($processUsingBackendPort) {
-        Write-Host "Port $backendPort is in use by process ID: $processUsingBackendPort. Terminating process..."
-        Stop-Process -Id $processUsingBackendPort -Force
-        Start-Sleep -Seconds 1  # Give it a moment to release the port
-        Write-Host "Process terminated."
+  # Check if the backend port is already in use and kill the process if needed
+  try {
+    $connections = Get-NetTCPConnection -LocalPort $backendPort -ErrorAction SilentlyContinue
+    $pids = @($connections | Select-Object -ExpandProperty OwningProcess | Sort-Object -Unique)
+    if ($pids.Count -gt 0) {
+        $procInfo = $pids | ForEach-Object { Get-Process -Id $_ -ErrorAction SilentlyContinue | Select-Object Id, ProcessName, Path }
+        Write-Host "Port $backendPort in use by:`n$($procInfo | Format-Table | Out-String)"
+        $uvicornPids = $procInfo | Where-Object { $_.ProcessName -match 'python' -or $_.ProcessName -match 'uvicorn' } | Select-Object -ExpandProperty Id
+        if ($uvicornPids.Count -gt 0) {
+            $confirm = Read-Host "Kill uvicorn/python processes on port $backendPort? (y/N)"
+            if ($confirm -match '^[Yy]$') {
+                Stop-Process -Id $uvicornPids -Force
+                Start-Sleep -Seconds 1
+                Write-Host "Terminated process(es): $($uvicornPids -join ', ')"
+            } else {
+                Write-Host "Aborting process termination."
+            }
+        } else {
+            Write-Host "Non-uvicorn process is using port $backendPort. Skipping termination."
+        }
     }
-} catch {
-    Write-Host "Warning: Unable to check for processes using port $backendPort. If server fails to start, manually check for processes using this port."
-}
+  } catch {
+      Write-Host "Warning: Unable to check for processes using port $backendPort. If server fails to start, manually check for processes using this port."
+  }
 
 # Start the server with uvicorn
 Write-Host "Starting server on port $backendPort..."

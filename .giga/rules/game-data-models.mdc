@@ -43,7 +43,7 @@ File: frontend-next/src/app/sandbox/battlefield-demo/page.tsx
 
 ### Player Stats Model (Importance Score: 85)
 Core stats tracking:
-- Health (0-30)
+- Health (0-100)
 - Energy (resets each turn, max varies by faction)
 - Momentum (accumulates through actions, spent on special abilities)
 - Active effects and status conditions

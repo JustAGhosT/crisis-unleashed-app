@@ -23,7 +23,7 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     await signOut({ redirect: false });
-    router.push("/" as import("next").Route);
+    router.push("/");
   };
 
   return (
@@ -32,7 +32,7 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <Link
-              href={"/" as import("next").Route}
+              href="/"
               className="font-bold text-xl text-gray-800 dark:text-white"
             >
               Crisis Unleashed
@@ -41,32 +41,32 @@ export default function Navbar() {
 
           <div className="hidden md:flex space-x-8">
             <Link
-              href={"/" as import("next").Route}
+              href="/"
               className={`flex items-center font-medium ${isActive("/")}`}
             >
               Home
             </Link>
             <Link
-              href={"/dashboard" as import("next").Route}
+              href="/dashboard"
               className={`flex items-center font-medium ${isActive("/dashboard")}`}
             >
               Dashboard
             </Link>
             <Link
-              href={"/factions" as import("next").Route}
+              href="/factions"
               className={`flex items-center font-medium ${isActive("/factions")}`}
             >
               Factions
             </Link>
             <Link
-              href={"/cards" as import("next").Route}
+              href="/cards"
               className={`flex items-center font-medium ${isActive("/cards")}`}
             >
               Cards
             </Link>
             {session && (
               <Link
-                href={"/deck-builder" as import("next").Route}
+                href="/deck-builder"
                 className={`flex items-center font-medium ${isActive("/deck-builder")}`}
               >
                 Deck Builder
@@ -108,14 +108,14 @@ export default function Navbar() {
                 {isProfileMenuOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg py-1 z-10">
                     <Link
-                      href={"/profile" as import("next").Route}
+                      href="/profile"
                       className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600"
                       onClick={() => setIsProfileMenuOpen(false)}
                     >
                       Your Profile
                     </Link>
                     <Link
-                      href={"/settings" as import("next").Route}
+                      href="/settings"
                       className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600"
                       onClick={() => setIsProfileMenuOpen(false)}
                     >
@@ -136,13 +136,13 @@ export default function Navbar() {
             ) : (
               <div className="flex space-x-2">
                 <Link
-                  href={"/login" as import("next").Route}
+                  href="/login"
                   className="text-blue-600 dark:text-blue-400 px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition"
                 >
                   Login
                 </Link>
                 <Link
-                  href={"/register" as import("next").Route}
+                  href="/register"
                   className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
                 >
                   Register

@@ -56,30 +56,70 @@ export function FactionHexagon({
     positionClass: string,
     options?: { size?: "lg" | "md"; interactive?: boolean },
   ) => (
-    <div
-      className={cn("absolute cursor-pointer", positionClass)}
-      onMouseEnter={() => onHover(faction)}
-      onMouseLeave={() => onHover(null)}
-      onClick={() => onNavigate?.(faction)}
-      onFocus={() => onFocus(faction)}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
+    (() => {
+      const isInteractive = options?.interactive ?? false;
+      const commonHandlers = {
+        onMouseEnter: () => onHover(faction),
+        onMouseLeave: () => onHover(null),
+      } as const;
+
+      const handleActivate = (e?: React.SyntheticEvent) => {
+        if (e) {
           e.preventDefault();
-          onNavigate?.(faction);
+          e.stopPropagation();
         }
-      }}
-      tabIndex={0}
-      role="button"
-      aria-label={`${faction.name} faction`}
-      data-selected={focusedFaction === faction ? true : undefined}
-    >
-      <FactionCard
-        faction={faction}
-        size={options?.size}
-        onClick={(f) => onFocus(f)}
-        interactive={options?.interactive}
-      />
-    </div>
+        onFocus(faction);
+        onNavigate?.(faction);
+      };
+
+      const wrapperClass = cn(
+        "absolute",
+        isInteractive ? "cursor-pointer" : "cursor-default",
+        "rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/50",
+        "data-[selected=true]:ring-2 data-[selected=true]:ring-foreground/60",
+        positionClass,
+      );
+
+      const card = (
+        <FactionCard
+          faction={faction}
+          size={options?.size}
+          interactive={options?.interactive}
+        />
+      );
+
+      if (isInteractive) {
+        return (
+          <button
+            type="button"
+            className={wrapperClass}
+            aria-label={`${faction.name} faction`}
+            data-selected={focusedFaction === faction ? true : undefined}
+            onClick={(e) => handleActivate(e)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                handleActivate(e);
+              }
+            }}
+            {...commonHandlers}
+          >
+            {card}
+          </button>
+        );
+      }
+
+      return (
+        <div
+          className={wrapperClass}
+          aria-label={`${faction.name} faction`}
+          data-selected={focusedFaction === faction ? true : undefined}
+          // Keep non-interactive nodes unfocusable
+          {...commonHandlers}
+        >
+          {card}
+        </div>
+      );
+    })()
   );
 
   return (
@@ -95,7 +135,7 @@ export function FactionHexagon({
         className="absolute inset-0 h-full w-full"
         viewBox="0 0 800 800"
         preserveAspectRatio="xMidYMid meet"
-        aria-hidden
+        aria-hidden="true"
       >
         {/* Center node */}
         <circle
@@ -124,9 +164,11 @@ export function FactionHexagon({
             x2={pos.x}
             y2={pos.y}
             stroke={`url(#radial-${i}-${uid})`}
-            strokeWidth={2}
+            strokeWidth={
+              hoveredFaction && (hoveredFaction === centerFaction || hoveredFaction === pos.id) ? 3 : 2
+            }
             className={cn(
-              "transition-opacity duration-300",
+              "transition-opacity duration-200 ease-out",
               hoveredFaction &&
                 (hoveredFaction === centerFaction || hoveredFaction === pos.id)
                 ? "opacity-80"
@@ -153,9 +195,11 @@ export function FactionHexagon({
             x2={x2}
             y2={y2}
             stroke={`url(#outer-${i}-${uid})`}
-            strokeWidth={2}
+            strokeWidth={
+              hoveredFaction && (hoveredFaction === a || hoveredFaction === b) ? 3 : 2
+            }
             className={cn(
-              "transition-opacity duration-300",
+              "transition-opacity duration-200 ease-out",
               hoveredFaction && (hoveredFaction === a || hoveredFaction === b)
                 ? "opacity-80"
                 : "opacity-30",
