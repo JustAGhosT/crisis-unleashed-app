@@ -23,12 +23,9 @@ export async function generateStaticParams() {
   return factionIds.map((id) => ({ id }));
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
+export async function generateMetadata(props: unknown) {
+  const { params } = props as { params: { id: string } };
+  const { id } = params;
   const factionResponse = await fetchFactionById(id as FactionId);
   const faction = factionResponse.success ? factionResponse.data : null;
   if (!faction) {
@@ -40,12 +37,9 @@ export async function generateMetadata({
   };
 }
 
-export default async function FactionPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
+export default async function FactionPage(props: unknown) {
+  const { params } = props as { params: { id: string } };
+  const { id } = params;
   const factionResponse = await fetchFactionById(id as FactionId);
   const faction = factionResponse.success ? factionResponse.data : null;
   if (!faction) {

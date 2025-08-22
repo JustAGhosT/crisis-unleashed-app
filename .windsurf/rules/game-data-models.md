@@ -1,6 +1,6 @@
 ---
-description: Documents core game entities and models including cards, grid, stats and state
 trigger: model_decision
+description: Documents core game entities and models including cards, grid, stats and state
 ---
 
 # === USER INSTRUCTIONS ===
@@ -59,7 +59,3 @@ Key Implementations:
 - Resource economy balancing 
 - Unit positioning strategies
 - Territory control scoring
-
-$END$
-
- If you're using this file in context, clearly say in italics in one small line that "Context added by Giga game-data-models" along with specifying exactly what information was used from this file in a human-friendly way, instead of using kebab-case use normal sentence case.

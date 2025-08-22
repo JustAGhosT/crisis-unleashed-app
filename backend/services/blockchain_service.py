@@ -31,13 +31,16 @@ class BlockchainService:
         self._providers: Dict[str, BaseBlockchainProvider] = {}
         self._initialized = False
 
-    def _run_coro_blocking(self, coro: Coroutine[Any, Any, Any], timeout: Optional[float] = None) -> Any:
+    def _run_coro_blocking(
+        self, coro: Coroutine[Any, Any, Any], timeout: Optional[float] = None
+    ) -> Any:
         """Run a coroutine in an isolated event loop within a worker thread.
 
         This avoids nested asyncio.run() failures and cross-thread loop access.
         Timeout is enforced inside the coroutine via asyncio.wait_for to ensure
         the worker thread exits cleanly on timeout.
         """
+
         def runner() -> Any:
             if timeout is not None:
                 return asyncio.run(asyncio.wait_for(coro, timeout))
@@ -53,8 +56,10 @@ class BlockchainService:
         if asyncio.iscoroutine(value):
             return self._run_coro_blocking(value)
         if inspect.isawaitable(value):
+
             async def _wrap(v: Any):
                 return await v
+
             return self._run_coro_blocking(_wrap(value))
         return value
 
@@ -78,8 +83,10 @@ class BlockchainService:
 
         # If the sync call returned an awaitable/coroutine, await it with timeout in isolated loop
         if asyncio.iscoroutine(result) or inspect.isawaitable(result):
+
             async def _wrap(v: Any):
                 return await v
+
             return self._run_coro_blocking(_wrap(result), timeout=timeout)
 
         return result
@@ -137,18 +144,22 @@ class BlockchainService:
                 "marketplace_contract_address": os.environ.get(
                     "ETHERLINK_TESTNET_MARKETPLACE_CONTRACT_ADDRESS"
                 ),
-"solana_mainnet": {
-                "name": "solana_mainnet", 
-                "rpc_url": os.environ.get("SOLANA_MAINNET_RPC_URL", "https://api.mainnet-beta.solana.com"),
-                "program_id": os.environ.get("SOLANA_MAINNET_PROGRAM_ID"),
-                "chain_id": int(os.environ.get("SOLANA_MAINNET_CHAIN_ID", "101"))
-            },
-            "solana_testnet": {
-                "name": "solana_testnet", 
-                "rpc_url": os.environ.get("SOLANA_TESTNET_RPC_URL", "https://api.devnet.solana.com"),
-                "program_id": os.environ.get("SOLANA_TESTNET_PROGRAM_ID"),
-                "chain_id": int(os.environ.get("SOLANA_TESTNET_CHAIN_ID", "103"))
-            }
+                "solana_mainnet": {
+                    "name": "solana_mainnet",
+                    "rpc_url": os.environ.get(
+                        "SOLANA_MAINNET_RPC_URL", "https://api.mainnet-beta.solana.com"
+                    ),
+                    "program_id": os.environ.get("SOLANA_MAINNET_PROGRAM_ID"),
+                    "chain_id": int(os.environ.get("SOLANA_MAINNET_CHAIN_ID", "101")),
+                },
+                "solana_testnet": {
+                    "name": "solana_testnet",
+                    "rpc_url": os.environ.get(
+                        "SOLANA_TESTNET_RPC_URL", "https://api.devnet.solana.com"
+                    ),
+                    "program_id": os.environ.get("SOLANA_TESTNET_PROGRAM_ID"),
+                    "chain_id": int(os.environ.get("SOLANA_TESTNET_CHAIN_ID", "103")),
+                },
             },
         }
 
@@ -225,7 +236,9 @@ class BlockchainService:
         if "rarity" in metadata and metadata["rarity"] in RARITY_MAPPING:
             metadata["rarity_value"] = RARITY_MAPPING[metadata["rarity"]]
 
-        return self._maybe_await(provider.mint_nft(recipient=recipient, card_id=card_id, metadata=metadata))
+        return self._maybe_await(
+            provider.mint_nft(recipient=recipient, card_id=card_id, metadata=metadata)
+        )
 
     def transfer_nft(
         self, blockchain: str, from_address: str, to_address: str, token_id: str
@@ -240,11 +253,14 @@ class BlockchainService:
             token_id: Token ID to transfer
 
         Returns:
-            Tuple of (transaction_hash, transaction_data)
+         Returns:
+             Transaction hash string
         """
         provider = self.get_provider(blockchain)
         return self._maybe_await(
-            provider.transfer_nft(from_address=from_address, to_address=to_address, token_id=token_id)
+            provider.transfer_nft(
+                from_address=from_address, to_address=to_address, token_id=token_id
+            )
         )
 
     def wait_for_confirmation(
@@ -262,11 +278,11 @@ class BlockchainService:
             Transaction receipt or None if timeout
         """
         provider = self.get_provider(blockchain)
-        return self._maybe_await(provider.wait_for_confirmation(tx_hash=tx_hash, timeout=timeout))
+        return self._maybe_await(
+            provider.wait_for_confirmation(tx_hash=tx_hash, timeout=timeout)
+        )
 
-    def get_transaction_status(
-        self, blockchain: str, tx_hash: str
-    ) -> Dict[str, Any]:
+    def get_transaction_status(self, blockchain: str, tx_hash: str) -> Dict[str, Any]:
         """
         Get transaction status.
 
@@ -326,7 +342,9 @@ class BlockchainService:
                 connected = self._call_with_timeout(provider.is_connected, timeout_s)
                 any_connected = any_connected or bool(connected)
             except TimeoutError:
-                logger.warning("Provider health check timed out for %s", type(provider).__name__)
+                logger.warning(
+                    "Provider health check timed out for %s", type(provider).__name__
+                )
             except Exception:
                 # Treat exceptions as disconnected
                 continue

@@ -1,6 +1,6 @@
 ---
-description: Used for analyzing and documenting core game mechanics, card interactions, combat systems and battlefield algorithms
 trigger: model_decision
+description: Used for analyzing and documenting core game mechanics, card interactions, combat systems and battlefield algorithms
 ---
 
 # === USER INSTRUCTIONS ===
@@ -61,7 +61,3 @@ Importance Score: 70
 - Resource conversion mechanics
 - Special ability cost calculations
 - Resource curve optimization
-
-$END$
-
- If you're using this file in context, clearly say in italics in one small line that "Context added by Giga game-algorithms" along with specifying exactly what information was used from this file in a human-friendly way, instead of using kebab-case use normal sentence case.

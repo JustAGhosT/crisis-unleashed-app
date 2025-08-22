@@ -22,7 +22,7 @@ class Settings(BaseSettings):
 
     # Database
     mongo_url: str = Field(
-        default="mongodb://localhost:27017", description="MongoDB connection URL"
+        default="mongodb://localhost:27017/?tzUTC=true", description="MongoDB connection URL"
     )
     database_name: str = Field(default="crisis_unleashed", description="Database name")
 

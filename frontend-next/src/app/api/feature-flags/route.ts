@@ -87,7 +87,7 @@ async function readCookieFlags(): Promise<FeatureFlags | null> {
   const raw = store.get("featureFlags")?.value;
   if (!raw) return null;
   try {
-    const parsed = JSON.parse(raw);
+    const parsed = JSON.parse(decodeURIComponent(raw));
     if (isFeatureFlags(parsed)) return parsed;
   } catch {
     // ignore

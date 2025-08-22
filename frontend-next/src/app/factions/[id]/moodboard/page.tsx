@@ -3,14 +3,17 @@ import MoodBoard from "@/components/factions/MoodBoard";
 import { FACTION_KEYS, type FactionKey } from "@/lib/theme/faction-theme";
 import { FactionThemeProvider } from "@/lib/theme/theme-context";
 
+const isFactionKey = (v: string): v is FactionKey =>
+  (FACTION_KEYS as readonly string[]).includes(v);
+
 export default async function FactionMoodBoardPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const factionId = id as FactionKey;
-  if (!FACTION_KEYS.includes(factionId)) return notFound();
+  if (!isFactionKey(id)) return notFound();
+  const factionId: FactionKey = id;
 
   // Provide the theme so the component can read active tokens
   return (

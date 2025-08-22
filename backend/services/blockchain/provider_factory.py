@@ -2,6 +2,7 @@
 Factory for creating blockchain providers.
 """
 import logging
+import asyncio
 import os
 import threading
 from typing import Any, Dict, Optional
@@ -185,8 +186,8 @@ class BlockchainProviderFactory:
         for blockchain, config in configs.items():
             try:
                 provider = cls.get_provider(blockchain, config)
-                # provider.connect() is synchronous per BaseBlockchainProvider
-                success = provider.connect()
+                # Offload sync connect to thread to avoid blocking the event loop
+                success = await asyncio.to_thread(provider.connect)
                 results[blockchain] = success
 
                 if success:
@@ -206,15 +207,17 @@ class BlockchainProviderFactory:
         Clear all cached provider instances with proper cleanup.
         Ensures thread safety and proper resource cleanup.
         """
+        # Copy providers under lock, then clear cache
         with cls._lock:
-            # Disconnect all providers before clearing (synchronously)
-            for blockchain, provider in cls._instances.items():
-                try:
-                    provider.disconnect()
-                    logger.debug(f"Disconnected {blockchain} provider")
-                except Exception as e:
-                    logger.error(f"Error disconnecting {blockchain} provider: {e}")
-            
-            # Clear the instances dictionary
+            instances = dict(cls._instances)
             cls._instances.clear()
-            logger.info("Cleared all provider instances with proper cleanup")
+
+        # Disconnect outside the lock to limit contention and avoid blocking the loop
+        for blockchain, provider in instances.items():
+            try:
+                await asyncio.to_thread(provider.disconnect)
+                logger.debug(f"Disconnected {blockchain} provider")
+            except Exception as e:
+                logger.error(f"Error disconnecting {blockchain} provider: {e}")
+
+        logger.info("Cleared all provider instances with proper cleanup")

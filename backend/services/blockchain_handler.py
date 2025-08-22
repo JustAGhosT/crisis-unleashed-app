@@ -32,6 +32,10 @@ class BlockchainHandler:
         self.outbox_repo = outbox_repo
         self.blockchain_service = blockchain_service
 
+# Add this helper alongside other private methods in the class
+    def _get_entry_id(self, entry: Any) -> str:
+        """Extract entry ID from entry object, handling different attribute names."""
+        return getattr(entry, 'outbox_id', getattr(entry, 'id', 'unknown'))
     def process_pending_entries(self, max_entries: int = 50) -> Dict[str, Any]:
         """
         Process pending outbox entries.
@@ -50,7 +54,7 @@ class BlockchainHandler:
                 self._process_entry(entry)
                 successful += 1
             except Exception as e:
-                entry_id = getattr(entry, 'outbox_id', getattr(entry, 'id', 'unknown'))
+                entry_id = self._get_entry_id(entry)
                 logger.error(f"Failed to process entry {entry_id}: {e}")
                 failed += 1
                 errors.append({"entry_id": entry_id, "error": str(e)})

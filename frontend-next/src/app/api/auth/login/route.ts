@@ -25,7 +25,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
-    const secret = process.env.NEXTAUTH_SECRET || "dev-secret";
+    const secret = process.env.NEXTAUTH_SECRET;
+    if (!secret) {
+      console.error("NEXTAUTH_SECRET is not set. Refusing to issue tokens.");
+      return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
+    }
 
     const token = jwt.sign(
       {

@@ -25,12 +25,16 @@ class InMemoryCollection:
     def update_one(self, filt: Dict[str, Any], update: Dict[str, Any]) -> None:
         for d in self._docs:
             if all(d.get(k) == v for k, v in filt.items()):
+                # Create a shallow copy to avoid in-place mutations
+                updated_doc = dict(d)
                 # Apply $set
                 for k, v in update.get("$set", {}).items():
-                    d[k] = v
+                    updated_doc[k] = v
                 # Apply $inc
                 for k, v in update.get("$inc", {}).items():
-                    d[k] = int(d.get(k, 0)) + int(v)
+                    updated_doc[k] = int(updated_doc.get(k, 0)) + int(v)
+                # Replace the original with the updated copy
+                self._docs[self._docs.index(d)] = updated_doc
                 break
 
     # Reads
@@ -79,20 +83,10 @@ def example_mint_nft() -> None:
     # Step 2: Process the entry (normally done by background worker)
     print("🔄 Processing outbox entry...")
     # Mark as processing if available in repo (not required by tests)
-    try:
-        mark_proc = getattr(outbox_repo, "mark_processing", None)
-        if callable(mark_proc):
-            mark_proc(outbox_id)
-    except Exception as e:
-        # Do not silence unexpected errors; surface them for diagnostics.
-        # We keep the example resilient by continuing execution.
-        print(f"⚠️ mark_processing failed: {e}")
-        try:
-            import traceback as _tb  # local import to keep example dependency-free
-            _tb.print_exc()
-        except Exception:
-            # Fallback in environments where traceback may be restricted
-            print("(traceback unavailable)")
+    mark_proc = getattr(outbox_repo, "mark_processing", None)
+    if callable(mark_proc):
+        # Let exceptions surface during development/testing instead of masking them
+        mark_proc(outbox_id)
 
     # Simulate blockchain operation
     try:
@@ -113,9 +107,10 @@ def example_mint_nft() -> None:
         print(f"✅ NFT minting completed! Transaction: {tx_hash}")
 
     except Exception as e:
-        # Mark as failed and increment attempts
+        # Mark as failed and increment attempts, then re-raise to avoid hiding critical errors
         outbox_repo.increment_attempts(outbox_id, str(e))
         print(f"❌ NFT minting failed: {e}")
+        raise
 
     # Step 3: Check final status
     final = outbox_repo.get_by_id(outbox_id)

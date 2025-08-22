@@ -21,7 +21,8 @@ from pydantic import BaseModel, Field
 from typing import List, Optional, Any, TYPE_CHECKING, cast
 import uuid
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
+from bson.codec_options import CodecOptions
 
 """Import routers and configuration with analyzer-friendly gating.
 Supports both package execution (uvicorn backend.server:app) and
@@ -88,9 +89,15 @@ load_dotenv(ROOT_DIR / ".env")
 # Load settings
 settings = get_settings()
 
-# MongoDB connection
-client = AsyncIOMotorClient(settings.mongo_url)  # type: ignore
-db = client[settings.database_name]  # type: ignore
+# MongoDB connection (ensure timezone-aware datetimes)
+client = AsyncIOMotorClient(
+    settings.mongo_url,  # type: ignore
+    tz_aware=True,
+    tzinfo=timezone.utc,
+)
+db = client[settings.database_name].with_options(  # type: ignore
+    CodecOptions(tz_aware=True, tzinfo=timezone.utc)
+)
 
 # Global services and health manager
 if TYPE_CHECKING:

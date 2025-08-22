@@ -1,12 +1,12 @@
 "use client";
 
-import * as React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
-import { useFactionTheme } from "@/lib/theme/theme-context";
-import { FACTION_TOKENS, DEFAULT_TOKENS, type FactionKey } from "@/lib/theme/faction-theme";
 import { getMoodBoardData } from "@/data/factions/moodboard";
+import { DEFAULT_TOKENS, FACTION_TOKENS, type FactionKey } from "@/lib/theme/faction-theme";
+import { useFactionTheme } from "@/lib/theme/theme-context";
+import { cn } from "@/lib/utils";
 import type { ColorPaletteItem } from "@/types/moodboard";
+import * as React from "react";
 import styles from "./MoodBoard.module.css";
 
 /**
@@ -62,6 +62,8 @@ export default function MoodBoard({ factionId, expanded = false, className }: Mo
       img.onerror = () => {
         if (cancelled) return;
         setImageErrors(prev => {
+          // Double-check cancellation inside the state setter
+          if (cancelled) return prev;
           if (prev.has(url)) return prev;
           const next = new Set(prev);
           next.add(url);
