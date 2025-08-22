@@ -124,7 +124,7 @@ class MintRequest(BaseModel):
             raise ValueError(f"Blockchain network must be one of: {allowed}")
         return v
 
-    @field_validator("wallet_address")
+    @field_validator("wallet_address", mode='after')
     def validate_wallet_address(cls, v: str, info: ValidationInfo) -> str:
         data = info.data or {}
         network_name = data.get("blockchain")
@@ -147,7 +147,7 @@ class TransferRequest(BaseModel):
             raise ValueError(f"Blockchain network must be one of: {allowed}")
         return v
 
-    @field_validator("from_address", "to_address")
+    @field_validator("from_address", "to_address", mode='after')
     def validate_wallet_addresses(cls, v: str, info: ValidationInfo) -> str:
         data = info.data or {}
         network_name = data.get("blockchain")
@@ -155,8 +155,9 @@ class TransferRequest(BaseModel):
             # Align with MintRequest: fail fast if blockchain isn't available yet
             raise ValueError("blockchain field must be validated before wallet addresses")
         # Provide precise field name in error messages (from_address/to_address)
-        field_name = getattr(info, "field_name", None) or "wallet_address"
-        return validate_wallet_address_format(v, network_name, field_name)
+        _name = getattr(info, "field_name", None)
+        field_name: str = _name if isinstance(_name, str) else "wallet_address"
+        return validate_wallet_address_format(v, network_name, f"{field_name}")
 
     @field_validator("token_id")
     def validate_token_id(cls, v: str) -> str:

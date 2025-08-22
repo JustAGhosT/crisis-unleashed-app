@@ -1,5 +1,3 @@
-"use client";
-
 export const FACTION_KEYS = [
   "solaris",
   "umbral",

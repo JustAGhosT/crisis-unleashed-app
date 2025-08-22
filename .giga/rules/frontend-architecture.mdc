@@ -10,28 +10,28 @@ description: Specifications for analyzing frontend architecture patterns, React 
 The frontend architecture implements a layered component hierarchy focused around the card game domain:
 
 1. Core Game Components (Importance: 90)
-- `src/components/game/Battlefield.tsx`: Implements the main game board with:
+- `frontend-next/src/components/game/Battlefield.tsx`: Implements the main game board with:
   - Zone-based card placement logic 
   - Combat resolution areas
   - Resource zones for energy/momentum tracking
   - Faction-specific battlefield modifications
 
 2. Deck Building System (Importance: 85)
-- `src/components/deck-builder/DeckBuilder.tsx`: Manages deck construction with:
+- `frontend-next/src/components/deck-builder/DeckBuilder.tsx`: Manages deck construction with:
   - Faction validation rules
   - Card quantity limits (3x normal, 1x legendary)
   - Resource curve analysis
   - Deck statistics tracking
 
 3. Card Management (Importance: 80)
-- `src/lib/card-utils.ts`: Implements card manipulation logic:
+- `frontend-next/src/lib/card-utils.ts`: Implements card manipulation logic:
   - Card type validation
   - Faction requirements
   - Energy cost calculations
   - Synergy detection between cards
 
 4. Faction System (Importance: 85)
-- `src/lib/theme/faction-theme.ts`: Controls faction-specific:
+- `frontend-next/src/lib/theme/faction-theme.ts`: Controls faction-specific:
   - Visual theming
   - Card compatibility rules
   - Resource modifications
@@ -40,14 +40,14 @@ The frontend architecture implements a layered component hierarchy focused aroun
 ### State Management
 
 1. Game State (Importance: 90)
-- `src/lib/realtime/connection.ts`: Manages:
+- `frontend-next/src/lib/realtime/connection.ts`: Manages:
   - Turn phase tracking
   - Resource pools
   - Card zones
   - Action resolution queue
 
 2. Deck State (Importance: 85)
-- `src/lib/deck-builder/deck-builder-context.tsx`: Handles:
+- `frontend-next/src/lib/deck-builder/deck-builder-context.tsx`: Handles:
   - Card collection updates
   - Deck modification tracking
   - Validation state
@@ -56,19 +56,15 @@ The frontend architecture implements a layered component hierarchy focused aroun
 ### UI Architecture
 
 1. Theme System (Importance: 75)
-- `src/lib/theme/theme-provider.tsx`: Provides:
+- `frontend-next/src/lib/theme/theme-provider.tsx`: Provides:
   - Faction-based visual theming
   - Dynamic color schemes
   - Component styling rules
   - Animation configurations
 
 2. Game Interface (Importance: 80)
-- `src/components/game/PlayerHUD.tsx`: Displays:
+- `frontend-next/src/components/game/PlayerHUD.tsx`: Displays:
   - Resource trackers
   - Action indicators
   - Card zone status
   - Turn phase markers
-
-$END$
-
- If you're using this file in context, clearly say in italics in one small line that "Context added by Giga frontend-architecture" along with specifying exactly what information was used from this file in a human-friendly way, instead of using kebab-case use normal sentence case.

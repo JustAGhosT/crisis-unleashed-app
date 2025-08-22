@@ -1,79 +1,64 @@
 ---
-description: Guidelines for implementing core game entities including cards, battlefield grid, player stats and game state models
+description: Documents core game entities and models including cards, grid, stats and state
 trigger: model_decision
 ---
 
+# === USER INSTRUCTIONS ===
+trigger: model_decision
+```
+# === END USER INSTRUCTIONS ===
 
 # game-data-models
 
-## Core Game Entities
+Core Game Entities:
 
-### Card Model (Importance: 95)
-- Implements complex card type hierarchy with unique faction abilities
-- Encodes faction-specific mechanics like:
-  - Solaris: Energy manipulation and light effects
-  - Umbral: Stealth and shadow mechanics  
-  - Aeonic: Time manipulation
-  - Neuralis: Mind control abilities
-  - Synthetic: AI/robotics synergies
-- Tracks card state including:
-  - Energy cost and requirements
-  - Attack/defense values
-  - Status effects
-  - Targeting rules
-  - Valid deployment zones
+1. Card Model (Importance Score: 95)
+- Unique card types: Hero, Unit, Structure, Action
+- Faction alignment with compatibility rules
+- Resource costs: Energy, Momentum 
+- Combat stats: Attack, Health, Range
+- Special abilities and triggers
+- Rarity limitations
 
-### Battlefield Grid (Importance: 90) 
-- Hex-based coordinate system for positioning
-- Zone control mechanics affecting movement
-- Resource node placement and control
-- Height/terrain influence on combat
+2. Battlefield Grid (Importance Score: 90)
+- Hex-based combat zones
+- Zone of control mechanics
+- Movement costs per terrain type
 - Line of sight calculations
-- Unit facing mechanics
+- Unit positioning rules
+- Faction-specific territory bonuses
 
-### Player Stats (Importance: 85)
-- Health tracking (0-30)
-- Momentum resource (0-10)
-  - Gained through actions
-  - Required for special abilities
-- Energy pool (0-10 per turn)
-  - Faction-specific generation rates
-  - Required for card deployment
-  - Carried over between turns
+3. Player Stats (Importance Score: 85)
+- Health pool (0-30)
+- Energy system (0-10, refreshes each turn)
+- Momentum tracking (-5 to +5)
+- Initiative calculation
+- Deck state tracking
+- Hand size limits
 
-### Game State Model (Importance: 90)
-- Turn phase tracking:
-  - Deploy phase 
-  - Action phase
-  - End phase
-- Initiative system
-- Status effect duration tracking  
-- Card/unit state management
+4. Game State Model (Importance Score: 80)
+- Turn phases: Draw, Main, Combat, End
+- Action resolution queue
+- Status effect tracking
+- Combat math calculations
 - Victory condition monitoring
+- State persistence rules
 
-### Combat Resolution (Importance: 85)
-- Attack targeting validation
-- Damage calculation with:
-  - Unit abilities
-  - Terrain modifiers  
-  - Status effects
-- Death/removal handling
-- Chain reaction effects
+5. Faction Mechanics (Importance Score: 75)
+- Energy manipulation (Solaris)
+- Stealth mechanics (Umbral) 
+- Time warping (Aeonic)
+- Growth systems (Primordial)
+- Unit sacrifice (Infernal)
+- Mind control (Neuralis)
+- Tech upgrades (Synthetic)
 
-### Resource Management (Importance: 80)
-- Energy generation per turn
-- Momentum gain from actions
-- Resource node control benefits
-- Special ability costs
-- Card deployment costs
-
-Primary files:
-```
-frontend-next/src/types/card.ts
-frontend-next/src/types/game.ts
-frontend-next/src/lib/hex.ts
-frontend-next/src/components/game/battlefield.tsx
-```
+Key Implementations:
+- Card synergy calculations based on faction/type
+- Combat resolution with multiple damage types
+- Resource economy balancing 
+- Unit positioning strategies
+- Territory control scoring
 
 $END$
 

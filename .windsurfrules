@@ -40,78 +40,55 @@ The system integrates these components through a service-oriented architecture, 
 - Explain your OBSERVATIONS clearly, then provide REASONING to identify the exact issue. Add console logs when needed to gather more information.
 
 
-CORE BUSINESS DOMAINS:
+Core Game Architecture Components:
 
-1. Faction System (Score: 95)
-Path: backend/app_types/faction.py
-- Seven unique factions with specialized mechanics
-- Complex interaction rules between factions
-- Faction-specific resource systems
-- Advanced alignment mechanics affecting gameplay
+1. Faction System (Score: 90)
+`backend/app_types/faction.py`
+- Seven distinct factions with unique mechanics
+- Energy/Momentum resource management 
+- Faction relationship calculation system
+- Cross-faction ability interactions
+- Faction-specific combat modifiers
 
-2. Deck Building Engine (Score: 90)
-Path: frontend-next/src/components/deck-builder/DeckBuilder.tsx
-- Custom deck construction rules
-- Faction purity validation
-- Card quantity limitations
-- Energy curve analysis
-- Synergy detection system
-
-3. Battlefield Management (Score: 85)
-Path: frontend-next/src/components/game/Battlefield.tsx
-- Hex-based movement system
-- Zone control mechanics
-- Unit positioning rules
+2. Card Mechanics Engine (Score: 85)
+`frontend-next/src/lib/card-utils.ts`
+- Card type hierarchy (Hero, Unit, Structure, Action)
 - Combat resolution system
-- Terrain effects processing
+- Unit positioning and movement rules
+- Ability trigger validation
+- Resource cost calculations
 
-4. Blockchain Integration (Score: 90)
-Path: backend/services/blockchain_handler.py
-- Multi-chain asset management (Ethereum, Etherlink)
-- NFT minting/transfer logic
-- Transaction outbox pattern
-- Game state reconciliation
-- Smart contract interaction layer
+3. Deck Construction Rules (Score: 80)
+`frontend-next/src/services/deckService.ts`
+- Maximum 3 copies per card
+- 30-50 cards per deck requirement
+- Two-faction maximum limit
+- Hero card requirements
+- Resource curve validation
 
-5. Game State Controller (Score: 85)
-Path: backend/services/health_manager.py
-- Turn sequencing
-- Action validation
-- Resource management
-- Crisis event system
-- State persistence
+4. Battlefield Manager (Score: 75)
+`frontend-next/src/components/game/Battlefield.tsx`
+- Hex-based combat grid
+- Zone of control mechanics
+- Unit movement validation
+- Combat range calculations
+- Terrain effect implementation
 
-6. Feature Management (Score: 80)
-Path: frontend-next/src/lib/feature-flags/feature-flag-provider.tsx
-- Progressive feature rollout
-- A/B testing system
-- Component versioning
-- User segment targeting
+5. Game State Controller (Score: 70)
+`backend/services/game_state.py`
+- Phase-based turn system
+- Resource accumulation rules
+- Combat sequence management
+- State transition validation
+- Victory condition tracking
 
-CORE WORKFLOWS:
+Integration Points:
+- Faction system feeds into deck building constraints
+- Card mechanics interact with battlefield positioning
+- Resource system connects phases and actions
+- Combat resolution combines unit stats with faction bonuses
 
-1. Card Resolution Flow
-- Card play validation
-- Resource cost verification
-- Effect resolution
-- State updates
-- Event dispatching
-
-2. Combat Sequence
-- Initiative determination
-- Action point management
-- Attack validation
-- Damage resolution
-- Status effect application
-
-3. Faction Interaction Pipeline
-- Relationship calculation
-- Synergy detection
-- Opposition effects
-- Resource modification
-- Crisis event triggering
-
-The system implements a complex card game with unique faction mechanics, hex-based combat, and blockchain asset management. Core business logic emphasizes faction identity, strategic depth through deck building, and tactical positioning in combat.
+The business logic emphasizes faction identity and mechanical interactions while maintaining game balance through interconnected systems of restrictions and bonuses.
 
 $END$
 

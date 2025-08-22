@@ -1,62 +1,66 @@
 ---
-description: Specifications for core game mechanics, algorithms and rules that define gameplay behavior and systems
+description: Used for analyzing and documenting core game mechanics, card interactions, combat systems and battlefield algorithms
 trigger: model_decision
 ---
 
+# === USER INSTRUCTIONS ===
+trigger: model_decision
+# === END USER INSTRUCTIONS ===
 
 # game-algorithms
 
-## Core Systems
+Core Battle System
+Location: frontend-next/src/components/game/Battlefield.tsx
+Importance Score: 90
+- Hex-based battlefield grid with 3 distinct zones per player
+- Zone of Control (ZOC) mechanics affecting unit movement
+- Combat resolution using phase-based sequencing
+- Terrain effect modifiers on movement and combat
+- Line of sight calculations for ranged abilities
 
-### Battlefield Management (90/100)
-`frontend-next/src/components/game/Battlefield.tsx`
-- Hex-based grid combat system with axial coordinates
-- Zone of control mechanics affecting movement and engagement
-- Custom movement cost calculations based on terrain and unit type
-- Line of sight and range calculations for abilities
-- Unit facing and flanking mechanics
+Card Combat Engine
+Location: frontend-next/src/lib/card-utils.ts
+Importance Score: 85
+- Initiative-based combat sequence
+- Multi-phase turn structure:
+  1. Draw Phase (resource generation)
+  2. Deploy Phase (unit placement)
+  3. Action Phase (combat/abilities)
+  4. End Phase (cleanup/effects)
+- Faction-specific ability triggers
+- Status effect application and resolution
 
-### Card Deployment Logic (85/100)
-`frontend-next/src/lib/card-utils.ts`
-- Faction-specific placement restrictions
-- Resource cost validation (energy, momentum)
-- Target validity checking for card effects
-- Prerequisite verification for combo cards
-- Unit stacking and formation rules
+Faction Mechanics
+Location: frontend-next/src/types/faction.ts
+Importance Score: 85
+- Seven unique faction implementations:
+  - Solaris: Energy manipulation
+  - Umbral: Stealth mechanics
+  - Aeonic: Time manipulation
+  - Primordial: Growth/Evolution
+  - Infernal: Sacrifice mechanics
+  - Neuralis: Mind control
+  - Synthetic: Resource conversion
+- Inter-faction synergy calculations
+- Opposition penalties between conflicting factions
 
-### Turn Sequencing (80/100) 
-`frontend-next/src/components/game/TurnManager.tsx`
-- Phase management (deploy, action, end)
-- Action point economy system
-- Initiative-based turn order
-- Energy/momentum resource tracking
-- Crisis event triggers
+Deployment Logic
+Location: frontend-next/src/lib/hex.ts
+Importance Score: 75
+- Zone-based unit placement restrictions
+- Formation bonuses for aligned units
+- Tactical advantage calculations based on positioning
+- Range and movement path validation
+- Zone control point scoring
 
-### Combat Resolution (85/100)
-`frontend-next/src/lib/hex.ts`
-- Attack range and line of sight checks
-- Damage calculation with faction modifiers
-- Status effect application and duration tracking
-- Counter-attack opportunity validation
-- Unit persistence after combat
-
-### Faction Mechanics (90/100)
-`frontend-next/src/lib/theme/faction-theme.ts`
-- Solaris: Solar energy amplification
-- Umbral: Stealth and ambush tactics
-- Aeonic: Time manipulation effects 
-- Primordial: Growth and evolution systems
-- Infernal: Risk/reward sacrifice mechanics
-- Neuralis: Mind control abilities
-- Synthetic: AI/robotics specialization
-
-### Crisis Event System (75/100)
-`backend/api/faction_endpoints.py`
-- Faction-specific crisis triggers
-- Cross-faction interaction rules
-- Resource economy modifiers
-- Territory control effects
-- Victory condition alterations
+Resource Management
+Location: frontend-next/src/types/game.ts
+Importance Score: 70
+- Dual resource system (Energy/Momentum)
+- Faction-specific resource generation rates
+- Resource conversion mechanics
+- Special ability cost calculations
+- Resource curve optimization
 
 $END$
 
