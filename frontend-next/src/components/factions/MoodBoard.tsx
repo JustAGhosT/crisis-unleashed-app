@@ -9,6 +9,12 @@ import { getMoodBoardData } from "@/data/factions/moodboard";
 import type { ColorPaletteItem } from "@/types/moodboard";
 import styles from "./MoodBoard.module.css";
 
+/**
+ * Note on inline styles: We follow Option A (CSS variables with helper classes) and avoid inline styles.
+ * The only exception here is setting CSS custom properties (e.g., `--mb-url`, `--swatch-color`) needed for
+ * dynamic backgrounds/colors. The CSS is defined in `MoodBoard.module.css`; TSX sets only the variable value.
+ */
+
 export type MoodBoardProps = {
   factionId?: FactionKey; // optional; defaults to active theme
   expanded?: boolean;

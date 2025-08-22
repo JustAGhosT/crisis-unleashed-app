@@ -13,19 +13,48 @@ logger = logging.getLogger(__name__)
 
 
 class _OutboxEntryCompat:
-    """Lightweight object with attributes expected by tests."""
+    """Lightweight, validated view over an outbox entry document.
+
+    This wrapper enforces the presence of required fields used by tests and
+    repository logic while remaining permissive for optional fields.
+    """
+
+    # Explicit attribute types for better editor support and safety
+    outbox_id: str
+    outbox_type: str
+    status: str
+    request_data: Dict[str, Any]
+    created_at: datetime
+    updated_at: datetime
+    attempts: int
+    max_attempts: int
+    result: Optional[Dict[str, Any]]
+    last_error: Optional[str]
 
     def __init__(self, data: Dict[str, Any]):
-        self.outbox_id = data.get("outbox_id")
-        self.outbox_type = data.get("outbox_type")
-        self.status = data.get("status")
-        self.request_data = data.get("request_data", {})
-        self.created_at = data.get("created_at")
-        self.updated_at = data.get("updated_at")
-        self.attempts = data.get("attempts", 0)
-        self.max_attempts = data.get("max_attempts", 5)
-        self.result = data.get("result")
-        self.last_error = data.get("last_error")
+        if data is None:
+            raise ValueError("Outbox entry data must not be None")
+
+        # Required fields – raise early with clear messages if absent
+        self.outbox_id = str(self._require(data, "outbox_id"))
+        self.outbox_type = str(self._require(data, "outbox_type"))
+        self.status = str(self._require(data, "status"))
+        self.created_at = cast(datetime, self._require(data, "created_at"))
+
+        # Optional with sane defaults
+        self.request_data = cast(Dict[str, Any], data.get("request_data") or {})
+        self.updated_at = cast(datetime, data.get("updated_at") or self.created_at)
+        self.attempts = int(data.get("attempts", 0))
+        self.max_attempts = int(data.get("max_attempts", 5))
+        self.result = cast(Optional[Dict[str, Any]], data.get("result"))
+        self.last_error = cast(Optional[str], data.get("last_error"))
+
+    @staticmethod
+    def _require(d: Dict[str, Any], key: str) -> Any:
+        """Fetch a required key or raise a ValueError with context."""
+        if key not in d or d[key] is None:
+            raise ValueError(f"Outbox entry missing required field: '{key}'")
+        return d[key]
 
 
 class TransactionOutboxRepository:

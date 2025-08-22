@@ -103,10 +103,10 @@ export function RegisterForm() {
       });
       if (login?.error) {
         // Registration succeeded but login failed; send to login page
-        router.push("/login");
+        router.push("/login" as import("next").Route);
         return;
       }
-      router.push("/dashboard");
+      router.push("/dashboard" as import("next").Route);
     } catch (err) {
       console.error("Registration error:", err);
       setError("Registration failed. Please try again.");

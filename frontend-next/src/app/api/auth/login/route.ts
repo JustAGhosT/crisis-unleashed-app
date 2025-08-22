@@ -1,32 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 
-// In a real application, you would use a database and proper password hashing
-const MOCK_USERS = [
-  {
-    id: "user-123",
-    username: "CommanderAlpha",
-    email: "user@example.com",
-    password: "password", // In a real app, this would be hashed
-    avatar: "https://via.placeholder.com/100",
-    role: "user",
-  },
-  {
-    id: "admin-456",
-    username: "AdminOverlord",
-    email: "admin@example.com",
-    password: "admin123", // In a real app, this would be hashed
-    avatar: "https://via.placeholder.com/100",
-    role: "admin",
-  },
+// Temporary mock users for development. Replace with real backend auth.
+const mockUsers = [
+  { id: "1", username: "admin", email: "admin@example.com", password: "adminpass", role: "admin" },
+  { id: "2", username: "user", email: "user@example.com", password: "userpass", role: "user" },
 ];
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json();
+    const body = await request.json();
+    const { email, password } = body ?? {};
 
-    // Validate input
     if (!email || !password) {
       return NextResponse.json(
         { error: "Email and password are required" },
@@ -34,60 +19,40 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Find user (in a real app, this would query a database)
-    const user = MOCK_USERS.find((u) => u.email === email);
+    const user = mockUsers.find((u) => u.email === email && u.password === password);
 
-    // Check if user exists and password matches
-    if (!user || user.password !== password) {
-      return NextResponse.json(
-        { error: "Invalid email or password" },
-        { status: 401 },
-      );
+    if (!user) {
+      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
-    // Create user data without password
-    const userData = {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      avatar: user.avatar,
-      role: user.role,
-    };
+    const secret = process.env.NEXTAUTH_SECRET || "dev-secret";
 
-    // Set authentication cookie
-    const oneWeek = 7 * 24 * 60 * 60 * 1000;
-    const secret = process.env.JWT_SECRET;
-    if (!secret) {
-      console.error("JWT_SECRET is not set");
-      return NextResponse.json(
-        { error: "Server misconfiguration: missing JWT secret" },
-        { status: 500 },
-      );
-    }
+    const token = jwt.sign(
+      {
+        sub: user.id,
+        email: user.email,
+        role: user.role,
+      },
+      secret,
+      { expiresIn: "7d" },
+    );
 
-    const token = jwt.sign({ sub: user.id, role: user.role }, secret, {
-      algorithm: "HS256",
-      expiresIn: "7d",
-      issuer: "crisis-unleashed",
-      audience: "crisis-unleashed-client",
+    const response = NextResponse.json({
+      user: { id: user.id, username: user.username, email: user.email, role: user.role },
+      token,
     });
-    const cookieStore = await cookies();
-    cookieStore.set({
-      name: "auth_token",
-      value: token,
+
+    response.cookies.set("auth_token", token, {
       httpOnly: true,
-      path: "/",
-      expires: Date.now() + oneWeek,
-      secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7,
     });
 
-    return NextResponse.json({ user: userData });
+    return response;
   } catch (error) {
     console.error("Login error:", error);
-    return NextResponse.json(
-      { error: "Authentication failed" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Login failed" }, { status: 500 });
   }
 }

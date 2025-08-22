@@ -2,16 +2,10 @@
 Ethereum blockchain provider implementation.
 """
 import logging
-from urllib.parse import urlparse
 from typing import Any, Dict, Optional, cast
 
 from .base_provider import BaseBlockchainProvider
-
-# Import Web3 in a way that tests can patch `backend.services.blockchain.ethereum_provider.Web3`
-try:  # pragma: no cover - import detection only
-    from web3 import Web3  # type: ignore
-except Exception:  # Fallback to local mock-compatible symbol
-    from ...types.web3_types import MockWeb3 as Web3  # type: ignore
+from .web3_compat import new_web3
 
 
 logger = logging.getLogger(__name__)
@@ -31,29 +25,10 @@ class EthereumProvider(BaseBlockchainProvider):
         # Defer initialization; tests may patch Web3, and we'll lazily init via helper
 
     def _init_from_config(self) -> None:
-        """Initialize Web3 and contract from config safely (single source of truth)."""
+        """Initialize Web3 and contract from config via compatibility layer."""
         if not self.web3 and self.rpc_url:
-            try:
-                # Detect provider type from URL scheme and initialize accordingly
-                parsed = urlparse(self.rpc_url)
-                scheme = (parsed.scheme or "").lower()
-                http_provider = getattr(Web3, "HTTPProvider", None)
-                ws_provider = getattr(Web3, "WebsocketProvider", None)
-
-                provider = None
-                if scheme in ("ws", "wss") and callable(ws_provider):
-                    provider = ws_provider(self.rpc_url)
-                elif scheme in ("http", "https") and callable(http_provider):
-                    provider = http_provider(self.rpc_url)
-
-                if provider is not None:
-                    # Provider type varies by web3 version; cast for type-checkers
-                    self.web3 = Web3(cast(Any, provider))
-                else:
-                    # Some tests/mocks patch Web3 to accept a URL directly
-                    self.web3 = Web3(self.rpc_url)  # type: ignore[call-arg]
-            except Exception:
-                self.web3 = None
+            # Centralized factory handles provider selection and absence of web3
+            self.web3 = new_web3(self.rpc_url)
         if self.contract is None and self.web3 and self.contract_address:
             try:
                 self.contract = self.web3.eth.contract(
@@ -74,12 +49,13 @@ class EthereumProvider(BaseBlockchainProvider):
             # Ensure web3/contract are initialized consistently
             self._init_from_config()
             if not self.web3:
+                self._connected = False
                 return False
-            # Do not call web3.is_connected() here to avoid double-calling in tests.
-            # Consider the provider connected if Web3 initialized; live state is checked in is_connected().
-            self._connected = True
+            # Verify connection if API available; otherwise consider not connected
+            is_conn = getattr(self.web3, "is_connected", None)
+            self._connected = bool(is_conn()) if callable(is_conn) else False
             # Contract is initialized by helper when address is set
-            return True
+            return self._connected
         except Exception as e:
             logger.error(f"Failed to connect to Ethereum: {e}")
             return False
@@ -90,7 +66,9 @@ class EthereumProvider(BaseBlockchainProvider):
             self._connected = False
             return False
         try:
-            self._connected = bool(self.web3.is_connected())
+            check = getattr(self.web3, "is_connected", None)
+            if callable(check):
+                self._connected = bool(check())
         except Exception:
             # If check fails (e.g., mock), keep previous state but prefer False on missing web3
             pass

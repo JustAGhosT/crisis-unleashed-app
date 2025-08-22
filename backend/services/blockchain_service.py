@@ -7,7 +7,7 @@ import concurrent.futures
 import inspect
 import logging
 import os
-from typing import Any, Dict, Optional, Tuple, Callable
+from typing import Any, Dict, Optional, Tuple, Callable, Coroutine
 
 from .blockchain import BlockchainProviderFactory, BaseBlockchainProvider
 
@@ -31,22 +31,31 @@ class BlockchainService:
         self._providers: Dict[str, BaseBlockchainProvider] = {}
         self._initialized = False
 
+    def _run_coro_blocking(self, coro: Coroutine[Any, Any, Any], timeout: Optional[float] = None) -> Any:
+        """Run a coroutine in an isolated event loop within a worker thread.
+
+        This avoids nested asyncio.run() failures and cross-thread loop access.
+        Timeout is enforced inside the coroutine via asyncio.wait_for to ensure
+        the worker thread exits cleanly on timeout.
+        """
+        def runner() -> Any:
+            if timeout is not None:
+                return asyncio.run(asyncio.wait_for(coro, timeout))
+            return asyncio.run(coro)
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as ex:
+            future = ex.submit(runner)
+            # The timeout is already enforced inside runner when provided, so we don't pass it here
+            return future.result()
+
     def _maybe_await(self, value: Any) -> Any:
         """Return result of value, awaiting if it's a coroutine/awaitable."""
-        # Prefer asyncio.iscoroutine to satisfy type-checkers
         if asyncio.iscoroutine(value):
-            try:
-                return asyncio.run(value)
-            except RuntimeError:
-                loop = asyncio.get_event_loop()
-                return loop.run_until_complete(value)
-        # Fallback for other awaitables
+            return self._run_coro_blocking(value)
         if inspect.isawaitable(value):
-            try:
-                return asyncio.run(value)  # type: ignore[arg-type]
-            except RuntimeError:
-                loop = asyncio.get_event_loop()
-                return loop.run_until_complete(value)  # type: ignore[arg-type]
+            async def _wrap(v: Any):
+                return await v
+            return self._run_coro_blocking(_wrap(value))
         return value
 
     def _call_with_timeout(self, func: Callable[[], Any], timeout: float) -> Any:
@@ -55,34 +64,25 @@ class BlockchainService:
         - If the function is async or returns an awaitable, use asyncio.wait_for.
         - If the function is sync, run it in a thread and wait with a timeout.
         """
-        try:
-            if inspect.iscoroutinefunction(func):
-                coro = func()
-                try:
-                    return asyncio.run(asyncio.wait_for(coro, timeout))
-                except RuntimeError:
-                    loop = asyncio.get_event_loop()
-                    return loop.run_until_complete(asyncio.wait_for(coro, timeout))
+        if inspect.iscoroutinefunction(func):
+            coro = func()
+            return self._run_coro_blocking(coro, timeout=timeout)
 
-            # Possibly sync function but may return an awaitable
-            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-                future = executor.submit(func)
-                try:
-                    result = future.result(timeout=timeout)
-                except concurrent.futures.TimeoutError:
-                    raise TimeoutError()
+        # Run sync function in a worker thread with timeout
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(func)
+            try:
+                result = future.result(timeout=timeout)
+            except concurrent.futures.TimeoutError:
+                raise TimeoutError()
 
-            # If the sync call returned an awaitable/coroutine, await it with timeout
-            if asyncio.iscoroutine(result) or inspect.isawaitable(result):
-                try:
-                    return asyncio.run(asyncio.wait_for(result, timeout))  # type: ignore[arg-type]
-                except RuntimeError:
-                    loop = asyncio.get_event_loop()
-                    return loop.run_until_complete(asyncio.wait_for(result, timeout))  # type: ignore[arg-type]
+        # If the sync call returned an awaitable/coroutine, await it with timeout in isolated loop
+        if asyncio.iscoroutine(result) or inspect.isawaitable(result):
+            async def _wrap(v: Any):
+                return await v
+            return self._run_coro_blocking(_wrap(result), timeout=timeout)
 
-            return result
-        except asyncio.TimeoutError:
-            raise TimeoutError()
+        return result
 
     def _load_default_configs(self) -> Dict[str, Dict[str, Any]]:
         """Load default configurations from environment variables."""
@@ -194,9 +194,8 @@ class BlockchainService:
         Raises:
             ValueError: If blockchain is not supported or not initialized
         """
-        # Allow direct provider access if tests pre-populated _providers
-        if not self._initialized and not self._providers:
-            raise ValueError("Service not initialized. Call initialize() first or set _providers.")
+        if not self._initialized:
+            raise ValueError("Service not initialized. Call initialize() first.")
 
         if blockchain not in self._providers:
             raise ValueError(

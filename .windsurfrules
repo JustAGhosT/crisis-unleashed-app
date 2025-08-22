@@ -40,64 +40,78 @@ The system integrates these components through a service-oriented architecture, 
 - Explain your OBSERVATIONS clearly, then provide REASONING to identify the exact issue. Add console logs when needed to gather more information.
 
 
-## Core Business Systems
+CORE BUSINESS DOMAINS:
 
-### 1. Faction System (Score: 90)
-- Seven unique metaphysical factions with distinct mechanics
-- Custom faction relationship mapping via hexagonal grid
-- Faction-specific abilities and resource manipulation
-- Inter-faction synergy calculations and power dynamics
-- Path: `backend/app_types/faction.py`
+1. Faction System (Score: 95)
+Path: backend/app_types/faction.py
+- Seven unique factions with specialized mechanics
+- Complex interaction rules between factions
+- Faction-specific resource systems
+- Advanced alignment mechanics affecting gameplay
 
-### 2. Card Game Engine (Score: 85)
-- Complex deck building constraints by faction and rarity
-- Real-time deck validation with multi-dimensional rules
-- Energy cost and resource management systems
-- Custom battlefield positioning mechanics
-- Path: `frontend-next/src/components/deck-builder/DeckBuilder.tsx`
+2. Deck Building Engine (Score: 90)
+Path: frontend-next/src/components/deck-builder/DeckBuilder.tsx
+- Custom deck construction rules
+- Faction purity validation
+- Card quantity limitations
+- Energy curve analysis
+- Synergy detection system
 
-### 3. Blockchain Integration (Score: 85)
-- Multi-chain NFT minting and transfer system
-- Transaction outbox pattern for blockchain consistency
-- Chain-specific implementations for Ethereum/Etherlink
-- Custom state machine for transaction processing
-- Path: `backend/services/blockchain_service.py`
+3. Battlefield Management (Score: 85)
+Path: frontend-next/src/components/game/Battlefield.tsx
+- Hex-based movement system
+- Zone control mechanics
+- Unit positioning rules
+- Combat resolution system
+- Terrain effects processing
 
-### 4. Game State Management (Score: 80)
-- Turn-based phase system (deploy, action, end)
-- Resource tracking (energy, momentum)
-- Real-time game state synchronization
-- Custom zone control and unit placement rules
-- Path: `frontend-next/src/components/game/Battlefield.tsx`
+4. Blockchain Integration (Score: 90)
+Path: backend/services/blockchain_handler.py
+- Multi-chain asset management (Ethereum, Etherlink)
+- NFT minting/transfer logic
+- Transaction outbox pattern
+- Game state reconciliation
+- Smart contract interaction layer
 
-### 5. Collection System (Score: 75)
-- Card ownership and rarity tracking
-- Faction-based collection organization
-- Multi-dimensional card categorization
-- Collection completion analytics
-- Path: `frontend-next/src/components/cards/CardCollection.tsx`
+5. Game State Controller (Score: 85)
+Path: backend/services/health_manager.py
+- Turn sequencing
+- Action validation
+- Resource management
+- Crisis event system
+- State persistence
 
-## Supporting Systems
+6. Feature Management (Score: 80)
+Path: frontend-next/src/lib/feature-flags/feature-flag-provider.tsx
+- Progressive feature rollout
+- A/B testing system
+- Component versioning
+- User segment targeting
 
-### 1. Feature Flag System (Score: 70)
-- Environment-driven flag configuration
-- Real-time feature toggling
-- Admin control interface
-- Path: `frontend-next/src/lib/feature-flags/feature-flag-provider.tsx`
+CORE WORKFLOWS:
 
-### 2. Faction Theme Engine (Score: 65)
-- Dynamic faction-based UI theming
-- Custom color schemes and visual elements
-- Faction-specific animations and effects
-- Path: `frontend-next/src/lib/theme/faction-theme.ts`
+1. Card Resolution Flow
+- Card play validation
+- Resource cost verification
+- Effect resolution
+- State updates
+- Event dispatching
 
-### 3. Game Statistics (Score: 60)
-- Deck analytics and metrics
-- Player performance tracking
-- Resource utilization analysis
-- Path: `frontend-next/src/components/deck-builder/DeckStatsPanel.tsx`
+2. Combat Sequence
+- Initiative determination
+- Action point management
+- Attack validation
+- Damage resolution
+- Status effect application
 
-The system implements a unique card game centered around metaphysical factions, with complex deck building rules, blockchain integration, and real-time gameplay mechanics. Core business logic focuses on faction interactions, resource management, and strategic gameplay elements.
+3. Faction Interaction Pipeline
+- Relationship calculation
+- Synergy detection
+- Opposition effects
+- Resource modification
+- Crisis event triggering
+
+The system implements a complex card game with unique faction mechanics, hex-based combat, and blockchain asset management. Core business logic emphasizes faction identity, strategic depth through deck building, and tactical positioning in combat.
 
 $END$
 

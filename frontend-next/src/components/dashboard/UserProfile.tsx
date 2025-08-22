@@ -162,7 +162,7 @@ export default function UserProfile() {
         )}
 
         <Link
-          href="/profile"
+          href={"/profile" as import("next").Route}
           className="mt-6 text-blue-600 hover:text-blue-800 text-sm font-medium"
         >
           Edit Profile

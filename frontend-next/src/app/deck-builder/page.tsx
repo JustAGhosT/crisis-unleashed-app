@@ -8,12 +8,12 @@ import RequireAuth from "@/components/auth/RequireAuth";
 import FactionsThemeShell from "../factions/FactionsThemeShell";
 
 export default function DeckBuilderPage() {
-  const [isLoadingLocal, setIsLoadingLocal] = useState(true);
+  const [isLoadingLocal, setIsSubmitting] = useState(true);
 
   // Simulate loading state for demonstration
   useEffect(() => {
     const timer = setTimeout(() => {
-      setIsLoadingLocal(false);
+      setIsSubmitting(false);
     }, 1000);
 
     return () => clearTimeout(timer);
@@ -40,9 +40,7 @@ export default function DeckBuilderPage() {
     <RequireAuth>
       <FactionsThemeShell>
         <div className="container mx-auto px-4 py-8">
-          <h1 className="text-3xl font-bold mb-8 dark:text-white">
-            Deck Builder
-          </h1>
+          <h1 className="text-3xl font-bold mb-8 dark:text-white">Deck Builder</h1>
           {/* Deck Builder Feature Gate */}
           <FeatureGate flag="useNewDeckBuilder">
             <DeckBuilderInterface isLoading={isLoadingLocal} />

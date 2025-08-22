@@ -2,15 +2,32 @@
   display: grid;
   gap: 0.5rem; /* matches gap-2 */
   padding: 0.5rem; /* matches p-2 */
-  grid-template-columns: repeat(var(--bf-cols, 5), minmax(0, 1fr));
-  grid-template-rows: repeat(var(--bf-rows, 3), var(--bf-row-h, 80px));
-}
+  /* Default fallbacks; overridden by specific row/col classes below */
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-rows: repeat(3, var(--bf-row-h, 80px));
+ }
 
-/* Hex cell styling (pointy-top hex via clip-path). Uses CSS variables to avoid inline dimensions. */
-.hex {
+ /* Hex cell styling (pointy-top hex via clip-path). Uses CSS variables to avoid inline dimensions. */
+ .hex {
   clip-path: polygon(
     25% 0%, 75% 0%,
     100% 50%, 75% 100%,
     25% 100%, 0% 50%
   );
-}
+ }
+
+ /* Grid sizing helpers to avoid inline style props in TSX */
+ .cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+ .cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+ .cols-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+ .cols-6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+ .cols-7 { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+
+ .rows-2 { grid-template-rows: repeat(2, var(--bf-row-h, 80px)); }
+ .rows-3 { grid-template-rows: repeat(3, var(--bf-row-h, 80px)); }
+ .rows-4 { grid-template-rows: repeat(4, var(--bf-row-h, 80px)); }
+ .rows-5 { grid-template-rows: repeat(5, var(--bf-row-h, 80px)); }
+ .rows-6 { grid-template-rows: repeat(6, var(--bf-row-h, 80px)); }
+
+ /* Row height helpers (can add more if needed) */
+ .rowh-80 { --bf-row-h: 80px; }

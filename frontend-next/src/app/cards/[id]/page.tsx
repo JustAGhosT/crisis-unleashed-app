@@ -61,7 +61,7 @@ export default function CardDetailPage() {
       <div className="container mx-auto py-8 max-w-5xl">
         <div className="mb-8 flex items-center gap-4">
           <Button variant="outline" size="sm" asChild>
-            <Link href="/cards" className="flex items-center gap-2">
+            <Link href={{ pathname: "/cards" }} className="flex items-center gap-2">
               <ArrowLeft className="h-4 w-4" />
               Back to Cards
             </Link>

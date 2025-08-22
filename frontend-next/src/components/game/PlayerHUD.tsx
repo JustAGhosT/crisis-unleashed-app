@@ -4,6 +4,12 @@ import clsx from "clsx";
 import styles from "./playerhud.module.css";
 import React, { useMemo, useId } from "react";
 
+/**
+ * Inline style usage policy: We avoid inline styles per Option A. The only exception here is setting the
+ * CSS variable `--clip` to drive a `clip-path` defined in `playerhud.module.css`. The TSX sets only the
+ * variable value; all styling logic remains in CSS.
+ */
+
 export interface PlayerHUDProps {
   player?: "player1" | "enemy" | string;
   health: number; // 0..100

@@ -272,23 +272,21 @@ export const Battlefield: React.FC<BattlefieldProps> = ({
   const clamp = (val: number, min: number, max: number) => Math.max(min, Math.min(max, val));
   const c = clamp(cols, 3, 7);
   const r = clamp(rows, 2, 6);
-  // Use CSS variables for grid sizing to avoid dynamic Tailwind class purging
-  const gridStyle: React.CSSProperties & { ["--bf-cols"]?: number; ["--bf-rows"]?: number; ["--bf-row-h"]?: string } = {
-    ["--bf-cols"]: c,
-    ["--bf-rows"]: r,
-    ["--bf-row-h"]: "80px",
-  };
+  // Map to CSS module helper classes to avoid inline style usage
+  const colClass = (styles as Record<string, string>)[`cols-${c}`] || styles["cols-5"];
+  const rowClass = (styles as Record<string, string>)[`rows-${r}`] || styles["rows-3"];
+  const rowHClass = styles["rowh-80"]; // default height
 
   return (
     <div className="w-full">
       <div
         className={clsx(
           styles.grid,
-          "bg-gray-950/30 rounded-xl border border-gray-700/40"
+          "bg-gray-950/30 rounded-xl border border-gray-700/40",
+          colClass,
+          rowClass,
+          rowHClass
         )}
-        /* Using CSS variables inline to drive module-defined grid; minimal, intentional inline style */
-        // eslint-disable-next-line
-        style={gridStyle}
       >
         {battlefieldGrid.map((zone) => {
           const isActiveZone = hoveredZone === zone.position && !!selectedCard;

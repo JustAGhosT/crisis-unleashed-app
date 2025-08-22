@@ -127,7 +127,7 @@ export function FactionHexagon({
               hoveredFaction &&
                 (hoveredFaction === centerFaction || hoveredFaction === pos.id)
                 ? "opacity-80"
-                : "opacity-35",
+                : "opacity-30",
             )}
           />
         ))}
@@ -198,8 +198,6 @@ export function FactionHexagon({
       {/* Nodes */}
       <div
         className={cn("absolute inset-0")}
-        role="presentation"
-        aria-hidden
       >
         {/* Center */}
         {renderFactionNode(

@@ -30,10 +30,9 @@ export class ErrorBoundary extends React.Component<
   render() {
     if (this.state.hasError) {
       return (
-        this.props.fallback ?? (
+        this.props.fallback !== undefined ? this.props.fallback : (
           <div
-            role="alert"
-            aria-live="polite"
+            role="status"
             aria-atomic="true"
             className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-destructive"
           >
