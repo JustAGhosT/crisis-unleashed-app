@@ -1,15 +1,18 @@
-# Activate virtual environment
-if (Test-Path -Path ".\.venv\Scripts\activate.ps1") {
-    & .\.venv\Scripts\activate.ps1
-} else {
-    Write-Host "Virtual environment not found or activation script missing. Trying alternative..."
-    if (Test-Path -Path ".\.venv\Scripts\Activate.ps1") {
-        & .\.venv\Scripts\Activate.ps1
-    } elseif (Test-Path -Path ".\.venv\Scripts\Activate") {
-        .\.venv\Scripts\Activate
-    } else {
-        Write-Host "Warning: Could not find virtual environment activation script. You may need to create it with: python -m venv .venv"
-    }
+# Activate virtual environment (supports repo-root and backend-scoped venvs)
+$scriptRoot = Split-Path -Parent $PSCommandPath
+$repoRoot   = Resolve-Path (Join-Path $scriptRoot "..")
+$candidates = @(
+    (Join-Path $repoRoot ".venv\Scripts\Activate.ps1"),
+    (Join-Path $repoRoot ".venv\Scripts\activate.ps1"),
+    (Join-Path $scriptRoot ".venv\Scripts\Activate.ps1"),
+    (Join-Path $scriptRoot ".venv\Scripts\activate.ps1")
+)
+$activated = $false
+foreach ($path in $candidates) {
+    if (Test-Path -Path $path) { & $path; $activated = $true; break }
+}
+if (-not $activated) {
+    Write-Host "Warning: Could not find a virtualenv. Create one with: python -m venv .venv (at repo root)"
 }
 
 # Check if the problematic types directory still exists and remove it
@@ -39,10 +42,12 @@ $backendPort = 8010
                 Start-Sleep -Seconds 1
                 Write-Host "Terminated process(es): $($uvicornPids -join ', ')"
             } else {
-                Write-Host "Aborting process termination."
+                Write-Host "Aborting process termination; port $backendPort still in use. Exiting."
+                exit 1
             }
         } else {
-            Write-Host "Non-uvicorn process is using port $backendPort. Skipping termination."
+            Write-Host "Non-uvicorn process is using port $backendPort. Exiting to avoid startup failure."
+            exit 1
         }
     }
   } catch {

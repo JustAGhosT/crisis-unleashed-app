@@ -21,7 +21,10 @@ try {
 }
 let src = fs.readFileSync(target, 'utf8');
 // If already patched, exit idempotently
-if (src.includes("typeof config.generateBuildId==='function'?config.generateBuildId:()=>null")) {
+if (
+  src.includes("typeof config.generateBuildId==='function'?config.generateBuildId:()=>undefined") ||
+  src.includes("typeof config.generateBuildId==='function'?config.generateBuildId:()=>null")
+) {
   if (process.env.NEXT_PATCH_DEBUG === 'true') {
     console.log('[patch-next-buildid] Already patched:', target);
   }
@@ -30,7 +33,7 @@ if (src.includes("typeof config.generateBuildId==='function'?config.generateBuil
 // Support both double-quoted and single-quoted variants across Next versions
 const beforeDouble = 'return await nextBuildSpan.traceChild("generate-buildid").traceAsyncFn(()=>(0, _generatebuildid.generateBuildId)(config.generateBuildId, _indexcjs.nanoid));';
 const beforeSingle = "return await nextBuildSpan.traceChild('generate-buildid').traceAsyncFn(()=>(0, _generatebuildid.generateBuildId)(config.generateBuildId, _indexcjs.nanoid));";
-const after = "return await nextBuildSpan.traceChild('generate-buildid').traceAsyncFn(()=>(0, _generatebuildid.generateBuildId)(typeof config.generateBuildId==='function'?config.generateBuildId:()=>null, _indexcjs.nanoid));";
+const after = "return await nextBuildSpan.traceChild('generate-buildid').traceAsyncFn(()=>(0, _generatebuildid.generateBuildId)(typeof config.generateBuildId==='function'?config.generateBuildId:()=>undefined, _indexcjs.nanoid));";
 if (src.includes(beforeDouble)) {
   src = src.replace(beforeDouble, after);
 } else if (src.includes(beforeSingle)) {
@@ -45,7 +48,7 @@ if (src.includes(beforeDouble)) {
     // No-op
     process.exit(0);
   }
-  src = src.replace(callPattern, "generateBuildId(typeof config.generateBuildId==='function'?config.generateBuildId:()=>null, _indexcjs.nanoid)");
+  src = src.replace(callPattern, "generateBuildId(typeof config.generateBuildId==='function'?config.generateBuildId:()=>undefined, _indexcjs.nanoid)");
 }
 fs.writeFileSync(target, src, 'utf8');
 if (process.env.NEXT_PATCH_DEBUG === 'true') {

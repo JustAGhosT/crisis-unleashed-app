@@ -7,7 +7,6 @@
 }
 
 .vlistOffset {
-  position: relative;
-  top: 0;
-  transform: translateY(var(--offsetY));
+  transform: translateY(var(--offsetY, 0px));
+  will-change: transform;
 }

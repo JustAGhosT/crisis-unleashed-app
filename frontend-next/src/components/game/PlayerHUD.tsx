@@ -36,7 +36,8 @@ const Circular: React.FC<{
   const { radius, circumference, progress } = useMemo(() => {
     const r = (size - strokeWidth) / 2;
     const c = r * 2 * Math.PI;
-    const p = Math.max(0, Math.min(value / max, 1)) * c;
+    const ratio = max > 0 ? value / max : 0;
+    const p = Math.max(0, Math.min(ratio, 1)) * c;
     return { radius: r, circumference: c, progress: p };
   }, [value, max, size, strokeWidth]);
   const center = size / 2;
