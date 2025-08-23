@@ -1,5 +1,5 @@
 ---
-description: Documents data flow between major game components including state updates and component interaction patterns
+description: Analyzes and documents data flow patterns between major game components including state updates and communication paths
 ---
 
 # === USER INSTRUCTIONS ===
@@ -8,55 +8,69 @@ globs: frontend-next/src/**/*.{ts,tsx},frontend/src/features/**/*.{ts,tsx},front
 
 # component-dataflow
 
-Core Game Component Interactions:
+### Core Game Component Data Flow
 
-1. Battlefield → CardHand Flow
-Path: frontend/src/features/battlefield/Battlefield.tsx
-- Emits zone targeting events for card placement
-- Provides zone availability status
-- Sends battlefield state updates on card play
-- Receives card play intent from CardHand
-- Updates zone control status after card resolution
+**Battlefield -> TurnManager**
+- Sends unit placement events and battlefield state changes
+- Notifies when combat phase begins/ends
+- Transmits zone control updates
+- **Importance Score**: 85
 
-2. CardHand → PlayerHUD Flow
-Path: frontend/src/features/cards/CardHand.tsx
-- Sends energy cost validation requests
-- Emits card selection events
-- Receives energy availability status
-- Updates hand state on card play
-- Tracks card hover/preview states
+**TurnManager -> PlayerHUD** 
+- Updates energy/momentum resources each turn
+- Broadcasts turn phase transitions
+- Signals when actions are available/unavailable
+- **Importance Score**: 80
 
-3. GameInterface → TurnManager Flow
-Path: frontend/src/components/game/GameInterface.tsx
-- Controls phase transitions
-- Manages initiative sequence
-- Emits turn events
-- Updates global game state
-- Handles crisis event triggers
+**CardHand -> Battlefield**
+- Transmits card play attempts with targeting data
+- Sends unit deployment requests
+- Notifies of special ability activations
+- **Importance Score**: 90
 
-4. PlayerHUD → Battlefield Flow
-Path: frontend/src/features/players/PlayerHUD.tsx
-- Tracks zone control points
-- Updates resource pools
-- Emits combat phase readiness
-- Manages player status effects
-- Syncs battlefield position data
+**GameInterface -> All Components**
+- Distributes game state updates
+- Manages synchronization of component states
+- Routes player actions to appropriate handlers
+- **Importance Score**: 85
 
-5. TurnManager State Broadcasting
-Path: frontend/src/features/battlefield/TurnManager.tsx
-- Emits phase change events
-- Updates all component states on turn transition
-- Manages crisis event resolution flow
-- Controls combat sequence timing
-- Handles end-of-turn cleanup
+### State Update Flow
 
-Key Data Flows:
-- Card Play Sequence: CardHand → PlayerHUD → Battlefield
-- Combat Resolution: Battlefield → TurnManager → PlayerHUD
-- Resource Management: PlayerHUD → CardHand → GameInterface
-- Crisis Events: TurnManager → Battlefield → PlayerHUD
+1. Card Play Sequence:
+```
+CardHand -> GameInterface -> TurnManager (validate) -> Battlefield (resolve) -> PlayerHUD (update)
+```
 
-The component interaction system heavily focuses on maintaining game state consistency across the faction-based card game mechanics, with particular emphasis on zone control and resource management.
+2. Turn Phase Transitions:
+```
+TurnManager -> GameInterface -> All Components (sync) -> PlayerHUD (update)
+```
+
+3. Combat Resolution:
+```
+Battlefield -> GameInterface -> TurnManager (validate) -> PlayerHUD (update)
+```
+
+### Critical Paths
+
+**Resource Management**
+- TurnManager maintains source of truth for energy/momentum
+- PlayerHUD subscribes to resource updates
+- CardHand validates plays against current resources
+- **Importance Score**: 85
+
+**Combat State**
+- Battlefield owns combat zone state
+- TurnManager validates combat timing
+- GameInterface synchronizes state across components
+- **Importance Score**: 90
+
+File Paths:
+- frontend-next/src/components/game/Battlefield.tsx
+- frontend-next/src/components/game/TurnManager.tsx
+- frontend-next/src/components/game/CardHand.tsx
+- frontend-next/src/components/game/PlayerHUD.tsx
+- frontend-next/src/components/game/GameInterface.tsx
 
 $END$
 

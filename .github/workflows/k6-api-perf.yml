@@ -24,4 +24,4 @@ jobs:
         env:
           API_BASE_URL: ${{ inputs.apiBaseUrl }}
         run: |
-          k6 run ./perf/k6/api-latency.js
+          k6 run ./tools/perf/k6/api-latency.js

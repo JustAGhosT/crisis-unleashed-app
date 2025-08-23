@@ -1,5 +1,3 @@
-"use client";
-
 export const FACTION_KEYS = [
   "solaris",
   "umbral",
@@ -8,7 +6,6 @@ export const FACTION_KEYS = [
   "infernal",
   "neuralis",
   "synthetic",
-  "default",
 ] as const;
 
 export type FactionKey = typeof FACTION_KEYS[number];
@@ -96,14 +93,16 @@ export const FACTION_TOKENS: Record<FactionKey, Tokens> = {
     ring: "ring-cyan-400/20 hover:ring-cyan-400/30",
     svg: { size: "h-7 w-7", variant: "gear" },
   },
-  default: {
-    glowTop: "from-amber-400/15 via-amber-300/10",
-    glowBottom: "from-sky-400/15 via-indigo-400/10",
-    mainBg: "bg-slate-950",
-    pillBorder: "border-amber-500/30",
-    pillBg: "bg-amber-500/10",
-    pillText: "text-amber-200/90",
-    ring: "ring-amber-400/20 hover:ring-amber-400/30",
-    svg: { size: "h-8 w-8", variant: "triangle" },
-  },
+};
+
+// Fallback tokens for non-specified or unknown faction contexts
+export const DEFAULT_TOKENS: Tokens = {
+  glowTop: "from-amber-400/15 via-amber-300/10",
+  glowBottom: "from-sky-400/15 via-indigo-400/10",
+  mainBg: "bg-slate-950",
+  pillBorder: "border-amber-500/30",
+  pillBg: "bg-amber-500/10",
+  pillText: "text-amber-200/90",
+  ring: "ring-amber-400/20 hover:ring-amber-400/30",
+  svg: { size: "h-8 w-8", variant: "triangle" },
 };

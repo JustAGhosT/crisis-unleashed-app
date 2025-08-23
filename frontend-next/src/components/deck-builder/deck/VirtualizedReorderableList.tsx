@@ -1,6 +1,7 @@
 import React from "react";
 import { DeckCard } from "@/types/card";
 import { useDeckReorder } from "@/components/deck-builder/hooks/useDeckReorder";
+import styles from "./virtualized-list.module.css";
 
 interface VirtualizedReorderableListProps {
   items: DeckCard[];
@@ -38,6 +39,9 @@ export const VirtualizedReorderableList: React.FC<
 }) => {
   const reorder = useDeckReorder({ items, onReorder, plainArrowKeys });
   const [scrollTop, setScrollTop] = React.useState(0);
+  const viewportRef = React.useRef<HTMLDivElement | null>(null);
+  const spacerRef = React.useRef<HTMLDivElement | null>(null);
+  const offsetRef = React.useRef<HTMLDivElement | null>(null);
   const total = items.length;
   const startIndex = Math.max(0, Math.floor(scrollTop / rowHeight) - overscan);
   const endIndex = Math.min(
@@ -47,38 +51,34 @@ export const VirtualizedReorderableList: React.FC<
   const slice = items.slice(startIndex, endIndex);
   const offsetY = startIndex * rowHeight;
 
-  // Memoized style objects to avoid inline-style lint warnings while retaining CSS variable approach (Option A)
-  const viewportStyle = React.useMemo(
-    () => ({ "--vh": `${height}px` } as React.CSSProperties),
-    [height],
-  );
-  const spacerStyle = React.useMemo(
-    () => ({ "--spacer-h": `${total * rowHeight}px` } as React.CSSProperties),
-    [total, rowHeight],
-  );
-  const translateStyle = React.useMemo(
-    () => ({ "--offsetY": `${offsetY}px` } as React.CSSProperties),
-    [offsetY],
-  );
+  // Set CSS variables via refs to avoid inline style props (Option A)
+  React.useEffect(() => {
+    if (viewportRef.current) {
+      viewportRef.current.style.setProperty("--vh", `${height}px`);
+    }
+  }, [height]);
+
+  React.useEffect(() => {
+    if (spacerRef.current) {
+      spacerRef.current.style.setProperty("--spacer-h", `${total * rowHeight}px`);
+    }
+  }, [total, rowHeight]);
+
+  React.useEffect(() => {
+    if (offsetRef.current) {
+      offsetRef.current.style.setProperty("--offsetY", `${offsetY}px`);
+    }
+  }, [offsetY]);
 
   return (
     <div
-      className="relative w-full overflow-auto [height:var(--vh)]"
-      /* eslint-disable-next-line */
-      style={viewportStyle}
+      ref={viewportRef}
+      className={`${styles.vlistViewport} relative w-full overflow-auto`}
       onScroll={(e) => setScrollTop((e.target as HTMLDivElement).scrollTop)}
     >
       {/* Spacer to preserve scroll height */}
-      <div
-        className="[height:var(--spacer-h)]"
-        /* eslint-disable-next-line */
-        style={spacerStyle}
-      />
-      <div
-        className="absolute left-0 right-0 [transform:translateY(var(--offsetY))]"
-        /* eslint-disable-next-line */
-        style={translateStyle}
-      >
+      <div ref={spacerRef} className={styles.vlistSpacer} />
+      <div ref={offsetRef} className={`${styles.vlistOffset} absolute left-0 right-0 top-0`}>
         <div className="space-y-2" role="list" aria-label="Virtualized deck list">
           {slice.map((item) => (
             <div key={getRowId(item)} role="listitem">

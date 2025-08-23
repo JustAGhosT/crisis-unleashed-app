@@ -15,7 +15,7 @@ class BaseBlockchainProvider(ABC):
         self.network_name = network_config.get("name", "unknown")
         
     @abstractmethod
-    async def connect(self) -> bool:
+    def connect(self) -> bool:
         """
         Connect to the blockchain network.
         
@@ -25,12 +25,12 @@ class BaseBlockchainProvider(ABC):
         pass
     
     @abstractmethod 
-    async def is_connected(self) -> bool:
+    def is_connected(self) -> bool:
         """Check if connected to the network."""
         pass
     
     @abstractmethod
-    async def disconnect(self) -> None:
+    def disconnect(self) -> None:
         """
         Disconnect from the blockchain network.
         Cleanup resources and close connections.
@@ -38,10 +38,10 @@ class BaseBlockchainProvider(ABC):
         pass
     
     @abstractmethod
-    async def mint_nft(self,
+    def mint_nft(self,
                       recipient: str,
                       card_id: str, 
-                      metadata: Dict[str, Any]) -> Tuple[str, Dict[str, Any]]:
+                      metadata: Dict[str, Any]) -> str:
         """
         Mint an NFT.
         
@@ -51,15 +51,15 @@ class BaseBlockchainProvider(ABC):
             metadata: NFT metadata
             
         Returns:
-            Tuple of (transaction_hash, transaction_data)
+            Transaction hash string
         """
         pass
     
     @abstractmethod
-    async def transfer_nft(self,
+    def transfer_nft(self,
                           from_address: str,
                           to_address: str,
-                          token_id: str) -> Tuple[str, Dict[str, Any]]:
+                          token_id: str) -> str:
         """
         Transfer an NFT.
         
@@ -74,7 +74,7 @@ class BaseBlockchainProvider(ABC):
         pass
     
     @abstractmethod
-    async def wait_for_confirmation(self,
+    def wait_for_confirmation(self,
                                    tx_hash: str,
                                    timeout: int = 120) -> Optional[Dict[str, Any]]:
         """
@@ -90,7 +90,7 @@ class BaseBlockchainProvider(ABC):
         pass
     
     @abstractmethod
-    async def get_transaction_status(self, tx_hash: str) -> Dict[str, Any]:
+    def get_transaction_status(self, tx_hash: str) -> str:
         """
         Get transaction status.
         
@@ -98,12 +98,12 @@ class BaseBlockchainProvider(ABC):
             tx_hash: Transaction hash
             
         Returns:
-            Transaction status information
+            Transaction status string, e.g. 'confirmed' or 'pending'
         """
         pass
     
     @abstractmethod
-    async def get_nft_owner(self, token_id: str) -> Optional[str]:
+    def get_nft_owner(self, token_id: str) -> Optional[str]:
         """
         Get the owner of an NFT.
         

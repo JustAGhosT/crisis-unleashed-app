@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-// Define the feature flags interface
-interface FeatureFlags {
+// Keep this in sync with src/lib/feature-flags/feature-flag-provider.tsx
+export type FeatureFlags = {
   useNewFactionUI: boolean;
   useNewDeckBuilder: boolean;
   useNewCardDisplay: boolean;
@@ -13,95 +13,156 @@ interface FeatureFlags {
   enableMultiplayerChat: boolean;
   enableTournamentMode: boolean;
   enableAIOpponent: boolean;
-  [key: string]: boolean; // Allow for dynamic keys
+  enableRealtime: boolean;
+};
+
+const FLAG_KEYS: Array<keyof FeatureFlags> = [
+  "useNewFactionUI",
+  "useNewDeckBuilder",
+  "useNewCardDisplay",
+  "useNewNavigation",
+  "useNewTheme",
+  "enableAdvancedDeckAnalytics",
+  "enableCardAnimations",
+  "enableMultiplayerChat",
+  "enableTournamentMode",
+  "enableAIOpponent",
+  "enableRealtime",
+];
+
+const defaultFlags: FeatureFlags = {
+  // Align defaults with provider
+  useNewFactionUI: true,
+  useNewDeckBuilder: true,
+  useNewCardDisplay: true,
+  useNewNavigation: true,
+  useNewTheme: true,
+  enableAdvancedDeckAnalytics: false,
+  enableCardAnimations: true,
+  enableMultiplayerChat: false,
+  enableTournamentMode: false,
+  enableAIOpponent: false,
+  enableRealtime: false,
+};
+
+function parseEnvBool(v: string | undefined): boolean | undefined {
+  if (v === undefined) return undefined;
+  if (v === "true") return true;
+  if (v === "false") return false;
+  return undefined;
+}
+
+function readEnvFlags(): Partial<FeatureFlags> {
+  // Optional: allow env overrides; default to undefined (ignored) when invalid
+  return {
+    useNewFactionUI: parseEnvBool(process.env.ENABLE_NEW_FACTION_UI),
+    useNewDeckBuilder: parseEnvBool(process.env.ENABLE_NEW_DECK_BUILDER),
+    useNewCardDisplay: parseEnvBool(process.env.ENABLE_NEW_CARD_DISPLAY),
+    useNewNavigation: parseEnvBool(process.env.ENABLE_NEW_NAVIGATION),
+    useNewTheme: parseEnvBool(process.env.ENABLE_NEW_THEME),
+    // new flags can be added here if we decide to control via env
+  } as Partial<FeatureFlags>;
+}
+
+function isFeatureFlags(obj: unknown): obj is FeatureFlags {
+  if (!obj || typeof obj !== "object") return false;
+  const o = obj as Record<string, unknown>;
+  return FLAG_KEYS.every((k) => typeof o[k] === "boolean");
+}
+
+function mergeFlags(parts: Array<Partial<FeatureFlags> | null | undefined>): FeatureFlags {
+  const out: FeatureFlags = { ...defaultFlags };
+  for (const p of parts) {
+    if (!p) continue;
+    for (const k of FLAG_KEYS) {
+      const v = p[k];
+      if (typeof v === "boolean") out[k] = v;
+    }
+  }
+  return out;
+}
+
+async function readCookieFlags(): Promise<FeatureFlags | null> {
+  const store = await cookies();
+  const raw = store.get("featureFlags")?.value;
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(decodeURIComponent(raw));
+    if (isFeatureFlags(parsed)) return parsed;
+  } catch {
+    // ignore
+  }
+  return null;
+}
+
+// Back-compat: read legacy per-flag cookies like flag_useNewFactionUI
+async function readLegacyFlagCookies(): Promise<Partial<FeatureFlags> | null> {
+  const store = await cookies();
+  let found = false;
+  const out: Partial<FeatureFlags> = {};
+  for (const k of FLAG_KEYS) {
+    const c = store.get(`flag_${k as string}`)?.value;
+    if (c === "true" || c === "false") {
+      out[k] = c === "true";
+      found = true;
+    }
+  }
+  return found ? out : null;
 }
 
 export async function GET() {
   try {
-    // Default feature flags
-    const defaultFlags: FeatureFlags = {
-      useNewFactionUI: false,
-      useNewDeckBuilder: false,
-      useNewCardDisplay: false,
-      useNewNavigation: false,
-      useNewTheme: false,
-      enableAdvancedDeckAnalytics: false,
-      enableCardAnimations: false,
-      enableMultiplayerChat: false,
-      enableTournamentMode: false,
-      enableAIOpponent: false,
-    };
-
-    // Read flags from .env.local if available
-    const envFlags: Partial<FeatureFlags> = {
-      useNewFactionUI: process.env.ENABLE_NEW_FACTION_UI === "true",
-      useNewDeckBuilder: process.env.ENABLE_NEW_DECK_BUILDER === "true",
-      useNewCardDisplay: process.env.ENABLE_NEW_CARD_DISPLAY === "true",
-      useNewNavigation: process.env.ENABLE_NEW_NAVIGATION === "true",
-      useNewTheme: process.env.ENABLE_NEW_THEME === "true",
-      enableAdvancedDeckAnalytics: false,
-      enableCardAnimations: false,
-      enableMultiplayerChat: false,
-      enableTournamentMode: false,
-      enableAIOpponent: false,
-    };
-
-    // Check for user-specific overrides in cookies
-    const userFlags: Partial<FeatureFlags> = {};
-    const flagCookies = cookies();
-
-    for (const key of Object.keys(defaultFlags)) {
-      const cookieValue = flagCookies.get(`flag_${key}`);
-      if (cookieValue) {
-        userFlags[key] = cookieValue.value === "true";
-      }
-    }
-
-    // Combine flags with priority: user overrides > env > defaults
-    const combinedFlags = {
-      ...defaultFlags,
-      ...envFlags,
-      ...userFlags,
-    };
-
-    return NextResponse.json(combinedFlags);
-  } catch (error) {
-    console.error("Error in feature flags API:", error);
-    return NextResponse.json(
-      { error: "Failed to load feature flags" },
-      { status: 500 },
-    );
+    const env = readEnvFlags();
+    const cookie = await readCookieFlags();
+    const legacy = await readLegacyFlagCookies();
+    const flags = mergeFlags([defaultFlags, env, legacy, cookie]);
+    return NextResponse.json(flags, { status: 200 });
+  } catch (err) {
+    console.error("/api/feature-flags GET error", err);
+    return NextResponse.json({ error: "Failed to load feature flags" }, { status: 500 });
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const { key, value } = await request.json();
+    const json = await req.json().catch(() => ({}));
 
-    // Validate input
-    if (typeof key !== "string" || typeof value !== "boolean") {
-      return NextResponse.json(
-        { error: "Invalid input. Expected {key: string, value: boolean}" },
-        { status: 400 },
-      );
+    // Legacy shape: { key: string, value: boolean }
+    if (
+      typeof json?.key === "string" &&
+      FLAG_KEYS.includes(json.key) &&
+      typeof json?.value === "boolean"
+    ) {
+      const current = (await readCookieFlags()) ?? mergeFlags([readEnvFlags()]);
+      const updated: FeatureFlags = { ...current, [json.key]: json.value } as FeatureFlags;
+      const res = NextResponse.json({ success: true }, { status: 200 });
+      res.cookies.set("featureFlags", encodeURIComponent(JSON.stringify(updated)), {
+        path: "/",
+        httpOnly: false,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 60 * 60 * 24 * 365, // 1 year
+      });
+      return res;
     }
 
-    // Store in cookie
-    const cookieStore = cookies();
-    cookieStore.set(`flag_${key}`, value.toString(), {
-      path: "/",
-      maxAge: 60 * 60 * 24 * 30, // 30 days
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-    });
+    // Preferred shape: full flags object
+    if (isFeatureFlags(json)) {
+      const updated = mergeFlags([json]);
+      const res = NextResponse.json({ success: true }, { status: 200 });
+      res.cookies.set("featureFlags", encodeURIComponent(JSON.stringify(updated)), {
+        path: "/",
+        httpOnly: false,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 60 * 60 * 24 * 365,
+      });
+      return res;
+    }
 
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error("Error updating feature flag:", error);
-    return NextResponse.json(
-      { error: "Failed to update feature flag" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+  } catch (err) {
+    console.error("/api/feature-flags POST error", err);
+    return NextResponse.json({ error: "Failed to update feature flags" }, { status: 500 });
   }
 }

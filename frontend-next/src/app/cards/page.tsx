@@ -5,6 +5,7 @@ import { CardCollection } from "@/components/cards/CardCollection";
 import { Card, CardFilters as CardFiltersType } from "@/types/card";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
+import type { Route } from "next";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { generateMockCards } from "@/services/__mocks__/cardService";
@@ -129,7 +130,7 @@ function CardsContent() {
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams);
     params.set("page", newPage.toString());
-    router.push(`/cards?${params.toString()}`);
+    router.push(`/cards?${params.toString()}` as Route);
   };
 
   // Handle filter change
@@ -148,7 +149,7 @@ function CardsContent() {
       params.set("costMax", newFilters.costMax.toString());
     params.set("page", "1"); // Reset to page 1 when filters change
 
-    router.push(`/cards?${params.toString()}`);
+    router.push(`/cards?${params.toString()}` as Route);
   };
 
   // Mock handlers for card interactions

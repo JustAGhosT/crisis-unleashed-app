@@ -1,13 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -16,6 +10,7 @@ import { PasswordForm } from "@/components/settings/PasswordForm";
 import { GamePreferencesForm } from "@/components/settings/GamePreferencesForm";
 import RequireAuth from "@/components/auth/RequireAuth";
 import FactionsThemeShell from "../factions/FactionsThemeShell";
+
 export default function SettingsPage() {
   const { data: session, status } = useSession();
   const [activeTab, setActiveTab] = useState("profile");
@@ -53,19 +48,13 @@ export default function SettingsPage() {
         <div className="max-w-4xl mx-auto py-8">
           <Card className="bg-slate-800/50 border-slate-700">
             <CardHeader>
-              <CardTitle className="text-2xl text-white">
-                Account Settings
-              </CardTitle>
+              <CardTitle className="text-2xl text-white">Account Settings</CardTitle>
               <CardDescription className="text-gray-300">
                 Manage your account preferences and security
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Tabs
-                defaultValue="profile"
-                value={activeTab}
-                onValueChange={setActiveTab}
-              >
+              <Tabs defaultValue="profile" value={activeTab} onValueChange={setActiveTab}>
                 <TabsList className="mb-6">
                   <TabsTrigger value="profile">Profile</TabsTrigger>
                   <TabsTrigger value="password">Password</TabsTrigger>
@@ -74,17 +63,12 @@ export default function SettingsPage() {
 
                 {updateSuccess && (
                   <Alert className="mb-6 bg-green-900/20 border-green-800 text-green-200">
-                    <AlertDescription>
-                      Settings updated successfully!
-                    </AlertDescription>
+                    <AlertDescription>Settings updated successfully!</AlertDescription>
                   </Alert>
                 )}
 
                 {updateError && (
-                  <Alert
-                    className="mb-6 bg-red-900/20 border-red-800 text-red-200"
-                    variant="destructive"
-                  >
+                  <Alert className="mb-6 bg-red-900/20 border-red-800 text-red-200" variant="destructive">
                     <AlertDescription>{updateError}</AlertDescription>
                   </Alert>
                 )}

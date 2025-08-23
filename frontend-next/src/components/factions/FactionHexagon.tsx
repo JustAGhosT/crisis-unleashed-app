@@ -1,0 +1,273 @@
+"use client";
+
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Faction } from "@/types/faction";
+import { FactionCard } from "./FactionCard";
+
+export type FactionHexagonProps = {
+  factions: Faction[]; // must be exactly 7 ordered as: [solaris, primordial, synthetic, infernal, aeonic, neuralis, umbral]
+  hoveredFaction?: Faction | null;
+  focusedFaction?: Faction | null;
+  onHover: (faction: Faction | null) => void;
+  onFocus: (faction: Faction) => void;
+  onNavigate?: (faction: Faction) => void;
+  className?: string;
+};
+
+/**
+ * Hexagonal layout of the 7 factions with connection lines.
+ * Tailwind only (no CSS modules). Uses inline SVG gradients for transitions.
+ */
+export function FactionHexagon({
+  factions,
+  hoveredFaction,
+  focusedFaction,
+  onHover,
+  onFocus,
+  onNavigate,
+  className,
+}: FactionHexagonProps) {
+  const uid = React.useId().replace(/:/g, "");
+
+  if (factions.length !== 7) {
+    if (process.env.NODE_ENV !== "production") {
+      // eslint-disable-next-line no-console
+      console.error("FactionHexagon requires exactly 7 factions");
+    }
+    return null;
+  }
+
+  const [
+    centerFaction, // Solaris (center)
+    topFaction, // Primordial
+    topRightFaction, // Synthetic
+    bottomRightFaction, // Infernal
+    bottomFaction, // Aeonic
+    bottomLeftFaction, // Neuralis
+    topLeftFaction, // Umbral
+  ] = factions;
+
+  const getColor = (f: Faction | null | undefined, fallback = "#ffffffcc") =>
+    f?.colors?.primary ?? fallback;
+
+  const renderFactionNode = (
+    faction: Faction,
+    positionClass: string,
+    options?: { size?: "lg" | "md"; interactive?: boolean },
+  ) => (
+    (() => {
+      const isInteractive = options?.interactive ?? false;
+      const commonHandlers = {
+        onMouseEnter: () => onHover(faction),
+        onMouseLeave: () => onHover(null),
+      } as const;
+
+      const handleActivate = (e?: React.SyntheticEvent) => {
+        if (e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        onFocus(faction);
+        onNavigate?.(faction);
+      };
+
+      const wrapperClass = cn(
+        "absolute",
+        isInteractive ? "cursor-pointer" : "cursor-default",
+        "rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/50",
+        "data-[selected=true]:ring-2 data-[selected=true]:ring-foreground/60",
+        positionClass,
+      );
+
+      const card = (
+        <FactionCard
+          faction={faction}
+          size={options?.size}
+          interactive={options?.interactive}
+        />
+      );
+
+      if (isInteractive) {
+        return (
+          <button
+            type="button"
+            className={wrapperClass}
+            aria-label={`${faction.name} faction`}
+            data-selected={focusedFaction === faction ? true : undefined}
+            onClick={(e) => handleActivate(e)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                handleActivate(e);
+              }
+            }}
+            {...commonHandlers}
+          >
+            {card}
+          </button>
+        );
+      }
+
+      return (
+        <div
+          className={wrapperClass}
+          aria-label={`${faction.name} faction`}
+          data-selected={focusedFaction === faction ? true : undefined}
+          // Keep non-interactive nodes unfocusable
+          {...commonHandlers}
+        >
+          {card}
+        </div>
+      );
+    })()
+  );
+
+  return (
+    <div
+      className={cn(
+        "relative aspect-square w-full max-w-5xl",
+        focusedFaction ? "ring-1 ring-foreground/20" : undefined,
+        className,
+      )}
+    >
+      {/* Connection lines (SVG overlay) */}
+      <svg
+        className="absolute inset-0 h-full w-full"
+        viewBox="0 0 800 800"
+        preserveAspectRatio="xMidYMid meet"
+        aria-hidden="true"
+      >
+        {/* Center node */}
+        <circle
+          cx="400"
+          cy="400"
+          r="8"
+          fill={getColor(hoveredFaction || centerFaction)}
+          className="opacity-90"
+        />
+
+        {/* Radial connections from center */}
+        {(
+          [
+            { x: 400, y: 150, id: topFaction },
+            { x: 625, y: 250, id: topRightFaction },
+            { x: 625, y: 550, id: bottomRightFaction },
+            { x: 400, y: 650, id: bottomFaction },
+            { x: 175, y: 550, id: bottomLeftFaction },
+            { x: 175, y: 250, id: topLeftFaction },
+          ] as const
+        ).map((pos, i) => (
+          <line
+            key={i}
+            x1={400}
+            y1={400}
+            x2={pos.x}
+            y2={pos.y}
+            stroke={`url(#radial-${i}-${uid})`}
+            strokeWidth={
+              hoveredFaction && (hoveredFaction === centerFaction || hoveredFaction === pos.id) ? 3 : 2
+            }
+            className={cn(
+              "transition-opacity duration-200 ease-out",
+              hoveredFaction &&
+                (hoveredFaction === centerFaction || hoveredFaction === pos.id)
+                ? "opacity-80"
+                : "opacity-30",
+            )}
+          />
+        ))}
+
+        {/* Outer hexagon connections */}
+        {(
+          [
+            [topLeftFaction, topFaction, 175, 250, 400, 150],
+            [topFaction, topRightFaction, 400, 150, 625, 250],
+            [topRightFaction, bottomRightFaction, 625, 250, 625, 550],
+            [bottomRightFaction, bottomFaction, 625, 550, 400, 650],
+            [bottomFaction, bottomLeftFaction, 400, 650, 175, 550],
+            [bottomLeftFaction, topLeftFaction, 175, 550, 175, 250],
+          ] as const
+        ).map(([a, b, x1, y1, x2, y2], i) => (
+          <line
+            key={`outer-${i}`}
+            x1={x1}
+            y1={y1}
+            x2={x2}
+            y2={y2}
+            stroke={`url(#outer-${i}-${uid})`}
+            strokeWidth={
+              hoveredFaction && (hoveredFaction === a || hoveredFaction === b) ? 3 : 2
+            }
+            className={cn(
+              "transition-opacity duration-200 ease-out",
+              hoveredFaction && (hoveredFaction === a || hoveredFaction === b)
+                ? "opacity-80"
+                : "opacity-30",
+            )}
+          />
+        ))}
+
+        {/* Gradients */}
+        <defs>
+          {(
+            [
+              [centerFaction, topFaction],
+              [centerFaction, topRightFaction],
+              [centerFaction, bottomRightFaction],
+              [centerFaction, bottomFaction],
+              [centerFaction, bottomLeftFaction],
+              [centerFaction, topLeftFaction],
+            ] as const
+          ).map(([a, b], i) => (
+            <linearGradient id={`radial-${i}-${uid}`} key={`radial-${i}-${uid}`} x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor={getColor(a)} />
+              <stop offset="100%" stopColor={getColor(b)} />
+            </linearGradient>
+          ))}
+
+          {(
+            [
+              [topLeftFaction, topFaction],
+              [topFaction, topRightFaction],
+              [topRightFaction, bottomRightFaction],
+              [bottomRightFaction, bottomFaction],
+              [bottomFaction, bottomLeftFaction],
+              [bottomLeftFaction, topLeftFaction],
+            ] as const
+          ).map(([a, b], i) => (
+            <linearGradient id={`outer-${i}-${uid}`} key={`outer-${i}-${uid}`} x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor={getColor(a)} />
+              <stop offset="100%" stopColor={getColor(b)} />
+            </linearGradient>
+          ))}
+        </defs>
+      </svg>
+
+      {/* Nodes */}
+      <div
+        className={cn("absolute inset-0")}
+      >
+        {/* Center */}
+        {renderFactionNode(
+          centerFaction,
+          "left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2",
+          { size: "lg", interactive: true },
+        )}
+        {/* Top */}
+        {renderFactionNode(topFaction, "left-1/2 top-[6%] -translate-x-1/2")}
+        {/* Top-right */}
+        {renderFactionNode(topRightFaction, "right-[6%] top-[30%]")}
+        {/* Bottom-right */}
+        {renderFactionNode(bottomRightFaction, "bottom-[6%] right-[6%]")}
+        {/* Bottom */}
+        {renderFactionNode(bottomFaction, "bottom-[6%] left-1/2 -translate-x-1/2")}
+        {/* Bottom-left */}
+        {renderFactionNode(bottomLeftFaction, "bottom-[6%] left-[6%]")}
+        {/* Top-left */}
+        {renderFactionNode(topLeftFaction, "left-[6%] top-[30%]")}
+      </div>
+    </div>
+  );
+}
+
+export default FactionHexagon;

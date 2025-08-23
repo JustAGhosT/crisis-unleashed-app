@@ -123,19 +123,19 @@ Crisis Unleashed is a digital card game with blockchain integration, featuring s
       - [ ] Handles empty deck state gracefully.
       - [ ] Charts readable in light/dark themes.
 
- - [ ] **Functionality**
-  - [ ] Implement card drag-and-drop
-    - Acceptance criteria:
-      - [ ] Drag from card grid to deck list adds the card; dragging within deck reorders if supported.
-      - [ ] Visual drag feedback (cursor, hover/target highlight) and keyboard-accessible add/remove alternatives.
-      - [ ] Prevents invalid drops and respects deck constraints from `useDeck()` (max quantity, faction/rules).
-    - Work items (active):
-      - [ ] Wire drop handling from `CardGrid.tsx`/`GameCard.tsx` into `DeckList.tsx` to call `useDeck().addCard()` with constraints
-      - [ ] Add hover/target highlight on valid drop zones; provide keyboard alternative (e.g., Space to add)
-      - [ ] Optional: support intra-deck reorder via drag; add smoke tests for add/remove/reorder
-  - [ ] Add deck validation rules
-  - [ ] Create deck import/export
-  - [ ] Add deck sharing functionality
+- [ ] **Functionality**
+- [ ] Implement card drag-and-drop
+  - Acceptance criteria:
+    - [ ] Drag from card grid to deck list adds the card; dragging within deck reorders if supported.
+    - [ ] Visual drag feedback (cursor, hover/target highlight) and keyboard-accessible add/remove alternatives.
+    - [ ] Prevents invalid drops and respects deck constraints from `useDeck()` (max quantity, faction/rules).
+  - Work items (active):
+    - [ ] Wire drop handling from `CardGrid.tsx`/`GameCard.tsx` into `DeckList.tsx` to call `useDeck().addCard()` with constraints
+    - [ ] Add hover/target highlight on valid drop zones; provide keyboard alternative (e.g., Space to add)
+    - [ ] Optional: support intra-deck reorder via drag; add smoke tests for add/remove/reorder
+- [ ] Add deck validation rules
+- [ ] Create deck import/export
+- [ ] Add deck sharing functionality
 
 - [ ] **Integration**
   - [ ] Connect to card database

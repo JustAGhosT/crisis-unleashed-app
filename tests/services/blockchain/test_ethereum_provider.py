@@ -21,10 +21,10 @@ class TestEthereumProvider:
     
     @pytest.fixture
     def provider(self, network_config, mock_web3):
-        """Create an Ethereum provider instance for testing."""
+        """Create an Ethereum provider instance for testing with Web3 patched for the test duration."""
         with patch('backend.services.blockchain.ethereum_provider.Web3', return_value=mock_web3):
             provider = EthereumProvider(network_config=network_config)
-            return provider
+            yield provider
     
     def test_connect(self, provider, mock_web3):
         """Test connecting to the Ethereum network."""
@@ -38,6 +38,54 @@ class TestEthereumProvider:
         assert result is True
         assert provider.is_connected() is True
         mock_web3.is_connected.assert_called_once()
+
+    def test_init_does_not_initialize_in_ctor(self, network_config, mock_web3):
+        """__init__ should not eagerly initialize web3/contract."""
+        with patch('backend.services.blockchain.ethereum_provider.Web3', return_value=mock_web3):
+            provider = EthereumProvider(network_config=network_config)
+            assert provider.web3 is None
+            assert provider.contract is None
+
+    def test_ensure_connected_initializes_web3_and_contract(self, provider, mock_web3):
+        """_ensure_connected should initialize web3 and contract when config present."""
+        # Act
+        provider._ensure_connected()
+        # Assert
+        assert provider.web3 is mock_web3
+        assert provider.contract is not None
+
+    def test_connect_returns_false_when_rpc_url_missing(self, mock_web3):
+        """connect() should return False if rpc_url/provider_url missing."""
+        cfg = {
+            "network": "test",
+            # intentionally no provider_url or rpc_url
+            "chain_id": 1337,
+            "contract_address": "0x1234567890123456789012345678901234567890",
+            "contract_abi": [],
+        }
+        with patch('backend.services.blockchain.ethereum_provider.Web3', return_value=mock_web3):
+            provider = EthereumProvider(network_config=cfg)
+            assert provider.connect() is False
+            assert provider.is_connected() is False
+
+    def test_is_connected_reflects_live_state(self, provider, mock_web3):
+        """is_connected() should reflect current Web3 state, not stale cache."""
+        mock_web3.is_connected.return_value = True
+        assert provider.connect() is True
+        assert provider.is_connected() is True
+        # Flip underlying connection to False and ensure method reflects change
+        mock_web3.is_connected.return_value = False
+        assert provider.is_connected() is False
+
+    def test_disconnect_updates_connected_flag(self, provider, mock_web3):
+        """disconnect() should clear objects and reset the connection flag."""
+        mock_web3.is_connected.return_value = True
+        assert provider.connect() is True
+        assert provider.is_connected() is True
+        provider.disconnect()
+        assert provider.web3 is None
+        assert provider.contract is None
+        assert provider.is_connected() is False
     
     def test_mint_nft(self, provider, mock_web3):
         """Test minting an NFT."""

@@ -8,6 +8,8 @@ const createJestConfig = nextJest({
 
 // Add any custom config to be passed to Jest
 const customJestConfig = {
+  // Ensure environment variables are set before any modules are loaded
+  setupFiles: ["<rootDir>/jest.env.js"],
   // Add more setup options before each test is run
   setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
   testEnvironment: "jest-environment-jsdom",
@@ -29,6 +31,11 @@ const customJestConfig = {
     "^@/(.*)$": "<rootDir>/src/$1",
   },
   testPathIgnorePatterns: ["<rootDir>/node_modules/", "<rootDir>/.next/"],
+  // Prevent Jest Haste map from scanning Next standalone output which contains a duplicate package.json
+  modulePathIgnorePatterns: [
+    "<rootDir>/.next/",
+    "<rootDir>/.next/standalone",
+  ],
 };
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async

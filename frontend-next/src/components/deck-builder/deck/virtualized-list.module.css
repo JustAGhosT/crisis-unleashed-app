@@ -1,0 +1,12 @@
+.vlistViewport {
+  height: var(--vh);
+}
+
+.vlistSpacer {
+  height: var(--spacer-h);
+}
+
+.vlistOffset {
+  transform: translateY(var(--offsetY, 0px));
+  will-change: transform;
+}

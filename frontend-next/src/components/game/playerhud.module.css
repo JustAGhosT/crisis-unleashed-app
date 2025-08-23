@@ -1,0 +1,4 @@
+.healthClip {
+  /* clip-path is driven by the --clip CSS variable */
+  clip-path: var(--clip);
+}

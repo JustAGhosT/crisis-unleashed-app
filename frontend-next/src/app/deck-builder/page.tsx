@@ -8,19 +8,19 @@ import RequireAuth from "@/components/auth/RequireAuth";
 import FactionsThemeShell from "../factions/FactionsThemeShell";
 
 export default function DeckBuilderPage() {
-  const [isLoadingLocal, setIsLoadingLocal] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Simulate loading state for demonstration
   useEffect(() => {
     const timer = setTimeout(() => {
-      setIsLoadingLocal(false);
+      setIsLoading(false);
     }, 1000);
 
     return () => clearTimeout(timer);
   }, []);
 
   // If still loading, show skeleton
-  if (isLoadingLocal) {
+  if (isLoading) {
     return (
       <div className="py-8">
         <Skeleton className="h-10 w-64 mb-6 bg-slate-700" />
@@ -40,12 +40,10 @@ export default function DeckBuilderPage() {
     <RequireAuth>
       <FactionsThemeShell>
         <div className="container mx-auto px-4 py-8">
-          <h1 className="text-3xl font-bold mb-8 dark:text-white">
-            Deck Builder
-          </h1>
+          <h1 className="text-3xl font-bold mb-8 dark:text-white">Deck Builder</h1>
           {/* Deck Builder Feature Gate */}
           <FeatureGate flag="useNewDeckBuilder">
-            <DeckBuilderInterface isLoading={isLoadingLocal} />
+            <DeckBuilderInterface isLoading={isLoading} />
           </FeatureGate>
         </div>
       </FactionsThemeShell>

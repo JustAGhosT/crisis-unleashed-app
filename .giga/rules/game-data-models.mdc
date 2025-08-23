@@ -1,5 +1,5 @@
 ---
-description: Specifies core game entities including cards, battlefield grid, player stats, and game state models
+description: Defines core game entities and data models for cards, battlefield, players and game state
 ---
 
 # === USER INSTRUCTIONS ===
@@ -18,66 +18,52 @@ description: Specifies core game entities including cards, battlefield grid, pla
   - Occupation Rules: Maximum 1 unit per hex
   - Movement System: Based on unit movement speed attribute and hex adjacency
   - Zone Effects: Different zones may modify movement costs and unit abilities
+
+- 5 × 6 hex grid divided into Frontline (3 rows) and Backline (3 rows)
 # === END USER INSTRUCTIONS ===
 
 # game-data-models
 
-Key Domain Models:
+### Card Model System (Importance Score: 95)
+- Core card entity definition with properties:
+  - Combat stats (attack, health, initiative)
+  - Resource costs (energy, momentum)
+  - Card type categorization (unit, spell, artifact)
+  - Faction alignment rules
+  - Unique flags and restrictions
+File: frontend-next/src/lib/card-utils.ts
 
-1. Card System
-Path: frontend/src/types/card.ts
-- Seven card types: Hero, Unit, Structure, Artifact, Action, Reaction, Enhancement
-- Attributes: name, cost, faction, type, rarity, effects
-- Keywords system for ability tagging
-- Status effect tracking (temporary/permanent)
+### Battlefield Grid System (Importance Score: 90)
+- 5 × 6 hex grid layout with distinct zones:
+  - Frontline (units must be placed here first)
+  - Backline (units can be placed after frontline)
+  - Deployment restrictions based on card types
+  - Zone control scoring mechanics
+File: frontend-next/src/app/sandbox/battlefield-demo/page.tsx
 
-2. Battlefield Grid
-Path: frontend/src/types/battlefield.ts
-- 4x4 hex-based grid structure
-- Zone control mechanics with line-of-sight calculations
-- Terrain modifiers affecting movement and combat
-- Position-based effect triggers
+### Player Stats Model (Importance Score: 85)
+Core stats tracking:
+- Health (0-100)
+- Energy (resets each turn, max varies by faction)
+- Momentum (accumulates through actions, spent on special abilities)
+- Active effects and status conditions
+File: frontend-next/src/components/game/PlayerHUD.tsx
 
-3. Player Resources
-Path: frontend/src/types/player.ts
-- Health (0-20)
-- Energy (0-10, gains +1 per turn)
-- Momentum (0-5, gained through actions)
-- Hand size limits (7 cards maximum)
-
-4. Game State Model
-Path: frontend/src/types/game.ts
-- Turn phases: Draw, Energy, Main, Combat, End
-- Crisis event tracking and resolution
+### Game State Model (Importance Score: 80)
+Turn-based state machine:
+- Phase tracking (deploy, action, end)
+- Initiative system for unit activation order
+- Resource accumulation/spending
 - Victory condition monitoring
-- Initiative order management
+File: frontend-next/src/types/game.ts
 
-5. Faction System
-Path: frontend/src/types/faction.ts
-- Seven distinct factions with unique mechanics:
-  * Solaris: Energy manipulation
-  * Umbral: Stealth mechanics
-  * Aeonic: Time manipulation
-  * Primordial: Growth systems
-  * Infernal: Sacrifice mechanics
-  * Neuralis: Mind control
-  * Synthetic: Optimization
-
-6. Status Effects
-Path: frontend/src/types/effects.ts
-- Duration tracking (turns remaining)
-- Stacking rules per effect type
-- Faction-specific status interactions
-- Priority order resolution
-
-7. Combat Resolution Model
-Path: frontend/src/types/combat.ts
-- Initiative-based action order
-- Range and movement calculations
-- Damage application sequence
-- Death/removal trigger handling
-
-The models emphasize faction-specific mechanics and their interactions, with complex state tracking for battlefield positioning and resource management. Each faction introduces unique modifications to the base rule set, requiring specialized handling of interactions.
+### Deck Construction Rules (Importance Score: 75)
+- Deck size limits (40-60 cards)
+- Card copy restrictions:
+  - Maximum 3x non-unique cards
+  - 1x legendary/unique cards
+  - Single faction alignment requirement
+File: frontend-next/src/lib/deck-builder/deck-builder-context.tsx
 
 $END$
 

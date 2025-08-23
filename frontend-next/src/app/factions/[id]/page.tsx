@@ -23,8 +23,10 @@ export async function generateStaticParams() {
   return factionIds.map((id) => ({ id }));
 }
 
-export async function generateMetadata({ params }: { params: { id: string } }) {
-  const factionResponse = await fetchFactionById(params.id as FactionId);
+export async function generateMetadata(props: unknown) {
+  const { params } = props as { params: { id: string } };
+  const { id } = params;
+  const factionResponse = await fetchFactionById(id as FactionId);
   const faction = factionResponse.success ? factionResponse.data : null;
   if (!faction) {
     return { title: "Faction Not Found" };
@@ -35,12 +37,10 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   };
 }
 
-export default async function FactionPage({
-  params,
-}: {
-  params: { id: string };
-}) {
-  const factionResponse = await fetchFactionById(params.id as FactionId);
+export default async function FactionPage(props: unknown) {
+  const { params } = props as { params: { id: string } };
+  const { id } = params;
+  const factionResponse = await fetchFactionById(id as FactionId);
   const faction = factionResponse.success ? factionResponse.data : null;
   if (!faction) {
     notFound();

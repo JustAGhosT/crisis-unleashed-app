@@ -6,7 +6,7 @@ from backend.repository.outbox_models import OutboxEntry, OutboxType, OutboxStat
 from backend.repository.transaction_outbox import TransactionOutboxRepository
 from backend.services.blockchain_service import BlockchainService
 from backend.services.blockchain_handler import BlockchainHandler
-from backend.types.web3_types import MockWeb3, MockContract, MockContractFunctions, MockEth
+from backend.app_types.web3_types import MockWeb3, MockContract, MockContractFunctions, MockEth
 
 
 @pytest.fixture

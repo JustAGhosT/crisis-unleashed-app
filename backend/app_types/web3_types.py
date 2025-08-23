@@ -3,6 +3,7 @@ Type definitions for web3 when not available.
 This helps mypy understand the types even when web3 is not installed.
 """
 from typing import Any, Dict, Optional, Union
+from unittest.mock import MagicMock
 from typing_extensions import TypedDict
 
 
@@ -27,51 +28,52 @@ TimeExhaustedType = type[Exception]
 
 
 class MockWeb3:
-    """Mock Web3 class for type checking when web3 is not available."""
-    
+    """Mock Web3 with MagicMock-backed methods for unit tests."""
+
     class HTTPProvider:
         def __init__(self, endpoint_uri: str) -> None:
             self.endpoint_uri = endpoint_uri
-    
+
     def __init__(self, provider: Any) -> None:
         self.provider = provider
-    
-    def is_connected(self) -> bool:
-        return False
-    
-    @property
-    def eth(self) -> Any:
-        return MockEth()
+        # Allow tests to override return_value
+        self.is_connected = MagicMock(return_value=False)
+        # Expose eth as a MagicMock so tests can set return_value on members directly
+        self.eth = MagicMock()
+        # Sensible defaults for commonly used methods
+        self.eth.contract = MagicMock()
+        self.eth.get_transaction_receipt = MagicMock(return_value=None)
+        self.eth.wait_for_transaction_receipt = MagicMock(return_value=None)
+        self.eth.send_raw_transaction = MagicMock()
+        self.eth.get_transaction_count = MagicMock(return_value=0)
 
 
 class MockEth:
-    """Mock Eth class for web3.eth operations."""
-    
-    def contract(self, address: str, abi: list[Any]) -> "MockContract":
-        return MockContract(address, abi)
-    
-    def get_transaction_receipt(self, tx_hash: str) -> Optional[Dict[str, Any]]:
-        return None
-    
-    def get_transaction_count(self, address: str) -> int:
-        return 0
-    
+    """Mock Eth with MagicMocks for contract and tx methods."""
+
+    def __init__(self) -> None:
+        # Tests set .return_value on these
+        self.contract = MagicMock()
+        self.get_transaction_receipt = MagicMock(return_value=None)
+        self.wait_for_transaction_receipt = MagicMock(return_value=None)
+        self.send_raw_transaction = MagicMock()
+        self.get_transaction_count = MagicMock(return_value=0)
+        self._gas_price = 20000000000
+
     @property
     def gas_price(self) -> int:
-        return 20000000000  # 20 gwei
+        return self._gas_price
 
 
 class MockContract:
-    """Mock Contract class for type checking."""
-    
+    """Mock Contract exposing a MagicMock functions attribute."""
+
     def __init__(self, address: str, abi: list[Any]) -> None:
         self._address = address
         self.abi = abi
-    
-    @property
-    def functions(self) -> Any:
-        return MockContractFunctions()
-    
+        # Allow call chaining: functions.mint(...).build_transaction.return_value = {...}
+        self.functions = MagicMock()
+
     @property
     def address(self) -> str:
         return self._address

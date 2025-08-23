@@ -7,6 +7,7 @@ import { FactionGrid } from "@/components/factions/FactionGrid";
 import { Sparkles } from "lucide-react";
 import {
   FACTION_TOKENS,
+  DEFAULT_TOKENS,
   type FactionKey,
 } from "@/lib/theme/faction-theme";
 import { FactionThemeProvider } from "@/lib/theme/theme-context";
@@ -14,7 +15,7 @@ import { useFactionKey } from "@/lib/theme/use-faction-key";
 
 export default function HomePage() {
   const factionKey: FactionKey = useFactionKey();
-  const palette = FACTION_TOKENS[factionKey];
+  const palette = FACTION_TOKENS[factionKey] ?? DEFAULT_TOKENS;
   const routes = {
     game: "/game" as Route,
     deckBuilder: "/deck-builder" as Route,

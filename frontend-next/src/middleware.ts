@@ -41,7 +41,7 @@ export function middleware(request: NextRequest) {
         // Redirect non-admin users to dashboard
         return NextResponse.redirect(new URL("/dashboard", request.url));
       }
-    } catch (error) {
+    } catch {
       // If there's an error parsing the token, redirect to login
       const url = new URL("/login", request.url);
       url.searchParams.set("from", pathname);

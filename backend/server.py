@@ -18,32 +18,69 @@ import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field
-from typing import List, Optional, Any
+from typing import List, Optional, Any, TYPE_CHECKING, cast
 import uuid
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
+from bson.codec_options import CodecOptions
 
-# Import routers and configuration
-# Support both package execution (uvicorn backend.server:app) and direct script execution
+"""Import routers and configuration with analyzer-friendly gating.
+Supports both package execution (uvicorn backend.server:app) and
+direct script execution (python backend/server.py).
+"""
+
+if TYPE_CHECKING:
+    # Types for annotations only
+    from .services.blockchain_service import BlockchainService as BlockchainServiceType
+    from .workers.outbox_processor import OutboxProcessor as OutboxProcessorType
+    from .services.health_manager import ServiceHealthManager as ServiceHealthManagerType
+
+# Declare module handles once to avoid duplicate-definition warnings
+_api: Optional[Any] = None
+_config: Optional[Any] = None
+_services: Optional[Any] = None
+_health_manager: Optional[Any] = None
+_workers: Optional[Any] = None
+_svc_dep: Optional[Any] = None
+
+# Try package-style imports first; fall back to script-style
 try:
-    from .api import blockchain_router  # type: ignore
-    from .config import get_settings  # type: ignore
-    from .services import BlockchainService  # type: ignore
-    from .services.health_manager import (  # type: ignore
-        ServiceHealthManager,
-        CriticalServiceException,
-    )
-    from .workers import OutboxProcessor  # type: ignore
-    from .middleware.service_dependency import (  # type: ignore
-        ServiceDependencyMiddleware,
-    )
-except ImportError:  # pragma: no cover - fallback for direct execution
-    from api import blockchain_router
-    from config import get_settings
-    from services import BlockchainService
-    from services.health_manager import ServiceHealthManager, CriticalServiceException
-    from workers import OutboxProcessor
-    from middleware.service_dependency import ServiceDependencyMiddleware
+    # Prefer relative imports when running as a package
+    from . import api as _api  # type: ignore
+    from . import config as _config  # type: ignore
+    from . import services as _services  # type: ignore
+    from .services import health_manager as _health_manager  # type: ignore
+    from . import workers as _workers  # type: ignore
+    from .middleware import service_dependency as _svc_dep  # type: ignore
+except Exception:  # pragma: no cover - fallback for direct script execution
+    import importlib
+    _api = importlib.import_module("api")
+    _config = importlib.import_module("config")
+    _services = importlib.import_module("services")
+    _health_manager = importlib.import_module("services.health_manager")
+    _workers = importlib.import_module("workers")
+    _svc_dep = importlib.import_module("middleware.service_dependency")
+
+# Ensure imports succeeded for static analyzers and at runtime
+if any(x is None for x in (_api, _config, _services, _health_manager, _workers, _svc_dep)):
+    raise ImportError("Failed to import one or more backend modules (api, config, services, health_manager, workers, middleware.service_dependency)")
+
+# Narrow types for the type checker
+assert _api is not None
+assert _config is not None
+assert _services is not None
+assert _health_manager is not None
+assert _workers is not None
+assert _svc_dep is not None
+
+# Bind required symbols exactly once to avoid duplicate-definition warnings
+blockchain_router: APIRouter = cast(APIRouter, _api.blockchain_router)
+get_settings = _config.get_settings
+BlockchainService = _services.BlockchainService
+ServiceHealthManager = _health_manager.ServiceHealthManager
+CriticalServiceException = _health_manager.CriticalServiceException
+OutboxProcessor = _workers.OutboxProcessor
+ServiceDependencyMiddleware = _svc_dep.ServiceDependencyMiddleware
 
 
 ROOT_DIR = Path(__file__).parent
@@ -52,14 +89,27 @@ load_dotenv(ROOT_DIR / ".env")
 # Load settings
 settings = get_settings()
 
-# MongoDB connection
-client = AsyncIOMotorClient(settings.mongo_url)  # type: ignore
-db = client[settings.database_name]  # type: ignore
+# MongoDB connection (ensure timezone-aware datetimes)
+client = AsyncIOMotorClient(
+    settings.mongo_url,  # type: ignore
+    tz_aware=True,
+    tzinfo=timezone.utc,
+)
+db = client[settings.database_name].with_options(  # type: ignore
+    CodecOptions(tz_aware=True, tzinfo=timezone.utc)
+)
 
 # Global services and health manager
-blockchain_service: Optional[BlockchainService] = None
-outbox_processor: Optional[OutboxProcessor] = None
-health_manager: ServiceHealthManager = ServiceHealthManager()
+if TYPE_CHECKING:
+    blockchain_service: Optional[BlockchainServiceType]
+    outbox_processor: Optional[OutboxProcessorType]
+    # Provide an explicit type for static analyzers
+    health_manager: ServiceHealthManagerType
+
+# Runtime initialization
+blockchain_service = None
+outbox_processor = None
+health_manager = ServiceHealthManager()
 
 # Create the main app without a prefix
 app = FastAPI(
@@ -146,12 +196,15 @@ async def startup_event() -> None:
         logger.info("Initializing blockchain service...")
         blockchain_config = settings.get_blockchain_config()
         blockchain_service = BlockchainService(blockchain_config)
+        bs = blockchain_service
+        if bs is None:  # for type checkers; not expected at runtime
+            raise RuntimeError("BlockchainService failed to initialize")
         
         # Register blockchain service for health monitoring
         health_manager.register_service(
             name="blockchain_service",
-            service_instance=blockchain_service,
-            health_check_func=blockchain_service.health_check,
+            service_instance=bs,
+            health_check_func=bs.health_check,
             is_critical=True  # Blockchain service is critical
         )
 
@@ -160,16 +213,19 @@ async def startup_event() -> None:
         outbox_config = settings.get_outbox_config()
         outbox_processor = OutboxProcessor(
             db=db,
-            blockchain_service=blockchain_service,
+            blockchain_service=bs,
             processing_interval=outbox_config["processing_interval"],
             max_entries_per_batch=outbox_config["max_batch_size"],
         )
+        op = outbox_processor
+        if op is None:  # for type checkers; not expected at runtime
+            raise RuntimeError("OutboxProcessor failed to initialize")
         
         # Register outbox processor for health monitoring
         health_manager.register_service(
             name="outbox_processor", 
-            service_instance=outbox_processor,
-            health_check_func=outbox_processor.get_health_status,
+            service_instance=op,
+            health_check_func=op.get_health_status,
             is_critical=True,  # Outbox processor is critical for blockchain operations
             dependencies=["blockchain_service"]  # Depends on blockchain service
         )
@@ -179,7 +235,7 @@ async def startup_event() -> None:
         init_results = await health_manager.initialize_services(fail_fast=fail_fast)
         
         # 4. Start outbox processor background processing
-        await outbox_processor.start()
+        await op.start()
         logger.info("Outbox processor background processing started")
         
         # Log initialization summary
@@ -236,8 +292,8 @@ async def shutdown_event() -> None:
             await outbox_processor.stop()
             logger.info("Outbox processor stopped")
 
-        # Close database connection
-        await client.close()  # type: ignore
+        # Close database connection (AsyncIOMotorClient.close() is synchronous)
+        client.close()
         logger.info("Database connection closed")
 
         logger.info("🛑 Crisis Unleashed Backend shut down successfully!")

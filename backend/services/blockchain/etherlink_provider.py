@@ -1,46 +1,17 @@
 """
 Etherlink blockchain provider implementation.
 """
-import asyncio
 import logging
-import importlib
-from typing import Any, Dict, Optional, Tuple, TYPE_CHECKING
-
-# Determine web3 availability without binding names for typing
-try:  # pragma: no cover - import detection
-    importlib.import_module("web3")
-    WEB3_AVAILABLE = True
-except Exception:  # pragma: no cover
-    WEB3_AVAILABLE = False
-    # Runtime fallback: use mocks under distinct names
-    try:
-        # Prefer shared mock types if available
-        from ...types.web3_types import (
-            MockTransactionNotFound as TransactionNotFound,
-            MockTimeExhausted as TimeExhausted,
-            TxReceiptType as TxReceipt,
-        )
-    except Exception:
-        # Define minimal local fallbacks
-        class TransactionNotFound(Exception):
-            """Fallback TransactionNotFound when web3/types are unavailable."""
-
-        class TimeExhausted(Exception):
-            """Fallback TimeExhausted when web3/types are unavailable."""
-
-        # TxReceipt represented minimally as a dict when web3 is absent
-        TxReceipt = dict
-
-if TYPE_CHECKING:  # typing-only imports for editors/mypy context
-    from web3 import Web3 as _RealWeb3  # noqa: F401
-    from web3.contract import Contract as _RealContract  # noqa: F401
-    from web3.exceptions import (
-        TransactionNotFound as _RealTransactionNotFound,  # noqa: F401
-        TimeExhausted as _RealTimeExhausted,  # noqa: F401
-    )
-    from web3.types import TxReceipt as _RealTxReceipt  # noqa: F401
+from typing import Any, Dict, Optional
+import time
 
 from .base_provider import BaseBlockchainProvider
+from .web3_compat import (
+    WEB3_AVAILABLE,
+    TransactionNotFound,
+    TimeExhausted,
+    new_web3,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -59,8 +30,8 @@ class EtherlinkProvider(BaseBlockchainProvider):
         if not WEB3_AVAILABLE:
             logger.error("web3 library not available. Install with: pip install web3")
     
-    async def connect(self) -> bool:
-        """Connect to Etherlink network."""
+    def connect(self) -> bool:
+        """Connect to Etherlink network (synchronous)."""
         if not WEB3_AVAILABLE:
             logger.error("Cannot connect: web3 library not installed")
             return False
@@ -70,39 +41,48 @@ class EtherlinkProvider(BaseBlockchainProvider):
             return False
         
         try:
-            # Dynamically import web3 to avoid type conflicts
-            web3_mod = importlib.import_module("web3")
-            self.web3 = web3_mod.Web3(web3_mod.HTTPProvider(self.rpc_url))
-            
-            # Test connection
-            await asyncio.to_thread(self.web3.is_connected)
-            
-            if self.contract_address:
+            # Create web3 via compatibility factory
+            w3 = new_web3(self.rpc_url)
+            if w3 is None:
+                logger.error("Web3 initialization failed for Etherlink")
+                return False
+            self.web3 = w3
+
+            # Test connection synchronously
+            connected = bool(w3.is_connected())
+
+            if connected and self.contract_address:
                 # Load contract (ABI would be loaded from file in real implementation)
-                self.contract = self.web3.eth.contract(
+                self.contract = w3.eth.contract(
                     address=self.contract_address,
                     abi=[]  # Placeholder - would load actual ABI
                 )
-            
-            logger.info(f"Connected to Etherlink at {self.rpc_url}")
-            return True
-            
+
+            if connected:
+                logger.info(f"Connected to Etherlink at {self.rpc_url}")
+            else:
+                logger.warning(f"Connection test to Etherlink failed at {self.rpc_url}")
+            return connected
+
         except Exception as e:
             logger.error(f"Failed to connect to Etherlink: {e}")
             return False
     
-    async def is_connected(self) -> bool:
-        """Check if connected to Etherlink."""
+    def is_connected(self) -> bool:
+        """Check if connected to Etherlink (synchronous)."""
         if not self.web3:
             return False
         
         try:
-            return await asyncio.to_thread(self.web3.is_connected)
+            w3 = self.web3
+            if w3 is None:
+                return False
+            return bool(w3.is_connected())
         except Exception:
             return False
     
-    async def disconnect(self) -> None:
-        """Disconnect from Etherlink network."""
+    def disconnect(self) -> None:
+        """Disconnect from Etherlink network (synchronous)."""
         try:
             if self.web3:
                 # Close any underlying connections if using session-based provider
@@ -119,12 +99,12 @@ class EtherlinkProvider(BaseBlockchainProvider):
         except Exception as e:
             logger.error(f"Error disconnecting from Etherlink: {e}")
     
-    async def mint_nft(self,
+    def mint_nft(self,
                       recipient: str,
                       card_id: str,
-                      metadata: Dict[str, Any]) -> Tuple[str, Dict[str, Any]]:
-        """Mint NFT on Etherlink."""
-        if not await self.is_connected():
+                      metadata: Dict[str, Any]) -> str:
+        """Mint NFT on Etherlink (simulation; returns tx hash string)."""
+        if not self.is_connected():
             raise ConnectionError("Not connected to Etherlink network")
         
         if not self.contract:
@@ -138,104 +118,120 @@ class EtherlinkProvider(BaseBlockchainProvider):
         
         # Simulate transaction hash
         import hashlib
-        import time
         hash_input = f"{recipient}{card_id}{time.time()}"
         tx_hash = "0x" + hashlib.sha256(hash_input.encode()).hexdigest()
         
-        transaction_data = {
-            "to": self.contract_address,
-            "function": "mint",
-            "args": [recipient, card_id, metadata],
-            "network": "etherlink"
-        }
-        
         logger.info(f"Simulated NFT mint on Etherlink: {tx_hash}")
-        return tx_hash, transaction_data
+        return tx_hash
     
-    async def transfer_nft(self,
+    def transfer_nft(self,
                           from_address: str,
                           to_address: str,
-                          token_id: str) -> Tuple[str, Dict[str, Any]]:
-        """Transfer NFT on Etherlink."""
-        if not await self.is_connected():
+                          token_id: str) -> str:
+        """Transfer NFT on Etherlink (simulation; returns tx hash string)."""
+        if not self.is_connected():
             raise ConnectionError("Not connected to Etherlink network")
         
         # Simulate transfer
         import hashlib
-        import time
         hash_input = f"{from_address}{to_address}{token_id}{time.time()}"
         tx_hash = "0x" + hashlib.sha256(hash_input.encode()).hexdigest()
         
-        transaction_data = {
-            "to": self.contract_address,
-            "function": "transferFrom",
-            "args": [from_address, to_address, token_id],
-            "network": "etherlink"
-        }
-        
         logger.info(f"Simulated NFT transfer on Etherlink: {tx_hash}")
-        return tx_hash, transaction_data
+        return tx_hash
     
-    async def wait_for_confirmation(self,
+    def wait_for_confirmation(self,
                                    tx_hash: str,
                                    timeout: int = 120) -> Optional[Dict[str, Any]]:
-        """Wait for transaction confirmation on Etherlink."""
-        if not await self.is_connected():
+        """Wait for transaction confirmation on Etherlink (synchronous)."""
+        if not self.is_connected():
             return None
-        
-        start_time = asyncio.get_event_loop().time()
-        
-        while (asyncio.get_event_loop().time() - start_time) < timeout:
+
+        start_time = time.time()
+
+        while (time.time() - start_time) < timeout:
             try:
                 if WEB3_AVAILABLE and self.web3:
-                    receipt = await asyncio.to_thread(
-                        self.web3.eth.get_transaction_receipt, tx_hash
-                    )
-                    
+                    w3 = self.web3
+                    if w3 is None:
+                        return None
+                    receipt = w3.eth.get_transaction_receipt(tx_hash)
+
                     if receipt:
+                        # Normalize transaction hash to string safely
+                        txh = getattr(receipt, "transactionHash", None)
+                        # Handle common representations: bytes, hex str, or None
+                        if isinstance(txh, (bytes, bytearray)):
+                            txh_str = txh.hex()
+                        elif isinstance(txh, str):
+                            txh_str = txh
+                        else:
+                            # Fallback: use provided tx_hash or stringified value
+                            txh_str = tx_hash if txh is None else str(txh)
+
                         return {
                             "blockNumber": receipt.blockNumber,
                             "gasUsed": receipt.gasUsed,
                             "status": receipt.status,
-                            "transactionHash": receipt.transactionHash.hex()
+                            "transactionHash": txh_str,
                         }
-                        
+
             except TransactionNotFound:
                 # Transaction not yet mined
                 pass
             except Exception as e:
                 logger.error(f"Error checking transaction {tx_hash}: {e}")
                 return None
-            
-            await asyncio.sleep(2)  # Poll every 2 seconds
-        
+
+            time.sleep(2)  # Poll every 2 seconds
+
         logger.warning(f"Transaction {tx_hash} not confirmed within {timeout} seconds")
         return None
     
-    async def get_transaction_status(self, tx_hash: str) -> Dict[str, Any]:
-        """Get transaction status."""
-        if not await self.is_connected():
-            return {"status": "unknown", "error": "Not connected"}
-        
+    def get_transaction_status(self, tx_hash: str) -> str:
+        """Get transaction status (synchronous)."""
+        if not self.is_connected():
+            return "unknown"
+
         try:
-            # In simulation, return pending status
-            return {
-                "hash": tx_hash,
-                "status": "pending",
-                "network": "etherlink",
-                "confirmations": 0
-            }
+            if WEB3_AVAILABLE and self.web3:
+                w3 = self.web3
+                if w3 is None:
+                    return "unknown"
+                receipt = w3.eth.get_transaction_receipt(tx_hash)
+                if receipt is None:
+                    return "pending"
+                # Try dict-like access first, then attributes
+                try:
+                    status_val = receipt.get("status")  # type: ignore[assignment]
+                    block_number = receipt.get("blockNumber")
+                except Exception:
+                    status_val = getattr(receipt, "status", None)
+                    block_number = getattr(receipt, "blockNumber", None)
+
+                if status_val == 1:
+                    return "confirmed"
+                if status_val == 0:
+                    return "failed"
+                if block_number is None:
+                    return "pending"
+                return "unknown"
+
+            # Simulation mode: make behavior explicit
+            return "pending_simulated"
+        except TransactionNotFound:
+            return "pending"
         except Exception as e:
-            return {"status": "error", "error": str(e)}
+            logger.error(f"Error getting transaction status for {tx_hash}: {e}")
+            return "error"
     
-    async def get_nft_owner(self, token_id: str) -> Optional[str]:
-        """Get NFT owner."""
-        if not await self.is_connected() or not self.contract:
+    def get_nft_owner(self, token_id: str) -> Optional[str]:
+        """Get NFT owner (synchronous)."""
+        if not self.is_connected() or not self.contract:
             return None
-        
+
         try:
-            # In real implementation, would call ownerOf function
-            # For simulation, return placeholder
+            # In real implementation, would call ownerOf function; here return placeholder
             return "0x1234567890123456789012345678901234567890"
         except Exception as e:
             logger.error(f"Error getting NFT owner for token {token_id}: {e}")

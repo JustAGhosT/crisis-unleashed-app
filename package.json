@@ -2,41 +2,52 @@
   "name": "crisis-unleashed",
   "version": "1.0.0",
   "private": true,
+  "pnpm": {
+    "overrides": {
+      "nanoid": "3.3.7",
+      "next>nanoid": "3.3.7",
+      "@types/react": "19.1.10",
+      "@types/react-dom": "19.1.7"
+    }
+  },
   "scripts": {
-    "preinstall": "pnpm install --ignore-scripts",
-    "postinstall": "echo \"Skipping postinstall to prevent infinite loop. Run 'pnpm install' in the frontend directory manually.\"",
-    "start": "concurrently -n \"BACKEND,FRONTEND\" -c \"bgBlue.bold,bgGreen.bold\" \"cd backend && powershell -File .\\start_server.ps1\" \"cd frontend-next && pnpm dev\"",
-    "start:backend": "cd backend && powershell -File .\\start_server.ps1",
-    "start:frontend": "cd frontend-next && pnpm dev",
+    "start": "concurrently -n \"BACKEND,FRONTEND\" -c \"bgBlue.bold,bgGreen.bold\" \"pnpm run backend\" \"pnpm run frontend\"",
+    "backend": "cd backend && powershell -File .\\start_server.ps1",
+    "frontend": "cd frontend-next && powershell -File .\\start_frontend.ps1",
+    "start:backend": "pnpm run backend",
+    "start:frontend": "pnpm run frontend",
     "build": "pnpm --filter frontend-next build",
     "test": "cd frontend-next && pnpm test",
     "test:watch": "cd frontend-next && pnpm test:watch",
     "test:coverage": "cd frontend-next && pnpm test:coverage",
     "lint": "pnpm --filter frontend-next lint",
+    "lint:py": "powershell -NoProfile -File .\\scripts\\lint-python.ps1",
+    "lint:ps": "powershell -NoProfile -File .\\scripts\\lint-powershell.ps1",
+    "lint:repo": "pnpm run lint:py && pnpm run lint:ps && pnpm run lint",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
-    "setup": "cd frontend-next && pnpm install"
+    "setup": "cd frontend-next && pnpm install",
+    "bootstrap": "pnpm install -w"
   },
   "workspaces": [
-    "frontend",
     "frontend-next",
     "backend"
   ],
   "devDependencies": {
     "concurrently": "^8.2.2",
     "eslint": "^8.56.0",
-    "prettier": "^3.0.0"
+    "prettier": "^3.0.0",
+    "patch-package": "^8.0.0"
   },
   "engines": {
-    "node": ">=16.0.0",
+    "node": ">=20.0.0",
     "pnpm": ">=7.0.0"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.84.1",
-    "@types/react": "^18.3.23",
+    "@swc/helpers": "^0.5.5",
     "clsx": "^2.1.1",
     "lucide-react": "^0.536.0",
     "posthog-js": "^1.258.5",
-    "react": "^18.3.1",
     "tailwindcss": "^3.4.17",
     "tailwindcss-animate": "^1.0.7",
     "web-vitals": "^5.1.0"
