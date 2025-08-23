@@ -24,9 +24,20 @@ function writeFile(filePath, content) {
       console.log('[patch-next-response] Wrote', filePath);
     }
   } catch (e) {
+    const code = e && e.code;
+    const isReadOnly = code === 'EROFS' || code === 'EPERM';
     console.error('[patch-next-response] Failed to write file:', filePath, '-', e && e.message);
     if (process.env.NEXT_PATCH_DEBUG === 'true' && e && e.stack) {
       console.error(e.stack);
+    }
+    if (isReadOnly) {
+      console.warn('[patch-next-response] Detected read-only or permission-restricted node_modules (PNPM store immutability or hardlinks).');
+      console.warn('[patch-next-response] Skip patching Next internals. Use an alias-based shim instead:');
+      console.warn(' - Webpack: config.resolve.alias[\'next/dist/server/web/exports/next-response\'] = path.resolve(__dirname, \'src/shims/next-response.js\')');
+      console.warn(' - Turbopack experimental.turbo.resolveAlias:');
+      console.warn("   { 'next/dist/server/web/exports/next-response': './src/shims/next-response.js', 'next/dist/esm/server/web/exports/next-response': './src/shims/next-response.js' }");
+      // Don't crash the build; allow callers to fall back to alias approach.
+      return;
     }
     throw e;
   }
@@ -59,9 +70,9 @@ function main() {
   const esmShim = path.join(esmDir, 'next-response.js');
 
   // CJS shim re-exports from index.js
-  ensureFile(cjsShim, "module.exports = require('./index.js');\n");
+  if (cjsDir) ensureFile(cjsShim, "module.exports = require('./index.js');\n");
   // ESM shim re-exports from index.js
-  ensureFile(esmShim, "export * from './index.js';\n");
+  if (esmDir) ensureFile(esmShim, "export * from './index.js';\n");
 }
 
 try {

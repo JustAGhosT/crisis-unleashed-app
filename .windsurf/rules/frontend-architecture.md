@@ -1,52 +1,74 @@
 ---
+description: Analyzes frontend architecture patterns, component hierarchies, and state management for card game UI implementation
 trigger: model_decision
-description: Documentation for React component hierarchy, state management, and UI/UX implementation for card game interface
 ---
 
-# frontend-architecture
+# === USER INSTRUCTIONS ===
+trigger: model_decision
+# === END USER INSTRUCTIONS ===
+
+# Frontend Architecture
 
 Core Component Architecture:
 
-1. Deck Building System (Score: 90)
-`frontend-next/src/components/deck-builder/DeckBuilder.tsx`
-- Faction-restricted deck construction engine
-- Card quantity validation (max 3 copies)
-- Deck size enforcement (30-50 cards)
-- Hero card requirement validation
-- Multi-faction compatibility checks
-- Real-time deck statistics calculation
+1. Deck Building System
+- Root: `frontend-next/src/app/deck-builder/DeckBuilderClient.tsx`
+- Business Logic:
+  - Multi-faction deck validation (max 2 factions)
+  - Card copy limits (3 per card)
+  - Deck size boundaries (30-50 cards)
+  - Faction purity bonuses
+- Importance Score: 95
 
-2. Faction Management (Score: 85)
-`frontend-next/src/lib/theme/faction-theme.ts`
-- Seven unique faction implementations
-- Faction-specific mechanics processing
-- Cross-faction interaction rules
-- Synergy calculation engine
-- Visual theme mapping to gameplay elements
+2. Faction Theme System 
+- Root: `frontend-next/src/app/FactionThemeRoot.tsx`
+- Business Logic:
+  - Faction-specific visual tokens
+  - Dynamic theme switching
+  - Faction relationship visualization
+  - Cross-faction compatibility rules
+- Importance Score: 85
 
-3. Card Combat System (Score: 80) 
-`frontend-next/src/components/game/Battlefield.tsx`
-- Hex-based combat grid implementation
-- Zone control mechanics
-- Unit positioning validation
-- Combat range calculations
-- Terrain effect processing
-- Movement cost computations
+3. Game State Management
+- Root: `frontend-next/src/lib/deck-builder/deck-builder-context.tsx`
+- Business Logic:
+  - Card ownership validation
+  - Deck modification history
+  - Real-time deck statistics
+  - Energy curve analysis
+- Importance Score: 90
 
-4. Resource Management (Score: 75)
-`frontend-next/src/components/game/PlayerHUD.tsx`
-- Energy/Momentum resource tracking
-- Dynamic resource availability calculation
-- Action cost validation
-- Resource generation rules
-- Phase-specific resource limitations
+4. Card Collection System
+- Root: `frontend-next/src/components/cards/CardCollection.tsx` 
+- Business Logic:
+  - Rarity-based collection limits
+  - Faction-specific card access
+  - Collection completion tracking
+  - Card ownership rules
+- Importance Score: 80
 
-5. Game State Controller (Score: 70)
-`frontend-next/src/lib/deck-builder/deck-builder-context.tsx`
-- Turn phase management
-- Action sequence validation
-- State transition rules
-- Combat resolution pipeline
-- Win condition monitoring
+5. Battlefield Interface
+- Root: `frontend-next/src/components/game/Battlefield.tsx`
+- Business Logic:
+  - Hex-based unit placement
+  - Zone control mechanics
+  - Movement validation
+  - Line of sight calculations
+- Importance Score: 85
 
-The architecture emphasizes faction identity and mechanical interactions through a complex system of restrictions and validations, ensuring balanced gameplay while maintaining faction-specific advantages.
+Key State Management Patterns:
+- Faction context for theme/visual coordination
+- Deck building state with validation pipeline
+- Card collection state with ownership rules
+- Game state with turn/phase management
+- Feature flag context for gradual rollout
+
+The architecture emphasizes separation between:
+- Game rules/validation logic
+- Visual/theme management  
+- Collection/ownership tracking
+- Real-time game state updates
+
+$END$
+
+ If you're using this file in context, clearly say in italics in one small line that "Context added by Giga frontend-architecture" along with specifying exactly what information was used from this file in a human-friendly way, instead of using kebab-case use normal sentence case.

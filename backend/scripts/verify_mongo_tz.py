@@ -120,17 +120,12 @@ def analyze_file(path: str) -> list[Finding]:
                     findings.append(Finding(path, node.lineno, "codec", name, tz))
 
     # Second: regex scan for URIs with tzUTC
-    lines = src.split('\n')
-    line_starts = [0]
-    for line in lines:
-        line_starts.append(line_starts[-1] + len(line) + 1)
-
     for m in URI_PATTERN.finditer(src):
         uri = m.group(0)
         # Calculate line number from match position
         match_pos = m.start()
-        # Find the line number by counting how many line starts are before or at the match position
-        line_no = sum(1 for start in line_starts if start <= match_pos)
+        # Count newlines up to the match position to get line number (1-indexed)
+        line_no = src[:match_pos].count('\n') + 1
         # Normalize for case-insensitive key lookup
         lower = uri.lower()
         tzutc: Optional[bool] = None

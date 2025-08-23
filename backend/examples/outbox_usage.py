@@ -32,7 +32,12 @@ class InMemoryCollection:
                     updated_doc[k] = v
                 # Apply $inc
                 for k, v in update.get("$inc", {}).items():
-                    updated_doc[k] = int(updated_doc.get(k, 0)) + int(v)
+                    current = updated_doc.get(k, 0)
+                    try:
+                        updated_doc[k] = int(current) + int(v)
+                    except (ValueError, TypeError):
+                        # If current value is not numeric, set to the increment value
+                        updated_doc[k] = int(v)
                 # Replace the original with the updated copy
                 self._docs[i] = updated_doc
                 break

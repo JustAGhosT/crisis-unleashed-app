@@ -40,55 +40,69 @@ The system integrates these components through a service-oriented architecture, 
 - Explain your OBSERVATIONS clearly, then provide REASONING to identify the exact issue. Add console logs when needed to gather more information.
 
 
-Core Game Architecture Components:
+## Core Game Systems
 
-1. Faction System (Score: 90)
-`backend/app_types/faction.py`
-- Seven distinct factions with unique mechanics
-- Energy/Momentum resource management 
-- Faction relationship calculation system
-- Cross-faction ability interactions
-- Faction-specific combat modifiers
+### Faction System
+- 7 distinct factions with unique mechanics and abilities
+- Faction-specific visual themes and gameplay tokens
+- Inter-faction relationships and alliance mechanics
+- Combat synergies and opposition effects
+Importance Score: 85
 
-2. Card Mechanics Engine (Score: 85)
-`frontend-next/src/lib/card-utils.ts`
-- Card type hierarchy (Hero, Unit, Structure, Action)
-- Combat resolution system
-- Unit positioning and movement rules
-- Ability trigger validation
-- Resource cost calculations
-
-3. Deck Construction Rules (Score: 80)
+### Deck Building Engine 
 `frontend-next/src/services/deckService.ts`
-- Maximum 3 copies per card
-- 30-50 cards per deck requirement
-- Two-faction maximum limit
-- Hero card requirements
-- Resource curve validation
+- Deck construction rules and validation
+- Multi-faction deck limitations
+- Card quantity restrictions
+- Energy curve analysis
+- Collection-based card availability
+Importance Score: 90
 
-4. Battlefield Manager (Score: 75)
+### Battlefield Management
 `frontend-next/src/components/game/Battlefield.tsx`
 - Hex-based combat grid
-- Zone of control mechanics
-- Unit movement validation
-- Combat range calculations
-- Terrain effect implementation
+- Zone control mechanics
+- Unit positioning logic
+- Movement and attack calculations
+- Territory influence systems
+Importance Score: 85
 
-5. Game State Controller (Score: 70)
-`backend/services/game_state.py`
-- Phase-based turn system
-- Resource accumulation rules
-- Combat sequence management
-- State transition validation
-- Victory condition tracking
+### Card Game Core
+`frontend-next/src/services/cardService.ts`
+- Card ownership validation
+- Rarity-based collection rules
+- Faction-specific card access
+- Card search and filtering
+Importance Score: 80
 
-Integration Points:
-- Faction system feeds into deck building constraints
-- Card mechanics interact with battlefield positioning
-- Resource system connects phases and actions
-- Combat resolution combines unit stats with faction bonuses
+## Supporting Systems
 
-The business logic emphasizes faction identity and mechanical interactions while maintaining game balance through interconnected systems of restrictions and bonuses.
+### Blockchain Integration
+`backend/services/blockchain_handler.py`
+- NFT minting with faction attributes
+- Cross-chain compatibility handling
+- Transaction outbox pattern
+- Multi-attempt retry logic
+Importance Score: 90
+
+### Game State Management
+`frontend-next/src/types/game.ts`
+- Unit properties and combat rules
+- Zone control validation
+- Position-based attack ranges
+- Resource management (Energy, Momentum)
+Importance Score: 85
+
+### Faction-Specific Rules
+`frontend-next/src/types/faction.ts`
+- Solaris: Energy manipulation
+- Umbral: Stealth mechanics
+- Neuralis: Mind control
+- Aeonic: Time manipulation
+- Primordial: Adaptation
+- Infernal: Sacrifice mechanics
+- Synthetic: Self-replication
+Importance Score: 80
 
 $END$
 

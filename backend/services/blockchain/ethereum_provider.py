@@ -171,9 +171,13 @@ class EthereumProvider(BaseBlockchainProvider):
 
     def wait_for_confirmation(self, tx_hash: str, timeout: int = 120) -> Optional[Dict[str, Any]]:
         self._ensure_connected()
-        # Delegate to web3; tests assert this call
-        receipt = self.web3.eth.wait_for_transaction_receipt(tx_hash, timeout=timeout)  # type: ignore[union-attr]
-        return receipt
+        try:
+            # Delegate to web3; tests assert this call
+            receipt = self.web3.eth.wait_for_transaction_receipt(tx_hash, timeout=timeout)  # type: ignore[union-attr]
+            return receipt
+        except Exception as e:
+            logger.error(f"Failed to wait for transaction confirmation: {e}")
+            return None
 
     def get_transaction_status(self, tx_hash: str) -> str:
         self._ensure_connected()
