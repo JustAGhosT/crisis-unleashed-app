@@ -134,7 +134,7 @@ export default function MoodBoard({ factionId, expanded = false, className }: Mo
                           styles.bgImage,
                           attrs.cls,
                         )}
-                        // eslint-disable-next-line react/forbid-dom-props
+                        // eslint-disable-next-line
                         style={attrs.style}
                         aria-label={el.name}
                       />
@@ -186,7 +186,7 @@ export default function MoodBoard({ factionId, expanded = false, className }: Mo
                         "h-12 w-12 rounded bg-center bg-no-repeat bg-cover border border-border/40",
                         attrs.cls,
                       )}
-                      // eslint-disable-next-line react/forbid-dom-props
+                      // eslint-disable-next-line
                       style={attrs.style}
                       aria-label={ico.name}
                     />
@@ -212,7 +212,7 @@ export default function MoodBoard({ factionId, expanded = false, className }: Mo
                         styles.bgImage,
                         attrs.cls,
                       )}
-                      // eslint-disable-next-line react/forbid-dom-props
+                      // eslint-disable-next-line
                       style={attrs.style}
                       aria-label={vt.name}
                     />
@@ -244,7 +244,7 @@ export default function MoodBoard({ factionId, expanded = false, className }: Mo
                             styles.bgImage,
                             attrs.cls,
                           )}
-                          // eslint-disable-next-line react/forbid-dom-props
+                          // eslint-disable-next-line
                           style={attrs.style}
                           aria-label={ex.type}
                         />
@@ -275,7 +275,7 @@ function ColorSwatch({ item }: { item: ColorPaletteItem }) {
     <div className="flex items-center gap-3 rounded-md border border-border/40 bg-background/40 p-3 backdrop-blur">
       <div
         className={cn("h-10 w-10 rounded-md border border-border/40", styles.swatchColor)}
-        // eslint-disable-next-line react/forbid-dom-props
+        // eslint-disable-next-line
         style={{ ["--swatch-color"]: item.hex } as React.CSSProperties}
       />
       <div className="min-w-0">

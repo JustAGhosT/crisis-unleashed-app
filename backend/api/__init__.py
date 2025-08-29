@@ -1,20 +1,14 @@
 """
-API package for HTTP endpoints.
+API Module for Crisis Unleashed Backend
 
-This package contains FastAPI routers and endpoint definitions for the
-Crisis Unleashed backend API. It provides the HTTP interface for external
-clients to interact with the application.
+This module exposes all API routers used in the application.
 """
 
 from fastapi import APIRouter
-from .blockchain_endpoints import router as _blockchain_router
 
-# Explicit type annotation for mypy to resolve the exported symbol type
-blockchain_router: APIRouter = _blockchain_router
+# Import all API routers
+from .blockchain.router import router as blockchain_router
+from .auth_redirects import auth_redirect_router
 
-__all__ = [
-    "blockchain_router"
-]
-
-# Version info
-__version__ = "1.0.0"
+# Re-export routers for use in server.py
+__all__ = ["blockchain_router", "auth_redirect_router"]

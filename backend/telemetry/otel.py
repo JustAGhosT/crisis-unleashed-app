@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +51,11 @@ if ENABLED:
         meter_provider = MeterProvider(resource=resource, metric_readers=[reader])
         metrics.set_meter_provider(meter_provider)
 
-        logger.info("OpenTelemetry initialized (endpoint=%s, service=%s)", otlp_endpoint, service_name)
+        logger.info(
+            "OpenTelemetry initialized (endpoint=%s, service=%s)",
+            otlp_endpoint,
+            service_name,
+        )
 
     except Exception as e:  # pragma: no cover
         logger.warning("OpenTelemetry disabled: %s", e)

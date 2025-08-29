@@ -4,8 +4,9 @@ Ethereum blockchain provider implementation.
 import logging
 from typing import Any, Dict, Optional, cast
 
-from .base_provider import BaseBlockchainProvider
-from .web3_compat import new_web3
+# Absolute imports rooted at 'backend'
+from backend.services.blockchain.base_provider import BaseBlockchainProvider
+from backend.services.blockchain.web3_compat import new_web3
 
 
 logger = logging.getLogger(__name__)
@@ -19,7 +20,10 @@ class EthereumProvider(BaseBlockchainProvider):
         self.rpc_url = network_config.get("provider_url") or network_config.get("rpc_url")
         if not self.rpc_url:
             logger.warning("No RPC URL configured for EthereumProvider")
-        self.contract_address = network_config.get("contract_address") or network_config.get("nft_contract_address")
+        self.contract_address = (
+            network_config.get("contract_address")
+            or network_config.get("nft_contract_address")
+        )
         self.contract_abi = network_config.get("contract_abi") or []
         self.web3: Optional[Any] = None
         self.contract: Optional[Any] = None
@@ -96,7 +100,8 @@ class EthereumProvider(BaseBlockchainProvider):
         }
         # Gas price handling: only set if retrievable and not None
         try:
-            gp = getattr(self.web3.eth, "gas_price")  # type: ignore[union-attr]
+            w3 = self.web3
+            gp = getattr(w3.eth, "gas_price")
         except Exception:
             gp = None
         if gp is not None:
@@ -105,7 +110,8 @@ class EthereumProvider(BaseBlockchainProvider):
         chain_id = self.network_config.get("chain_id")
         if chain_id is None:
             try:
-                chain_id = getattr(self.web3.eth, "chain_id", None)  # type: ignore[union-attr]
+                w3 = self.web3
+                chain_id = getattr(w3.eth, "chain_id", None)
             except Exception:
                 chain_id = None
         if chain_id is not None:
@@ -114,7 +120,8 @@ class EthereumProvider(BaseBlockchainProvider):
         # Optionally include nonce (requires from address)
         if from_address:
             try:
-                tx_params["nonce"] = self.web3.eth.get_transaction_count(from_address)  # type: ignore[union-attr]
+                w3 = self.web3
+                tx_params["nonce"] = w3.eth.get_transaction_count(from_address)
             except Exception:
                 logger.debug("Failed to fetch nonce; proceeding without explicit nonce")
 
@@ -138,19 +145,26 @@ class EthereumProvider(BaseBlockchainProvider):
             private_key = self.network_config.get("private_key")
             if private_key:
                 try:
-                    signed = self.web3.eth.account.sign_transaction(tx, private_key)  # type: ignore[union-attr]
+                    w3 = self.web3
+                    signed = w3.eth.account.sign_transaction(tx, private_key)
                     raw_tx = getattr(signed, "rawTransaction", None)
                     if raw_tx is not None:
-                        tx_hash = self.web3.eth.send_raw_transaction(raw_tx)  # type: ignore[union-attr]
+                        w3 = self.web3
+                        tx_hash = w3.eth.send_raw_transaction(raw_tx)
                         return self._to_hex(tx_hash)
                     else:
-                        logger.warning("Signed transaction missing rawTransaction; falling back to send_transaction")
+                        logger.warning(
+                            "Signed transaction missing rawTransaction; "
+                            "falling back to send_transaction"
+                        )
                 except Exception:
-                    # If signing fails, fall back to sending the unsigned tx (useful in test/mocked environments)
+                    # If signing fails, fall back to sending the unsigned tx
+                    # (useful in test/mocked environments)
                     logger.warning("Local signing failed; falling back to send_transaction")
 
         # Default path: send unsigned transaction via provider
-        tx_hash = self.web3.eth.send_transaction(tx)  # type: ignore[union-attr]
+        w3 = self.web3
+        tx_hash = w3.eth.send_transaction(tx)
         return self._to_hex(tx_hash)
 
     def mint_nft(self, recipient: str, card_id: str, metadata: Dict[str, Any]) -> str:
@@ -173,20 +187,26 @@ class EthereumProvider(BaseBlockchainProvider):
         self._ensure_connected()
         try:
             # Delegate to web3; tests assert this call
-            receipt = self.web3.eth.wait_for_transaction_receipt(tx_hash, timeout=timeout)  # type: ignore[union-attr]
-            return receipt
+            w3 = self.web3
+            if w3 is None:
+                return None
+            receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=timeout)
+            return cast(Optional[Dict[str, Any]], receipt)
         except Exception as e:
             logger.error(f"Failed to wait for transaction confirmation: {e}")
             return None
 
     def get_transaction_status(self, tx_hash: str) -> str:
         self._ensure_connected()
-        receipt = self.web3.eth.get_transaction_receipt(tx_hash)  # type: ignore[union-attr]
+        w3 = self.web3
+        if w3 is None:
+            return "unknown"
+        receipt = w3.eth.get_transaction_receipt(tx_hash)
         if receipt is None:
             return "pending"
         # Try dict-like access first
         try:
-            status_val = receipt.get("status")  # type: ignore[assignment]
+            status_val = receipt.get("status")
             block_number = receipt.get("blockNumber")
         except Exception:
             status_val = getattr(receipt, "status", None)
@@ -215,7 +235,9 @@ class EthereumProvider(BaseBlockchainProvider):
             return None
         try:
             owner = self.contract.functions.ownerOf(token_id).call()
-            return owner
+            if owner is None:
+                return None
+            return str(owner)
         except Exception as e:
             logger.error(f"Failed to get NFT owner for token_id '{token_id}': {e}")
             return None

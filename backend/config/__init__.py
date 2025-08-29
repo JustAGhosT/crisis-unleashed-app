@@ -1,14 +1,10 @@
 """
-Configuration management for Crisis Unleashed backend.
+Configuration Module for Crisis Unleashed Backend
+
+This module handles all configuration settings for the application.
 """
 
-from .settings import Settings, get_settings
-from .blockchain_config import BlockchainConfig
+from .settings import get_settings, Settings
 
-__all__ = [
-    "Settings",
-    "get_settings", 
-    "BlockchainConfig"
-]
-
-__version__ = "1.0.0"
+# Re-export settings functionality for use in server.py
+__all__ = ["get_settings", "Settings"]

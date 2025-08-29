@@ -68,6 +68,8 @@ export const Battlefield: React.FC<BattlefieldProps> = ({
         grid.push({
           position,
           unit: units[position] || null,
+          zoneType: isPlayerZone ? "player" : isEnemyZone ? "enemy" : "neutral",
+          zonePosition: isFrontline ? "frontline" : isBackline ? "backline" : "middle",
           isPlayerZone,
           isEnemyZone,
           isNeutralZone,

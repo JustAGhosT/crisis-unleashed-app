@@ -9,8 +9,10 @@ import logging
 from typing import Any, Dict
 from datetime import datetime, timezone
 
-from ..repository import TransactionOutboxRepository
-from ..services import BlockchainHandler, BlockchainService
+# Absolute imports rooted at 'backend'
+from backend.repository import TransactionOutboxRepository
+from backend.services.blockchain_handler import BlockchainHandler
+from backend.services.blockchain_service import BlockchainService
 
 logger = logging.getLogger(__name__)
 

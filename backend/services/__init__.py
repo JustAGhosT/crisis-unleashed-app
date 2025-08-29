@@ -1,16 +1,11 @@
 """
-Services package for business logic layer.
+Services Module for Crisis Unleashed Backend
 
-This package contains service classes that implement the business logic
-for Crisis Unleashed. Services coordinate between repositories, external APIs,
-and other components to fulfill business requirements.
+This module contains all service implementations for the application.
 """
 
-from .blockchain_handler import BlockchainHandler
 from .blockchain_service import BlockchainService
-from . import blockchain
+from .health_manager import ServiceHealthManager, CriticalServiceException
 
-__all__ = ["BlockchainHandler", "BlockchainService", "blockchain"]
-
-# Version info
-__version__ = "1.0.0"
+# Re-export service classes for use in server.py
+__all__ = ["BlockchainService", "ServiceHealthManager", "CriticalServiceException"]

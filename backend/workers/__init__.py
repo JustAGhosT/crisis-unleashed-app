@@ -2,7 +2,8 @@
 Workers package for background processing.
 """
 
-from .outbox_processor import OutboxProcessor, OutboxMonitor
+# Absolute imports rooted at 'backend'
+from backend.workers.outbox_processor import OutboxProcessor, OutboxMonitor
 
 __all__ = [
     "OutboxProcessor",

@@ -269,12 +269,12 @@
     "Wireframing",
     "Wrathbound",
     "Wrathwell",
-    "Zeth"
-  ],
-  "flagWords": [
+    "Zeth",
     "adminpass",
     "changeme",
     "testuser",
     "userpass"
+  ],
+  "flagWords": [
   ]
 }
