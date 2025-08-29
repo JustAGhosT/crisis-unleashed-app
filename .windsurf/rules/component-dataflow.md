@@ -1,5 +1,5 @@
 ---
-description: Documents data flow patterns between game components for turn-based card game systems
+description: Used for analyzing and documenting data flow patterns between major game components, including state updates and component interactions
 trigger: model_decision
 ---
 
@@ -10,57 +10,53 @@ trigger: model_decision
 
 # component-dataflow
 
-### Core Game Component Data Flow
+Core Data Flow Implementation:
 
-Major components participate in the following data flow paths:
+1. Battle State Flow
+- Battlefield -> TurnManager: Combat phase transitions, unit positioning updates
+- TurnManager -> PlayerHUD: Resource updates (energy/momentum), turn phase indicators
+- CardHand -> Battlefield: Card deployment requests, targeting validation
+- PlayerHUD -> GameInterface: Player state updates, resource availability
 
-1. Battlefield -> TurnManager
-- Hex grid state updates on unit placement/movement
-- Zone control status changes
-- Unit position matrices 
-- Combat resolution outcomes
-Importance Score: 85
+2. Deck Building Flow
+- CardBrowserPanel -> DeckEditorPanel: Card selection events
+- DeckEditorPanel -> DeckStats: Real-time deck composition updates
+- DeckStats -> DeckBuilder: Validation state and deck metrics
+- CardDetailsPanel -> DeckBuilderInterface: Card preview and inspection data
 
-2. CardHand -> PlayerHUD
-- Card selection state
-- Energy/resource availability checks
-- Playable card validation
-- Hand size monitoring
-Importance Score: 80
+Key Data Flow Patterns:
 
-3. TurnManager -> GameInterface
-- Turn phase transitions
-- Action point updates
-- Valid action broadcasts
-- Turn completion signals
-Importance Score: 90
+1. Combat Resolution Flow:
+```
+Battlefield
+  → TurnManager (phase control)
+    → PlayerHUD (resource updates)
+      → CardHand (playability updates)
+        → Battlefield (deployment)
+```
 
-4. PlayerHUD -> Battlefield
-- Resource state for action validation
-- Unit deployment requests
-- Combat initiation signals
-- Zone activation triggers
-Importance Score: 85
+2. Deck Construction Flow:
+```
+CardBrowser
+  → DeckEditor (card selection)
+    → DeckValidator (rule checking)
+      → StatsCalculator (metrics update)
+        → Interface (feedback)
+```
 
-5. Battlefield -> CardHand
-- Valid placement zone updates
-- Unit interaction possibilities
-- Combat opportunity signals
-- Tactical option availability
-Importance Score: 75
+State Update Rules:
+- Combat state updates require TurnManager validation
+- Resource updates flow through PlayerHUD before reaching CardHand
+- Deck modifications trigger cascading validation updates
+- Battlefield position changes update unit interaction possibilities
 
-Key State Update Patterns:
-- Circular validation between components for action legality
-- Cascading updates for resource consumption
-- State synchronization for multiplayer actions
-- Event-driven UI updates based on game state changes
+Critical Paths:
+/components/game/Battlefield.tsx
+/components/game/TurnManager.tsx 
+/components/game/PlayerHUD.tsx
+/components/deck-builder/DeckBuilder.tsx
 
-Component Responsibilities:
-- Battlefield: Maintains game board state, handles unit positioning
-- CardHand: Manages player card states and interactions
-- GameInterface: Coordinates component communication
-- PlayerHUD: Tracks player resources and status
-- TurnManager: Controls game flow and action sequencing
+Importance Score: 85/100
 
 $END$
 

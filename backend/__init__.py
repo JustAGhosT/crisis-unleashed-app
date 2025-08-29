@@ -20,7 +20,7 @@ Key Features:
 
 # Package metadata
 __title__ = "Crisis Unleashed Backend"
-__version__ = "1.0.0" 
+__version__ = "1.0.0"
 __author__ = "Crisis Unleashed Team"
 __description__ = "Backend API for Crisis Unleashed card game"
 
@@ -34,9 +34,9 @@ from typing import Any, TYPE_CHECKING
 # For static analyzers only; no runtime attributes are created.
 # This preserves lazy loading while providing type context.
 if TYPE_CHECKING:  # pragma: no cover - type-checkers only
-    from . import api as api  # type: ignore
-    from . import repository as repository  # type: ignore
-    from . import services as services  # type: ignore
+    from . import api as api
+    from . import repository as repository
+    from . import services as services
 
 def __getattr__(name: str) -> Any:  # PEP 562
     if name in {"api", "repository", "services"}:

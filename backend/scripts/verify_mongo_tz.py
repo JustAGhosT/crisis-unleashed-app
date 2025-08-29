@@ -110,10 +110,13 @@ def analyze_file(path: str) -> list[Finding]:
 
                 if name in CLIENT_NAMES:
                     tz = kw_bool(node.keywords, "tz_aware")
-                    # Also detect codec_options argument presence (cannot easily tell tz_aware inside here statically)
+                    # Also detect codec_options argument presence.
+                    # We cannot easily determine tz_aware inside here statically.
                     has_codec = any(kw.arg == "codec_options" for kw in node.keywords)
                     extra = "(codec_options given)" if has_codec else ""
-                    findings.append(Finding(path, node.lineno, "client", name, tz, extra))
+                    findings.append(
+                        Finding(path, node.lineno, "client", name, tz, extra)
+                    )
 
                 elif name in CODEC_OPTIONS_NAMES:
                     tz = kw_bool(node.keywords, "tz_aware")
@@ -165,12 +168,20 @@ def main() -> None:
             problems += 1
 
     print("=== Summary ===")
-    print(f"Total findings: {len(all_findings)} | Potential issues: {problems}")
+    print(
+        f"Total findings: {len(all_findings)} | Potential issues: {problems}"
+    )
     if problems:
-        print("Recommendation: Ensure PyMongo/Motor clients are created with tz_aware=True, or use\n"
-              "CodecOptions(tz_aware=True) on database/collection. For URIs, prefer tzUTC=true.")
-        print("Context: Your models (e.g., backend/repository/outbox_models.py) use timezone-aware\n"
-              "datetimes via datetime.now(UTC). Mixed naive/aware datetimes will cause subtle bugs.")
+        print(
+            "Recommendation: Ensure PyMongo/Motor clients are created with "
+            "tz_aware=True, or use\nCodecOptions(tz_aware=True) on database/collection. "
+            "For URIs, prefer tzUTC=true."
+        )
+        print(
+            "Context: Your models (e.g., backend/repository/outbox_models.py) use "
+            "timezone-aware\ndatetimes via datetime.now(UTC). Mixed naive/aware "
+            "datetimes will cause subtle bugs."
+        )
 
 
 if __name__ == "__main__":

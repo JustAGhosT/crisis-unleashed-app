@@ -152,20 +152,33 @@ class BlockchainConfig:
             if field not in config:
                 errors.append(f"Missing required field: {field}")
             else:
-                # Only call isinstance if expected_type is a type or tuple of types (not just any object)
+                # Only call isinstance if expected_type is a type or tuple of types
+                # (not just any object)
                 if (
                     (isinstance(expected_type, type)) or
-                    (isinstance(expected_type, tuple) and all(isinstance(e, type) for e in expected_type))
+                    (
+                        isinstance(expected_type, tuple)
+                        and all(isinstance(e, type) for e in expected_type)
+                    )
                 ):
                     if not isinstance(config[field], expected_type):
                         if isinstance(expected_type, tuple):
                             expected_type_name = "/".join(
-                                [t.__name__ for t in expected_type if hasattr(t, "__name__")]
+                                [
+                                    t.__name__
+                                    for t in expected_type
+                                    if hasattr(t, "__name__")
+                                ]
                             )
                         else:
-                            expected_type_name = getattr(expected_type, "__name__", str(expected_type))
+                            expected_type_name = getattr(
+                                expected_type, "__name__", str(expected_type)
+                            )
                         errors.append(
-                            f"Field '{field}' must be of type {expected_type_name}, got {type(config[field]).__name__}"
+                            (
+                                f"Field '{field}' must be of type {expected_type_name}, "
+                                f"got {type(config[field]).__name__}"
+                            )
                         )
         # Additional validation
         if "chain_id" in config and isinstance(config["chain_id"], int):
@@ -174,14 +187,22 @@ class BlockchainConfig:
         if "rpc_url" in config and isinstance(config["rpc_url"], str):
             if not (config["rpc_url"].startswith("http://") or config["rpc_url"].startswith("https://")):
                 errors.append("rpc_url must be a valid HTTP/HTTPS URL")
-            if "YOUR_PROJECT_ID" in config["rpc_url"] or "YOUR_API_KEY" in config["rpc_url"]:
-                errors.append("rpc_url contains placeholder text - please set environment variables")
+            if (
+                "YOUR_PROJECT_ID" in config["rpc_url"]
+                or "YOUR_API_KEY" in config["rpc_url"]
+            ):
+                errors.append(
+                    "rpc_url contains placeholder text - please set environment variables"
+                )
         if "network_type" in config and isinstance(config["network_type"], str):
             valid_types = [t.value for t in NetworkType]
             if config["network_type"] not in valid_types:
                 errors.append(f"network_type must be one of: {valid_types}")
         if "block_time_seconds" in config:
-            if not isinstance(config["block_time_seconds"], (int, float)) or config["block_time_seconds"] <= 0:
+            if (
+                not isinstance(config["block_time_seconds"], (int, float))
+                or config["block_time_seconds"] <= 0
+            ):
                 errors.append("block_time_seconds must be a positive number")
         if "confirmation_blocks" in config and isinstance(config["confirmation_blocks"], int):
             if config["confirmation_blocks"] < 1:
@@ -256,8 +277,19 @@ class BlockchainConfig:
             blockchain_type = network_name
         # Network-specific operations by blockchain type
         network_operations = {
-            "ethereum": base_operations + ["marketplace_list", "marketplace_purchase", "staking", "bridge_to_l2"],
-            "etherlink": base_operations + ["marketplace_list", "marketplace_purchase", "bridge_to_tezos"],
+            "ethereum": base_operations
+            + [
+                "marketplace_list",
+                "marketplace_purchase",
+                "staking",
+                "bridge_to_l2",
+            ],
+            "etherlink": base_operations
+            + [
+                "marketplace_list",
+                "marketplace_purchase",
+                "bridge_to_tezos",
+            ],
             "solana": base_operations + ["marketplace_list", "stake_sol", "create_token"],
         }
         return network_operations.get(blockchain_type, base_operations)

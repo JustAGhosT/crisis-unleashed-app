@@ -7,14 +7,28 @@ import concurrent.futures
 import inspect
 import logging
 import os
-from typing import Any, Dict, Optional, Tuple, Callable, Coroutine
+from typing import (
+    Any,
+    Dict,
+    Optional,
+    Callable,
+    Coroutine,
+    TypeVar,
+    cast,
+    Awaitable,
+    overload,
+)
 
-from .blockchain import BlockchainProviderFactory, BaseBlockchainProvider
+# Absolute import rooted at 'backend'
+from backend.services.blockchain import BlockchainProviderFactory, BaseBlockchainProvider
 
 logger = logging.getLogger(__name__)
 
 # Mapping of rarity values to their on-chain representation
 RARITY_MAPPING = {"common": 0, "uncommon": 1, "rare": 2, "epic": 3, "legendary": 4}
+
+# Generic type for internal helpers
+T = TypeVar("T")
 
 
 class BlockchainService:
@@ -32,8 +46,8 @@ class BlockchainService:
         self._initialized = False
 
     def _run_coro_blocking(
-        self, coro: Coroutine[Any, Any, Any], timeout: Optional[float] = None
-    ) -> Any:
+        self, coro: Coroutine[Any, Any, T], timeout: Optional[float] = None
+    ) -> T:
         """Run a coroutine in an isolated event loop within a worker thread.
 
         This avoids nested asyncio.run() failures and cross-thread loop access.
@@ -41,7 +55,7 @@ class BlockchainService:
         the worker thread exits cleanly on timeout.
         """
 
-        def runner() -> Any:
+        def runner() -> T:
             if timeout is not None:
                 return asyncio.run(asyncio.wait_for(coro, timeout))
             return asyncio.run(coro)
@@ -50,6 +64,15 @@ class BlockchainService:
             future = ex.submit(runner)
             # The timeout is already enforced inside runner when provided, so we don't pass it here
             return future.result()
+
+    @overload
+    def _maybe_await(self, value: Coroutine[Any, Any, T]) -> T: ...
+
+    @overload
+    def _maybe_await(self, value: Awaitable[T]) -> T: ...
+
+    @overload
+    def _maybe_await(self, value: T) -> T: ...
 
     def _maybe_await(self, value: Any) -> Any:
         """Return result of value, awaiting if it's a coroutine/awaitable."""
@@ -62,6 +85,15 @@ class BlockchainService:
 
             return self._run_coro_blocking(_wrap(value))
         return value
+
+    @overload
+    def _call_with_timeout(self, func: Callable[[], Coroutine[Any, Any, T]], timeout: float) -> T: ...
+
+    @overload
+    def _call_with_timeout(self, func: Callable[[], Awaitable[T]], timeout: float) -> T: ...
+
+    @overload
+    def _call_with_timeout(self, func: Callable[[], T], timeout: float) -> T: ...
 
     def _call_with_timeout(self, func: Callable[[], Any], timeout: float) -> Any:
         """Call a function that may return a value or an awaitable, enforcing a timeout.
@@ -282,7 +314,7 @@ class BlockchainService:
             provider.wait_for_confirmation(tx_hash=tx_hash, timeout=timeout)
         )
 
-    def get_transaction_status(self, blockchain: str, tx_hash: str) -> Dict[str, Any]:
+    def get_transaction_status(self, blockchain: str, tx_hash: str) -> str:
         """
         Get transaction status.
 
@@ -291,7 +323,7 @@ class BlockchainService:
             tx_hash: Transaction hash
 
         Returns:
-            Transaction status information
+            Transaction status string
         """
         provider = self.get_provider(blockchain)
         return self._maybe_await(provider.get_transaction_status(tx_hash))

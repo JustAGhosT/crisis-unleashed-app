@@ -5,11 +5,12 @@ Blockchain Handler for processing outbox entries.
 import logging
 from typing import Any, Dict, List, TypedDict
 
-from ..repository import (
+# Absolute imports rooted at 'backend'
+from backend.repository import (
     TransactionOutboxRepository,
     OutboxType,
 )
-from .blockchain_service import BlockchainService
+from backend.services.blockchain_service import BlockchainService
 
 logger = logging.getLogger(__name__)
 

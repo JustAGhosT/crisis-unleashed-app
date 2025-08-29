@@ -29,8 +29,8 @@ class OutboxType(str, Enum):
 
 class OutboxEntry:
     """Type-safe data class for outbox entries."""
-    
-    def __init__(self, 
+
+    def __init__(self,
                  outbox_id: str,
                  outbox_type: OutboxType,
                  status: OutboxStatus,
@@ -129,21 +129,21 @@ class OutboxEntry:
         """Check if entry should be marked for manual review."""
         return self.attempts >= self.max_attempts
 
-    def update_status(self, 
+    def update_status(self,
                      new_status: OutboxStatus,
                      result: Optional[Dict[str, Any]] = None,
                      error: Optional[str] = None) -> None:
         """Update the status and related fields."""
         self.status = new_status
         self.updated_at = datetime.now(UTC)
-        
+
         if result is not None:
             self.result = result
-        
+
         if error is not None:
             self.last_error = error
             self.last_attempt = datetime.now(UTC)
-        
+
         if new_status in [OutboxStatus.COMPLETED, OutboxStatus.FAILED]:
             self.processed_at = datetime.now(UTC)
 
@@ -152,9 +152,9 @@ class OutboxEntry:
         self.attempts += 1
         self.updated_at = datetime.now(UTC)
         self.last_attempt = datetime.now(UTC)
-        
+
         if error is not None:
             self.last_error = error
-        
+
         if self.should_manual_review():
             self.status = OutboxStatus.MANUAL_REVIEW

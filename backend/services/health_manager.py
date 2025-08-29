@@ -1,84 +1,83 @@
 """
-Service Health Management for Critical Services
+Health Manager Service for Crisis Unleashed Backend
 
-Provides health checking, dependency validation, and fail-fast behavior
-for critical application services like blockchain and outbox processing.
+This module provides functionality to monitor the health of all services
+and handle service dependencies properly.
 """
-import logging
-from typing import Any, Dict, List, Optional, Callable
-from datetime import datetime, timedelta
+
 import asyncio
+import logging
 from enum import Enum
+from typing import Any, Callable, Dict, List, Optional, Set
 
 logger = logging.getLogger(__name__)
 
-
-class ServiceStatus(str, Enum):
-    """Service status enumeration."""
+class ServiceStatus(Enum):
+    """Status of a registered service."""
+    UNKNOWN = "unknown"
+    STARTING = "starting"
     HEALTHY = "healthy"
     DEGRADED = "degraded"
     UNHEALTHY = "unhealthy"
-    UNKNOWN = "unknown"
-    INITIALIZING = "initializing"
+    STOPPED = "stopped"
 
+class CriticalServiceException(Exception):
+    """Exception raised when a critical service fails to initialize."""
+    pass
 
 class ServiceInfo:
-    """Information about a service and its health status."""
+    """Information about a registered service."""
+
     def __init__(
-        self,
-        name: str,
-        service_instance: Any,
-        health_check_func: Optional[Callable] = None,
-        is_critical: bool = False,
-        dependencies: Optional[List[str]] = None
-    ) -> None:
+            self,
+            name: str,
+            service_instance: Any,
+            health_check_func: Optional[Callable] = None,
+            is_critical: bool = False,
+            dependencies: Optional[List[str]] = None
+        ):
         self.name = name
         self.service_instance = service_instance
         self.health_check_func = health_check_func
         self.is_critical = is_critical
         self.dependencies = dependencies or []
-        self.status: ServiceStatus = ServiceStatus.UNKNOWN
-        self.last_check: Optional[datetime] = None
+        self.status = ServiceStatus.UNKNOWN
         self.last_error: Optional[str] = None
-        self.initialization_time: Optional[timedelta] = None
-
-
-class CriticalServiceException(Exception):
-    """Exception raised when critical services fail to initialize or become unhealthy."""
-    pass
-
+        self.last_checked_at: Optional[float] = None
 
 class ServiceHealthManager:
     """
-    Manages the health and lifecycle of application services.
-    
-    Features:
-    - Fail-fast initialization for critical services
-    - Continuous health monitoring
-    - Dependency validation
-    - Service availability checks for requests
-    """
-    def __init__(self) -> None:
-        self.services: Dict[str, ServiceInfo] = {}
-        self.health_check_interval = 30  # seconds
-        self._health_check_task: Optional[asyncio.Task] = None
-        self._is_monitoring = False
+    Manages health status of all registered services.
 
-    def register_service(self, 
-                        name: str, 
+    This class allows registering services, checking their health status,
+    and enforcing dependencies between services.
+    """
+
+    def __init__(self):
+        self.services: Dict[str, ServiceInfo] = {}
+        self._health_task: Optional[asyncio.Task] = None
+        self._should_stop = asyncio.Event()
+        self._check_interval = 30  # seconds
+
+    def register_service(self,
+                        name: str,
                         service_instance: Any,
                         health_check_func: Optional[Callable] = None,
                         is_critical: bool = False,
-                        dependencies: Optional[List[str]] = None) -> None:
+                        dependencies: Optional[List[str]] = None):
         """
-        Register a service for health monitoring.
+        Register a service to be monitored.
+
         Args:
-            name: Unique service name
-            service_instance: The service instance
-            health_check_func: Function to call for health checks
-            is_critical: Whether service failure should fail the application
+            name: Name of the service
+            service_instance: The service object
+            health_check_func: Function to call to check service health
+            is_critical: Whether this is a critical service that must be healthy
             dependencies: List of service names this service depends on
         """
+        if name in self.services:
+            logger.warning(f"Service {name} already registered, replacing")
+
         self.services[name] = ServiceInfo(
             name=name,
             service_instance=service_instance,
@@ -88,244 +87,288 @@ class ServiceHealthManager:
         )
         logger.info(f"Registered service: {name} (critical: {is_critical})")
 
-    async def initialize_services(self, fail_fast: bool = True) -> Dict[str, List[str]]:
+    def get_service(self, service_name: str) -> Any:
+        """Get a service instance by name."""
+        if service_name not in self.services:
+            raise KeyError(f"Service not registered: {service_name}")
+        return self.services[service_name].service_instance
+
+    def check_service_availability(self, service_name: str, required: bool = True) -> bool:
         """
-        Initialize all registered services with proper dependency ordering.
-        Args:
-            fail_fast: Whether to raise an exception for critical service failures
-        Returns:
-            Dictionary with initialization results
-        Raises:
-            CriticalServiceException: If critical services fail and fail_fast is True
-        """
-        results: Dict[str, List[str]] = {
-            "successful": [],
-            "failed": [],
-            "critical_failures": []
-        }
+        Check if a service is available (registered and healthy).
 
-        # Sort services by dependencies (simple topological sort)
-        ordered_services = self._get_dependency_order()
-        for service_name in ordered_services:
-            service_info = self.services[service_name]
-            try:
-                logger.info(f"Initializing service: {service_name}")
-                service_info.status = ServiceStatus.INITIALIZING
-                start_time = datetime.utcnow()
-
-                # Check if service has an initialize method
-                if hasattr(service_info.service_instance, 'initialize'):
-                    init_result = await service_info.service_instance.initialize()
-
-                    # For blockchain service, check if any networks initialized successfully
-                    if service_name == "blockchain_service" and isinstance(init_result, dict):
-                        successful_networks = [k for k, v in init_result.items() if v]
-                        if not successful_networks and service_info.is_critical:
-                            raise CriticalServiceException(
-                                f"No blockchain networks initialized successfully: {init_result}"
-                            )
-                        logger.info(f"Blockchain networks initialized: {successful_networks}")
-
-                # Perform initial health check
-                await self._check_service_health(service_info)
-
-                if service_info.status == ServiceStatus.UNHEALTHY and service_info.is_critical:
-                    raise CriticalServiceException(f"Critical service {service_name} failed health check")
-
-                service_info.initialization_time = datetime.utcnow() - start_time
-                service_info.status = ServiceStatus.HEALTHY
-                results["successful"].append(service_name)
-
-                logger.info(f"Successfully initialized {service_name} in {service_info.initialization_time}")
-            except Exception as e:
-                service_info.status = ServiceStatus.UNHEALTHY
-                service_info.last_error = str(e)
-                results["failed"].append(service_name)
-                error_msg = f"Failed to initialize service {service_name}: {e}"
-                logger.error(error_msg)
-                if service_info.is_critical:
-                    results["critical_failures"].append(service_name)
-                    if fail_fast:
-                        raise CriticalServiceException(
-                            f"Critical service initialization failed: {service_name}. {error_msg}"
-                        ) from e
-                    else:
-                        logger.critical(f"Critical service {service_name} failed but continuing startup")
-        # Start health monitoring if initialization was successful
-        if not results["critical_failures"]:
-            await self.start_health_monitoring()
-        return results
-
-    async def check_service_availability(self, service_name: str, required: bool = True) -> bool:
-        """
-        Check if a service is available for use.
         Args:
             service_name: Name of the service to check
-            required: Whether to raise an exception if unavailable
+            required: If True, raises an exception when service is not available
+
         Returns:
-            True if service is available
+            bool: True if service is available
+
         Raises:
-            CriticalServiceException: If service is required but unavailable
+            KeyError: If service is not registered and required=True
         """
         if service_name not in self.services:
             if required:
-                raise CriticalServiceException(f"Service {service_name} not registered")
+                raise KeyError(f"Service not registered: {service_name}")
             return False
 
-        service_info = self.services[service_name]
-        if service_info.status not in [ServiceStatus.HEALTHY, ServiceStatus.DEGRADED]:
-            error_msg = f"Service {service_name} is not available (status: {service_info.status})"
-            if service_info.last_error:
-                error_msg += f". Last error: {service_info.last_error}"
-            if required:
-                raise CriticalServiceException(error_msg)
-            return False
-        return True
+        service = self.services[service_name]
+        is_available = service.status in (ServiceStatus.HEALTHY, ServiceStatus.DEGRADED)
 
-    def get_service(self, service_name: str) -> Any:
+        if required and not is_available:
+            raise RuntimeError(
+                f"Service {service_name} is not available. "
+                f"Current status: {service.status.value}"
+            )
+
+        return is_available
+
+    def get_health_status(self) -> Dict[str, Dict[str, Any]]:
         """
-        Get a service instance with availability check.
-        Args:
-            service_name: Name of the service
+        Get health status for all registered services.
+
         Returns:
-            The service instance
-        Raises:
-            CriticalServiceException: If service is not available
+            Dict with service name as key and status information as value
         """
-        # check_service_availability is async, so it shouldn't be used synchronously here.
-        # Correct approach - move check to async context or rework signature for usage pattern.
-        # For now we forcefully block. (best: refactor elsewhere to async usage)
-        loop = asyncio.get_event_loop()
-        available = loop.run_until_complete(self.check_service_availability(service_name, required=True))
-        if not available:
-            raise CriticalServiceException(f"Service {service_name} is not available")
-        return self.services[service_name].service_instance
-
-    async def get_health_status(self) -> Dict[str, Any]:
-        """Get overall health status of all services."""
-        overall_status = ServiceStatus.HEALTHY
-        service_statuses = {}
-        critical_issues = []
-        for name, service_info in self.services.items():
-            service_statuses[name] = {
-                "status": service_info.status.value,
-                "is_critical": service_info.is_critical,
-                "last_check": service_info.last_check.isoformat() if service_info.last_check else None,
-                "last_error": service_info.last_error,
-                "initialization_time": str(service_info.initialization_time) if service_info.initialization_time else None,
-                "dependencies": service_info.dependencies
+        result = {}
+        for name, info in self.services.items():
+            result[name] = {
+                "status": info.status.value,
+                "is_critical": info.is_critical,
+                "last_error": info.last_error,
+                "dependencies": info.dependencies
             }
-            if service_info.status == ServiceStatus.UNHEALTHY:
-                if service_info.is_critical:
-                    overall_status = ServiceStatus.UNHEALTHY
-                    critical_issues.append(name)
-                elif overall_status == ServiceStatus.HEALTHY:
-                    overall_status = ServiceStatus.DEGRADED
-        return {
-            "overall_status": overall_status.value,
-            "services": service_statuses,
-            "critical_issues": critical_issues,
-            "monitoring_enabled": self._is_monitoring,
-            "last_health_check": datetime.utcnow().isoformat()
-        }
-
-    async def start_health_monitoring(self) -> None:
-        """Start background health monitoring."""
-        if self._is_monitoring:
-            logger.warning("Health monitoring already started")
-            return
-        self._is_monitoring = True
-        self._health_check_task = asyncio.create_task(self._health_monitoring_loop())
-        logger.info("Health monitoring started")
-
-    async def stop_health_monitoring(self) -> None:
-        """Stop background health monitoring."""
-        if not self._is_monitoring:
-            return
-        self._is_monitoring = False
-        if self._health_check_task:
-            self._health_check_task.cancel()
-            try:
-                await self._health_check_task
-            except asyncio.CancelledError:
-                pass
-        logger.info("Health monitoring stopped")
-
-    async def _health_monitoring_loop(self) -> None:
-        """Background health monitoring loop."""
-        logger.info(f"Starting health monitoring loop (interval: {self.health_check_interval}s)")
-        while self._is_monitoring:
-            try:
-                await self._check_all_services()
-                await asyncio.sleep(self.health_check_interval)
-            except asyncio.CancelledError:
-                break
-            except Exception as e:
-                logger.error(f"Error in health monitoring loop: {e}")
-                await asyncio.sleep(self.health_check_interval)
-
-    async def _check_all_services(self) -> None:
-        """Check health of all registered services."""
-        for service_info in self.services.values():
-            try:
-                await self._check_service_health(service_info)
-            except Exception as e:
-                logger.error(f"Error checking health of {service_info.name}: {e}")
-                service_info.status = ServiceStatus.UNHEALTHY
-                service_info.last_error = str(e)
-
-    async def _check_service_health(self, service_info: ServiceInfo) -> None:
-        """Check health of a single service."""
-        try:
-            service_info.last_check = datetime.utcnow()
-            if service_info.health_check_func:
-                if asyncio.iscoroutinefunction(service_info.health_check_func):
-                    health_result = await service_info.health_check_func()
-                else:
-                    health_result = service_info.health_check_func()
-                # Interpret health check result
-                if isinstance(health_result, dict):
-                    # Assume healthy if no explicit status
-                    status = health_result.get("status", "healthy")
-                    if status in ["healthy", "ok", "up"]:
-                        service_info.status = ServiceStatus.HEALTHY
-                    elif status in ["degraded", "warning"]:
-                        service_info.status = ServiceStatus.DEGRADED
-                    else:
-                        service_info.status = ServiceStatus.UNHEALTHY
-                elif isinstance(health_result, bool):
-                    service_info.status = ServiceStatus.HEALTHY if health_result else ServiceStatus.UNHEALTHY
-                else:
-                    service_info.status = ServiceStatus.HEALTHY
-                service_info.last_error = None
-            else:
-                # No health check function, assume healthy if service exists
-                if service_info.service_instance is not None:
-                    service_info.status = ServiceStatus.HEALTHY
-                else:
-                    service_info.status = ServiceStatus.UNHEALTHY
-                    service_info.last_error = "Service instance is None"
-        except Exception as e:
-            service_info.status = ServiceStatus.UNHEALTHY
-            service_info.last_error = str(e)
-            raise
+        return result
 
     def _get_dependency_order(self) -> List[str]:
-        """Get services in dependency order (simple topological sort)."""
-        ordered = []
-        visited = set()
-        def visit(service_name: str) -> None:
-            if service_name in visited:
-                return
-            service_info = self.services.get(service_name)
-            if not service_info:
-                return
-            # Visit dependencies first
-            for dep in service_info.dependencies:
-                visit(dep)
-            visited.add(service_name)
-            ordered.append(service_name)
-        # Start with services that have no dependencies
-        for service_name in self.services:
-            visit(service_name)
-        return ordered
+        """
+        Calculate the correct order to initialize services based on dependencies.
+
+        Returns:
+            List of service names in dependency order
+
+        Raises:
+            RuntimeError: If circular dependencies are detected
+        """
+        # Topological sort to determine initialization order
+        visited: Set[str] = set()
+        temp_visited: Set[str] = set()
+        order: List[str] = []
+
+        def visit(service_name: str):
+            if service_name in temp_visited:
+                # Circular dependency detected
+                cycle = " -> ".join(list(temp_visited) + [service_name])
+                raise RuntimeError(f"Circular dependency detected: {cycle}")
+
+            if service_name not in visited:
+                temp_visited.add(service_name)
+
+                # Visit all dependencies first
+                if service_name in self.services:
+                    for dep in self.services[service_name].dependencies:
+                        visit(dep)
+
+                temp_visited.remove(service_name)
+                visited.add(service_name)
+                order.append(service_name)
+
+        # Visit all services
+        for name in self.services:
+            if name not in visited:
+                visit(name)
+
+        # Reverse to get correct initialization order
+        return list(reversed(order))
+
+    async def initialize_services(self, fail_fast: bool = True) -> bool:
+        """
+        Initialize all registered services in the correct dependency order.
+
+        Args:
+            fail_fast: If True, raise exception on first critical service failure
+
+        Returns:
+            bool: True if all critical services initialized successfully
+
+        Raises:
+            CriticalServiceException: If a critical service fails and fail_fast=True
+        """
+        logger.info("Initializing services...")
+
+        # Get services in dependency order
+        try:
+            service_order = self._get_dependency_order()
+        except RuntimeError as e:
+            logger.error(f"Failed to initialize services: {e}")
+            if fail_fast:
+                raise CriticalServiceException(f"Service dependency error: {e}")
+            return False
+
+        all_success = True
+
+        # Initialize each service
+        for name in service_order:
+            service = self.services[name]
+            logger.info(f"Initializing service: {name}")
+
+            service.status = ServiceStatus.STARTING
+
+            try:
+                # Check dependencies first
+                for dep_name in service.dependencies:
+                    if dep_name not in self.services:
+                        raise RuntimeError(f"Dependency not registered: {dep_name}")
+
+                    dep = self.services[dep_name]
+                    if dep.status != ServiceStatus.HEALTHY:
+                        raise RuntimeError(
+                            f"Dependency {dep_name} not healthy. "
+                            f"Status: {dep.status.value}"
+                        )
+
+                # Initialize the service
+                if hasattr(service.service_instance, 'initialize'):
+                    init_result = service.service_instance.initialize()
+
+                    # Handle both synchronous and asynchronous initialize methods
+                    if asyncio.iscoroutine(init_result):
+                        await init_result
+
+                # Check health immediately after initialization
+                await self._check_service_health(service)
+
+                if service.status != ServiceStatus.HEALTHY:
+                    raise RuntimeError(
+                        f"Service health check failed after initialization. "
+                        f"Status: {service.status.value}"
+                    )
+
+                logger.info(f"Service initialized successfully: {name}")
+
+            except Exception as e:
+                all_success = False
+                logger.error(f"Failed to initialize service {name}: {e}")
+                service.status = ServiceStatus.UNHEALTHY
+                service.last_error = str(e)
+
+                if service.is_critical and fail_fast:
+                    raise CriticalServiceException(
+                        f"Critical service {name} failed to initialize: {e}"
+                    )
+
+        return all_success
+
+    async def _check_service_health(self, service_info: ServiceInfo) -> ServiceStatus:
+        """
+        Check health of a specific service.
+
+        Args:
+            service_info: The service to check
+
+        Returns:
+            Updated service status
+        """
+        if not service_info.health_check_func:
+            # No health check function, assume healthy
+            service_info.status = ServiceStatus.HEALTHY
+            return service_info.status
+
+        try:
+            # Call the health check function
+            health_result = service_info.health_check_func()
+
+            # Handle both synchronous and asynchronous health checks
+            if asyncio.iscoroutine(health_result):
+                health_result = await health_result
+
+            # Update status based on health check result
+            if health_result is True:
+                service_info.status = ServiceStatus.HEALTHY
+            elif health_result is False:
+                service_info.status = ServiceStatus.UNHEALTHY
+            elif isinstance(health_result, dict) and "status" in health_result:
+                # Support for more detailed health checks
+                status_str = health_result["status"]
+                if status_str == "healthy":
+                    service_info.status = ServiceStatus.HEALTHY
+                elif status_str == "degraded":
+                    service_info.status = ServiceStatus.DEGRADED
+                else:
+                    service_info.status = ServiceStatus.UNHEALTHY
+
+                if "error" in health_result:
+                    service_info.last_error = health_result["error"]
+            else:
+                service_info.status = ServiceStatus.UNHEALTHY
+                service_info.last_error = f"Unexpected health check result: {health_result}"
+
+        except Exception as e:
+            logger.warning(f"Health check failed for {service_info.name}: {e}")
+            service_info.status = ServiceStatus.UNHEALTHY
+            service_info.last_error = str(e)
+
+        return service_info.status
+
+    async def _check_all_services(self) -> Dict[str, ServiceStatus]:
+        """
+        Check health of all registered services.
+
+        Returns:
+            Dict mapping service names to their updated status
+        """
+        results = {}
+        for name, info in self.services.items():
+            results[name] = await self._check_service_health(info)
+        return results
+
+    async def _health_monitoring_loop(self):
+        """Background task that periodically checks service health."""
+        logger.info("Health monitoring started")
+
+        while not self._should_stop.is_set():
+            try:
+                await self._check_all_services()
+            except Exception as e:
+                logger.error(f"Error in health monitoring loop: {e}")
+
+            try:
+                # Wait for the next check interval or until stop is requested
+                await asyncio.wait_for(
+                    self._should_stop.wait(),
+                    timeout=self._check_interval
+                )
+            except asyncio.TimeoutError:
+                # This is expected when the timeout expires
+                pass
+
+        logger.info("Health monitoring stopped")
+
+    async def start_health_monitoring(self):
+        """Start the background health monitoring task."""
+        if self._health_task is not None:
+            logger.warning("Health monitoring already running")
+            return
+
+        self._should_stop.clear()
+        self._health_task = asyncio.create_task(self._health_monitoring_loop())
+
+    async def stop(self):
+        """Stop the health monitoring task."""
+        if self._health_task is None:
+            return
+
+        logger.info("Stopping health monitoring...")
+        self._should_stop.set()
+
+        try:
+            await asyncio.wait_for(self._health_task, timeout=5.0)
+        except asyncio.TimeoutError:
+            logger.warning("Health monitoring task did not stop gracefully, cancelling")
+            self._health_task.cancel()
+
+        self._health_task = None
+
+        # Mark all services as stopped
+        for info in self.services.values():
+            info.status = ServiceStatus.STOPPED

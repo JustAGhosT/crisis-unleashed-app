@@ -1,5 +1,5 @@
 ---
-description: Defines core game entities and models including cards, battlefield, player stats and game state
+description: Specification for core game data models including cards, battlefield, player stats and game state
 trigger: model_decision
 ---
 
@@ -10,50 +10,93 @@ trigger: model_decision
 
 # game-data-models
 
-### Card Model System (Importance: 95)
-- Card entity definition with faction-specific attributes 
-- Energy cost validation system
-- Rarity categorization (Common, Rare, Epic, Legendary)
-- Card type classification (Unit, Structure, Action, Hero)
-- Faction alignment validation
+Core Game Models:
 
-### Battlefield Grid System (Importance: 90)
-- Hexagonal grid coordinates and movement calculations
-- Zone control mechanics with influence radiuses
-- Unit positioning constraints based on faction
-- Terrain effects on movement and combat
-- Line of sight calculations for ranged units
+1. Card System
+```typescript
+interface Card {
+  id: string
+  name: string
+  type: CardType // Hero | Unit | Action | Structure
+  rarity: Rarity // Common | Uncommon | Rare | Epic | Legendary  
+  faction: FactionId
+  cost: number
+  abilities: Ability[]
+}
+```
 
-### Player Stats Model (Importance: 85)
-Core resource tracking:
-- Energy: Primary resource for card deployment
-- Momentum: Combat action resource
-- Health: Victory condition tracking
+2. Battlefield Grid
+```typescript
+interface BattleGrid {
+  cells: Cell[][] // Hexagonal grid implementation
+  width: number 
+  height: number
+  controlZones: ControlZone[]
+}
 
-### Game State Model (Importance: 90)
-- Turn phase management (Deploy, Action, End)
-- Combat resolution system
-- Status effect tracking
-- Action history logging
-- Victory condition evaluation
+interface Cell {
+  position: HexCoord
+  terrain: TerrainType
+  unit?: Unit
+  effects: StatusEffect[]
+}
+```
 
-### Faction System (Importance: 85)
-- Seven distinct faction definitions:
-  - Solaris: Energy manipulation mechanics
-  - Umbral: Stealth mechanics  
-  - Neuralis: Mind control abilities
-  - Aeonic: Time manipulation
-  - Primordial: Adaptation mechanics
-  - Infernal: Sacrifice mechanics
-  - Synthetic: Self-replication
+3. Player Stats
+```typescript
+interface PlayerStats {
+  health: number // 0-30
+  energy: number // 0-10  
+  momentum: number // 0-100
+  deck: Deck
+  hand: Card[]
+}
+```
 
-### Collection System (Importance: 80)
-- Card ownership tracking
-- Deck composition rules:
-  - Maximum 3 copies per card
-  - 30-50 cards per deck
-  - Maximum 2 factions per deck
-- Collection completion metrics
+4. Game State
+```typescript
+interface GameState {
+  phase: GamePhase // Deploy | Action | Combat | End
+  turnPlayer: PlayerId
+  battlefield: BattleGrid
+  players: Record<PlayerId, PlayerStats>
+  crisis?: CrisisEvent
+}
+```
+
+Key Business Rules:
+
+1. Card Mechanics
+- Maximum 3 copies per card in deck
+- Legendary cards limited to 1 copy
+- Cards require faction energy match to play
+- Hero cards unlock special faction abilities
+
+2. Battlefield Control
+- Units exert zone control in adjacent hexes
+- Control zones generate momentum
+- Terrain affects movement and combat
+- Maximum 3 units per control zone
+
+3. Resource System
+- Energy recharges by 1 per turn up to faction max
+- Momentum gained from unit actions and zone control
+- Health loss triggers crisis events at thresholds
+
+4. Crisis Events
+- Trigger at 10, 15, 20 damage thresholds
+- Modify battlefield conditions
+- Grant temporary faction bonuses
+- Can chain into escalating effects
+
+File Paths:
+- frontend-next/src/lib/card-utils.ts
+- frontend-next/src/lib/hex.ts
+- frontend-next/src/types/game.ts
+- frontend-next/src/types/card.ts
+- backend/app_types/faction.py
+
+Importance Score: 95/100
 
 $END$
 

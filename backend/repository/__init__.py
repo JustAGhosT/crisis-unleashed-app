@@ -11,7 +11,7 @@ from .transaction_outbox import TransactionOutboxRepository
 
 __all__ = [
     "OutboxEntry",
-    "OutboxStatus", 
+    "OutboxStatus",
     "OutboxType",
     "TransactionOutboxRepository"
 ]
