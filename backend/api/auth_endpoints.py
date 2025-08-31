@@ -25,14 +25,18 @@ class UserCredentials(BaseModel):
     password: str
 
 
+from pydantic import BaseModel, Field
+
 class SocialLoginRequest(BaseModel):
     """Social login request data."""
     provider: str
-    providerId: str
+    provider_id: str = Field(alias="providerId")
     email: Optional[str] = None
     name: Optional[str] = None
     image: Optional[str] = None
 
+    class Config:
+        allow_population_by_field_name = True
 
 class UserSession(BaseModel):
     """User session information."""
