@@ -3,9 +3,6 @@ description: Specifications for frontend architecture patterns in card game appl
 trigger: model_decision
 ---
 
-# === USER INSTRUCTIONS ===
-trigger: model_decision
-# === END USER INSTRUCTIONS ===
 
 # frontend-architecture
 
