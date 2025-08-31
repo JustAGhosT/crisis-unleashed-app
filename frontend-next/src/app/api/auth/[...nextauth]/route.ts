@@ -11,14 +11,16 @@ const nextAuthExports = NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
   trustHost: true,
   providers: [
+  providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID ?? "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+      clientId: process.env.GOOGLE_CLIENT_ID || (() => { throw new Error("GOOGLE_CLIENT_ID not set"); })(),
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || (() => { throw new Error("GOOGLE_CLIENT_SECRET not set"); })(),
     }),
     DiscordProvider({
-      clientId: process.env.DISCORD_CLIENT_ID ?? "",
-      clientSecret: process.env.DISCORD_CLIENT_SECRET ?? "",
+      clientId: process.env.DISCORD_CLIENT_ID || (() => { throw new Error("DISCORD_CLIENT_ID not set"); })(),
+      clientSecret: process.env.DISCORD_CLIENT_SECRET || (() => { throw new Error("DISCORD_CLIENT_SECRET not set"); })(),
     }),
+  ],
     Credentials({
       name: "Credentials",
       credentials: {
