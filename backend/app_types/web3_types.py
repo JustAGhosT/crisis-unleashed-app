@@ -2,7 +2,7 @@
 Type definitions for web3 when not available.
 This helps mypy understand the types even when web3 is not installed.
 """
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Union
 from unittest.mock import MagicMock
 from typing_extensions import TypedDict
 
@@ -81,7 +81,7 @@ class MockContract:
 
 class MockContractFunctions:
     """Mock contract functions for method calls."""
-    
+
     def __getattr__(self, name: str) -> Any:
         def mock_function(*args: Any, **kwargs: Any) -> "MockTransactionBuilder":
             return MockTransactionBuilder()
@@ -90,7 +90,7 @@ class MockContractFunctions:
 
 class MockTransactionBuilder:
     """Mock transaction builder for contract function calls."""
-    
+
     def build_transaction(self, tx_params: Dict[str, Any]) -> Dict[str, Any]:
         return {
             "to": tx_params.get("to"),

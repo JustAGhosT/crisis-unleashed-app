@@ -40,69 +40,50 @@ The system integrates these components through a service-oriented architecture, 
 - Explain your OBSERVATIONS clearly, then provide REASONING to identify the exact issue. Add console logs when needed to gather more information.
 
 
-## Core Game Systems
+CORE BUSINESS DOMAINS
 
-### Faction System
-- 7 distinct factions with unique mechanics and abilities
-- Faction-specific visual themes and gameplay tokens
-- Inter-faction relationships and alliance mechanics
-- Combat synergies and opposition effects
-Importance Score: 85
+1. Faction System (85/100)
+- Seven distinct factions with unique mechanics and interactions
+- Faction-specific resource manipulation and abilities
+- Complex relationship system between factions
+- Located in: frontend-next/src/lib/theme/faction-theme.ts
 
-### Deck Building Engine 
-`frontend-next/src/services/deckService.ts`
-- Deck construction rules and validation
-- Multi-faction deck limitations
-- Card quantity restrictions
-- Energy curve analysis
-- Collection-based card availability
-Importance Score: 90
+2. Deck Building Engine (90/100)
+- Enforces deck construction rules:
+  - 30-50 cards per deck
+  - Maximum 3 copies per card (1 for legendaries)
+  - Two faction limit per deck
+  - Hero card requirements
+- Validates faction compatibility and synergies
+- Located in: frontend-next/src/services/deckService.ts
 
-### Battlefield Management
-`frontend-next/src/components/game/Battlefield.tsx`
-- Hex-based combat grid
-- Zone control mechanics
-- Unit positioning logic
-- Movement and attack calculations
-- Territory influence systems
-Importance Score: 85
+3. Blockchain Asset Management (85/100)
+- NFT implementation of game cards with rarity encoding
+- Cross-chain asset handling between networks
+- Transaction outbox pattern for eventual consistency
+- Located in: backend/services/blockchain_handler.py
 
-### Card Game Core
-`frontend-next/src/services/cardService.ts`
-- Card ownership validation
-- Rarity-based collection rules
-- Faction-specific card access
-- Card search and filtering
-Importance Score: 80
+4. Combat System (80/100)
+- Hex-based battlefield with positioning rules
+- Unit type-specific movement and attack patterns
+- Resource management (Energy/Momentum)
+- Located in: frontend-next/src/components/game/Battlefield.tsx
 
-## Supporting Systems
+KEY INTEGRATIONS
 
-### Blockchain Integration
-`backend/services/blockchain_handler.py`
-- NFT minting with faction attributes
-- Cross-chain compatibility handling
-- Transaction outbox pattern
-- Multi-attempt retry logic
-Importance Score: 90
+1. Resource Management Hub
+- Coordinates Energy and Momentum across systems
+- Faction-specific modifiers and scaling
+- Crisis event impact handling
+- Located in: backend/app_types/faction.py
 
-### Game State Management
-`frontend-next/src/types/game.ts`
-- Unit properties and combat rules
-- Zone control validation
-- Position-based attack ranges
-- Resource management (Energy, Momentum)
-Importance Score: 85
+2. Card Mechanics Engine
+- Implements type hierarchy (Hero, Unit, Action, Structure)
+- Manages card abilities and interactions
+- Handles rarity-based restrictions
+- Located in: frontend-next/src/lib/card-utils.ts
 
-### Faction-Specific Rules
-`frontend-next/src/types/faction.ts`
-- Solaris: Energy manipulation
-- Umbral: Stealth mechanics
-- Neuralis: Mind control
-- Aeonic: Time manipulation
-- Primordial: Adaptation
-- Infernal: Sacrifice mechanics
-- Synthetic: Self-replication
-Importance Score: 80
+The system implements a digital card game with unique faction-based mechanics, complex deck building rules, and blockchain-based asset management. Core business value derives from the intricate interaction between faction abilities, deck construction constraints, and strategic gameplay elements.
 
 $END$
 

@@ -1,5 +1,4 @@
 from fastapi import APIRouter
-from datetime import datetime
 from typing import List
 
 router = APIRouter()
@@ -87,7 +86,6 @@ MOCK_FACTIONS = [
     },
 ]
 
-from typing import List, Dict, Any
 
 @router.get("/factions")
 async def get_factions() -> List[dict]:

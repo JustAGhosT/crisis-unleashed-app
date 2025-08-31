@@ -35,6 +35,13 @@ export interface BattlefieldZone {
   zonePosition: ZonePosition;
   // Axial hex coordinates (pointy-top). Enables true hex adjacency and movement.
   axial?: { q: number; r: number };
+  // Optional convenience flags used by UI components for styling/logic.
+  // These mirror zoneType/zonePosition but are derived during grid construction.
+  isPlayerZone?: boolean;
+  isEnemyZone?: boolean;
+  isNeutralZone?: boolean;
+  isFrontline?: boolean;
+  isBackline?: boolean;
 }
 
 export interface Card {

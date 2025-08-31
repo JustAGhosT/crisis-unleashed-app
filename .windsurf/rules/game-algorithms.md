@@ -1,5 +1,5 @@
 ---
-description: Use for analyzing gameplay mechanics, combat resolution, card behavior rules and faction interactions in the digital card game
+description: Defines technical implementation of core game mechanics including battlefield, cards, factions and combat resolution
 trigger: model_decision
 ---
 
@@ -12,58 +12,47 @@ trigger: model_decision
 
 # game-algorithms
 
-## Core Combat System
-- Hex-based battlefield grid with unit positioning and zone control mechanics
-- Custom movement and attack rules per unit type/faction
-- Territory control scoring based on zone occupation
-- Line of sight and range calculations for abilities
-Importance Score: 95
+Core Game Systems:
 
-## Card Deployment Logic
-- Energy cost validation and curve analysis
-- Play condition verification:
-  - Zone placement restrictions
-  - Prerequisite checks
-  - Turn phase validation
-  - Faction alignment requirements
-Importance Score: 90
+1. Battlefield Management (Importance: 95)
+- Hex-based grid combat system with 3 lanes
+- Zone of Control (ZoC) implementation affecting unit movement
+- Terrain effects modifying combat and movement
+- Unit positioning rules based on range and control zones
+- Custom pathfinding with faction-specific movement costs
 
-## Turn Sequencing
-- Phase-based turn structure:
-  - Draw phase with faction-specific card draw rules
-  - Energy allocation phase
-  - Main action phase with unit deployment/movement
-  - Combat resolution phase
-  - End phase triggers
-- Action point economy management
-Importance Score: 85
+2. Turn Sequencing (Importance: 90)
+- Multi-phase turn structure:
+  * Deploy Phase: Unit placement with position validation
+  * Action Phase: Combat and ability activation
+  * End Phase: Status effect resolution and resource updates
+- Energy/Momentum resource accumulation
+- Initiative-based combat resolution
+- Crisis event triggers and effects
 
-## Faction Mechanics
-- Unique faction abilities:
-  - Solaris: Energy manipulation and enhancement
-  - Umbral: Stealth and zone control
-  - Neuralis: Mind control and prediction
-  - Aeonic: Time manipulation
-  - Primordial: Unit evolution
-  - Infernal: Sacrifice mechanics
-  - Synthetic: Replication abilities
-Importance Score: 90
+3. Combat Resolution (Importance: 85)
+- Multi-step combat sequence:
+  1. Initiative check (modified by unit types)
+  2. Range validation
+  3. Damage calculation with faction modifiers
+  4. Status effect application
+  5. Death resolution
+- Faction-specific combat modifiers
+- Unit ability triggers during combat
+- Battlefield position effects on combat
 
-## Combat Resolution
-- Multi-stage combat resolution:
-  - Initiative determination based on unit speed
-  - Attack modifier calculation (terrain, buffs, status effects)
-  - Defense calculation with faction-specific bonuses
-  - Damage application and death triggers
-- Chain reaction handling for card effects
-Importance Score: 85
+4. Card Deployment Logic (Importance: 80)
+- Position validation based on card type
+- Resource cost verification (Energy/Momentum)
+- Faction-specific deployment rules
+- Unit type placement restrictions
+- Synergy calculations with existing battlefield state
 
-Key File Paths:
-- frontend-next/src/lib/game-mechanics/combat.ts
-- frontend-next/src/lib/game-mechanics/turn-manager.ts 
-- frontend-next/src/lib/game-mechanics/battlefield.ts
-- frontend-next/src/services/game-service.ts
-- frontend-next/src/lib/faction-abilities.ts
+File Paths:
+/src/lib/game/battlefield.ts
+/src/lib/game/combat.ts
+/src/lib/game/turn-manager.ts
+/src/lib/game/card-deployment.ts
 
 $END$
 

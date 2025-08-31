@@ -7,7 +7,7 @@ web3 compatibility layer for providers.
 from __future__ import annotations
 
 import importlib
-from typing import Any, Optional, TYPE_CHECKING
+from typing import Any, Optional
 
 # Determine web3 availability once
 try:  # pragma: no cover - import detection only
@@ -29,7 +29,8 @@ if WEB3_AVAILABLE:
         pass
 else:
     try:
-        from ...app_types.web3_types import (
+        # Absolute import rooted at 'backend'
+        from backend.app_types.web3_types import (
             MockTransactionNotFound as _TxNotFound,
             MockTimeExhausted as _TimeExhausted,
         )

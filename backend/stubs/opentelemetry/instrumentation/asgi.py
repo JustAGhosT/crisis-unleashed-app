@@ -1,9 +1,9 @@
 # This is a stub file for opentelemetry.instrumentation.asgi
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable
 
 def get_traced_application(
-    wrapped: Callable[..., Any], 
-    *args: Any, 
-    **kwargs: Any
+    wrapped: Callable[..., Any],
+    *args: Any,
+    **kwargs: Any,
 ) -> Callable[..., Any]:
     return wrapped

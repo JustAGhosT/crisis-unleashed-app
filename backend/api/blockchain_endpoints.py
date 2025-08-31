@@ -2,16 +2,14 @@
 API endpoints for blockchain operations using the outbox pattern.
 """
 
-from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, Query, Request
+from fastapi import APIRouter, HTTPException, Depends, Query, Request
 from pydantic import BaseModel, Field, field_validator
 from pydantic import ValidationInfo
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 import logging
 
-from ..repository import TransactionOutboxRepository, OutboxType, OutboxEntry
-from ..workers import OutboxProcessor, OutboxMonitor
-from ..config.blockchain_config import BlockchainConfig, NetworkType
+from ..config.blockchain_config import BlockchainConfig
 from ..services.health_manager import ServiceHealthManager, CriticalServiceException
 
 router = APIRouter(prefix="/blockchain", tags=["blockchain"])
@@ -23,7 +21,9 @@ async def get_health_manager(request: Request) -> ServiceHealthManager:
     from ..server import health_manager
     return health_manager
 
-async def get_blockchain_service(health_manager: ServiceHealthManager = Depends(get_health_manager)) -> Any:
+async def get_blockchain_service(
+    health_manager: ServiceHealthManager = Depends(get_health_manager),
+) -> Any:
     """Dependency to get blockchain service with availability check."""
     try:
         return health_manager.get_service("blockchain_service")
@@ -38,7 +38,9 @@ async def get_blockchain_service(health_manager: ServiceHealthManager = Depends(
             }
         )
 
-async def get_outbox_processor(health_manager: ServiceHealthManager = Depends(get_health_manager)) -> Any:
+async def get_outbox_processor(
+    health_manager: ServiceHealthManager = Depends(get_health_manager),
+) -> Any:
     """Dependency to get outbox processor with availability check."""
     try:
         return health_manager.get_service("outbox_processor")
@@ -48,7 +50,10 @@ async def get_outbox_processor(health_manager: ServiceHealthManager = Depends(ge
             status_code=503,
             detail={
                 "error": "Outbox processor unavailable",
-                "message": "The transaction processing service is not available. Please try again later.",
+                "message": (
+                    "The transaction processing service is not available. "
+                    "Please try again later."
+                ),
                 "service_status": str(e)
             }
         )
