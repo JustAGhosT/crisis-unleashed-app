@@ -118,29 +118,26 @@ export function RegisterForm() {
     }
   };
 
-  const handleSocialRegister = async (provider: string) => {
+  const handleSocialRegister = async (provider: "google" | "discord") => {
+    if (socialLoading) return;
     setSocialLoading(provider);
     try {
-      const result = await signIn(provider, { 
+      const res = await signIn(provider, {
+        redirect: false,
         callbackUrl: "/dashboard",
-        redirect: false // This ensures we get a result object instead of a redirect
       });
-      
-      // Check if the result indicates an error
-      if (result && 'error' in result && result.error) {
-        setError(`${provider} registration failed: ${result.error}`);
-        setSocialLoading(null);
-      } else if (result && 'ok' in result && result.ok) {
-        // Success case - redirect manually
-        router.push("/dashboard");
-      } else if (result && 'url' in result && result.url) {
-        // Redirect to the provided URL
-        window.location.href = result.url;
+      if (res?.error) {
+        setError(`${provider} registration failed: ${res.error}`);
+        return;
       }
-      // If none of the above, the function will handle redirect automatically
+      if (res?.url) {
+        window.location.href = res.url;
+        return;
+      }
     } catch (error) {
       console.error(`${provider} registration error:`, error);
       setError(`${provider} registration failed. Please try again.`);
+    } finally {
       setSocialLoading(null);
     }
   };
