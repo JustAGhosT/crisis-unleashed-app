@@ -80,6 +80,8 @@ async def login(credentials: UserCredentials) -> AuthResponse:
 
         # In a real implementation, you would validate credentials against a database
         # For now, we'll just mock successful authentication
+import secrets
+
         if username == "test@example.com" and credentials.password == "password":
             # Mock user data
             user = {
@@ -91,8 +93,8 @@ async def login(credentials: UserCredentials) -> AuthResponse:
                 "role": "user"
             }
 
-            # Create a simple token (in production, use JWT)
-            token = "mock_token_123456789"
+            # Create a secure, non-predictable token (in production, use JWT)
+            token = secrets.token_urlsafe(32)
 
             return AuthResponse(
                 success=True,
@@ -101,12 +103,11 @@ async def login(credentials: UserCredentials) -> AuthResponse:
                 token=token
             )
         else:
-            logger.warning(f"Failed login attempt for user: {username}")
+            logger.warning("Failed login attempt for supplied identifier")  # avoid PII
             return AuthResponse(
                 success=False,
                 message="Invalid username or password"
             )
-
     except Exception as e:
         logger.error(f"Error during login: {e}")
         raise HTTPException(status_code=500, detail="Authentication service error")
