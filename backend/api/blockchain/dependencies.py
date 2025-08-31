@@ -35,17 +35,22 @@ async def get_blockchain_service(health_manager: ServiceHealthManager = Depends(
         )
 
 
-async def get_outbox_processor(health_manager: ServiceHealthManager = Depends(get_health_manager)) -> Any:
+async def get_outbox_processor(
+    health_manager: ServiceHealthManager = Depends(get_health_manager),
+) -> Any:
     """Dependency to get outbox processor with availability check."""
     try:
         return health_manager.get_service("outbox_processor")
-    except CriticalServiceException as e:
-        logger.error(f"Outbox processor not available: {e}")
+    except (KeyError, RuntimeError) as e:
+        logger.error("Outbox processor not available: %s", e)
         raise HTTPException(
             status_code=503,
             detail={
                 "error": "Outbox processor unavailable",
-                "message": "The transaction processing service is not available. Please try again later.",
-                "service_status": str(e)
+                "message": (
+                    "The transaction processing service is not available. "
+                    "Please try again later."
+                ),
+                "service_status": str(e),
             }
         )
