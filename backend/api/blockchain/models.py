@@ -30,15 +30,24 @@ class MintRequest(BaseModel):
             raise ValueError(f"Blockchain network must be one of: {allowed}")
         return v
 
-    @field_validator("wallet_address", mode='after')
-    def validate_wallet_address(cls, v: str, info: ValidationInfo) -> str:
-        data = info.data or {}
-        network_name = data.get("blockchain")
-        if not network_name:
-            # blockchain field should be validated first, but handle edge case
-            raise ValueError("blockchain field must be validated before wallet_address")
-        return validate_wallet_address_format(v, network_name, "wallet_address")
+from pydantic import BaseModel, Field, field_validator, model_validator
 
+@@
+-    @field_validator("wallet_address", mode='after')
+-    def validate_wallet_address(cls, v: str, info: ValidationInfo) -> str:
+-        data = info.data or {}
+-        network_name = data.get("blockchain")
+-        if not network_name:
+-            # blockchain field should be validated first, but handle edge case
+-            raise ValueError("blockchain field must be validated before wallet_address")
+    @model_validator(mode="after")
+    def _validate_addresses(self) -> "MintRequest":
+        if not self.blockchain:
+            raise ValueError("blockchain is required")
+        self.wallet_address = validate_wallet_address_format(
+            self.wallet_address, self.blockchain, "wallet_address"
+        )
+        return self
 
 class TransferRequest(BaseModel):
     """Request model for transferring NFTs."""
