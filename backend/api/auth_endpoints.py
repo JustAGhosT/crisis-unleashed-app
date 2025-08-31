@@ -154,14 +154,16 @@ async def social_login(request: SocialLoginRequest) -> AuthResponse:
         raise HTTPException(status_code=500, detail="Social authentication service error")
 
 
+from datetime import datetime, timedelta, timezone
+
 @auth_router.get("/session", response_model=Dict[str, Any])
 async def get_session(request: Request) -> Dict[str, Any]:
     """
     Get current session information in NextAuth compatible format.
-    
+
     Args:
         request: HTTP request with auth header
-        
+
     Returns:
         Session information
     """
@@ -169,11 +171,10 @@ async def get_session(request: Request) -> Dict[str, Any]:
     auth_header = request.headers.get("Authorization", "")
 
     # Look for session token in cookies
-    session_token = None
-    for cookie in request.cookies.items():
-        if cookie[0] == "next-auth.session-token" or cookie[0] == "__Secure-next-auth.session-token":
-            session_token = cookie[1]
-            break
+    session_token = (
+        request.cookies.get("next-auth.session-token")
+        or request.cookies.get("__Secure-next-auth.session-token")
+    )
 
     # In a real implementation, validate the token
     # For now, just check if any authorization is provided or session token exists
@@ -187,12 +188,11 @@ async def get_session(request: Request) -> Dict[str, Any]:
                 "image": None,
                 "role": "user"
             },
-            "expires": (datetime.now() + timedelta(days=30)).isoformat()
+            "expires": (datetime.now(timezone.utc) + timedelta(days=30)).isoformat()
         }
     else:
         # Return empty object for no session (NextAuth expects this format)
         return {}
-
 
 @auth_router.post("/logout", response_model=AuthResponse)
 async def logout() -> AuthResponse:
