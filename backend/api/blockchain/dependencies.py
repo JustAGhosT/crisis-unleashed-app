@@ -1,25 +1,28 @@
 """
-Dependency injection for blockchain API endpoints.
+Dependency functions for blockchain API endpoints.
 """
 
-import logging
-from fastapi import Depends, HTTPException, Request
+from fastapi import Request, HTTPException, Depends
 from typing import Any
+import logging
 
-from backend.services.health_manager import ServiceHealthManager, CriticalServiceException
+from ..services.health_manager import ServiceHealthManager, CriticalServiceException
 
 logger = logging.getLogger(__name__)
 
-
 async def get_health_manager(request: Request) -> ServiceHealthManager:
     """Dependency to get the health manager from the app state."""
-    # This assumes the health_manager is attached to the app state
-    # In server.py, typically as app.state.health_manager
-    from backend.server import health_manager
-    return health_manager
+    if not hasattr(request.app.state, "health_manager"):
+        logger.error("Health manager not initialized in application state")
+        raise HTTPException(
+            status_code=503,
+            detail="Health manager service not initialized"
+        )
+    return request.app.state.health_manager
 
-
-async def get_blockchain_service(health_manager: ServiceHealthManager = Depends(get_health_manager)) -> Any:
+async def get_blockchain_service(
+    health_manager: ServiceHealthManager = Depends(get_health_manager),
+) -> Any:
     """Dependency to get blockchain service with availability check."""
     try:
         return health_manager.get_service("blockchain_service")
@@ -34,15 +37,14 @@ async def get_blockchain_service(health_manager: ServiceHealthManager = Depends(
             }
         )
 
-
 async def get_outbox_processor(
     health_manager: ServiceHealthManager = Depends(get_health_manager),
 ) -> Any:
     """Dependency to get outbox processor with availability check."""
     try:
         return health_manager.get_service("outbox_processor")
-    except (KeyError, RuntimeError) as e:
-        logger.error("Outbox processor not available: %s", e)
+    except CriticalServiceException as e:
+        logger.error(f"Outbox processor not available: {e}")
         raise HTTPException(
             status_code=503,
             detail={
@@ -51,6 +53,6 @@ async def get_outbox_processor(
                     "The transaction processing service is not available. "
                     "Please try again later."
                 ),
-                "service_status": str(e),
+                "service_status": str(e)
             }
         )

@@ -1,5 +1,5 @@
 ---
-description: Defines core game entities and data models for cards, battlefield grid, player stats, and game state
+description: Specifications for core game entities including cards, battlefield grid, player stats, and game state models
 ---
 
 # === USER INSTRUCTIONS ===
@@ -43,67 +43,64 @@ $END$
 
 ## Core Game Entities
 
-### Card System
-- **Card Types**: Units, Actions, Structures, Heroes
-- **Card Properties**:
-  - Combat stats (attack, health, initiative)
-  - Energy/momentum costs
-  - Faction alignment
-  - Battlefield zone restrictions
-  - Ability effects and triggers
-- **Validation Rules**:
-  - Maximum 3 copies per card
-  - Faction-specific restrictions
-  - Zone placement requirements
-- **Importance Score**: 90
+### Card Model (90/100)
+`frontend-next/src/types/card.ts`
+- Type definitions for game cards with properties:
+  - Faction affiliation and energy cost
+  - Attack/health values 
+  - Keywords and abilities
+  - Zone placement restrictions
+  - Initiative value for combat sequencing
+  - Special effects and triggers
 
-### Battlefield Grid
-- **Zone Types**: Frontline, Support, Command
-- **Grid Properties**:
-  - 3x3 grid layout
-  - Zone-specific effects
-  - Line of sight calculations
-  - Unit positioning rules
-- **Combat Resolution**:
-  - Initiative-based attack order
+### Battlefield Grid (85/100) 
+`frontend-next/src/components/game/Battlefield.tsx`
+- Hex-based grid system with:
+  - Three distinct zones (frontline, backline, reserves)
+  - Unit positioning rules and movement costs
   - Zone control mechanics
-  - Battlefield status effects
-- **Importance Score**: 85
+  - Range calculation for abilities and attacks
+  - Terrain effects on unit stats
 
-### Player Stats
-- **Resource Systems**:
-  - Energy (card costs)
-  - Momentum (hero abilities)
-  - Health (victory condition)
-- **Resource Management**:
-  - Per-turn generation
-  - Faction-specific bonuses
-  - Resource interaction rules
-- **Importance Score**: 80
+### Player Stats (80/100)
+`frontend-next/src/types/game.ts`
+- Core player resources:
+  - Health (0-30)
+  - Energy (accumulates each turn)
+  - Momentum (builds through actions)
+  - Hand size limits
+  - Deck composition stats
 
-### Game State
-- **State Tracking**:
-  - Active player
-  - Turn phase
-  - Resource pools
-  - Card locations
-  - Combat queue
-  - Effect triggers
-- **Phase Management**:
-  - Draw Phase
-  - Energy Phase
-  - Main Phase
-  - Combat Phase
-  - End Phase
-- **Importance Score**: 85
+### Combat Resolution (85/100)
+`frontend-next/src/lib/card-utils.ts`
+- Initiative-based combat sequence
+- Damage calculation including:
+  - Base damage modified by effects
+  - Armor reduction
+  - Penetration calculations 
+  - Overkill damage rules
+  - Death resolution order
 
-Relevant File Paths:
-```
-frontend-next/src/types/card.ts
-frontend-next/src/types/game.types.ts
-frontend-next/src/lib/card-utils.ts
-backend/types/faction.py
-```
+### Faction Mechanics (90/100)
+`frontend-next/src/types/faction.ts`
+- Unique faction abilities:
+  - Energy manipulation
+  - Stealth mechanics
+  - Time distortion
+  - Growth acceleration
+  - Mind control
+  - Sacrifice benefits
+  - Synthetic evolution
+
+### Resource Systems (75/100)
+- Energy Management:
+  - Base gain of 1 per turn
+  - Maximum energy cap of 10
+  - Faction-specific modifiers
+- Momentum Accumulation:
+  - Generated through specific card plays
+  - Spent on powerful effects
+  - Decay mechanics between turns
 
 $END$
 

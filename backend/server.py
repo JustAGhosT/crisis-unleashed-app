@@ -28,21 +28,24 @@ REPO_ROOT = ROOT_DIR.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-# Load environment variables
-load_dotenv(ROOT_DIR / ".env")
+# Load environment variables from repository root
+load_dotenv(REPO_ROOT / ".env")
+
+# Define custom exception for startup failures
+class StartupError(RuntimeError):
+    """Raised when a critical service fails during startup."""
+    pass
 
 # Import our modular server components (absolute imports rooted at 'backend')
 try:
     from backend import api
     from backend import config
     from backend import services as services
-    from backend.server_modules import (
-        setup_database,
-        create_application,
-        setup_services,
-        start_services,
-        register_health_endpoints,
-    )
+    # Import server modules correctly based on the actual structure
+    from backend.server_modules.app import create_application
+    from backend.server_modules.database import setup_database
+    from backend.server_modules.health import register_health_endpoints
+    from backend.server_modules.services import setup_services, start_services
     # Import auth redirects
     from backend.api.auth_redirects import auth_redirect_router
 except ImportError as e:
@@ -76,7 +79,7 @@ app = create_application(
 
 # Create a new API router for health endpoints
 api_router = APIRouter(prefix="/api")
-register_health_endpoints(api_router, health_manager)
+register_health_endpoints(api_router, health_manager, settings=settings)
 
 # Include the health router in the main app
 app.include_router(api_router)
@@ -115,9 +118,10 @@ async def startup_event() -> None:
         logger.critical("Check your configuration and external service connectivity.")
         logger.critical("=" * 60)
 
-        # Force exit the application
+        # Raise an exception instead of exiting the process
         if fail_fast:
-            sys.exit(1)
+            raise StartupError(f"Critical service initialization failed: {e}")
+        # In development mode, continue despite the error
 
     except Exception as e:
         # Unexpected initialization error
@@ -125,7 +129,8 @@ async def startup_event() -> None:
 
         if fail_fast:
             logger.critical("Failing fast due to unexpected initialization error")
-            sys.exit(1)
+            # Raise an exception instead of exiting the process
+            raise StartupError(f"Unexpected error during service initialization: {e}")
         else:
             logger.warning("Continuing startup despite initialization error (development mode)")
 

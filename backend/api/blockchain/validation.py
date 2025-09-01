@@ -14,17 +14,6 @@ def get_supported_network_names() -> List[str]:
     """Get list of supported network names from blockchain config."""
     return list(BlockchainConfig.NETWORKS.keys())
 
-def get_blockchain_type_from_network(network_name: str) -> str:
-    """Get the base blockchain type from network name."""
-    if network_name.startswith("ethereum"):
-        return "ethereum"
-    elif network_name.startswith("etherlink"):
-        return "etherlink"
-    elif network_name.startswith("solana"):
-        return "solana"
-    else:
-        raise ValueError(f"Unknown network: {network_name}")
-
 def validate_wallet_address_format(
     address: str, network_name: str, field_name: str = "wallet_address"
 ) -> str:
@@ -42,7 +31,8 @@ def validate_wallet_address_format(
     if network_name not in get_supported_network_names():
         raise ValueError(f"Unsupported network: {network_name}")
 
-    blockchain_type = get_blockchain_type_from_network(network_name)
+    # Use the centralized method from BlockchainConfig
+    blockchain_type = BlockchainConfig.get_blockchain_type_from_network(network_name)
 
     if blockchain_type == "solana":
         # Solana addresses are base58 encoded, typically 32-44 characters

@@ -1,3 +1,4 @@
+# c:\Users\smitj\repos\crisis-unleashed-app\crisis-unleashed-app\backend\services\blockchain_handler.py
 """
 Blockchain Handler for processing outbox entries.
 """
@@ -5,12 +6,21 @@ Blockchain Handler for processing outbox entries.
 import logging
 from typing import Any, Dict, List, TypedDict
 
-# Absolute imports rooted at 'backend'
-from backend.repository import (
-    TransactionOutboxRepository,
-    OutboxType,
-)
-from backend.services.blockchain_service import BlockchainService
+try:
+    # Absolute imports rooted at 'backend'
+    from backend.repository import (
+        TransactionOutboxRepository,
+        OutboxType,
+    )
+    from backend.services.blockchain_service import BlockchainService
+except ImportError:
+    # Fallback to relative imports (works when run from source tree)
+    from ..repository import (
+        TransactionOutboxRepository,
+        OutboxType,
+    )
+    from .blockchain_service import BlockchainService
+
 
 logger = logging.getLogger(__name__)
 

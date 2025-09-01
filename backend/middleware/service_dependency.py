@@ -62,7 +62,7 @@ class ServiceDependencyMiddleware(BaseHTTPMiddleware):
                         service_name, required=True
                     )
 
-            except CriticalServiceException as e:
+            except (CriticalServiceException, KeyError, RuntimeError) as e:
                 logger.warning(f"Service dependency check failed for {request.url.path}: {e}")
 
                 return JSONResponse(

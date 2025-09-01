@@ -19,8 +19,13 @@ from typing import (
     overload,
 )
 
-# Absolute import rooted at 'backend'
-from backend.services.blockchain import BlockchainProviderFactory, BaseBlockchainProvider
+# Try absolute import first (works when installed as a package)
+try:
+    # Absolute import rooted at 'backend'
+    from backend.services.blockchain import BlockchainProviderFactory, BaseBlockchainProvider
+except ImportError:
+    # Fallback to relative import (works when run from source tree)
+    from .blockchain import BlockchainProviderFactory, BaseBlockchainProvider
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +49,26 @@ class BlockchainService:
         self.network_configs = network_configs or self._load_default_configs()
         self._providers: Dict[str, BaseBlockchainProvider] = {}
         self._initialized = False
+    
+    def _infer_provider_key(self, network_key: str) -> str:
+        """
+        Infer the provider key from a network key.
+        
+        Args:
+            network_key: Full network key (e.g., "ethereum_mainnet")
+            
+        Returns:
+            Provider key (e.g., "ethereum")
+        """
+        if "ethereum" in network_key:
+            return "ethereum"
+        elif "etherlink" in network_key:
+            return "etherlink"
+        elif "solana" in network_key:
+            return "solana"
+        else:
+            # If we can't infer, return the original key and let the factory handle any errors
+            return network_key
 
     def _run_coro_blocking(
         self, coro: Coroutine[Any, Any, T], timeout: Optional[float] = None
@@ -205,22 +230,27 @@ class BlockchainService:
         """
         results: Dict[str, bool] = {}
 
-        for blockchain, config in self.network_configs.items():
+        for network_key, config in self.network_configs.items():
             try:
-                provider = BlockchainProviderFactory.get_provider(blockchain, config)
+                # Infer the provider key that the factory understands
+                provider_key = self._infer_provider_key(network_key)
+                
+                # Get a provider instance for this network
+                provider = BlockchainProviderFactory.get_provider(provider_key, config)
                 success = self._maybe_await(provider.connect())
 
                 if success:
-                    self._providers[blockchain] = provider
+                    # Store using the original network_key
+                    self._providers[network_key] = provider
 
-                results[blockchain] = success
+                results[network_key] = success
                 logger.info(
-                    f"Blockchain {blockchain} initialization: {'success' if success else 'failed'}"
+                    f"Blockchain {network_key} initialization: {'success' if success else 'failed'}"
                 )
 
             except Exception as e:
-                logger.error(f"Failed to initialize {blockchain}: {e}")
-                results[blockchain] = False
+                logger.error(f"Failed to initialize {network_key}: {e}")
+                results[network_key] = False
 
         self._initialized = True
         return results

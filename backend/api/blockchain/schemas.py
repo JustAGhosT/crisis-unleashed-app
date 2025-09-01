@@ -1,17 +1,13 @@
 """
-Pydantic models for blockchain API requests and responses.
+Schema definitions for blockchain API endpoints.
 """
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, Field, field_validator
 from pydantic import ValidationInfo
-from typing import Dict, Any, Optional
+from typing import Dict, Any, List, Optional
 from datetime import datetime
 
-from backend.api.blockchain.validation import (
-    get_supported_network_names,
-    validate_wallet_address_format
-)
-
+from backend.api.blockchain.validation import get_supported_network_names, validate_wallet_address_format
 
 class MintRequest(BaseModel):
     """Request model for minting NFTs."""
@@ -30,15 +26,14 @@ class MintRequest(BaseModel):
             raise ValueError(f"Blockchain network must be one of: {allowed}")
         return v
 
-    @model_validator(mode="after")
-    def _validate_addresses(self) -> "MintRequest":
-        if not self.blockchain:
-            raise ValueError("blockchain is required")
-        self.wallet_address = validate_wallet_address_format(
-            self.wallet_address, self.blockchain, "wallet_address"
-        )
-        return self
-
+    @field_validator("wallet_address", mode='after')
+    def validate_wallet_address(cls, v: str, info: ValidationInfo) -> str:
+        data = info.data or {}
+        network_name = data.get("blockchain")
+        if not network_name:
+            # blockchain field should be validated first, but handle edge case
+            raise ValueError("blockchain field must be validated before wallet_address")
+        return validate_wallet_address_format(v, network_name, "wallet_address")
 
 class TransferRequest(BaseModel):
     """Request model for transferring NFTs."""
@@ -54,30 +49,22 @@ class TransferRequest(BaseModel):
             raise ValueError(f"Blockchain network must be one of: {allowed}")
         return v
 
-    @model_validator(mode="after")
-    def _validate_addresses(self) -> "TransferRequest":
-        """Validate wallet addresses after all fields are populated."""
-        if not self.blockchain:
-            raise ValueError("blockchain is required")
-            
-        # Validate from_address
-        self.from_address = validate_wallet_address_format(
-            self.from_address, self.blockchain, "from_address"
-        )
-        
-        # Validate to_address
-        self.to_address = validate_wallet_address_format(
-            self.to_address, self.blockchain, "to_address"
-        )
-        
-        return self
+    @field_validator("from_address", "to_address", mode='after')
+    def validate_wallet_addresses(cls, v: str, info: ValidationInfo) -> str:
+        data = info.data or {}
+        network_name = data.get("blockchain")
+        if not network_name:
+            # Align with MintRequest: fail fast if blockchain isn't available yet
+            raise ValueError("blockchain field must be validated before wallet addresses")
+        # Provide precise field name in error messages (from_address/to_address)
+        field_name = info.field_name if info.field_name else "wallet_address"
+        return validate_wallet_address_format(v, network_name, field_name)
 
     @field_validator("token_id")
     def validate_token_id(cls, v: str) -> str:
         if not v or not v.strip():
             raise ValueError("Token ID cannot be empty")
         return v.strip()
-
 
 class OperationResponse(BaseModel):
     """Response model for blockchain operations."""
@@ -86,7 +73,6 @@ class OperationResponse(BaseModel):
     message: str
     created_at: datetime
     estimated_completion: Optional[str] = None
-
 
 class StatusResponse(BaseModel):
     """Response model for operation status."""

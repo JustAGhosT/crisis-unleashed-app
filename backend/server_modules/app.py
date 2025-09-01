@@ -37,8 +37,8 @@ def create_application(
         title="Crisis Unleashed API",
         description="Backend API for the Crisis Unleashed game",
         version="1.0.0",
-        docs_url="/api/docs" if not settings.disable_docs else None,
-        redoc_url="/api/redoc" if not settings.disable_docs else None,
+        docs_url="/api/docs" if not getattr(settings, "disable_docs", False) else None,
+        redoc_url="/api/redoc" if not getattr(settings, "disable_docs", False) else None,
     )
 
     # Configure CORS

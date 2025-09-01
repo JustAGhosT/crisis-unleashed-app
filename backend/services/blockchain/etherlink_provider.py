@@ -107,9 +107,6 @@ class EtherlinkProvider(BaseBlockchainProvider):
         if not self.is_connected():
             raise ConnectionError("Not connected to Etherlink network")
 
-        if not self.contract:
-            raise ValueError("NFT contract not loaded")
-
         # In a real implementation, you would:
         # 1. Build the transaction
         # 2. Sign it with a private key

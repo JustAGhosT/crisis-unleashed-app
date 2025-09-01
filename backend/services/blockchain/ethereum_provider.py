@@ -4,12 +4,12 @@ Ethereum blockchain provider implementation.
 import logging
 from typing import Any, Dict, Optional, cast
 
-# Absolute imports rooted at 'backend'
-from backend.services.blockchain.base_provider import BaseBlockchainProvider
-from backend.services.blockchain.web3_compat import new_web3
+from ...app_types import BlockchainConfig, ContractABI
+from ...utils.logging import get_logger
+from .base_provider import BaseBlockchainProvider
+from .web3_compat import TransactionNotFound, new_web3
 
-
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class EthereumProvider(BaseBlockchainProvider):
@@ -201,7 +201,11 @@ class EthereumProvider(BaseBlockchainProvider):
         w3 = self.web3
         if w3 is None:
             return "unknown"
-        receipt = w3.eth.get_transaction_receipt(tx_hash)
+        try:
+            receipt = w3.eth.get_transaction_receipt(tx_hash)
+        except TransactionNotFound:
+            return "pending"
+
         if receipt is None:
             return "pending"
         # Try dict-like access first

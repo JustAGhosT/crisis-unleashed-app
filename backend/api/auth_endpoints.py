@@ -5,6 +5,8 @@ Provides endpoints for user authentication and session management.
 """
 
 import logging
+import secrets
+import re
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -80,7 +82,6 @@ async def login(credentials: UserCredentials) -> AuthResponse:
 
         # In a real implementation, you would validate credentials against a database
         # For now, we'll just mock successful authentication
-import secrets
 
         if username == "test@example.com" and credentials.password == "password":
             # Mock user data
@@ -125,22 +126,43 @@ async def social_login(request: SocialLoginRequest) -> AuthResponse:
         Authentication response with user info
     """
     try:
-        # In a real implementation, you would:
-        # 1. Check if this social account exists in your database
-        # 2. If not, create a new user account linked to this social account
-        # 3. Generate auth token and return user data
+        # Define allowlist of supported providers
+        allowed_providers = ["google", "discord", "github", "facebook", "twitter"]
+        
+        # Check if the provider is in the allowlist
+        if request.provider.lower() not in allowed_providers:
+            logger.warning(f"Unsupported social login provider: {request.provider}")
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Unsupported provider: {request.provider}. Supported providers: {', '.join(allowed_providers)}"
+            )
+        
+        # Normalize and validate email if provided
+        normalized_email = None
+        if request.email:
+            # Trim whitespace and convert to lowercase
+            normalized_email = request.email.strip().lower()
+            
+            # Basic email validation
+            email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+            if not re.match(email_pattern, normalized_email):
+                logger.warning(f"Invalid email format provided during social login")
+                normalized_email = None
+                
+        # Generate secure user identifiers (not derived from user input)
+        user_id = f"user_{secrets.token_hex(8)}"
+        username = request.name or f"user_{secrets.token_hex(6)}"
+        
+        # Create a secure token using secrets module
+        token = secrets.token_urlsafe(32)
 
-        # For now, we'll mock a successful response
         user = {
-            "id": f"user_social_{request.providerId[-6:]}",
-            "username": request.name or f"user_{request.providerId[-6:]}",
-            "email": request.email or f"user_{request.providerId[-6:]}@example.com",
+            "id": user_id,
+            "username": username,
+            "email": normalized_email,  # Will be None if email was invalid or not provided
             "avatar": request.image,
             "role": "user"
         }
-
-        # Create a simple token (in production, use JWT)
-        token = f"mock_token_social_{request.providerId[-6:]}"
 
         return AuthResponse(
             success=True,
@@ -149,6 +171,9 @@ async def social_login(request: SocialLoginRequest) -> AuthResponse:
             token=token
         )
 
+    except HTTPException:
+        # Re-raise HTTP exceptions with their status codes intact
+        raise
     except Exception as e:
         logger.error(f"Error during social login: {e}")
         raise HTTPException(status_code=500, detail="Social authentication service error")
@@ -216,9 +241,12 @@ async def get_csrf_token() -> Dict[str, str]:
     Returns:
         CSRF token
     """
-    # In a real implementation, generate a secure token
-    # For now, return a mock token
-    return {"csrfToken": "mock_csrf_token_123456789"}
+    # Generate a cryptographically secure random token
+    # In production, this should also be:
+    # - Stored in the user's session
+    # - Time-bound with expiration
+    # - Potentially signed with HMAC and timestamp
+    return {"csrfToken": secrets.token_urlsafe(32)}
 
 
 # NextAuth compatible endpoints

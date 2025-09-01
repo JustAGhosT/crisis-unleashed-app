@@ -5,7 +5,7 @@ This module provides the FastAPI router for blockchain-related endpoints.
 """
 
 from fastapi import APIRouter
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 from backend.api.blockchain.models import (
     OperationResponse,
@@ -80,7 +80,7 @@ router.add_api_route(
     "/operations",
     list_operations,
     methods=["GET"],
-    response_model=Dict[str, Any],
+    response_model=List[StatusResponse],  # Updated to List[StatusResponse] to match actual return type
     summary="List blockchain operations with filtering options"
 )
 
@@ -88,7 +88,7 @@ router.add_api_route(
     "/operations/failed",
     get_failed_operations,
     methods=["GET"],
-    response_model=Dict[str, Any],
+    response_model=List[StatusResponse],  # Updated to List[StatusResponse] to match actual return type
     summary="Get failed blockchain operations"
 )
 

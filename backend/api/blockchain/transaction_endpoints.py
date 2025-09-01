@@ -1,27 +1,18 @@
 """
-Blockchain operation endpoints for minting, transferring, and retrying.
+API endpoints for blockchain transaction operations.
 """
 
-import logging
+from fastapi import APIRouter, HTTPException, Depends
 from datetime import datetime
-from fastapi import APIRouter, Depends, HTTPException
-from typing import Dict
+import logging
 
-from backend.api.blockchain.models import (
-    MintRequest,
-    TransferRequest,
-    OperationResponse
-)
-from backend.api.blockchain.dependencies import (
-    get_blockchain_service,
-    get_outbox_processor
-)
+from .schemas import MintRequest, TransferRequest, OperationResponse
+from .dependencies import get_blockchain_service, get_outbox_processor
 
-router = APIRouter()
+router = APIRouter(tags=["blockchain_transactions"])
 logger = logging.getLogger(__name__)
 
-
-@router.post("/mint", response_model=OperationResponse, status_code=202)
+@router.post("/mint", response_model=OperationResponse)
 async def mint_card(
     request: MintRequest,
     blockchain_service=Depends(get_blockchain_service),
@@ -56,7 +47,7 @@ async def mint_card(
         raise HTTPException(status_code=500, detail="Failed to queue mint request")
 
 
-@router.post("/transfer", response_model=OperationResponse, status_code=202)
+@router.post("/transfer", response_model=OperationResponse)
 async def transfer_nft(
     request: TransferRequest,
     blockchain_service=Depends(get_blockchain_service),
@@ -83,28 +74,3 @@ async def transfer_nft(
     except Exception as e:
         logger.error(f"Error queueing transfer request: {e}")
         raise HTTPException(status_code=500, detail="Failed to queue transfer request")
-
-
-@router.post("/operations/{outbox_id}/retry")
-async def retry_operation(
-    outbox_id: str,
-    outbox_processor=Depends(get_outbox_processor)  # Added dependency injection
-) -> Dict[str, str]:
-    """
-    Manually retry a failed operation.
-
-    This endpoint allows manual intervention for operations
-    that have failed or need immediate processing.
-    """
-    try:
-        logger.info(f"Manual retry requested for operation: {outbox_id}")
-
-        return {
-            "outbox_id": outbox_id,
-            "status": "queued_for_retry",
-            "message": "Operation has been queued for manual retry",
-        }
-
-    except Exception as e:
-        logger.error(f"Error retrying operation {outbox_id}: {e}")
-        raise HTTPException(status_code=500, detail="Failed to retry operation")

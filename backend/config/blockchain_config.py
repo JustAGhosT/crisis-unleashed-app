@@ -129,6 +129,29 @@ class BlockchainConfig:
     }
 
     @classmethod
+    def get_blockchain_type_from_network(cls, network_name: str) -> str:
+        """
+        Get the base blockchain type from network name.
+        
+        Args:
+            network_name: The blockchain network name (e.g., 'ethereum_mainnet')
+            
+        Returns:
+            The base blockchain type (e.g., 'ethereum', 'solana')
+            
+        Raises:
+            ValueError: If the network name doesn't match any known blockchain type
+        """
+        if network_name.startswith("ethereum"):
+            return "ethereum"
+        elif network_name.startswith("etherlink"):
+            return "etherlink"
+        elif network_name.startswith("solana"):
+            return "solana"
+        else:
+            raise ValueError(f"Unknown network: {network_name}")
+
+    @classmethod
     def validate_network_config(cls, config: Dict[str, Any]) -> Tuple[bool, List[str]]:
         """
         Validate a network configuration.
@@ -265,16 +288,14 @@ class BlockchainConfig:
             "get_balance",
             "get_transaction_status",
         ]
-        # Determine blockchain type from network name
-        if network_name.startswith("ethereum"):
-            blockchain_type = "ethereum"
-        elif network_name.startswith("etherlink"):
-            blockchain_type = "etherlink"
-        elif network_name.startswith("solana"):
-            blockchain_type = "solana"
-        else:
+        
+        # Use the centralized method to get blockchain type
+        try:
+            blockchain_type = cls.get_blockchain_type_from_network(network_name)
+        except ValueError:
             # Fallback to the network name itself for backward compatibility
             blockchain_type = network_name
+            
         # Network-specific operations by blockchain type
         network_operations = {
             "ethereum": base_operations

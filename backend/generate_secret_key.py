@@ -47,7 +47,12 @@ def main() -> None:
     print("\nALTERNATIVE METHODS:")
     print("* Command line: openssl rand -hex 32")
     print("* Python: import secrets; secrets.token_hex(32)")
-    print("* Online: Use a reputable password generator (64+ chars)")
+    print("* OS-specific: /dev/urandom (Linux/Mac) or BCryptGenRandom (Windows)")
+    
+    print("\nSECURITY WARNING:")
+    print("* NEVER use online/web-based generators for security-critical secrets")
+    print("* ALWAYS use local, auditable random number generators")
+    print("* Consider using a secure secret management solution for production")
 
 
 if __name__ == "__main__":

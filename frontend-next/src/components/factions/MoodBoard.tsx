@@ -275,8 +275,9 @@ function ColorSwatch({ item }: { item: ColorPaletteItem }) {
     <div className="flex items-center gap-3 rounded-md border border-border/40 bg-background/40 p-3 backdrop-blur">
       <div
         className={cn("h-10 w-10 rounded-md border border-border/40", styles.swatchColor)}
-        // eslint-disable-next-line
         style={{ ["--swatch-color"]: item.hex } as React.CSSProperties}
+        aria-hidden="true"
+        role="img"
       />
       <div className="min-w-0">
         <div className="truncate text-sm font-medium text-foreground">{item.name}</div>

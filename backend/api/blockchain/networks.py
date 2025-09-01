@@ -44,7 +44,7 @@ async def get_supported_networks() -> Dict[str, Any]:
             "address_format": address_format,
             "address_example": address_example,
             "supported_operations": BlockchainConfig.get_supported_operations(
-                network_config.name
+                network_key  # Changed from network_config.name to network_key for consistency
             ),
             "status": "available",
         }

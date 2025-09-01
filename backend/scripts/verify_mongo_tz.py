@@ -18,6 +18,7 @@ from __future__ import annotations
 import ast
 import os
 import re
+import sys
 from dataclasses import dataclass
 from typing import Iterable, Optional
 
@@ -167,21 +168,29 @@ def main() -> None:
         if finding.kind == "uri" and finding.tz_aware is False:
             problems += 1
 
+    # Print summary to stdout
     print("=== Summary ===")
     print(
         f"Total findings: {len(all_findings)} | Potential issues: {problems}"
     )
+    
+    # Print recommendations and context to stderr if problems found
     if problems:
         print(
             "Recommendation: Ensure PyMongo/Motor clients are created with "
             "tz_aware=True, or use\nCodecOptions(tz_aware=True) on database/collection. "
-            "For URIs, prefer tzUTC=true."
+            "For URIs, prefer tzUTC=true.",
+            file=sys.stderr
         )
         print(
             "Context: Your models (e.g., backend/repository/outbox_models.py) use "
             "timezone-aware\ndatetimes via datetime.now(UTC). Mixed naive/aware "
-            "datetimes will cause subtle bugs."
+            "datetimes will cause subtle bugs.",
+            file=sys.stderr
         )
+        
+        # Exit with non-zero status to fail CI
+        sys.exit(1)
 
 
 if __name__ == "__main__":

@@ -1,4 +1,3 @@
-
 import { NextRequest, NextResponse } from "next/server";
 
 /**
@@ -18,8 +17,19 @@ export async function POST(req: NextRequest) {
       accessToken,
     } = await req.json();
 
-    // Require provider + at least one verifiable credential
-    if (!provider || !(idToken || authorizationCode || accessToken)) {
+    // Define allowed providers
+    const allowedProviders = ['google', 'github', 'apple'];
+
+    // Validate the provider against the allow-list
+    if (!provider || !allowedProviders.includes(provider)) {
+      return NextResponse.json(
+        { error: "Invalid or unsupported provider" },
+        { status: 400 }
+      );
+    }
+
+    // Require at least one verifiable credential
+    if (!(idToken || authorizationCode || accessToken)) {
       return NextResponse.json(
         { error: "Missing provider credentials" },
         { status: 400 }

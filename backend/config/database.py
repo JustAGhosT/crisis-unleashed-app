@@ -60,15 +60,24 @@ class InMemoryCollection:
     async def find_one_and_update(self, filter, update, **kwargs):
         # Find matching document (simplistic, ignores most of the filter logic)
         for doc in self._data:
-            # Match found - perform update
+            # Store the pre-update state by making a deep copy
+            pre_update_doc = doc.copy()
+            
+            # Apply updates to the stored document
             if update.get('$set'):
                 for k, v in update['$set'].items():
                     doc[k] = v
+            if update.get('$inc'):
+                for k, v in update['$inc'].items():
+                    doc[k] = doc.get(k, 0) + v
+            
             # Return document based on return_document option
             if kwargs.get('return_document', 'before') == 'after':
-                return doc.copy()
+                return doc.copy()  # Return post-update state
             else:
-                return doc.copy()  # Should return before state, but this is simplified
+                return pre_update_doc  # Return pre-update state
+        
+        # No matching document found
         return None
 
     async def update_one(self, filter, update, **kwargs):
@@ -130,6 +139,7 @@ class InMemoryCursor:
     def __init__(self, data):
         self._data = data
         self._limit_val = None
+        self._skip_val = 0  # Initialize skip value to 0
         self._sort_field = None
         self._sort_dir = 1
 
@@ -145,19 +155,35 @@ class InMemoryCursor:
         return self
 
     def skip(self, n):
-        # Pretend to skip, but don't actually implement for simplicity
+        # Implement proper skip functionality
+        self._skip_val = max(0, int(n))
         return self
 
     async def to_list(self, length=None):
         # Apply any sorting
         result_data = self._data.copy()
 
-        # Apply limit
-        limit = min(self._limit_val or float('inf'), len(result_data))
-        limit = min(length or float('inf'), limit) if length is not None else limit
-
+        # Apply skip: calculate start position
+        start = self._skip_val
+        
+        # Calculate end position based on limit and length
+        if self._limit_val is not None and length is not None:
+            # Use the smaller of the two limits
+            end_limit = min(int(self._limit_val), int(length))
+            end = start + end_limit
+        elif self._limit_val is not None:
+            end = start + int(self._limit_val)
+        elif length is not None:
+            end = start + int(length)
+        else:
+            end = len(result_data)
+        
+        # Ensure bounds are valid
+        start = max(0, min(start, len(result_data)))
+        end = max(start, min(end, len(result_data)))
+        
         # Return a copy of the data to prevent mutation
-        return [doc.copy() for doc in result_data[:int(limit)]]
+        return [doc.copy() for doc in result_data[start:end]]
 
 
 class InMemoryDatabase:
@@ -192,7 +218,23 @@ def get_database_connection(settings) -> Any:
 
     Returns either a MongoDB client or an in-memory database for development.
     """
-    use_in_memory = os.environ.get("USE_IN_MEMORY_DB", "").lower() in ("true", "1", "yes")
+    # Use settings.use_in_memory_db instead of reading from environment directly
+    use_in_memory = False
+    if hasattr(settings, 'use_in_memory_db'):
+        # Direct attribute access if available
+        use_in_memory_value = settings.use_in_memory_db
+    elif hasattr(settings, 'get'):
+        # Dictionary-like access if available
+        use_in_memory_value = settings.get("USE_IN_MEMORY_DB", "")
+    else:
+        # Fallback to string for normalization
+        use_in_memory_value = str(getattr(settings, "USE_IN_MEMORY_DB", ""))
+    
+    # Normalize boolean value the same way as before
+    if isinstance(use_in_memory_value, bool):
+        use_in_memory = use_in_memory_value
+    else:
+        use_in_memory = str(use_in_memory_value).lower() in ("true", "1", "yes")
 
     if use_in_memory:
         logger.warning(
@@ -210,23 +252,17 @@ def get_database_connection(settings) -> Any:
             serverSelectionTimeoutMS=5000  # 5 second timeout for faster feedback
         )
 
-        # Perform a synchronous ping using pymongo to validate connectivity from this thread.
-        # Motor operations are async and would require awaiting; we avoid that here.
-        from pymongo.mongo_client import MongoClient as SyncMongoClient
-        sync_client: SyncMongoClient = pymongo.MongoClient(
-            settings.mongo_url,
-            tz_aware=True,
-            serverSelectionTimeoutMS=5000,
-        )
-        sync_client.admin.command("ping")
-        sync_client.close()
-
         logger.info(f"Connected to MongoDB at {settings.mongo_url}")
         return client[settings.database_name].with_options(
             CodecOptions(tz_aware=True, tzinfo=timezone.utc)
         )
     except Exception as e:
-        if os.environ.get("ENVIRONMENT", "development") == "production":
+        # Use settings for environment check
+        environment = getattr(settings, "ENVIRONMENT", 
+                             settings.get("ENVIRONMENT", "development") 
+                             if hasattr(settings, "get") else "development")
+        
+        if environment == "production":
             # In production, we want to fail if MongoDB is not available
             logger.critical(f"Failed to connect to MongoDB: {e}")
             raise
