@@ -42,6 +42,8 @@ export interface BattlefieldZone {
   isNeutralZone?: boolean;
   isFrontline?: boolean;
   isBackline?: boolean;
+  // Lane information for tactical positioning
+  lane?: "L" | "C" | "R";
 }
 
 export interface Card {

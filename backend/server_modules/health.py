@@ -6,13 +6,17 @@ This module provides health check endpoints for monitoring the application statu
 """
 
 import logging
-from fastapi import APIRouter
-from typing import Any, Dict
+import inspect
+from fastapi import APIRouter, status
+from fastapi.responses import JSONResponse
+from fastapi.concurrency import run_in_threadpool
+from typing import Any, Dict, Protocol
 
 from backend.config.settings import Settings
 
 
 logger = logging.getLogger(__name__)
+
 
 def register_health_endpoints(
     api_router: APIRouter, health_manager: Any, settings: Settings
@@ -36,23 +40,33 @@ def register_health_endpoints(
         """
         return {"status": "ok", "version": settings.app_version}
 
-    @api_router.get("/health/services", tags=["health"])
-    async def get_service_status() -> Dict[str, Any]:
+    @api_router.get(
+        "/health/services",
+        tags=["health"],
+        status_code=200,
+        responses={503: {"description": "Service Unavailable"}},
+    )
+    async def get_service_status():
         """
         Get detailed health status for all services.
 
         Returns:
-            Dict containing service health information
+            Dict containing service health information or JSONResponse for errors
         """
         try:
-            return {
-                "status": "ok",
-                "services": health_manager.get_health_status(),
-            }
-        except Exception as e:
-            logger.error(f"Failed to retrieve service health status: {e}")
-            return {
-                "status": "degraded",
-                "services": {},
-                "error": "Failed to retrieve service health",
-            }
+            # Offload sync work to a thread; await if the method is async.
+            if inspect.iscoroutinefunction(health_manager.get_health_status):
+                services = await health_manager.get_health_status()
+            else:
+                services = await run_in_threadpool(health_manager.get_health_status)
+            return {"status": "ok", "services": services}
+        except Exception:
+            logger.exception("Failed to retrieve service health status")
+            return JSONResponse(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                content={
+                    "status": "degraded",
+                    "services": {},
+                    "error": "Failed to retrieve service health",
+                },
+            )

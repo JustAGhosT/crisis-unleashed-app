@@ -7,7 +7,7 @@ from fastapi import APIRouter
 from typing import Dict, Any
 
 from backend.config.blockchain_config import BlockchainConfig
-from backend.api.blockchain.validation import get_blockchain_type_from_network
+
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -21,7 +21,7 @@ async def get_supported_networks() -> Dict[str, Any]:
     networks = []
 
     for network_key, network_config in BlockchainConfig.NETWORKS.items():
-        blockchain_type = get_blockchain_type_from_network(network_key)
+        blockchain_type = BlockchainConfig.get_blockchain_type_from_network(network_key)
 
         # Determine address format and example based on blockchain type
         if blockchain_type in ["ethereum", "etherlink"]:

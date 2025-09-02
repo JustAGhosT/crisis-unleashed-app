@@ -3,7 +3,7 @@ Status and health check endpoints for blockchain operations.
 """
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from fastapi import APIRouter, Query, HTTPException
 from typing import List, Dict, Any, Optional
 
@@ -30,8 +30,8 @@ async def get_operation_status(outbox_id: str) -> StatusResponse:
             operation_type="mint_nft",
             attempts=1,
             max_attempts=3,
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
             result=None,
             error=None,
         )
@@ -58,7 +58,7 @@ async def list_operations(
     try:
         # Mock response showing structure
         operations = []
-        for i in range(min(limit, 5)):  # Return up to 5 mock entries
+        for i in range(limit):  # Honor the limit parameter fully
             operations.append(
                 StatusResponse(
                     outbox_id=f"operation_{i+offset}",
@@ -67,8 +67,8 @@ async def list_operations(
                     operation_type="mint_nft",
                     attempts=1,
                     max_attempts=3,
-                    created_at=datetime.utcnow(),
-                    updated_at=datetime.utcnow(),
+                    created_at=datetime.now(timezone.utc),
+                    updated_at=datetime.now(timezone.utc),
                 )
             )
 
@@ -104,7 +104,7 @@ async def get_operations_stats() -> Dict[str, Any]:
             },
             "total_operations": 268,
             "success_rate": 91.4,  # Percentage
-            "last_updated": datetime.utcnow().isoformat(),
+            "last_updated": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         }
 
     except Exception as e:
@@ -132,7 +132,7 @@ async def get_failed_operations(
 
         # Mock response showing the expected structure
         failed_operations = []
-        for i in range(min(limit, 3)):  # Return up to 3 mock failed entries
+        for i in range(limit):  # Honor the limit parameter fully
             failed_operations.append(
                 StatusResponse(
                     outbox_id=f"failed_operation_{i}",
@@ -141,8 +141,8 @@ async def get_failed_operations(
                     operation_type="mint_nft",
                     attempts=3,
                     max_attempts=3,
-                    created_at=datetime.utcnow(),
-                    updated_at=datetime.utcnow(),
+                    created_at=datetime.now(timezone.utc),
+                    updated_at=datetime.now(timezone.utc),
                     error="Blockchain network timeout" if i % 2 == 0 else None,
                 )
             )

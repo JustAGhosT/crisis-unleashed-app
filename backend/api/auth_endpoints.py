@@ -7,6 +7,7 @@ Provides endpoints for user authentication and session management.
 import logging
 import secrets
 import re
+import os
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -17,6 +18,12 @@ logger = logging.getLogger(__name__)
 
 # Create router
 auth_router = APIRouter(prefix="/auth", tags=["Authentication"])
+
+# Define supported providers at module level
+SUPPORTED_PROVIDERS = {
+    "google": {"id": "google", "name": "Google", "type": "oauth"},
+    "discord": {"id": "discord", "name": "Discord", "type": "oauth"}
+}
 
 
 # Models
@@ -57,6 +64,32 @@ class AuthResponse(BaseModel):
     token: Optional[str] = None
 
 
+async def validate_credentials(username: str, password: str) -> Optional[Dict[str, Any]]:
+    """
+    Validate user credentials and return user data if valid.
+    
+    Args:
+        username: Username or email
+        password: User password
+        
+    Returns:
+        User data dict if valid, None otherwise
+    """
+    # For development only
+    if os.getenv("ENVIRONMENT") == "development" and username == "test@example.com" and password == "password":
+        return {
+            "id": "user_123",
+            "name": "Test User",
+            "email": "test@example.com",
+            "image": None,
+            "username": "test",
+            "display_name": "Test User",
+            "avatar": None,
+            "role": "user"
+        }
+    return None
+
+
 # Routes
 @auth_router.post("/login", response_model=AuthResponse)
 async def login(credentials: UserCredentials) -> AuthResponse:
@@ -80,20 +113,10 @@ async def login(credentials: UserCredentials) -> AuthResponse:
                 message="Username or email is required"
             )
 
-        # In a real implementation, you would validate credentials against a database
-        # For now, we'll just mock successful authentication
-
-        if username == "test@example.com" and credentials.password == "password":
-            # Mock user data
-            user = {
-                "id": "user_123",
-                "username": "test",
-                "email": "test@example.com",
-                "display_name": "Test User",
-                "avatar": None,
-                "role": "user"
-            }
-
+        # Validate credentials using the shared function
+        user = await validate_credentials(username, credentials.password)
+        
+        if user:
             # Create a secure, non-predictable token (in production, use JWT)
             token = secrets.token_urlsafe(32)
 
@@ -127,7 +150,7 @@ async def social_login(request: SocialLoginRequest) -> AuthResponse:
     """
     try:
         # Define allowlist of supported providers
-        allowed_providers = ["google", "discord", "github", "facebook", "twitter"]
+        allowed_providers = list(SUPPORTED_PROVIDERS.keys())
         
         # Check if the provider is in the allowlist
         if request.provider.lower() not in allowed_providers:
@@ -202,22 +225,30 @@ async def get_session(request: Request) -> Dict[str, Any]:
     )
 
     # In a real implementation, validate the token
-    # For now, just check if any authorization is provided or session token exists
-    if auth_header.startswith("Bearer ") or session_token:
-        # Mock user data for any valid-looking token
-        return {
-            "user": {
-                "id": "user_123",
-                "name": "Test User",
-                "email": "test@example.com",
-                "image": None,
-                "role": "user"
-            },
-            "expires": (datetime.now(timezone.utc) + timedelta(days=30)).isoformat()
-        }
-    else:
-        # Return empty object for no session (NextAuth expects this format)
-        return {}
+    if auth_header.startswith("Bearer ") and len(auth_header) > 7:
+        # Extract and validate the actual token
+        token = auth_header[7:]  # Remove "Bearer " prefix
+        # TODO: Implement proper JWT validation or database lookup
+        # For development only - validate against known tokens
+        if token == "valid_development_token":
+            # Mock user data for any valid-looking token
+            return {
+                "user": {
+                    "id": "user_123",
+                    "name": "Test User",
+                    "email": "test@example.com",
+                    "image": None,
+                    "role": "user"
+                },
+                "expires": (datetime.now(timezone.utc) + timedelta(days=30)).isoformat()
+            }
+    elif session_token:
+        # TODO: Validate session token against database
+        # For now, reject session token authentication in development
+        pass
+        
+    # Return empty object for no session (NextAuth expects this format)
+    return {}
 
 @auth_router.post("/logout", response_model=AuthResponse)
 async def logout() -> AuthResponse:
@@ -234,10 +265,13 @@ async def logout() -> AuthResponse:
 
 
 @auth_router.post("/csrf", response_model=Dict[str, str])
-async def get_csrf_token() -> Dict[str, str]:
+async def get_csrf_token(request: Request) -> Dict[str, str]:
     """
     Get a CSRF token for form submissions.
     
+    Args:
+        request: HTTP request to extract session info
+        
     Returns:
         CSRF token
     """
@@ -246,7 +280,15 @@ async def get_csrf_token() -> Dict[str, str]:
     # - Stored in the user's session
     # - Time-bound with expiration
     # - Potentially signed with HMAC and timestamp
-    return {"csrfToken": secrets.token_urlsafe(32)}
+    
+    # For development - generate a basic token
+    # TODO: Implement proper CSRF token with session binding
+    csrf_token = secrets.token_urlsafe(32)
+    
+    # In production, store this token in the user's session
+    # and validate it on form submissions
+    
+    return {"csrfToken": csrf_token}
 
 
 # NextAuth compatible endpoints
@@ -264,16 +306,7 @@ async def get_auth_providers() -> Dict[str, Any]:
             "name": "Credentials",
             "type": "credentials"
         },
-        "google": {
-            "id": "google",
-            "name": "Google",
-            "type": "oauth"
-        },
-        "discord": {
-            "id": "discord",
-            "name": "Discord",
-            "type": "oauth"
-        }
+        **SUPPORTED_PROVIDERS  # Include all supported providers from the shared constant
     }
 
 
@@ -297,15 +330,10 @@ async def credentials_callback(credentials: UserCredentials) -> JSONResponse:
             content={"error": "Username or email is required"}
         )
 
-    # Validate credentials (simple mock for now)
-    if username == "test@example.com" and credentials.password == "password":
-        # Return user data in NextAuth format
-        return JSONResponse({
-            "id": "user_123",
-            "name": "Test User",
-            "email": "test@example.com",
-            "image": None,
-        })
+    # Validate credentials using the shared function
+    user = await validate_credentials(username, credentials.password)
+    if user:
+        return JSONResponse(user)
     else:
         # Return 401 for invalid credentials
         return JSONResponse(

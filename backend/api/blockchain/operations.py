@@ -3,7 +3,8 @@ Blockchain operation endpoints for minting, transferring, and retrying.
 """
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
+import uuid
 from fastapi import APIRouter, Depends, HTTPException
 from typing import Dict
 
@@ -34,25 +35,31 @@ async def mint_card(
     ensuring consistency between database and blockchain state.
     """
     try:
-        # In a real implementation, you would inject the database dependency
-        # For now, we'll return a mock response showing the structure
-
-        outbox_id = f"mint_{request.card_id}_{int(datetime.utcnow().timestamp())}"
-
-        logger.info(f"Mint request queued: {outbox_id} for card {request.card_id}")
-
+        # TODO: replace mock with real outbox call
+        created_at = datetime.now(timezone.utc)
+        outbox_id = f"mint_{request.card_id}_{uuid.uuid4().hex}"
+        payload = (
+            request.model_dump(exclude_none=True)
+            if hasattr(request, "model_dump")
+            else request.dict(exclude_none=True)
+        )
+        # NOTE: verify method name/asyncness in outbox processor (enqueue/publish/etc.)
+        outbox_processor.enqueue("mint", outbox_id, payload)
+        
+        logger.info("Mint request queued: %s for card %s", outbox_id, request.card_id)
+        
         return OperationResponse(
             outbox_id=outbox_id,
             status="pending",
             message=f"Mint request for card {request.card_id} queued for processing",
-            created_at=datetime.utcnow(),
+            created_at=created_at,
             estimated_completion="2-5 minutes",
         )
 
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        logger.error(f"Error queueing mint request: {e}")
+    except Exception:
+        logger.exception("Error queueing mint request")
         raise HTTPException(status_code=500, detail="Failed to queue mint request")
 
 
@@ -66,26 +73,33 @@ async def transfer_nft(
     Transfer an NFT using the transaction outbox pattern.
     """
     try:
-        outbox_id = f"transfer_{request.token_id}_{int(datetime.utcnow().timestamp())}"
-
-        logger.info(
-            f"Transfer request queued: {outbox_id} for token {request.token_id}"
+        created_at = datetime.now(timezone.utc)
+        outbox_id = f"transfer_{request.token_id}_{uuid.uuid4().hex}"
+        payload = (
+            request.model_dump(exclude_none=True)
+            if hasattr(request, "model_dump")
+            else request.dict(exclude_none=True)
         )
-
+        outbox_processor.enqueue("transfer", outbox_id, payload)
+        
+        logger.info("Transfer request queued: %s for token %s", outbox_id, request.token_id)
+        
         return OperationResponse(
             outbox_id=outbox_id,
             status="pending",
             message=f"Transfer request for token {request.token_id} queued for processing",
-            created_at=datetime.utcnow(),
+            created_at=created_at,
             estimated_completion="1-3 minutes",
         )
 
-    except Exception as e:
-        logger.error(f"Error queueing transfer request: {e}")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception:
+        logger.exception("Error queueing transfer request")
         raise HTTPException(status_code=500, detail="Failed to queue transfer request")
 
 
-@router.post("/operations/{outbox_id}/retry")
+@router.post("/operations/{outbox_id}/retry", response_model=Dict[str, str], status_code=202)
 async def retry_operation(
     outbox_id: str,
     outbox_processor=Depends(get_outbox_processor)  # Added dependency injection
@@ -97,7 +111,9 @@ async def retry_operation(
     that have failed or need immediate processing.
     """
     try:
-        logger.info(f"Manual retry requested for operation: {outbox_id}")
+        logger.info("Manual retry requested for operation: %s", outbox_id)
+        # NOTE: verify method name/asyncness
+        outbox_processor.retry(outbox_id)
 
         return {
             "outbox_id": outbox_id,
@@ -105,6 +121,6 @@ async def retry_operation(
             "message": "Operation has been queued for manual retry",
         }
 
-    except Exception as e:
-        logger.error(f"Error retrying operation {outbox_id}: {e}")
+    except Exception:
+        logger.exception("Error retrying operation %s", outbox_id)
         raise HTTPException(status_code=500, detail="Failed to retry operation")

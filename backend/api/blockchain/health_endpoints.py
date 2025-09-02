@@ -9,15 +9,16 @@ import logging
 
 from .dependencies import get_blockchain_service, get_health_manager
 from .validation import get_supported_network_names
-from ..config.blockchain_config import BlockchainConfig
+from ...config.blockchain_config import BlockchainConfig
 
 router = APIRouter(tags=["blockchain_health"])
 logger = logging.getLogger(__name__)
 
+
 @router.get("/health")
 async def get_blockchain_health(
     blockchain_service=Depends(get_blockchain_service),
-    health_manager=Depends(get_health_manager)
+    health_manager=Depends(get_health_manager),
 ) -> Dict[str, Any]:
     """
     Get health status of blockchain connections and processing.
@@ -36,7 +37,11 @@ async def get_blockchain_health(
         overall_status = "healthy"
 
         for network_key, network_config in BlockchainConfig.NETWORKS.items():
-            is_valid, errors = validation_results[network_key]
+            validation = validation_results.get(network_key)
+            if validation is None:
+                is_valid, errors = False, ["missing_validation_results"]
+            else:
+                is_valid, errors = validation
 
             if not is_valid:
                 overall_status = "degraded"
@@ -123,7 +128,7 @@ async def get_supported_networks() -> Dict[str, Any]:
             "address_format": address_format,
             "address_example": address_example,
             "supported_operations": BlockchainConfig.get_supported_operations(
-                network_config.name
+                network_key
             ),
             "status": "available",
         }

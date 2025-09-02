@@ -58,14 +58,19 @@ class InMemoryCursor:
             
         # Case 2: sort([("field1", 1), ("field2", -1)]) - List of tuples
         elif len(args) == 1 and isinstance(args[0], (list, tuple)):
-            for spec in args[0]:
-                if (isinstance(spec, (list, tuple)) and 
-                    len(spec) == 2 and 
-                    isinstance(spec[0], str) and 
-                    spec[1] in (1, -1)):
-                    self.sort_specs.append((spec[0], spec[1]))
-                else:
-                    logger.warning(f"Invalid sort specification: {spec}. Must be (field, direction) tuple.")
+            candidate = args[0]
+            # Allow a single (field, dir) tuple as the only argument
+            if (len(candidate) == 2 and isinstance(candidate[0], str) and candidate[1] in (1, -1)):
+                self.sort_specs.append((candidate[0], candidate[1]))
+            else:
+                for spec in candidate:
+                    if (isinstance(spec, (list, tuple)) and 
+                        len(spec) == 2 and 
+                        isinstance(spec[0], str) and 
+                        spec[1] in (1, -1)):
+                        self.sort_specs.append((spec[0], spec[1]))
+                    else:
+                        logger.warning(f"Invalid sort specification: {spec}. Must be (field, direction) tuple.")
             
             # Set legacy attributes based on first specification
             if self.sort_specs:
@@ -106,7 +111,7 @@ class InMemoryCursor:
                 reverse = direction == -1
                 result = sorted(
                     result,
-                    key=lambda x: x.get(field, ''),
+                    key=lambda x, f=field: (x.get(f) is None, x.get(f)),
                     reverse=reverse
                 )
         # For backward compatibility with old code
@@ -114,7 +119,7 @@ class InMemoryCursor:
             reverse = self.sort_direction == -1
             result = sorted(
                 result,
-                key=lambda x: x.get(self.sort_field, ''),
+                key=lambda x: (x.get(self.sort_field) is None, x.get(self.sort_field)),
                 reverse=reverse
             )
 
@@ -125,4 +130,8 @@ class InMemoryCursor:
         if self.limit_count is not None:
             result = result[:self.limit_count]
 
-        return result[:length] if length else result
+        if length is None:
+            return result
+        if length < 0:
+            raise ValueError("length must be >= 0")
+        return result[:length]

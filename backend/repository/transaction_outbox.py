@@ -96,7 +96,8 @@ class _OutboxEntryCompat:
         self.attempts = int(data.get("attempts", 0))
         self.max_attempts = int(data.get("max_attempts", 5))
         self.result = cast(Optional[Dict[str, Any]], data.get("result"))
-        self.last_error = cast(Optional[str], data.get("last_error"))
+        last_error_value = data.get("last_error")
+        self.last_error = None if last_error_value is None else str(last_error_value)
 
     @staticmethod
     def _require(d: Dict[str, Any], key: str) -> Any:
@@ -296,21 +297,22 @@ class TransactionOutboxRepository:
             if hasattr(self.collection, "count_documents"):
                 for status in stats.keys():
                     status_value = getattr(OutboxStatus, status.upper()).value
-                    stats[status] = sync_bridge(
+                    count_result = sync_bridge(
                         self.collection.count_documents, {"status": status_value}
                     )
+                    stats[status] = int(count_result) if count_result is not None else 0
             else:
                 # Fall back to filtering all items if count_documents not available
                 all_items = self._get_all_items_safe()
                 for item in all_items:
-                    status = item.get("status")
-                    if status == OutboxStatus.PENDING.value:
+                    status_value = item.get("status")
+                    if status_value == OutboxStatus.PENDING.value:
                         stats["pending"] += 1
-                    elif status == OutboxStatus.PROCESSING.value:
+                    elif status_value == OutboxStatus.PROCESSING.value:
                         stats["processing"] += 1
-                    elif status == OutboxStatus.COMPLETED.value:
+                    elif status_value == OutboxStatus.COMPLETED.value:
                         stats["completed"] += 1
-                    elif status == OutboxStatus.FAILED.value:
+                    elif status_value == OutboxStatus.FAILED.value:
                         stats["failed"] += 1
 
             return stats

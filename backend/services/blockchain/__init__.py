@@ -1,4 +1,3 @@
-# c:\Users\smitj\repos\crisis-unleashed-app\crisis-unleashed-app\backend\services\blockchain\__init__.py
 """
 Blockchain services package for different network implementations.
 """
@@ -9,12 +8,15 @@ try:
     from backend.services.blockchain.etherlink_provider import EtherlinkProvider
     from backend.services.blockchain.ethereum_provider import EthereumProvider
     from backend.services.blockchain.provider_factory import BlockchainProviderFactory
-except ImportError:
-    # Fallback for running from source
-    from .base_provider import BaseBlockchainProvider
-    from .etherlink_provider import EtherlinkProvider
-    from .ethereum_provider import EthereumProvider
-    from .provider_factory import BlockchainProviderFactory
+except ModuleNotFoundError as e:
+    # Only fallback when the absolute package path isn't importable.
+    if getattr(e, "name", "").startswith("backend"):
+        from .base_provider import BaseBlockchainProvider
+        from .etherlink_provider import EtherlinkProvider
+        from .ethereum_provider import EthereumProvider
+        from .provider_factory import BlockchainProviderFactory
+    else:
+        raise
 
 
 __all__ = [

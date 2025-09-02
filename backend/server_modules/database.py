@@ -22,7 +22,7 @@ def setup_database(settings: Any) -> Any:
     Returns:
         Database connection
     """
-    if settings.use_in_memory_db:
+    if bool(getattr(settings, "use_in_memory_db", True)):
         logger.info("Using in-memory database")
         return InMemoryDB()
 
@@ -35,7 +35,10 @@ def setup_database(settings: Any) -> Any:
         # db = client[settings.mongodb_db_name]
         # return db
 
-        # For now, return in-memory DB as placeholder
+        # For now, return in-memory DB as placeholder (non-prod only)
+        env = str(getattr(settings, "env", "")).lower()
+        if env in {"prod", "production"}:
+            raise RuntimeError("Real DB not configured; refusing in-memory fallback in production")
         logger.warning("Using in-memory database (placeholder for actual DB connection)")
         return InMemoryDB()
 

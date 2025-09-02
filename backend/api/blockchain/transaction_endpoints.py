@@ -4,6 +4,7 @@ API endpoints for blockchain transaction operations.
 
 from fastapi import APIRouter, HTTPException, Depends
 from datetime import datetime
+from uuid import uuid4
 import logging
 
 from .schemas import MintRequest, TransferRequest, OperationResponse
@@ -12,7 +13,7 @@ from .dependencies import get_blockchain_service, get_outbox_processor
 router = APIRouter(tags=["blockchain_transactions"])
 logger = logging.getLogger(__name__)
 
-@router.post("/mint", response_model=OperationResponse)
+@router.post("/mint", response_model=OperationResponse, status_code=202)
 async def mint_card(
     request: MintRequest,
     blockchain_service=Depends(get_blockchain_service),
@@ -28,7 +29,7 @@ async def mint_card(
         # In a real implementation, you would inject the database dependency
         # For now, we'll return a mock response showing the structure
 
-        outbox_id = f"mint_{request.card_id}_{int(datetime.utcnow().timestamp())}"
+        outbox_id = f"mint_{request.card_id}_{uuid4().hex}"
 
         logger.info(f"Mint request queued: {outbox_id} for card {request.card_id}")
 
@@ -47,7 +48,7 @@ async def mint_card(
         raise HTTPException(status_code=500, detail="Failed to queue mint request")
 
 
-@router.post("/transfer", response_model=OperationResponse)
+@router.post("/transfer", response_model=OperationResponse, status_code=202)
 async def transfer_nft(
     request: TransferRequest,
     blockchain_service=Depends(get_blockchain_service),
@@ -57,7 +58,7 @@ async def transfer_nft(
     Transfer an NFT using the transaction outbox pattern.
     """
     try:
-        outbox_id = f"transfer_{request.token_id}_{int(datetime.utcnow().timestamp())}"
+        outbox_id = f"transfer_{request.token_id}_{uuid4().hex}"
 
         logger.info(
             f"Transfer request queued: {outbox_id} for token {request.token_id}"

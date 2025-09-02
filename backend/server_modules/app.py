@@ -5,6 +5,7 @@ This module provides functionality to create and configure the FastAPI applicati
 """
 
 import logging
+import asyncio
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -41,11 +42,20 @@ def create_application(
         redoc_url="/api/redoc" if not getattr(settings, "disable_docs", False) else None,
     )
 
-    # Configure CORS
+    # Configure CORS with proper validation
+    cors_origins = getattr(settings, "cors_origins", [])
+    if isinstance(cors_origins, str):
+        cors_origins = [o.strip() for o in cors_origins.split(",") if o.strip()]
+    if not isinstance(cors_origins, (list, tuple)):
+        raise ValueError("settings.cors_origins must be a list/tuple of origins")
+    allow_credentials = bool(getattr(settings, "cors_allow_credentials", True))
+    if "*" in cors_origins and allow_credentials:
+        raise ValueError("Cannot use '*' in CORS when allow_credentials=True")
+    
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=settings.cors_origins,
-        allow_credentials=True,
+        allow_origins=cors_origins,
+        allow_credentials=allow_credentials,
         allow_methods=["*"],
         allow_headers=["*"],
     )
@@ -56,12 +66,21 @@ def create_application(
         health_manager=health_manager
     )
 
-    # Add database to request state
+    # Add database to request state with proper session management
     @app.middleware("http")
     async def add_db_to_request(request: Request, call_next):
-        request.state.db = db
-        response = await call_next(request)
-        return response
+        created_session = callable(db)
+        session = db() if created_session else db
+        try:
+            request.state.db = session
+            return await call_next(request)
+        finally:
+            if created_session:
+                close = getattr(session, "close", None)
+                if close is not None:
+                    res = close()
+                    if asyncio.iscoroutine(res):
+                        await res
 
     # Basic root endpoint
     @app.get("/")

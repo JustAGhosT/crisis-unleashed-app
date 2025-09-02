@@ -1,4 +1,3 @@
-# c:\Users\smitj\repos\crisis-unleashed-app\crisis-unleashed-app\backend\services\blockchain_handler.py
 """
 Blockchain Handler for processing outbox entries.
 """

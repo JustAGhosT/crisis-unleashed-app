@@ -1,11 +1,15 @@
 "use client";
 
+import { canDisengage, findPath, getAdjacentEnemies, isEngaged } from "@/lib/battlefield-pathfinding";
+import { axialDistance, axialNeighbors, axialToOffsetOddR, offsetOddRToAxial } from "@/lib/hex";
+import { isInLane } from "@/lib/hex-advanced";
+import { EnhancedBattlefieldUnit, Phase } from "@/types/battlefield";
+import { BattlefieldUnit, BattlefieldZone, Card, PlayerId } from "@/types/game";
 import clsx from "clsx";
-import styles from "./battlefield.module.css";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { offsetOddRToAxial, axialNeighbors, axialToOffsetOddR, axialDistance } from "@/lib/hex";
-import type { BattlefieldUnit, BattlefieldZone, Card, PlayerId } from "@/types/game";
-import type { Phase } from "@/components/game/TurnManager";
+import styles from "./battlefield.module.css";
+import { BattlefieldUnitComponent } from "./BattlefieldUnit";
+import { BattlefieldZoneComponent } from "./BattlefieldZone";
 
 export interface BattlefieldProps {
   selectedCard: Card | null;
@@ -52,19 +56,23 @@ export const Battlefield: React.FC<BattlefieldProps> = ({
   const [legalMovePositions, setLegalMovePositions] = useState<Set<string>>(new Set());
   const [adjacentEnemyPositions, setAdjacentEnemyPositions] = useState<Set<string>>(new Set());
 
+  // Generate battlefield grid with proper zone types and axial coordinates
   const battlefieldGrid = useMemo(() => {
     const grid: BattlefieldZone[] = [];
-    const midLow = Math.floor(rows / 2) - 1; // for 6 rows -> 2
-    const midHigh = Math.floor(rows / 2);     // for 6 rows -> 3
+    const midLow = Math.floor(rows / 2) - 1;
+    const midHigh = Math.floor(rows / 2);
+
     for (let row = 0; row < rows; row++) {
       for (let col = 0; col < cols; col++) {
         const position = `${row}-${col}`;
-        const isEnemyZone = row < 3;            // top 3 rows
-        const isPlayerZone = row >= rows - 3;   // bottom 3 rows
-        const isFrontline = row === midLow || row === midHigh; // central band
+        const isEnemyZone = row < 3;
+        const isPlayerZone = row >= rows - 3;
+        const isFrontline = row === midLow || row === midHigh;
         const isBackline = !isFrontline && (isPlayerZone || isEnemyZone);
-        const isNeutralZone = false; // base config: no neutral rows
+        const isNeutralZone = !isPlayerZone && !isEnemyZone;
+
         const axial = offsetOddRToAxial(row, col);
+
         grid.push({
           position,
           unit: units[position] || null,
@@ -76,37 +84,119 @@ export const Battlefield: React.FC<BattlefieldProps> = ({
           isFrontline,
           isBackline,
           axial,
+          lane: isInLane(axial),
         });
       }
     }
+
     return grid;
   }, [units, rows, cols]);
 
-  const getZoneByPosition = useCallback((pos: string): BattlefieldZone | undefined => {
-    return battlefieldGrid.find((z) => z.position === pos);
-  }, [battlefieldGrid]);
+  // Get zone by position helper
+  const getZoneByPosition = useCallback(
+    (pos: string): BattlefieldZone | undefined => {
+      return battlefieldGrid.find((z) => z.position === pos);
+    },
+    [battlefieldGrid]
+  );
 
-  const effectiveMoveCost = useCallback((unit: BattlefieldUnit, src: BattlefieldZone, dst: BattlefieldZone, dist: number) => {
-    if (movementCostFn) return movementCostFn(unit, src, dst, dist);
-    // Default: base distance
-    let cost = dist;
-    // Slight friction entering frontline
-    if (dst.isFrontline) cost += 1;
-    // Simple ZOC: if unit has zoc and is leaving adjacency to an enemy, add +1
-    if (unit.zoc && src.axial) {
-      const leavingEnemyAdj = axialNeighbors(src.axial)
-        .map(axialToOffsetOddR)
-        .some(({ row, col }) => {
+  // Calculate effective movement cost with ZoC implementation
+  const effectiveMoveCost = useCallback(
+    (unit: BattlefieldUnit, src: BattlefieldZone, dst: BattlefieldZone, dist: number) => {
+      // Use provided movement cost function if available
+      if (movementCostFn) return movementCostFn(unit, src, dst, dist);
+
+      // Prevent exiting engaged hexes without Disengage ability
+      if (isEngaged(units, unit, src.position) && !canDisengage(unit)) {
+        return Infinity; // Cannot move (infinite cost)
+      }
+
+      // Default: base distance
+      let cost = dist;
+
+      // ZoC implementation - entering hex adjacent to enemy
+      const enemiesAdjacentToDst = getAdjacentEnemies(units, unit, dst.position);
+      if (enemiesAdjacentToDst.length > 0) {
+        cost += (unit as EnhancedBattlefieldUnit).zocCostModifier || 2; // Default ZoC cost
+      }
+
+      // Slight friction entering frontline
+      if (dst.isFrontline) cost += 1;
+
+      // Cap maximum cost to prevent movement lockouts from stacked modifiers
+      return Math.min(cost, dist * 2);
+    },
+    [movementCostFn, units]
+  );
+
+  // Calculate legal moves using A* pathfinding
+  const calculateLegalMoves = useCallback(
+    (zone: BattlefieldZone, unitPosition: string) => {
+      if (!zone.axial) return;
+
+      const unit = units[unitPosition];
+      if (!unit) return;
+
+      const speed = unit.moveSpeed ?? 0;
+      const legal = new Set<string>();
+
+      // For each potential destination on the grid
+      for (let rIdx = 0; rIdx < rows; rIdx++) {
+        for (let cIdx = 0; cIdx < cols; cIdx++) {
+          const pos = `${rIdx}-${cIdx}`;
+          if (pos === unitPosition) continue;
+
+          const dstZone = getZoneByPosition(pos);
+          if (!dstZone?.axial || dstZone.unit) continue;
+
+          // Use A* to find path
+          const path = findPath(
+            zone.axial,
+            dstZone.axial,
+            unit,
+            units,
+            battlefieldGrid
+          );
+
+          // Calculate path cost
+          let pathCost = 0;
+          for (let i = 1; i < path.length; i++) {
+            const prevPos = `${path[i - 1].r}-${path[i - 1].q}`;
+            const nextPos = `${path[i].r}-${path[i].q}`;
+            const srcPos = getZoneByPosition(prevPos);
+            const dstPos = getZoneByPosition(nextPos);
+
+            if (srcPos && dstPos) {
+              pathCost += effectiveMoveCost(unit, srcPos, dstPos, 1);
+            }
+          }
+
+          // If path exists and total cost is within unit's speed
+          if (path.length > 0 && pathCost <= speed) {
+            legal.add(pos);
+          }
+        }
+      }
+
+      setLegalMovePositions(legal);
+
+      // Calculate adjacent enemies for attack highlighting
+      const adj = new Set<string>();
+      axialNeighbors(zone.axial)
+        .map((axial) => axialToOffsetOddR(axial))
+        .filter(({ row, col }) => row >= 0 && row < rows && col >= 0 && col < cols)
+        .forEach(({ row, col }) => {
           const p = `${row}-${col}`;
           const u = units[p];
-          return !!u && u.player !== unit.player;
+          if (u && u.player !== playerId) adj.add(p);
         });
-      if (leavingEnemyAdj) cost += 1;
-    }
-    // Cap maximum cost to prevent movement lockouts from stacked modifiers
-    return Math.min(cost, dist * 2);
-  }, [movementCostFn, units]);
 
+      setAdjacentEnemyPositions(adj);
+    },
+    [battlefieldGrid, effectiveMoveCost, getZoneByPosition, playerId, rows, cols, units]
+  );
+
+  // Handle zone click for unit selection, movement, attacks, and card placement
   const handleZoneClick = useCallback(
     (position: string, zone: BattlefieldZone) => {
       // Helper to check action availability
@@ -117,11 +207,13 @@ export const Battlefield: React.FC<BattlefieldProps> = ({
         const srcZone = getZoneByPosition(selectedUnitPos);
         const attacker = units[selectedUnitPos];
         const target = zone.unit;
+
         if (!attacker || !target || !srcZone?.axial || !zone.axial) return;
-        
+
         if (canAct) {
           const dist = axialDistance(srcZone.axial, zone.axial);
           const isFriendly = target.player === attacker.player;
+
           if (isFriendly && !attacker.friendlyFire) {
             console.warn("Cannot attack friendly units without friendlyFire enabled");
             return;
@@ -130,7 +222,9 @@ export const Battlefield: React.FC<BattlefieldProps> = ({
             const meleeOnly = attacker.meleeOnly === true;
             const rangeMin = meleeOnly ? 1 : (attacker.rangeMin ?? (attacker.type === "ranged" ? 2 : 1));
             const rangeMax = meleeOnly ? 1 : (attacker.rangeMax ?? (attacker.type === "ranged" ? 3 : 1));
+
             const inRange = dist >= rangeMin && dist <= rangeMax && dist > 0;
+
             if (inRange) {
               onAttack?.(selectedUnitPos, position);
               onActionUsed?.();
@@ -155,45 +249,14 @@ export const Battlefield: React.FC<BattlefieldProps> = ({
       if (zone.unit) {
         onUnitSelected?.(zone.unit);
         const isPlayerUnit = zone.unit.player === playerId;
+
         if (isPlayerUnit) {
           // Toggle selection
           const newSel = selectedUnitPos === position ? null : position;
           setSelectedUnitPos(newSel);
+
           if (newSel) {
-            // Compute legal moves by axial distance and occupancy
-            const src = zone.axial!;
-            const speed = zone.unit.moveSpeed ?? 0;
-            const legal = new Set<string>();
-            for (let rIdx = 0; rIdx < rows; rIdx++) {
-              for (let cIdx = 0; cIdx < cols; cIdx++) {
-                const pos = `${rIdx}-${cIdx}`;
-                if (pos === position) continue;
-                const targetAxial = offsetOddRToAxial(rIdx, cIdx);
-                // Only consider within speed and empty tiles
-                const d = axialDistance(src, targetAxial);
-                const srcZone = getZoneByPosition(position);
-                const dstZone = getZoneByPosition(pos);
-                if (srcZone && dstZone) {
-                  const mover = units[position]!;
-                  const cost = effectiveMoveCost(mover, srcZone, dstZone, d);
-                  if (cost <= speed && !units[pos]) {
-                    legal.add(pos);
-                  }
-                }
-              }
-            }
-            setLegalMovePositions(legal);
-            // Compute adjacent enemies (for melee targeting cues)
-            const adj = new Set<string>();
-            axialNeighbors(src)
-              .map(axialToOffsetOddR)
-              .filter(({ row, col }) => row >= 0 && row < rows && col >= 0 && col < cols)
-              .forEach(({ row, col }) => {
-                const p = `${row}-${col}`;
-                const u = units[p];
-                if (u && u.player !== playerId) adj.add(p);
-              });
-            setAdjacentEnemyPositions(adj);
+            calculateLegalMoves(zone, newSel);
           } else {
             setLegalMovePositions(new Set());
             setAdjacentEnemyPositions(new Set());
@@ -207,11 +270,17 @@ export const Battlefield: React.FC<BattlefieldProps> = ({
         onCardPlayed(position);
       }
     },
-    [selectedCard, onCardPlayed, onUnitSelected, selectedUnitPos, legalMovePositions, units, playerId, rows, cols, actionsLeft, getZoneByPosition, effectiveMoveCost, onActionUsed, onMove, onAttack]
+    [
+      selectedCard, onCardPlayed, onUnitSelected, selectedUnitPos, legalMovePositions,
+      units, playerId, getZoneByPosition, actionsLeft, onActionUsed, onMove, onAttack,
+      calculateLegalMoves
+    ]
   );
 
+  // Reset selection state on phase change
   useEffect(() => {
     if (!currentPhase) return;
+
     setSelectedUnitPos(null);
     setLegalMovePositions(new Set());
     setAdjacentEnemyPositions(new Set());
@@ -219,65 +288,38 @@ export const Battlefield: React.FC<BattlefieldProps> = ({
     setHoveredZone(null);
   }, [currentPhase]);
 
+  // Handle zone hover effects
   const handleZoneHover = useCallback(
     (position: string | null) => {
       setHoveredZone(position);
       onZoneHover?.(position);
+
       if (!position) {
         setNeighborPositions(new Set());
         return;
       }
+
       // Find hovered zone, compute axial neighbors, map back to row/col positions within bounds
       const zone = battlefieldGrid.find((z) => z.position === position);
       if (!zone || !zone.axial) {
         setNeighborPositions(new Set());
         return;
       }
+
       const neighbors = axialNeighbors(zone.axial)
-        .map(axialToOffsetOddR)
+        .map((axial) => axialToOffsetOddR(axial))
         .filter(({ row, col }) => row >= 0 && row < rows && col >= 0 && col < cols)
         .map(({ row, col }) => `${row}-${col}`);
+
       setNeighborPositions(new Set(neighbors));
     },
     [onZoneHover, battlefieldGrid, rows, cols]
   );
 
-  const renderUnit = (unit: BattlefieldUnit) => {
-    if (!unit) return null;
-    const isPlayerUnit = unit.player === playerId;
-    return (
-      <div
-        className={clsx(
-          "rounded-md px-2 py-1 text-sm shadow-md",
-          isPlayerUnit ? "bg-blue-900/60 border border-blue-500/30" : "bg-red-900/60 border border-red-500/30"
-        )}
-        onClick={(e) => {
-          e.stopPropagation();
-          onUnitSelected?.(unit);
-        }}
-      >
-        <div className="font-semibold">{unit.name}</div>
-        <div className="flex gap-2 text-xs opacity-90">
-          <span>⚔️{unit.attack}</span>
-          <span>❤️{unit.health}</span>
-        </div>
-        {unit.abilities?.length ? (
-          <div className="mt-1 flex gap-1 text-[10px]">
-            {unit.abilities.map((a, i) => (
-              <span key={i} className="rounded bg-black/30 px-1 py-0.5">
-                {a[0]}
-              </span>
-            ))}
-          </div>
-        ) : null}
-      </div>
-    );
-  };
-
+  // CSS class helpers for responsive grid layout
   const clamp = (val: number, min: number, max: number) => Math.max(min, Math.min(max, val));
   const c = clamp(cols, 3, 7);
   const r = clamp(rows, 2, 6);
-  // Map to CSS module helper classes to avoid inline style usage
   const colClass = (styles as Record<string, string>)[`cols-${c}`] || styles["cols-5"];
   const rowClass = (styles as Record<string, string>)[`rows-${r}`] || styles["rows-3"];
   const rowHClass = styles["rowh-80"]; // default height
@@ -293,50 +335,35 @@ export const Battlefield: React.FC<BattlefieldProps> = ({
           rowHClass
         )}
       >
-        {battlefieldGrid.map((zone) => {
-          const isActiveZone = hoveredZone === zone.position && !!selectedCard;
-          const isPlayableZone = isActiveZone && (zone.isPlayerZone || (zone.isNeutralZone && !zone.unit));
-          const isNeighbor = neighborPositions.has(zone.position);
-          const isLegalMove = legalMovePositions.has(zone.position) && !zone.unit;
-          const isSelected = selectedUnitPos === zone.position;
-          return (
-            <div
-              key={zone.position}
-              className={clsx(
-                "relative flex items-center justify-center transition-all duration-200",
-                styles.hex,
-                "border-2 border-opacity-30",
-                {
-                  "bg-blue-900/20 border-blue-500/60": zone.isPlayerZone,
-                  "bg-red-900/20 border-red-500/60": zone.isEnemyZone,
-                  "bg-gray-800/30 border-gray-600/80": zone.isNeutralZone,
-                  "ring-2 ring-offset-2 ring-offset-gray-900 ring-primary": isActiveZone,
-                  "outline outline-1 outline-yellow-400/60": isNeighbor && process.env.NODE_ENV === "development",
-                  "cursor-pointer hover:bg-opacity-40": isPlayableZone || isLegalMove || isSelected,
-                  "ring-2 ring-emerald-400/70": isLegalMove,
-                  "ring-2 ring-cyan-400/70": isSelected,
-                  "outline outline-2 outline-red-500/70": selectedUnitPos && adjacentEnemyPositions.has(zone.position),
-                }
-              )}
-              onMouseEnter={() => handleZoneHover(zone.position)}
-              onMouseLeave={() => handleZoneHover(null)}
-              onClick={() => handleZoneClick(zone.position, zone)}
-              data-pos={zone.position}
-              data-player-zone={zone.isPlayerZone ? "true" : "false"}
-              data-enemy-zone={zone.isEnemyZone ? "true" : "false"}
-              data-frontline={zone.isFrontline ? "true" : "false"}
-              data-backline={zone.isBackline ? "true" : "false"}
-              data-legal-move={isLegalMove ? "true" : "false"}
-            >
-              <div className="absolute inset-0 rounded-lg opacity-20 transition-opacity" />
-              <div className="absolute inset-0 bg-grid-pattern opacity-5" />
-              {zone.unit && renderUnit(zone.unit)}
-              {process.env.NODE_ENV === "development" && (
-                <div className="absolute bottom-1 right-1 text-[10px] opacity-60">{zone.position}</div>
-              )}
-            </div>
-          );
-        })}
+        {battlefieldGrid.map((zone) => (
+          <BattlefieldZoneComponent
+            key={zone.position}
+            zone={zone}
+            isActiveZone={hoveredZone === zone.position && !!selectedCard}
+            isNeighbor={neighborPositions.has(zone.position)}
+            isLegalMove={legalMovePositions.has(zone.position) && !zone.unit}
+            isSelected={selectedUnitPos === zone.position}
+            isAdjacentEnemy={Boolean(selectedUnitPos && adjacentEnemyPositions.has(zone.position))}
+            onMouseEnter={() => handleZoneHover(zone.position)}
+            onMouseLeave={() => handleZoneHover(null)}
+            onClick={() => handleZoneClick(zone.position, zone)}
+          >
+            {zone.unit && (
+              <BattlefieldUnitComponent
+                unit={zone.unit}
+                isPlayerUnit={zone.unit.player === playerId}
+                onUnitClick={(e) => {
+                  e.stopPropagation();
+                  onUnitSelected?.(zone.unit!);
+                }}
+              />
+            )}
+
+            {process.env.NODE_ENV === "development" && (
+              <div className="absolute bottom-1 right-1 text-[10px] opacity-60">{zone.position}</div>
+            )}
+          </BattlefieldZoneComponent>
+        ))}
       </div>
     </div>
   );

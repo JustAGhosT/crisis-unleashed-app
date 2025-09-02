@@ -5,6 +5,7 @@ This module provides a collection implementation for the in-memory database.
 """
 
 import logging
+import asyncio
 from typing import Any, Dict, List, Optional, Union
 
 # Import related classes
@@ -20,6 +21,7 @@ class InMemoryCollection:
         self.name = name
         self.data = []
         self._id_counter = 1  # For auto-incrementing IDs
+        self._lock = asyncio.Lock()  # Add lock for thread safety
 
     async def find(self, query=None):
         """Find documents matching query."""
@@ -47,13 +49,14 @@ class InMemoryCollection:
 
     async def insert_one(self, document):
         """Insert one document."""
-        # Auto-assign _id if not present
-        if '_id' not in document:
-            document['_id'] = self._id_counter
-            self._id_counter += 1
-            
         doc_copy = document.copy()
-        self.data.append(doc_copy)
+        # Auto-assign _id if not present
+        async with self._lock:
+            if '_id' not in doc_copy:
+                doc_copy['_id'] = self._id_counter
+                self._id_counter += 1
+            
+            self.data.append(doc_copy)
         return {"inserted_id": doc_copy.get("_id")}
 
     async def insert_many(self, documents):
@@ -66,28 +69,29 @@ class InMemoryCollection:
 
     async def update_one(self, filter, update, **kwargs):
         """Update one document matching filter."""
-        for i, doc in enumerate(self.data):
-            match = True
-            for key, value in filter.items():
-                if key not in doc or doc[key] != value:
-                    match = False
-                    break
+        async with self._lock:
+            for i, doc in enumerate(self.data):
+                match = True
+                for key, value in filter.items():
+                    if key not in doc or doc[key] != value:
+                        match = False
+                        break
 
-            if match:
-                # Handle $set operator
-                if "$set" in update:
-                    for key, value in update["$set"].items():
-                        self.data[i][key] = value
-                # Handle $inc operator
-                if "$inc" in update:
-                    for key, value in update["$inc"].items():
-                        self.data[i][key] = self.data[i].get(key, 0) + value
-                # Handle direct update
-                else:
-                    for key, value in update.items():
-                        if key != "_id":  # Don't update _id
+                if match:
+                    # Handle $set operator
+                    if "$set" in update:
+                        for key, value in update["$set"].items():
                             self.data[i][key] = value
-                return {"modified_count": 1, "matched_count": 1}
+                    # Handle $inc operator
+                    if "$inc" in update:
+                        for key, value in update["$inc"].items():
+                            self.data[i][key] = self.data[i].get(key, 0) + value
+                    # Handle direct update
+                    elif not any(op in update for op in ["$set", "$inc"]):
+                        for key, value in update.items():
+                            if key != "_id":  # Don't update _id
+                                self.data[i][key] = value
+                    return {"modified_count": 1, "matched_count": 1}
 
         return {"modified_count": 0, "matched_count": 0}
 
@@ -96,60 +100,62 @@ class InMemoryCollection:
         modified_count = 0
         matched_count = 0
         
-        for i, doc in enumerate(self.data):
-            match = True
-            for key, value in filter.items():
-                if key not in doc or doc[key] != value:
-                    match = False
-                    break
+        async with self._lock:
+            for i, doc in enumerate(self.data):
+                match = True
+                for key, value in filter.items():
+                    if key not in doc or doc[key] != value:
+                        match = False
+                        break
 
-            if match:
-                matched_count += 1
-                # Handle $set operator
-                if "$set" in update:
-                    for key, value in update["$set"].items():
-                        self.data[i][key] = value
-                    modified_count += 1
-                # Handle $inc operator
-                elif "$inc" in update:
-                    for key, value in update["$inc"].items():
-                        self.data[i][key] = self.data[i].get(key, 0) + value
-                    modified_count += 1
-                # Handle direct update
-                else:
-                    for key, value in update.items():
-                        if key != "_id":  # Don't update _id
+                if match:
+                    matched_count += 1
+                    # Handle $set operator
+                    if "$set" in update:
+                        for key, value in update["$set"].items():
                             self.data[i][key] = value
-                    modified_count += 1
+                        modified_count += 1
+                    # Handle $inc operator
+                    elif "$inc" in update:
+                        for key, value in update["$inc"].items():
+                            self.data[i][key] = self.data[i].get(key, 0) + value
+                        modified_count += 1
+                    # Handle direct update
+                    else:
+                        for key, value in update.items():
+                            if key != "_id":  # Don't update _id
+                                self.data[i][key] = value
+                        modified_count += 1
 
         return {"modified_count": modified_count, "matched_count": matched_count}
 
     async def delete_one(self, filter):
         """Delete one document matching filter."""
-        for i, doc in enumerate(self.data):
-            match = True
-            for key, value in filter.items():
-                if key not in doc or doc[key] != value:
-                    match = False
-                    break
+        async with self._lock:
+            for i, doc in enumerate(self.data):
+                match = True
+                for key, value in filter.items():
+                    if key not in doc or doc[key] != value:
+                        match = False
+                        break
 
-            if match:
-                self.data.pop(i)
-                return {"deleted_count": 1}
+                if match:
+                    self.data.pop(i)
+                    return {"deleted_count": 1}
 
         return {"deleted_count": 0}
 
     async def delete_many(self, filter):
         """Delete many documents matching filter."""
-        original_count = len(self.data)
-
-        # Filter out documents that don't match
-        self.data = [
-            doc for doc in self.data
-            if not all(key in doc and doc[key] == value for key, value in filter.items())
-        ]
-
-        deleted_count = original_count - len(self.data)
+        async with self._lock:
+            original_count = len(self.data)
+            # Filter out documents that don't match
+            self.data = [
+                doc for doc in self.data
+                if not all(key in doc and doc[key] == value for key, value in filter.items())
+            ]
+            deleted_count = original_count - len(self.data)
+            
         return {"deleted_count": deleted_count}
 
     async def count_documents(self, query=None):
@@ -171,36 +177,37 @@ class InMemoryCollection:
             else:
                 return_document = ReturnDocument.BEFORE
         
-        for i, doc in enumerate(self.data):
-            match = True
-            for key, value in filter.items():
-                if key not in doc or doc[key] != value:
-                    match = False
-                    break
+        async with self._lock:
+            for i, doc in enumerate(self.data):
+                match = True
+                for key, value in filter.items():
+                    if key not in doc or doc[key] != value:
+                        match = False
+                        break
 
-            if match:
-                # Keep original document for return
-                original = self.data[i].copy()
+                if match:
+                    # Keep original document for return
+                    original = self.data[i].copy()
 
-                # Handle $set operator
-                if "$set" in update:
-                    for key, value in update["$set"].items():
-                        self.data[i][key] = value
-                # Handle $inc operator
-                elif "$inc" in update:
-                    for key, value in update["$inc"].items():
-                        self.data[i][key] = self.data[i].get(key, 0) + value
-                # Handle direct update
-                else:
-                    for key, value in update.items():
-                        if key != "_id":  # Don't update _id
+                    # Handle $set operator
+                    if "$set" in update:
+                        for key, value in update["$set"].items():
                             self.data[i][key] = value
+                    # Handle $inc operator
+                    elif "$inc" in update:
+                        for key, value in update["$inc"].items():
+                            self.data[i][key] = self.data[i].get(key, 0) + value
+                    # Handle direct update
+                    else:
+                        for key, value in update.items():
+                            if key != "_id":  # Don't update _id
+                                self.data[i][key] = value
 
-                # Return based on return_document option
-                if return_document == ReturnDocument.AFTER:
-                    return self.data[i].copy()
-                else:
-                    return original
+                    # Return based on return_document option
+                    if return_document == ReturnDocument.AFTER:
+                        return self.data[i].copy()
+                    else:
+                        return original
 
         return None
 

@@ -6,19 +6,26 @@ from fastapi import Request, HTTPException, Depends
 from typing import Any
 import logging
 
-from ..services.health_manager import ServiceHealthManager, CriticalServiceException
+from ...services.health_manager import ServiceHealthManager, CriticalServiceException
 
 logger = logging.getLogger(__name__)
+
 
 async def get_health_manager(request: Request) -> ServiceHealthManager:
     """Dependency to get the health manager from the app state."""
     if not hasattr(request.app.state, "health_manager"):
         logger.error("Health manager not initialized in application state")
         raise HTTPException(
-            status_code=503,
-            detail="Health manager service not initialized"
+            status_code=503, detail="Health manager service not initialized"
         )
-    return request.app.state.health_manager
+    health_manager = request.app.state.health_manager
+    if not isinstance(health_manager, ServiceHealthManager):
+        logger.error(f"Expected ServiceHealthManager, got {type(health_manager)}")
+        raise HTTPException(
+            status_code=503, detail="Invalid health manager service type"
+        )
+    return health_manager
+
 
 async def get_blockchain_service(
     health_manager: ServiceHealthManager = Depends(get_health_manager),
@@ -33,9 +40,10 @@ async def get_blockchain_service(
             detail={
                 "error": "Blockchain service unavailable",
                 "message": "The blockchain service is not available. Please try again later.",
-                "service_status": str(e)
-            }
+                "service_status": str(e),
+            },
         )
+
 
 async def get_outbox_processor(
     health_manager: ServiceHealthManager = Depends(get_health_manager),
@@ -53,6 +61,6 @@ async def get_outbox_processor(
                     "The transaction processing service is not available. "
                     "Please try again later."
                 ),
-                "service_status": str(e)
-            }
+                "service_status": str(e),
+            },
         )

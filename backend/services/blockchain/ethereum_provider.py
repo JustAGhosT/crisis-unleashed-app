@@ -1,15 +1,15 @@
 """
 Ethereum blockchain provider implementation.
 """
+
 import logging
 from typing import Any, Dict, Optional, cast
 
-from ...app_types import BlockchainConfig, ContractABI
-from ...utils.logging import get_logger
+from ...config.blockchain_config import BlockchainConfig
 from .base_provider import BaseBlockchainProvider
 from .web3_compat import TransactionNotFound, new_web3
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class EthereumProvider(BaseBlockchainProvider):
@@ -17,13 +17,14 @@ class EthereumProvider(BaseBlockchainProvider):
 
     def __init__(self, network_config: Dict[str, Any]):
         super().__init__(network_config)
-        self.rpc_url = network_config.get("provider_url") or network_config.get("rpc_url")
+        self.rpc_url = network_config.get("provider_url") or network_config.get(
+            "rpc_url"
+        )
         if not self.rpc_url:
             logger.warning("No RPC URL configured for EthereumProvider")
-        self.contract_address = (
-            network_config.get("contract_address")
-            or network_config.get("nft_contract_address")
-        )
+        self.contract_address = network_config.get(
+            "contract_address"
+        ) or network_config.get("nft_contract_address")
         self.contract_abi = network_config.get("contract_abi") or []
         self.web3: Optional[Any] = None
         self.contract: Optional[Any] = None
@@ -85,7 +86,9 @@ class EthereumProvider(BaseBlockchainProvider):
         self.contract = None
         self._connected = False
 
-    def _prepare_and_send_transaction(self, fn: Any, from_address: Optional[str]) -> str:
+    def _prepare_and_send_transaction(
+        self, fn: Any, from_address: Optional[str]
+    ) -> str:
         """
         Build a transaction for the provided contract function and send it.
         Handles chainId, nonce, optional gas estimation, and optional signing.
@@ -128,11 +131,15 @@ class EthereumProvider(BaseBlockchainProvider):
         # Optional gas estimation if explicitly enabled (avoids issues with mocks)
         if self.network_config.get("estimate_gas", False):
             try:
-                estimated_gas = fn.estimate_gas({"from": from_address} if from_address else {})
+                estimated_gas = fn.estimate_gas(
+                    {"from": from_address} if from_address else {}
+                )
                 tx_params["gas"] = estimated_gas
             except Exception:
                 # Fallback to configured/default gas
-                logger.debug("Gas estimation failed; using configured/default gas limit")
+                logger.debug(
+                    "Gas estimation failed; using configured/default gas limit"
+                )
 
         # Remove None values to avoid web3 validation issues
         tx_params = {k: v for k, v in tx_params.items() if v is not None}
@@ -160,7 +167,9 @@ class EthereumProvider(BaseBlockchainProvider):
                 except Exception:
                     # If signing fails, fall back to sending the unsigned tx
                     # (useful in test/mocked environments)
-                    logger.warning("Local signing failed; falling back to send_transaction")
+                    logger.warning(
+                        "Local signing failed; falling back to send_transaction"
+                    )
 
         # Default path: send unsigned transaction via provider
         w3 = self.web3
@@ -180,10 +189,14 @@ class EthereumProvider(BaseBlockchainProvider):
         self._ensure_connected()
         if not self.contract:
             raise RuntimeError("Contract not initialized")
-        fn = self.contract.functions.safeTransferFrom(from_address, to_address, token_id)
+        fn = self.contract.functions.safeTransferFrom(
+            from_address, to_address, token_id
+        )
         return self._prepare_and_send_transaction(fn, from_address)
 
-    def wait_for_confirmation(self, tx_hash: str, timeout: int = 120) -> Optional[Dict[str, Any]]:
+    def wait_for_confirmation(
+        self, tx_hash: str, timeout: int = 120
+    ) -> Optional[Dict[str, Any]]:
         self._ensure_connected()
         try:
             # Delegate to web3; tests assert this call

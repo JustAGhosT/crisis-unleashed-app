@@ -7,13 +7,16 @@ and handle service dependencies properly.
 
 import asyncio
 import logging
+import time
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Set
 
 logger = logging.getLogger(__name__)
 
+
 class ServiceStatus(Enum):
     """Status of a registered service."""
+
     UNKNOWN = "unknown"
     STARTING = "starting"
     HEALTHY = "healthy"
@@ -21,21 +24,24 @@ class ServiceStatus(Enum):
     UNHEALTHY = "unhealthy"
     STOPPED = "stopped"
 
+
 class CriticalServiceException(Exception):
     """Exception raised when a critical service fails to initialize."""
+
     pass
+
 
 class ServiceInfo:
     """Information about a registered service."""
 
     def __init__(
-            self,
-            name: str,
-            service_instance: Any,
-            health_check_func: Optional[Callable] = None,
-            is_critical: bool = False,
-            dependencies: Optional[List[str]] = None
-        ):
+        self,
+        name: str,
+        service_instance: Any,
+        health_check_func: Optional[Callable] = None,
+        is_critical: bool = False,
+        dependencies: Optional[List[str]] = None,
+    ):
         self.name = name
         self.service_instance = service_instance
         self.health_check_func = health_check_func
@@ -45,6 +51,7 @@ class ServiceInfo:
         self.last_error: Optional[str] = None
         self.last_checked_at: Optional[float] = None
 
+
 class ServiceHealthManager:
     """
     Manages health status of all registered services.
@@ -53,18 +60,20 @@ class ServiceHealthManager:
     and enforcing dependencies between services.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.services: Dict[str, ServiceInfo] = {}
         self._health_task: Optional[asyncio.Task] = None
         self._should_stop = asyncio.Event()
         self._check_interval = 30  # seconds
 
-    def register_service(self,
-                        name: str,
-                        service_instance: Any,
-                        health_check_func: Optional[Callable] = None,
-                        is_critical: bool = False,
-                        dependencies: Optional[List[str]] = None):
+    def register_service(
+        self,
+        name: str,
+        service_instance: Any,
+        health_check_func: Optional[Callable] = None,
+        is_critical: bool = False,
+        dependencies: Optional[List[str]] = None,
+    ) -> None:
         """
         Register a service to be monitored.
 
@@ -83,7 +92,7 @@ class ServiceHealthManager:
             service_instance=service_instance,
             health_check_func=health_check_func,
             is_critical=is_critical,
-            dependencies=dependencies
+            dependencies=dependencies,
         )
         logger.info(f"Registered service: {name} (critical: {is_critical})")
 
@@ -93,7 +102,9 @@ class ServiceHealthManager:
             raise KeyError(f"Service not registered: {service_name}")
         return self.services[service_name].service_instance
 
-    def check_service_availability(self, service_name: str, required: bool = True) -> bool:
+    def check_service_availability(
+        self, service_name: str, required: bool = True
+    ) -> bool:
         """
         Check if a service is available (registered and healthy).
 
@@ -136,7 +147,7 @@ class ServiceHealthManager:
                 "status": info.status.value,
                 "is_critical": info.is_critical,
                 "last_error": info.last_error,
-                "dependencies": info.dependencies
+                "dependencies": info.dependencies,
             }
         return result
 
@@ -155,7 +166,7 @@ class ServiceHealthManager:
         temp_visited: Set[str] = set()
         order: List[str] = []
 
-        def visit(service_name: str):
+        def visit(service_name: str) -> None:
             if service_name in temp_visited:
                 # Circular dependency detected
                 cycle = " -> ".join(list(temp_visited) + [service_name])
@@ -228,7 +239,7 @@ class ServiceHealthManager:
                         )
 
                 # Initialize the service
-                if hasattr(service.service_instance, 'initialize'):
+                if hasattr(service.service_instance, "initialize"):
                     init_result = service.service_instance.initialize()
 
                     # Handle both synchronous and asynchronous initialize methods
@@ -272,15 +283,15 @@ class ServiceHealthManager:
         if not service_info.health_check_func:
             # No health check function, assume healthy
             service_info.status = ServiceStatus.HEALTHY
+            service_info.last_checked_at = time.time()
             return service_info.status
 
         try:
-            # Call the health check function
-            health_result = service_info.health_check_func()
-
-            # Handle both synchronous and asynchronous health checks
-            if asyncio.iscoroutine(health_result):
-                health_result = await health_result
+            # Check if the function is a coroutine function and call appropriately
+            if asyncio.iscoroutinefunction(service_info.health_check_func):
+                health_result = await service_info.health_check_func()
+            else:
+                health_result = service_info.health_check_func()
 
             # Update status based on health check result
             if health_result is True:
@@ -301,13 +312,17 @@ class ServiceHealthManager:
                     service_info.last_error = health_result["error"]
             else:
                 service_info.status = ServiceStatus.UNHEALTHY
-                service_info.last_error = f"Unexpected health check result: {health_result}"
+                service_info.last_error = (
+                    f"Unexpected health check result: {health_result}"
+                )
 
         except Exception as e:
             logger.warning(f"Health check failed for {service_info.name}: {e}")
             service_info.status = ServiceStatus.UNHEALTHY
             service_info.last_error = str(e)
 
+        # Update the timestamp
+        service_info.last_checked_at = time.time()
         return service_info.status
 
     async def _check_all_services(self) -> Dict[str, ServiceStatus]:
@@ -322,7 +337,7 @@ class ServiceHealthManager:
             results[name] = await self._check_service_health(info)
         return results
 
-    async def _health_monitoring_loop(self):
+    async def _health_monitoring_loop(self) -> None:
         """Background task that periodically checks service health."""
         logger.info("Health monitoring started")
 
@@ -335,8 +350,7 @@ class ServiceHealthManager:
             try:
                 # Wait for the next check interval or until stop is requested
                 await asyncio.wait_for(
-                    self._should_stop.wait(),
-                    timeout=self._check_interval
+                    self._should_stop.wait(), timeout=self._check_interval
                 )
             except asyncio.TimeoutError:
                 # This is expected when the timeout expires
@@ -344,7 +358,7 @@ class ServiceHealthManager:
 
         logger.info("Health monitoring stopped")
 
-    async def start_health_monitoring(self):
+    async def start_health_monitoring(self) -> None:
         """Start the background health monitoring task."""
         if self._health_task is not None:
             logger.warning("Health monitoring already running")
@@ -353,7 +367,7 @@ class ServiceHealthManager:
         self._should_stop.clear()
         self._health_task = asyncio.create_task(self._health_monitoring_loop())
 
-    async def stop(self):
+    async def stop(self) -> None:
         """Stop the health monitoring task."""
         if self._health_task is None:
             return

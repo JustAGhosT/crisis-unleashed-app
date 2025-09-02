@@ -2,7 +2,7 @@
 Schema definitions for blockchain API endpoints.
 """
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 from pydantic import ValidationInfo
 from typing import Dict, Any, List, Optional
 from datetime import datetime
@@ -26,14 +26,12 @@ class MintRequest(BaseModel):
             raise ValueError(f"Blockchain network must be one of: {allowed}")
         return v
 
-    @field_validator("wallet_address", mode='after')
-    def validate_wallet_address(cls, v: str, info: ValidationInfo) -> str:
-        data = info.data or {}
-        network_name = data.get("blockchain")
-        if not network_name:
-            # blockchain field should be validated first, but handle edge case
-            raise ValueError("blockchain field must be validated before wallet_address")
-        return validate_wallet_address_format(v, network_name, "wallet_address")
+    @model_validator(mode="after")
+    def _validate_wallet(cls, values):
+        values.wallet_address = validate_wallet_address_format(
+            values.wallet_address, values.blockchain, "wallet_address"
+        )
+        return values
 
 class TransferRequest(BaseModel):
     """Request model for transferring NFTs."""
@@ -49,16 +47,15 @@ class TransferRequest(BaseModel):
             raise ValueError(f"Blockchain network must be one of: {allowed}")
         return v
 
-    @field_validator("from_address", "to_address", mode='after')
-    def validate_wallet_addresses(cls, v: str, info: ValidationInfo) -> str:
-        data = info.data or {}
-        network_name = data.get("blockchain")
-        if not network_name:
-            # Align with MintRequest: fail fast if blockchain isn't available yet
-            raise ValueError("blockchain field must be validated before wallet addresses")
-        # Provide precise field name in error messages (from_address/to_address)
-        field_name = info.field_name if info.field_name else "wallet_address"
-        return validate_wallet_address_format(v, network_name, field_name)
+    @model_validator(mode="after")
+    def _validate_addresses(cls, values):
+        values.from_address = validate_wallet_address_format(
+            values.from_address, values.blockchain, "from_address"
+        )
+        values.to_address = validate_wallet_address_format(
+            values.to_address, values.blockchain, "to_address"
+        )
+        return values
 
     @field_validator("token_id")
     def validate_token_id(cls, v: str) -> str:
