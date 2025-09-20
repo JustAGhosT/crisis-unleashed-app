@@ -1,33 +1,35 @@
 "use client";
 
-import React, { useState, useMemo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDeckBuilder } from "@/lib/deck-builder/deck-builder-context";
+import React, { useCallback, useMemo, useState } from "react";
 // Legacy deck-builder context types
 import type { Card as LegacyCard, Deck as LegacyDeck } from "@/types/deck";
 // UI components (CardGrid, DeckList) expect the newer card types
+import { useRealtimeConnection } from "@/lib/realtime/connection";
+import { cn } from "@/lib/utils";
+import { CardService } from "@/services/cardService";
 import type {
+  CardRarity,
+  CardType,
   Card as GameCard,
   DeckCard as GameDeckCard,
-  CardType,
-  CardRarity,
 } from "@/types/card";
 import { FACTION_IDS, type FactionId } from "@/types/faction";
+import { Download, Link as LinkIcon, Save, Trash2, Upload } from "lucide-react";
+import CardDetailsPanel from "./CardDetailsPanel";
 import { CardGrid } from "./CardGrid";
 import { DeckList } from "./DeckList";
-import CardDetailsPanel from "./CardDetailsPanel";
 import { DeckStats as DeckStatsComponent } from "./DeckStats";
-import { Save, Trash2 } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface DeckBuilderInterfaceProps {
   isLoading?: boolean;
@@ -60,11 +62,78 @@ export default function DeckBuilderInterface({
     cards,
     addCardToDeck,
     removeCardFromDeck,
+    removeOneByCardId,
     clearDeck,
     saveDeck,
+    undo,
+    redo,
     isValid,
     validationErrors,
   } = useDeckBuilder();
+
+  // Minimal realtime: connect and send small deck.update events
+  const rt = useRealtimeConnection();
+  React.useEffect(() => {
+    if (rt.status === "disabled") return;
+    if (rt.status === "disconnected") rt.connect();
+  }, [rt]);
+
+  // Subscribe to deck channel and reconcile server-authoritative state (seq)
+  React.useEffect(() => {
+    const deckId = "default";
+    // announce subscribe when connected
+    if (rt.status === "connected") {
+      rt.send("deck.subscribe", { deckId, id: Math.random().toString(36).slice(2) });
+    }
+    type DeckStatePayload = { deckId: string; state: { seq: number; cards: Record<string, number> } };
+    const w = window as unknown as { realtimeSubscribe?: (topic: string, cb: (payload: DeckStatePayload) => void) => () => void };
+    const unsub = w.realtimeSubscribe?.(
+      "realtime:deck.state",
+      (payload: DeckStatePayload) => {
+        if (!payload || payload.deckId !== deckId) return;
+        // Full reconciliation: align local to server authoritative counts
+        const serverCards = payload.state.cards || {};
+        const localCounts = new Map<string, number>();
+        deck.cards.forEach((c) => localCounts.set(c.id, (localCounts.get(c.id) ?? 0) + 1));
+
+        // Remove extras
+        localCounts.forEach((qty, cid) => {
+          const target = serverCards[cid] ?? 0;
+          const toRemove = qty - target;
+          for (let i = 0; i < toRemove; i++) {
+            removeOneByCardId(cid);
+          }
+        });
+
+        // Add missing
+        Object.entries(serverCards).forEach(([cid, qty]) => {
+          const localQty = localCounts.get(cid) ?? 0; // original snapshot
+          const toAdd = qty - (localQty > (serverCards[cid] ?? 0) ? serverCards[cid] ?? 0 : localQty);
+          if (toAdd > 0) {
+            void CardService.getCardById(cid).then((full) => {
+              for (let i = 0; i < toAdd; i++) {
+                addCardToDeck({
+                  id: full.id,
+                  name: full.name,
+                  cost: full.cost,
+                  power: full.attack,
+                  type: full.type,
+                  faction: full.faction,
+                  rarity: full.rarity,
+                  text: full.description,
+                  imageUrl: full.imageUrl,
+                  keywords: full.keywords,
+                } as unknown as LegacyCard);
+              }
+            });
+          }
+        });
+      },
+    );
+    return () => {
+      if (typeof unsub === "function") unsub();
+    };
+  }, [rt, deck.cards, addCardToDeck, removeOneByCardId]);
 
   // Narrowing helpers to coerce legacy string values into strict enums
   const coerceCardType = (t: LegacyCard["type"]): CardType => {
@@ -296,11 +365,25 @@ export default function DeckBuilderInterface({
     addCardToDeck(toLegacyCard(card));
     // Auto-select first added card for better UX
     setSelectedCard((prev) => prev ?? card);
+    rt.send("deck.update", {
+      deckId: "default",
+      action: "add",
+      cardId: card.id,
+      id: Math.random().toString(36).slice(2),
+      ts: Date.now(),
+    });
   };
 
   // Handle removing a card from the deck
   const handleRemoveCard = (card: GameCard) => {
     removeCardFromDeck(toLegacyCard(card));
+    rt.send("deck.update", {
+      deckId: "default",
+      action: "remove",
+      cardId: card.id,
+      id: Math.random().toString(36).slice(2),
+      ts: Date.now(),
+    });
   };
 
   // Handle saving the deck
@@ -322,6 +405,64 @@ export default function DeckBuilderInterface({
     });
   };
 
+  // Persist to backend (best-effort) when user saves deck
+  const handleSaveToBackend = async () => {
+    try {
+      const payload = {
+        userId: "user-1",
+        name: deckName,
+        faction: (deck as LegacyDeck).faction,
+        isActive: true,
+        cards: deck.cards.map((c) => ({ id: c.id })),
+      };
+      const res = await fetch("/api/decks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        toast({ title: "Saved to server", description: "Deck stored." });
+      }
+    } catch {
+      // ignore
+    }
+  };
+
+  // Handle importing a deck from JSON
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+  const handleImportDeckClick = () => fileInputRef.current?.click();
+  const handleImportDeckFile: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const parsed = JSON.parse(String(reader.result ?? "{}")) as Partial<LegacyDeck>;
+        // Basic shape checks
+        if (!parsed || !Array.isArray(parsed.cards)) {
+          toast({ title: "Import failed", description: "Invalid deck file." });
+          return;
+        }
+        // Clear then add cards
+        clearDeck();
+        const importedName = parsed.name ?? "Imported Deck";
+        const importedDesc = parsed.description ?? "";
+        // Map each imported card through toLegacyCard-compatible shape
+        (parsed.cards as LegacyCard[]).forEach((c) => addCardToDeck(c));
+        // Save metadata
+        saveDeck(importedName, importedDesc);
+        setDeckName(importedName);
+        toast({ title: "Deck Imported", description: `Loaded ${parsed.cards?.length ?? 0} cards.` });
+      } catch {
+        toast({ title: "Import failed", description: "Could not parse JSON." });
+      } finally {
+        // reset input to allow re-importing same file
+        if (fileInputRef.current) fileInputRef.current.value = "";
+      }
+    };
+    reader.readAsText(file);
+  };
+
   // Handle clearing the deck
   const handleClearDeck = () => {
     clearDeck();
@@ -330,6 +471,12 @@ export default function DeckBuilderInterface({
     toast({
       title: "Deck Cleared",
       description: "Your deck has been cleared.",
+    });
+    rt.send("deck.update", {
+      deckId: "default",
+      action: "clear",
+      id: Math.random().toString(36).slice(2),
+      ts: Date.now(),
     });
   };
 
@@ -354,6 +501,138 @@ export default function DeckBuilderInterface({
       description: "Your deck has been exported as a JSON file.",
     });
   };
+
+  // Load deck from server (best-effort)
+  const handleLoadFromBackend = async () => {
+    try {
+      const res = await fetch("/api/users/user-1/decks");
+      if (!res.ok) return;
+      const decks = (await res.json()) as Array<{
+        id: string;
+        name?: string;
+        cards?: Array<{ id: string }>;
+      }>;
+      if (!decks || decks.length === 0) {
+        toast({ title: "No server decks found" });
+        return;
+      }
+      const latest = decks[decks.length - 1];
+      if (!latest.cards || latest.cards.length === 0) {
+        toast({ title: "Deck has no cards" });
+        return;
+      }
+      clearDeck();
+      for (const c of latest.cards) {
+        try {
+          const full = await CardService.getCardById(c.id);
+          // Reuse adapter path
+          addCardToDeck({
+            id: full.id,
+            name: full.name,
+            cost: full.cost,
+            power: full.attack,
+            type: full.type,
+            faction: full.faction,
+            rarity: full.rarity,
+            text: full.description,
+            imageUrl: full.imageUrl,
+            keywords: full.keywords,
+          } as unknown as LegacyCard);
+        } catch {
+          // skip missing
+        }
+      }
+      setDeckName(latest.name || "Loaded Deck");
+      toast({ title: "Deck loaded from server", description: latest.name || latest.id });
+    } catch {
+      // ignore
+    }
+  };
+
+  // Build a shareable URL with encoded deck JSON in query param `d`
+  const handleShareDeck = async () => {
+    try {
+      const res = await fetch("/api/decks/share", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ deck }),
+      });
+      if (!res.ok) throw new Error("Failed");
+      const data = (await res.json()) as { id: string; url: string };
+      await navigator.clipboard?.writeText(data.url);
+      toast({ title: "Share link copied", description: data.url });
+    } catch {
+      // Fallback to local URL param encoding if backend is unavailable
+      try {
+        const json = JSON.stringify(deck);
+        const b64 = typeof window !== "undefined" && "btoa" in window
+          ? window.btoa(unescape(encodeURIComponent(json)))
+          : Buffer.from(json, "utf-8").toString("base64");
+        const url = new URL(window.location.href);
+        url.searchParams.set("d", b64);
+        await navigator.clipboard?.writeText(url.toString());
+        toast({ title: "Share link copied", description: url.toString() });
+      } catch {
+        toast({ title: "Share failed", description: "Could not generate share link." });
+      }
+    }
+  };
+
+  // Auto-import from query param `d` if present
+  React.useEffect(() => {
+    try {
+      const sp = new URLSearchParams(window.location.search);
+      const d = sp.get("d");
+      if (!d) return;
+      const json = typeof window !== "undefined" && "atob" in window
+        ? decodeURIComponent(escape(window.atob(d)))
+        : Buffer.from(d, "base64").toString("utf-8");
+      const parsed = JSON.parse(json) as Partial<LegacyDeck>;
+      if (!parsed || !Array.isArray(parsed.cards)) return;
+      clearDeck();
+      const importedName = parsed.name ?? "Imported Deck";
+      const importedDesc = parsed.description ?? "";
+      (parsed.cards as LegacyCard[]).forEach((c) => addCardToDeck(c));
+      saveDeck(importedName, importedDesc);
+      setDeckName(importedName);
+      toast({ title: "Deck Imported", description: `Loaded ${parsed.cards?.length ?? 0} cards from link.` });
+      // Remove param from URL without reload
+      const url = new URL(window.location.href);
+      url.searchParams.delete("d");
+      url.searchParams.delete("s");
+      window.history.replaceState({}, "", url.toString());
+    } catch {
+      // ignore
+    }
+  }, [addCardToDeck, clearDeck, saveDeck]);
+
+  // Resolve short id `s` via backend if present and no `d`
+  React.useEffect(() => {
+    (async () => {
+      try {
+        const sp = new URLSearchParams(window.location.search);
+        const hasD = sp.get("d");
+        const s = sp.get("s");
+        if (hasD || !s) return;
+        const res = await fetch(`/api/decks/share/${encodeURIComponent(s)}`);
+        if (!res.ok) return;
+        const data = (await res.json()) as { deck?: LegacyDeck };
+        if (!data.deck || !Array.isArray(data.deck.cards)) return;
+        clearDeck();
+        const importedName = data.deck.name ?? "Imported Deck";
+        const importedDesc = data.deck.description ?? "";
+        (data.deck.cards as LegacyCard[]).forEach((c) => addCardToDeck(c));
+        saveDeck(importedName, importedDesc);
+        setDeckName(importedName);
+        toast({ title: "Deck Imported", description: `Loaded ${data.deck.cards.length} cards from short link.` });
+        const url = new URL(window.location.href);
+        url.searchParams.delete("s");
+        window.history.replaceState({}, "", url.toString());
+      } catch {
+        // ignore
+      }
+    })();
+  }, [addCardToDeck, clearDeck, saveDeck]);
 
   if (isLoading) {
     return <DeckBuilderSkeleton />;
@@ -440,6 +719,56 @@ export default function DeckBuilderInterface({
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-bold">Deck</h2>
           <div className="flex gap-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="application/json"
+              className="hidden"
+              aria-label="Import deck file"
+              title="Import deck file"
+              onChange={handleImportDeckFile}
+            />
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleImportDeckClick}
+              title="Import Deck"
+            >
+              <Upload className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleLoadFromBackend}
+              title="Load Deck from Server"
+            >
+              <Download className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={undo}
+              title="Undo"
+              disabled={deck.cards.length === 0}
+            >
+              ⎌
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={redo}
+              title="Redo"
+            >
+              ↷
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleShareDeck}
+              title="Copy share link"
+            >
+              <LinkIcon className="h-4 w-4" />
+            </Button>
             <Button
               variant="outline"
               size="icon"
@@ -492,6 +821,7 @@ export default function DeckBuilderInterface({
                   onClearDeck={handleClearDeck}
                   onSelectCard={setSelectedCard}
                   selectedCardId={selectedCard?.id ?? null}
+                  maxCards={deck.maxCards ?? 60}
                 />
               ) : (
                 <div className="flex flex-col items-center justify-center h-64 text-center text-muted-foreground">
@@ -507,7 +837,10 @@ export default function DeckBuilderInterface({
           <CardFooter className="border-t p-4">
             <Button
               className="w-full"
-              onClick={handleSaveDeck}
+              onClick={() => {
+                handleSaveDeck();
+                void handleSaveToBackend();
+              }}
               disabled={!isValid || deck.cards.length === 0}
             >
               Save Deck

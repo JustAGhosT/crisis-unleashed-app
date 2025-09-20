@@ -1,7 +1,6 @@
 import { Axial, axialDistance, axialEquals, axialNeighbors } from '@/lib/hex';
 import { BASE_COST, PathNode, PriorityQueue, axialToKey, Z_COST_DEFAULT } from '@/lib/hex-advanced';
 import { BattlefieldUnit, BattlefieldZone } from '@/types/game';
-import { MovementCostFn } from '@/types/battlefield';
 
 // Helper function to reconstruct path from goal to start
 function reconstructPath(endNode: PathNode): Axial[] {
@@ -40,6 +39,7 @@ function getEdgeCost(
   units: Record<string, BattlefieldUnit>,
   srcZone: BattlefieldZone,
   dstZone: BattlefieldZone,
+  battlefieldGrid: BattlefieldZone[],
   terrainCostFn?: (q: number, r: number) => number,
   factionModifierFn?: (unit: BattlefieldUnit, q: number, r: number) => number
 ): number {
@@ -61,7 +61,7 @@ function getEdgeCost(
   
   // Check if destination has adjacent enemies (entering ZoC)
   if (dstZone.axial) {
-    const enemyAdjacentToDst = getAdjacentEnemies(units, unit, dstZone.position);
+    const enemyAdjacentToDst = getAdjacentEnemies(units, unit, dstZone.position, battlefieldGrid);
     if (enemyAdjacentToDst.length > 0) {
       cost += zocCost;
     }
@@ -74,9 +74,11 @@ function getEdgeCost(
 export function getAdjacentEnemies(
   units: Record<string, BattlefieldUnit>,
   unit: BattlefieldUnit,
-  position: string
+  position: string,
+  battlefieldGrid?: BattlefieldZone[]
 ): BattlefieldUnit[] {
-  const zone = Object.values(units).find(u => u.position === position)?.zone;
+  // If battlefieldGrid is provided, find zone by position
+  const zone = battlefieldGrid?.find(z => z.position === position);
   if (!zone?.axial) return [];
   
   return axialNeighbors(zone.axial)
@@ -93,9 +95,10 @@ export function getAdjacentEnemies(
 export function isEngaged(
   units: Record<string, BattlefieldUnit>,
   unit: BattlefieldUnit,
-  position: string
+  position: string,
+  battlefieldGrid?: BattlefieldZone[]
 ): boolean {
-  const adjacentEnemies = getAdjacentEnemies(units, unit, position);
+  const adjacentEnemies = getAdjacentEnemies(units, unit, position, battlefieldGrid);
   return adjacentEnemies.length > 0;
 }
 
@@ -114,7 +117,13 @@ export function findPath(
   terrainCostFn?: (q: number, r: number) => number,
   factionModifierFn?: (unit: BattlefieldUnit, q: number, r: number) => number
 ): Axial[] {
-  const open = new PriorityQueue<PathNode>();
+  // Create PriorityQueue with custom comparator
+  const open = new PriorityQueue<PathNode>((a, b) => {
+    // Tie-breaker as specified in docs: lowest total cost, then lowest q, then lowest r
+    if (a.f !== b.f) return a.f - b.f;
+    if (a.pos.q !== b.pos.q) return a.pos.q - b.pos.q;
+    return a.pos.r - b.pos.r;
+  });
   const closed = new Set<string>();
   
   // Initialize with start node
@@ -152,17 +161,21 @@ export function findPath(
       // Check for ZoC restriction - can't exit engaged hex without Disengage ability
       const srcZone = findZoneByAxial(battlefieldGrid, current.pos);
       if (srcZone) {
-        if (isEngaged(units, unit, srcZone.position) && !canDisengage(unit)) {
+        if (isEngaged(units, unit, srcZone.position, battlefieldGrid) && !canDisengage(unit)) {
           continue; // Can't move out of engaged hex
         }
       }
+      
+      // Skip calculation if srcZone is undefined
+      if (!srcZone) continue;
       
       // Calculate costs
       const edgeCost = getEdgeCost(
         unit, 
         units, 
-        srcZone!, 
+        srcZone, 
         neighborZone,
+        battlefieldGrid,
         terrainCostFn,
         factionModifierFn
       );
@@ -182,11 +195,6 @@ export function findPath(
         h,
         f,
         parent: current
-      }, (a, b) => {
-        // Tie-breaker as specified in docs: lowest total cost, then lowest q, then lowest r
-        if (a.f !== b.f) return a.f - b.f;
-        if (a.pos.q !== b.pos.q) return a.pos.q - b.pos.q;
-        return a.pos.r - b.pos.r;
       });
     }
   }

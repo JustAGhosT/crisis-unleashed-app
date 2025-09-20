@@ -9,10 +9,11 @@ Crisis Unleashed Backend Server
 See SETUP.md for detailed instructions.
 """
 
+import logging
 import os
 import sys
-import logging
 from pathlib import Path
+
 from dotenv import load_dotenv
 from fastapi import APIRouter
 
@@ -38,16 +39,21 @@ class StartupError(RuntimeError):
 
 # Import our modular server components (absolute imports rooted at 'backend')
 try:
-    from backend import api
-    from backend import config
+    from backend import api, config
     from backend import services as services
+
+    # Import auth redirects
+    from backend.api.auth_redirects import auth_redirect_router
+    from backend.api.card_endpoints import router as card_router
+    from backend.api.deck_endpoints import router as deck_router
+    from backend.api.deck_share_endpoints import router as deck_share_router
+    from backend.api.realtime_ws import router as realtime_router
+
     # Import server modules correctly based on the actual structure
     from backend.server_modules.app import create_application
     from backend.server_modules.database import setup_database
     from backend.server_modules.health import register_health_endpoints
     from backend.server_modules.services import setup_services, start_services
-    # Import auth redirects
-    from backend.api.auth_redirects import auth_redirect_router
 except ImportError as e:
     logger.critical(f"Failed to import required modules: {e}")
     logger.critical("Please ensure all dependencies are installed: pip install -r requirements.txt")
@@ -86,6 +92,18 @@ app.include_router(api_router)
 
 # Include the auth redirects router in the main app (no prefix)
 app.include_router(auth_redirect_router)
+
+# Include deck sharing endpoints
+app.include_router(deck_share_router)
+
+# Include realtime WebSocket endpoint
+app.include_router(realtime_router)
+
+# Include deck CRUD endpoints
+app.include_router(deck_router)
+
+# Include card endpoints
+app.include_router(card_router)
 
 
 @app.on_event("startup")

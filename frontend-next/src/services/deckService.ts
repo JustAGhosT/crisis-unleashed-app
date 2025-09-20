@@ -1,17 +1,17 @@
-import { apiClient } from "./api";
+import { getMockDeckData, mockUserDecks } from "@/lib/DeckMockData";
 import {
-  Deck,
-  DeckCard,
-  DeckValidationResult,
-  DeckStats,
-  Card,
-  CardType,
-  CardRarity,
-  UnitType,
-  ActionType,
-  StructureType,
+    ActionType,
+    Card,
+    CardRarity,
+    CardType,
+    Deck,
+    DeckCard,
+    DeckStats,
+    DeckValidationResult,
+    StructureType,
+    UnitType,
 } from "@/types/card";
-import { mockUserDecks, getMockDeckData } from "@/lib/DeckMockData";
+import { apiClient } from "./api";
 
 // Helper function to check if we're in production server environment
 const isProductionServer = (): boolean => {

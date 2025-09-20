@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
 import { useFeatureFlag } from "@/lib/feature-flags/useFeatureFlag";
 import { realtimeDispatcher } from "@/lib/realtime/dispatcher";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export type RealtimeStatus =
   | "disabled"
@@ -91,11 +91,15 @@ export function useRealtimeConnection(): RealtimeClient {
       connect: () => {
         if (!enabled) return;
         if (status === "connecting" || status === "connected") return;
+        // Derive WS URL if not provided via env
+        if (!urlRef.current && typeof window !== "undefined") {
+          const loc = window.location;
+          const proto = loc.protocol === "https:" ? "wss:" : "ws:";
+          urlRef.current = `${proto}//${loc.host}/ws`;
+        }
         if (!urlRef.current) {
-          lastErrorRef.current =
-            "Realtime URL not configured (NEXT_PUBLIC_REALTIME_URL)";
+          lastErrorRef.current = "Realtime URL not configured";
           setStatus("error");
-          // bounce back to disconnected for UI
           window.setTimeout(() => setStatus("disconnected"), 0);
           return;
         }
@@ -142,6 +146,9 @@ export function useRealtimeConnection(): RealtimeClient {
                   typeof data.ts === "number" ? data.ts : lastPingRef.current;
                 const rtt = sent ? Math.max(0, now - sent) : undefined;
                 realtimeDispatcher.publish("realtime:pong", { ts: now, rtt });
+              }
+              if (data && data.type === "deck.state.update") {
+                realtimeDispatcher.publish("realtime:deck.state", data.payload);
               }
               // Future: event dispatch to subscribers
               if (

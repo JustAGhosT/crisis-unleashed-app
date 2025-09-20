@@ -1,13 +1,13 @@
 "use client";
 
+import { Card, Deck } from "@/types/deck";
 import React, {
+  ReactNode,
   createContext,
   useContext,
-  useState,
   useEffect,
-  ReactNode,
+  useState,
 } from "react";
-import { Deck, Card } from "@/types/deck";
 
 // Sample cards for demonstration
 import { sampleCards } from "./sample-cards";
@@ -19,12 +19,17 @@ const genId = () =>
 
 interface DeckBuilderContextType {
   deck: Deck;
+  past: Deck[];
+  future: Deck[];
   cards: Card[];
   addCardToDeck: (card: Card) => void;
   removeCardFromDeck: (card: Card) => void;
+  removeOneByCardId: (cardId: string) => void;
   clearDeck: () => void;
   saveDeck: (name: string, description: string) => void;
   loadDeck: (deckId: string) => Promise<boolean>;
+  undo: () => void;
+  redo: () => void;
   isValid: boolean;
   validationErrors: string[];
 }
@@ -48,10 +53,12 @@ export function DeckBuilderProvider({
       name: "Untitled Deck",
       description: "",
       cards: [],
-      maxCards: 60,
-      minCards: 40,
+      maxCards: 50,
+      minCards: 30,
     },
   );
+  const [past, setPast] = useState<Deck[]>([]);
+  const [future, setFuture] = useState<Deck[]>([]);
 
   // Store all available cards
   const [cards] = useState<Card[]>(sampleCards);
@@ -64,26 +71,26 @@ export function DeckBuilderProvider({
   const validateDeck = React.useCallback(() => {
     const errors: string[] = [];
 
-    // Check card count
-    if (deck.cards.length < (deck.minCards || 40)) {
-      errors.push(`Deck must contain at least ${deck.minCards || 40} cards`);
+    // Check card count (30-50)
+    const min = deck.minCards || 30;
+    const max = deck.maxCards || 50;
+    if (deck.cards.length < min) {
+      errors.push(`Deck must contain at least ${min} cards`);
+    }
+    if (deck.cards.length > max) {
+      errors.push(`Deck cannot contain more than ${max} cards`);
     }
 
-    if (deck.cards.length > (deck.maxCards || 60)) {
-      errors.push(`Deck cannot contain more than ${deck.maxCards || 60} cards`);
+    // Faction constraint: allow up to 2 non-neutral factions
+    const nonNeutralFactions = deck.cards
+      .map((c) => c.faction)
+      .filter((f): f is string => Boolean(f) && String(f).toLowerCase() !== "neutral");
+    const uniqueNonNeutral = new Set(nonNeutralFactions);
+    if (uniqueNonNeutral.size > 2) {
+      errors.push("Deck can include at most 2 non-neutral factions");
     }
 
-    // Check faction consistency
-    const cardFactions = deck.cards
-      .filter((card) => card.faction && card.faction !== "Neutral")
-      .map((card) => card.faction);
-
-    const uniqueFactions = new Set(cardFactions);
-    if (uniqueFactions.size > 1) {
-      errors.push("Deck cannot contain cards from multiple factions");
-    }
-
-    // Check card limits (max 3 copies of any card, except unique cards)
+    // Check card limits (max 3 copies of any card; unique cards max 1)
     const cardCounts: Record<string, number> = {};
     deck.cards.forEach((card) => {
       cardCounts[card.id] = (cardCounts[card.id] || 0) + 1;
@@ -112,36 +119,39 @@ export function DeckBuilderProvider({
 
   // Add a card to the deck
   const addCardToDeck = (card: Card) => {
-    // Clone the card and add a unique instanceId
-    const cardWithId: Card = {
-      ...card,
-      instanceId: genId(),
-    };
-
-    setDeck((prevDeck) => ({
-      ...prevDeck,
-      cards: [...prevDeck.cards, cardWithId],
-    }));
+    const cardWithId: Card = { ...card, instanceId: genId() };
+    setPast((p) => [...p, deck]);
+    setFuture([]);
+    setDeck((prevDeck) => ({ ...prevDeck, cards: [...prevDeck.cards, cardWithId] }));
   };
 
   // Remove a card from the deck
   const removeCardFromDeck = (card: Card) => {
+    setPast((p) => [...p, deck]);
+    setFuture([]);
     setDeck((prevDeck) => ({
       ...prevDeck,
-      cards: prevDeck.cards.filter(
-        (c) =>
-          // Remove the specific instance of the card
-          c.instanceId !== card.instanceId,
-      ),
+      cards: prevDeck.cards.filter((c) => c.instanceId !== card.instanceId),
     }));
+  };
+
+  const removeOneByCardId = (cardId: string) => {
+    setPast((p) => [...p, deck]);
+    setFuture([]);
+    setDeck((prevDeck) => {
+      const idx = prevDeck.cards.findIndex((c) => c.id === cardId);
+      if (idx === -1) return prevDeck;
+      const nextCards = prevDeck.cards.slice();
+      nextCards.splice(idx, 1);
+      return { ...prevDeck, cards: nextCards };
+    });
   };
 
   // Clear the deck
   const clearDeck = () => {
-    setDeck((prevDeck) => ({
-      ...prevDeck,
-      cards: [],
-    }));
+    setPast((p) => [...p, deck]);
+    setFuture([]);
+    setDeck((prevDeck) => ({ ...prevDeck, cards: [] }));
   };
 
   // Save the deck
@@ -168,6 +178,22 @@ export function DeckBuilderProvider({
     );
   };
 
+  const undo = () => {
+    if (past.length === 0) return;
+    const previous = past[past.length - 1];
+    setPast((p) => p.slice(0, p.length - 1));
+    setFuture((f) => [deck, ...f]);
+    setDeck(previous);
+  };
+
+  const redo = () => {
+    if (future.length === 0) return;
+    const [next, ...rest] = future;
+    setPast((p) => [...p, deck]);
+    setFuture(rest);
+    setDeck(next);
+  };
+
   // Load a deck
   const loadDeck = async (_deckId: string): Promise<boolean> => {
     // In a real app, you would load from a database or API here
@@ -188,12 +214,17 @@ export function DeckBuilderProvider({
 
   const value = {
     deck,
+    past,
+    future,
     cards,
     addCardToDeck,
     removeCardFromDeck,
+    removeOneByCardId,
     clearDeck,
     saveDeck,
     loadDeck,
+    undo,
+    redo,
     isValid,
     validationErrors,
   };

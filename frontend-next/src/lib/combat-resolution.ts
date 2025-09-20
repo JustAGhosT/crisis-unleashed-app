@@ -1,31 +1,76 @@
-import { BattlefieldUnit } from '@/types/game';
 import { CombatState, CombatTiming, StatusEffect } from '@/types/battlefield';
+import { BattlefieldUnit } from '@/types/game';
 
-// Array to track units pending removal
-const pendingDeaths: BattlefieldUnit[] = [];
+/**
+ * Combat resolver class that encapsulates combat state and prevents concurrency issues.
+ * Each instance maintains its own pending deaths queue for proper isolation.
+ */
+export class CombatResolver {
+  private pendingDeaths: BattlefieldUnit[] = [];
+  
+  /**
+   * Mark a unit as dead for later processing.
+   * Units are queued in FIFO order to ensure consistent death resolution.
+   */
+  markUnitAsDead(
+    unitId: string, 
+    units: Record<string, BattlefieldUnit>
+  ): void {
+    const unit = units[unitId];
+    if (unit && !this.pendingDeaths.some(u => u.id === unitId)) {
+      this.pendingDeaths.push(unit);
+    }
+  }
 
-// Mark a unit as dead
+  // Process deaths in FIFO order within the class context
+  processDeaths(
+    units: Record<string, BattlefieldUnit>, 
+    onRemoveUnit: (unit: BattlefieldUnit) => void,
+    onDeathEffect?: (unit: BattlefieldUnit) => void
+  ): void {
+    this.pendingDeaths.forEach(unit => {
+      // Only call the death effect callback if it's provided
+      if (onDeathEffect) {
+        onDeathEffect(unit);
+      }
+
+      // Remove the unit from the game state
+      onRemoveUnit(unit);
+    });
+    
+    // Clear the queue after processing
+    this.pendingDeaths = [];
+  }
+}
+
+// Standalone version of markUnitAsDead for use outside the class
 export function markUnitAsDead(
   unitId: string, 
   units: Record<string, BattlefieldUnit>
 ): void {
   const unit = units[unitId];
-  if (unit && !pendingDeaths.some(u => u.id === unitId)) {
-    pendingDeaths.push(unit);
+  if (unit) {
+    unit.isPendingDeath = true;
   }
 }
 
-// Process deaths in FIFO order
+// Process deaths in FIFO order (standalone version)
 export function processDeaths(
-  units: Record<string, BattlefieldUnit>,
-  onDeathTrigger: (unit: BattlefieldUnit) => void,
-  onRemoveUnit: (unitId: string) => void
+  units: Record<string, BattlefieldUnit>, 
+  onRemoveUnit: (unit: BattlefieldUnit) => void,
+  onDeathEffect?: (unit: BattlefieldUnit) => void
 ): void {
-  while (pendingDeaths.length > 0) {
-    const unit = pendingDeaths.shift()!;
-    onDeathTrigger(unit); // Trigger on-death effects
-    onRemoveUnit(unit.id); // Remove unit from the board
-  }
+  const pendingDeaths = Object.values(units).filter(unit => unit.isPendingDeath === true);
+
+  pendingDeaths.forEach(unit => {
+    // Only call the death effect callback if it's provided
+    if (onDeathEffect) {
+      onDeathEffect(unit);
+    }
+
+    // Remove the unit from the game state
+    onRemoveUnit(unit);
+  });
 }
 
 // Apply damage to a unit (reduce shields/guards first)
@@ -34,7 +79,7 @@ export function applyDamage(
   damage: number
 ): number {
   let remainingDamage = damage;
-  
+
   // Reduce shields first
   if (defender.shields && defender.shields > 0) {
     if (defender.shields >= remainingDamage) {
@@ -45,7 +90,7 @@ export function applyDamage(
       defender.shields = 0;
     }
   }
-  
+
   // Reduce guards next
   if (defender.guards && defender.guards > 0) {
     if (defender.guards >= remainingDamage) {
@@ -56,7 +101,7 @@ export function applyDamage(
       defender.guards = 0;
     }
   }
-  
+
   // Apply remaining damage to health
   defender.health -= remainingDamage;
   return remainingDamage;
@@ -64,13 +109,13 @@ export function applyDamage(
 
 // Trigger abilities for a specific combat timing window
 export function triggerAbilities(
-  timing: CombatTiming, 
+  timing: CombatTiming,
   combatState: CombatState,
   triggerFn: (unit: BattlefieldUnit, timing: CombatTiming, state: CombatState) => void
 ): void {
   // Trigger attacker abilities first
   triggerFn(combatState.attacker, timing, combatState);
-  
+
   // If combat is not canceled, trigger defender abilities
   if (!combatState.canceled) {
     triggerFn(combatState.defender, timing, combatState);
@@ -92,39 +137,41 @@ export function resolveCombat(
     canceled: false,
     lethal: false
   };
-  
+
   // 1. Pre-attack timing window
   triggerAbilities(CombatTiming.PRE_ATTACK, combatState, triggerFn);
   if (combatState.canceled) return;
-  
+
   // 2. On-attack timing window
   triggerAbilities(CombatTiming.ON_ATTACK, combatState, triggerFn);
   if (combatState.canceled) return;
-  
+
   // 3. On-hit timing window
   triggerAbilities(CombatTiming.ON_HIT, combatState, triggerFn);
-  
+
   // 4. Apply damage (reduce shields first)
-  const remainingDamage = applyDamage(defender, combatState.damage);
-  
+  applyDamage(defender, combatState.damage);
+
   // 5. Post-hit timing window
   combatState.lethal = defender.health <= 0;
   triggerAbilities(CombatTiming.POST_HIT, combatState, triggerFn);
-  
+
   // 6. On-kill timing window (if applicable)
   if (combatState.lethal) {
-    markUnitAsDead(defender.id, units);
+    // Mark the unit as dead and trigger ON_KILL effects immediately
+    markUnitAsDead(combatState.defender.id, units);
     triggerAbilities(CombatTiming.ON_KILL, combatState, triggerFn);
   }
-  
+
   // 7. End-of-combat timing window
   triggerAbilities(CombatTiming.END_OF_COMBAT, combatState, triggerFn);
-  
-  // Process any death
+
+  // Process any pending deaths without re-triggering ON_KILL
   if (combatState.lethal) {
-    processDeaths(units, 
-      (unit) => triggerFn(unit, CombatTiming.ON_KILL, combatState), 
-      onRemoveUnit
+    processDeaths(
+      units,
+      (unit) => onRemoveUnit(unit.id), // Adapter function to convert unit to unitId
+      () => {} // No-op function since ON_KILL was already triggered above
     );
   }
 }
@@ -137,9 +184,9 @@ export function applyStatusEffect(
   if (!target.statusEffects) {
     target.statusEffects = [];
   }
-  
-  const existingEffect = target.statusEffects.find(e => e.type === effect.type);
-  
+
+  const existingEffect = target.statusEffects.find((e: StatusEffect) => e.type === effect.type);
+
   if (existingEffect) {
     if (effect.exclusive) {
       // Replace existing effect
@@ -147,11 +194,11 @@ export function applyStatusEffect(
       target.statusEffects[index] = effect;
     } else {
       // Stack effect
-      existingEffect.stacks = (existingEffect.stacks || 1) + 1;
+      existingEffect.stacks = (existingEffect.stacks || 1) + (effect.stacks || 1);
       existingEffect.duration = Math.max(existingEffect.duration, effect.duration);
     }
   } else {
-    target.statusEffects.push(effect);
+    target.statusEffects.push({ ...effect, stacks: effect.stacks || 1 });
   }
 }
 
@@ -159,10 +206,9 @@ export function applyStatusEffect(
 export function decrementStatusEffectDurations(units: Record<string, BattlefieldUnit>): void {
   Object.values(units).forEach(unit => {
     if (!unit.statusEffects) return;
-    
-    unit.statusEffects = unit.statusEffects.filter(effect => {
-      effect.duration--;
-      return effect.duration > 0;
-    });
+
+    unit.statusEffects = unit.statusEffects
+      .map((effect: StatusEffect) => ({ ...effect, duration: effect.duration - 1 }))
+      .filter((effect: StatusEffect) => effect.duration > 0);
   });
 }

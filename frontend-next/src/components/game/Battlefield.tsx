@@ -161,8 +161,10 @@ export const Battlefield: React.FC<BattlefieldProps> = ({
           // Calculate path cost
           let pathCost = 0;
           for (let i = 1; i < path.length; i++) {
-            const prevPos = `${path[i - 1].r}-${path[i - 1].q}`;
-            const nextPos = `${path[i].r}-${path[i].q}`;
+            const prevOffset = axialToOffsetOddR(path[i - 1]);
+            const nextOffset = axialToOffsetOddR(path[i]);
+            const prevPos = `${prevOffset.row}-${prevOffset.col}`;
+            const nextPos = `${nextOffset.row}-${nextOffset.col}`;
             const srcPos = getZoneByPosition(prevPos);
             const dstPos = getZoneByPosition(nextPos);
 

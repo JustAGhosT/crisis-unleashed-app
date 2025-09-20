@@ -102,7 +102,7 @@ async def transfer_nft(
 @router.post("/operations/{outbox_id}/retry", response_model=Dict[str, str], status_code=202)
 async def retry_operation(
     outbox_id: str,
-    outbox_processor=Depends(get_outbox_processor)  # Added dependency injection
+    outbox_processor=Depends(get_outbox_processor)
 ) -> Dict[str, str]:
     """
     Manually retry a failed operation.
@@ -111,6 +111,10 @@ async def retry_operation(
     that have failed or need immediate processing.
     """
     try:
+        # Validate outbox_id format or existence
+        if not outbox_id or not outbox_processor.exists(outbox_id):
+            raise HTTPException(status_code=404, detail="Operation not found")
+            
         logger.info("Manual retry requested for operation: %s", outbox_id)
         # NOTE: verify method name/asyncness
         outbox_processor.retry(outbox_id)
@@ -121,6 +125,9 @@ async def retry_operation(
             "message": "Operation has been queued for manual retry",
         }
 
+    except HTTPException:
+        # Re-raise HTTP exceptions
+        raise
     except Exception:
         logger.exception("Error retrying operation %s", outbox_id)
         raise HTTPException(status_code=500, detail="Failed to retry operation")
