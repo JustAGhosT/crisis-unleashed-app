@@ -37,10 +37,12 @@ class BaseBlockchainProvider(ABC):
         pass
 
     @abstractmethod
-    def mint_nft(self,
-                      recipient: str,
-                      card_id: str,
-                      metadata: Dict[str, Any]) -> str:
+    def mint_nft(
+            self,
+            recipient: str,
+            card_id: str,
+            metadata: Dict[str, Any],
+    ) -> str:
         """
         Mint an NFT.
 
@@ -55,10 +57,12 @@ class BaseBlockchainProvider(ABC):
         pass
 
     @abstractmethod
-    def transfer_nft(self,
-                          from_address: str,
-                          to_address: str,
-                          token_id: str) -> str:
+    def transfer_nft(
+            self,
+            from_address: str,
+            to_address: str,
+            token_id: str,
+    ) -> str:
         """
         Transfer an NFT.
 
@@ -73,9 +77,11 @@ class BaseBlockchainProvider(ABC):
         pass
 
     @abstractmethod
-    def wait_for_confirmation(self,
-                                   tx_hash: str,
-                                   timeout: int = 120) -> Optional[Dict[str, Any]]:
+    def wait_for_confirmation(
+            self,
+            tx_hash: str,
+            timeout: int = 120,
+    ) -> Optional[Dict[str, Any]]:
         """
         Wait for transaction confirmation.
 
@@ -114,7 +120,6 @@ class BaseBlockchainProvider(ABC):
         """
         pass
 
-    @property
     def supported_operations(self) -> list[str]:
         """Return list of supported operations."""
         return ["mint_nft", "transfer_nft"]
@@ -124,5 +129,5 @@ class BaseBlockchainProvider(ABC):
         return {
             "name": self.network_name,
             "config": self.network_config,
-            "supported_operations": self.supported_operations
+            "supported_operations": self.supported_operations()
         }

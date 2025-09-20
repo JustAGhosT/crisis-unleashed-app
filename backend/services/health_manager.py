@@ -283,6 +283,8 @@ class ServiceHealthManager:
         if not service_info.health_check_func:
             # No health check function, assume healthy
             service_info.status = ServiceStatus.HEALTHY
+            # Clear any previous error when healthy
+            service_info.last_error = None
             service_info.last_checked_at = time.time()
             return service_info.status
 
@@ -296,20 +298,31 @@ class ServiceHealthManager:
             # Update status based on health check result
             if health_result is True:
                 service_info.status = ServiceStatus.HEALTHY
+                service_info.last_error = None
             elif health_result is False:
                 service_info.status = ServiceStatus.UNHEALTHY
+                service_info.last_error = (
+                    service_info.last_error
+                    or "Reported unhealthy by health check"
+                )
             elif isinstance(health_result, dict) and "status" in health_result:
-                # Support for more detailed health checks
-                status_str = health_result["status"]
+                # Support for more detailed health checks (case-insensitive)
+                status_str = str(health_result["status"]).lower()
                 if status_str == "healthy":
                     service_info.status = ServiceStatus.HEALTHY
+                    service_info.last_error = None
                 elif status_str == "degraded":
                     service_info.status = ServiceStatus.DEGRADED
+                    # Only set last_error if provided
+                    if "error" in health_result:
+                        service_info.last_error = health_result["error"]
                 else:
                     service_info.status = ServiceStatus.UNHEALTHY
-
-                if "error" in health_result:
-                    service_info.last_error = health_result["error"]
+                    # Set error if provided, otherwise generic message
+                    service_info.last_error = health_result.get(
+                        "error",
+                        f"Service reported status '{status_str}'",
+                    )
             else:
                 service_info.status = ServiceStatus.UNHEALTHY
                 service_info.last_error = (
