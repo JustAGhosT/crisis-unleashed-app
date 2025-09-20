@@ -170,8 +170,8 @@ export function resolveCombat(
   if (combatState.lethal) {
     processDeaths(
       units,
-      () => {}, // No-op function since ON_KILL was already triggered above
-      onRemoveUnit
+      () => {}, // No-op
+      (unit) => onRemoveUnit(unit.id)
     );
   }
 }
