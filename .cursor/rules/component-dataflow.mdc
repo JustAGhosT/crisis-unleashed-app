@@ -27,10 +27,11 @@ $END$
 # component-dataflow
 
 ### Core Game Components Data Flow
-- **Battlefield -> TurnManager**: Sends unit placement events, movement validation requests, attack resolution data
-- **TurnManager -> PlayerHUD**: Updates energy/momentum resources, phase transitions, turn status
-- **CardHand -> Battlefield**: Validates card placement requests, initiates unit deployment animations
-- **GameInterface -> Global State**: Synchronizes match state, player actions, timer events
+- **Battlefield -> TurnManager**: Sends unit placement/movement events, validation requests, and attack resolution data
+- **TurnManager -> Battlefield**: Applies validated plays/targets; issues placement/movement commands
+- **TurnManager -> PlayerHUD**: Publishes energy/momentum, phase transitions, and turn status
+- **CardHand -> TurnManager**: Submits play intents/targets; receives eligibility/resource gating and acks
+- **GameInterface -> Global State**: Orchestrates match-state broadcasts and timer events; does not bypass TurnManager for rule checks
 
 ### State Update Patterns
 - **PlayerHUD Resource Updates**
