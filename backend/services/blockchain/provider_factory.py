@@ -1,16 +1,16 @@
 """
 Factory for creating blockchain providers.
 """
-import logging
 import asyncio
+import logging
 import os
 import threading
 from typing import Any, Dict, Optional
 
 # Absolute imports rooted at 'backend'
 from backend.services.blockchain.base_provider import BaseBlockchainProvider
-from backend.services.blockchain.etherlink_provider import EtherlinkProvider
 from backend.services.blockchain.ethereum_provider import EthereumProvider
+from backend.services.blockchain.etherlink_provider import EtherlinkProvider
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +24,7 @@ class BlockchainProviderFactory:
     }
 
     _instances: Dict[str, BaseBlockchainProvider] = {}
+    _pools: Dict[str, list[BaseBlockchainProvider]] = {}
     _lock = threading.Lock()
 
     @classmethod
@@ -41,11 +42,7 @@ class BlockchainProviderFactory:
         # Warn if using placeholder values
         if "YOUR_PROJECT_ID" in ethereum_rpc_url:
             logger.warning(
-                (
-                    "Ethereum RPC URL contains placeholder 'YOUR_PROJECT_ID'. "
-                    "Set ETHEREUM_RPC_URL or INFURA_PROJECT_ID environment variable "
-                    "for proper configuration."
-                )
+                "Ethereum RPC URL has placeholder. Set ETHEREUM_RPC_URL or INFURA_PROJECT_ID."
             )
             # Consider raising an exception in production environments
             if os.environ.get("ENVIRONMENT") == "production":
@@ -68,7 +65,9 @@ class BlockchainProviderFactory:
                 "name": "ethereum",
                 "rpc_url": ethereum_rpc_url,
                 "chain_id": int(os.environ.get("ETHEREUM_CHAIN_ID", "1")),
-                "nft_contract_address": os.environ.get("ETHEREUM_NFT_CONTRACT_ADDRESS"),
+                "nft_contract_address": os.environ.get(
+                    "ETHEREUM_NFT_CONTRACT_ADDRESS"
+                ),
                 "marketplace_contract_address": os.environ.get(
                     "ETHEREUM_MARKETPLACE_CONTRACT_ADDRESS"
                 ),
@@ -80,9 +79,13 @@ class BlockchainProviderFactory:
 
         # Log warning if contract addresses are missing
         if config and not config.get("nft_contract_address"):
-            logger.warning(f"NFT contract address not configured for {blockchain}")
+            logger.warning(
+                "NFT contract address not configured for %s", blockchain
+            )
         if config and not config.get("marketplace_contract_address"):
-            logger.warning(f"Marketplace contract address not configured for {blockchain}")
+            logger.warning(
+                "Marketplace contract address not configured for %s", blockchain
+            )
 
         return config
 
@@ -128,6 +131,19 @@ class BlockchainProviderFactory:
 
         cls._instances[blockchain] = provider
         logger.info(f"Created new {blockchain} provider")
+
+        # Build a tiny connection pool (size 2) for reuse
+        pool: list[BaseBlockchainProvider] = [provider]
+        try:
+            extra = provider_class(network_config)
+            pool.append(extra)
+        except Exception as e:
+            logger.warning(
+                "Partial initialization of provider pool for %s: %s",
+                blockchain,
+                e,
+            )
+        cls._pools[blockchain] = pool
 
         return provider
 
@@ -231,7 +247,9 @@ class BlockchainProviderFactory:
         # Copy providers under lock, then clear cache
         with cls._lock:
             instances = dict(cls._instances)
+            pools = dict(cls._pools)
             cls._instances.clear()
+            cls._pools.clear()
 
         # Disconnect outside the lock to limit contention and avoid blocking the loop
         for blockchain, provider in instances.items():
@@ -239,6 +257,16 @@ class BlockchainProviderFactory:
                 await asyncio.to_thread(provider.disconnect)
                 logger.debug(f"Disconnected {blockchain} provider")
             except Exception as e:
-                logger.error(f"Error disconnecting {blockchain} provider: {e}")
+                logger.error(
+                    "Error disconnecting %s provider: %s", blockchain, e
+                )
+
+        # Best-effort disconnect of pooled providers
+        for blockchain, pool in pools.items():
+            for p in pool:
+                try:
+                    await asyncio.to_thread(p.disconnect)
+                except Exception:
+                    pass
 
         logger.info("Cleared all provider instances with proper cleanup")

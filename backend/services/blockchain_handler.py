@@ -3,20 +3,22 @@ Blockchain Handler for processing outbox entries.
 """
 
 import logging
+import random
+import time
 from typing import Any, Dict, List, TypedDict
 
 try:
     # Absolute imports rooted at 'backend'
     from backend.repository import (
-        TransactionOutboxRepository,
         OutboxType,
+        TransactionOutboxRepository,
     )
     from backend.services.blockchain_service import BlockchainService
 except ImportError:
     # Fallback to relative imports (works when run from source tree)
     from ..repository import (
-        TransactionOutboxRepository,
         OutboxType,
+        TransactionOutboxRepository,
     )
     from .blockchain_service import BlockchainService
 
@@ -60,11 +62,11 @@ class BlockchainHandler:
         failed = 0
         errors: List[ErrorItem] = []
         for entry in entries:
+            entry_id = self._get_entry_id(entry)
             try:
-                self._process_entry(entry)
+                self._process_with_retry(entry)
                 successful += 1
             except Exception as e:
-                entry_id = self._get_entry_id(entry)
                 logger.error(f"Failed to process entry {entry_id}: {e}")
                 failed += 1
                 errors.append({"entry_id": entry_id, "error": str(e)})
@@ -108,6 +110,52 @@ class BlockchainHandler:
             logger.error(f"Blockchain operation failed for {entry_id}: {e}")
             self.outbox_repo.increment_attempts(entry_id, str(e))
             raise
+
+    # New: retry wrapper with exponential backoff and jitter
+    def _process_with_retry(self, entry: Any) -> None:
+        entry_id = self._get_entry_id(entry)
+        # Pull max attempts from entry if available, else default
+        attempts_used = int(getattr(entry, "attempts", 0) or 0)
+        max_attempts = int(getattr(entry, "max_attempts", 5) or 5)
+
+        base_delay = 0.5  # seconds
+        max_delay = 30.0  # seconds cap
+        jitter = 0.2      # +/-20%
+
+        try_num = 0
+        while True:
+            try:
+                if try_num > 0:
+                    logger.info(
+                        f"Retrying outbox {entry_id} (attempt {attempts_used + try_num + 1}/{max_attempts})"
+                    )
+                self._process_entry(entry)
+                return
+            except Exception as e:
+                # Update attempts in repo; this is best-effort
+                try:
+                    self.outbox_repo.increment_attempts(entry_id, str(e))
+                except Exception:
+                    pass
+
+                if attempts_used + try_num + 1 >= max_attempts:
+                    # Exhausted retries: mark failed (best-effort)
+                    try:
+                        self.outbox_repo.mark_failed(entry_id, str(e))
+                    except Exception:
+                        pass
+                    raise
+
+                # Compute exponential backoff with jitter and sleep synchronously
+                delay = min(max_delay, base_delay * (2 ** try_num))
+                # apply jitter
+                jitter_factor = 1.0 + (random.random() * 2 - 1) * jitter
+                delay = max(0.1, delay * jitter_factor)
+                logger.warning(
+                    f"Outbox {entry_id} failed: {e}. Backing off for {delay:.2f}s before retry"
+                )
+                time.sleep(delay)
+                try_num += 1
 
     def _handle_mint_nft(self, entry: Any) -> None:
         """Handle NFT minting operation (sync, matches test expectations)."""
