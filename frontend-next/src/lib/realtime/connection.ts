@@ -39,6 +39,12 @@ export function useRealtimeConnection(): RealtimeClient {
   );
   const lastPingRef = useRef<number | null>(null);
   const connectAttemptsRef = useRef(0);
+  // Metrics
+  const receivedCountRef = useRef(0);
+  const sentCountRef = useRef(0);
+  const errorCountRef = useRef(0);
+  const lastFlushAtRef = useRef<number | null>(null);
+  const flushTimerRef = useRef<number | null>(null);
 
   // Config
   const HEARTBEAT_MS = 15000; // 15s
@@ -61,6 +67,10 @@ export function useRealtimeConnection(): RealtimeClient {
         window.clearInterval(hbTimerRef.current);
         hbTimerRef.current = null;
       }
+      if (flushTimerRef.current) {
+        window.clearInterval(flushTimerRef.current);
+        flushTimerRef.current = null;
+      }
       if (wsRef.current) {
         try {
           wsRef.current.close();
@@ -70,6 +80,10 @@ export function useRealtimeConnection(): RealtimeClient {
         wsRef.current = null;
       }
       attemptRef.current = 0;
+      receivedCountRef.current = 0;
+      sentCountRef.current = 0;
+      errorCountRef.current = 0;
+      lastFlushAtRef.current = null;
     }
   }, [enabled]);
 
@@ -129,23 +143,71 @@ export function useRealtimeConnection(): RealtimeClient {
                 const ts = Date.now();
                 lastPingRef.current = ts;
                 ws.send(JSON.stringify({ type: "ping", ts }));
+                // Count ping as sent
+                sentCountRef.current += 1;
               } catch (err) {
                 lastErrorRef.current =
                   err instanceof Error ? err.message : String(err);
               }
             }, HEARTBEAT_MS) as unknown as number;
+            // Start metrics flush loop
+            if (flushTimerRef.current) window.clearInterval(flushTimerRef.current);
+            lastFlushAtRef.current = Date.now();
+            flushTimerRef.current = window.setInterval(() => {
+              try {
+                const now = Date.now();
+                const since = (lastFlushAtRef.current ?? now);
+                const dt = Math.max(1, now - since);
+                const stats = {
+                  name: "realtime_stats",
+                  ts: now,
+                  dtMs: dt,
+                  connects: connectAttemptsRef.current,
+                  reconnects: Math.max(0, connectAttemptsRef.current - 1),
+                  rx: receivedCountRef.current,
+                  tx: sentCountRef.current,
+                  errors: errorCountRef.current,
+                  path: typeof window !== "undefined" ? window.location.pathname : undefined,
+                };
+                navigator.sendBeacon?.(
+                  "/api/rum",
+                  new Blob([JSON.stringify(stats)], { type: "application/json" }),
+                );
+                lastFlushAtRef.current = now;
+                // reset counters after flush
+                receivedCountRef.current = 0;
+                sentCountRef.current = 0;
+                errorCountRef.current = 0;
+              } catch {
+                /* noop */
+              }
+            }, 30000) as unknown as number; // 30s
           };
 
           ws.onmessage = (evt) => {
             // Expect JSON messages
             try {
               const data = JSON.parse(evt.data);
+              receivedCountRef.current += 1;
               if (data && data.type === "pong") {
                 const now = Date.now();
                 const sent =
                   typeof data.ts === "number" ? data.ts : lastPingRef.current;
                 const rtt = sent ? Math.max(0, now - sent) : undefined;
                 realtimeDispatcher.publish("realtime:pong", { ts: now, rtt });
+                // Emit lightweight RUM beacon for realtime health
+                try {
+                  if (rtt !== undefined) {
+                    navigator.sendBeacon?.(
+                      "/api/rum",
+                      new Blob([
+                        JSON.stringify({ name: "realtime_rtt", value: rtt, ts: now, path: window.location.pathname }),
+                      ], { type: "application/json" })
+                    );
+                  }
+                } catch {
+                  /* noop */
+                }
               }
               if (data && data.type === "deck.state.update") {
                 realtimeDispatcher.publish("realtime:deck.state", data.payload);
@@ -209,6 +271,7 @@ export function useRealtimeConnection(): RealtimeClient {
             realtimeDispatcher.publish("realtime:error", {
               message: lastErrorRef.current,
             });
+            errorCountRef.current += 1;
           };
 
           ws.onclose = () => {
@@ -219,6 +282,10 @@ export function useRealtimeConnection(): RealtimeClient {
             if (hbTimerRef.current) {
               window.clearInterval(hbTimerRef.current);
               hbTimerRef.current = null;
+            }
+            if (flushTimerRef.current) {
+              window.clearInterval(flushTimerRef.current);
+              flushTimerRef.current = null;
             }
             if (wsRef.current === ws) {
               wsRef.current = null;
@@ -234,6 +301,7 @@ export function useRealtimeConnection(): RealtimeClient {
           realtimeDispatcher.publish("realtime:error", {
             message: lastErrorRef.current,
           });
+          errorCountRef.current += 1;
           // bounce back to disconnected and attempt reconnect
           window.setTimeout(() => {
             setStatus("disconnected");
@@ -279,10 +347,12 @@ export function useRealtimeConnection(): RealtimeClient {
               ts: Date.now(),
             };
             ws.send(JSON.stringify(envelope));
+            sentCountRef.current += 1;
             return;
           } catch (err) {
             lastErrorRef.current =
               err instanceof Error ? err.message : String(err);
+            errorCountRef.current += 1;
           }
         }
         lastErrorRef.current = "Cannot send while not connected";

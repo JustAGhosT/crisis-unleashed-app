@@ -19,7 +19,8 @@ from fastapi import APIRouter
 
 # Configure logging early
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -48,6 +49,7 @@ try:
     from backend.api.deck_endpoints import router as deck_router
     from backend.api.deck_share_endpoints import router as deck_share_router
     from backend.api.realtime_ws import router as realtime_router
+    from backend.api.metrics_endpoints import router as metrics_router
 
     # Import server modules correctly based on the actual structure
     from backend.server_modules.app import create_application
@@ -56,7 +58,9 @@ try:
     from backend.server_modules.services import setup_services, start_services
 except ImportError as e:
     logger.critical(f"Failed to import required modules: {e}")
-    logger.critical("Please ensure all dependencies are installed: pip install -r requirements.txt")
+    logger.critical(
+        "Please ensure all dependencies are installed: pip install -r requirements.txt"
+    )
     sys.exit(1)
 
 # Load settings
@@ -99,6 +103,10 @@ app.include_router(deck_share_router)
 # Include realtime WebSocket endpoint
 app.include_router(realtime_router)
 
+# Include metrics endpoints
+app.include_router(metrics_router)
+
+
 # Include deck CRUD endpoints
 app.include_router(deck_router)
 
@@ -121,7 +129,7 @@ async def startup_event() -> None:
             blockchain_service=blockchain_service,
             outbox_processor=outbox_processor,
             health_manager=health_manager,
-            fail_fast=fail_fast
+            fail_fast=fail_fast,
         )
 
         logger.info("🚀 Crisis Unleashed Backend started successfully!")
@@ -132,8 +140,12 @@ async def startup_event() -> None:
         logger.critical("💥 CRITICAL SERVICE INITIALIZATION FAILURE")
         logger.critical("=" * 60)
         logger.critical(f"Error: {e}")
-        logger.critical("Application cannot continue without critical services.")
-        logger.critical("Check your configuration and external service connectivity.")
+        logger.critical(
+            "Application cannot continue without critical services."
+        )
+        logger.critical(
+            "Check your configuration and external service connectivity."
+        )
         logger.critical("=" * 60)
 
         # Raise an exception instead of exiting the process
@@ -148,7 +160,9 @@ async def startup_event() -> None:
         if fail_fast:
             logger.critical("Failing fast due to unexpected initialization error")
             # Raise an exception instead of exiting the process
-            raise StartupError(f"Unexpected error during service initialization: {e}")
+            raise StartupError(
+                f"Unexpected error during service initialization: {e}"
+            )
         else:
             logger.warning("Continuing startup despite initialization error (development mode)")
 

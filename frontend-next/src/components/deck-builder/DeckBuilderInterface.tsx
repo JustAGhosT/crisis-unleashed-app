@@ -2,10 +2,10 @@
 
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
+    Card,
+    CardContent,
+    CardFooter,
+    CardHeader,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -19,17 +19,18 @@ import { useRealtimeConnection } from "@/lib/realtime/connection";
 import { cn } from "@/lib/utils";
 import { CardService } from "@/services/cardService";
 import type {
-  CardRarity,
-  CardType,
-  Card as GameCard,
-  DeckCard as GameDeckCard,
+    CardRarity,
+    CardType,
+    Card as GameCard,
+    DeckCard as GameDeckCard,
 } from "@/types/card";
 import { FACTION_IDS, type FactionId } from "@/types/faction";
 import { Download, Link as LinkIcon, Save, Trash2, Upload } from "lucide-react";
-import CardDetailsPanel from "./CardDetailsPanel";
-import { CardGrid } from "./CardGrid";
-import { DeckList } from "./DeckList";
-import { DeckStats as DeckStatsComponent } from "./DeckStats";
+import dynamic from "next/dynamic";
+const CardGrid = dynamic(() => import("./CardGrid").then(m => m.CardGrid), { ssr: false });
+const DeckList = dynamic(() => import("./DeckList").then(m => m.DeckList), { ssr: false });
+const CardDetailsPanel = dynamic(() => import("./CardDetailsPanel"), { ssr: false });
+const DeckStatsComponent = dynamic(() => import("./DeckStats").then(m => m.DeckStats), { ssr: false });
 
 interface DeckBuilderInterfaceProps {
   isLoading?: boolean;

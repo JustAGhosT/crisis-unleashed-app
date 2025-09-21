@@ -3,7 +3,7 @@ from __future__ import annotations
 import json as _json
 import os
 import time as _time
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 from urllib.error import HTTPError, URLError
 from urllib.request import urlopen
 
@@ -28,13 +28,30 @@ def _cards_store(request: Request) -> List[Dict[str, Any]]:
     now = int(_time.time())
     cards = getattr(db, "cards_catalog", None)
     last_fetched = getattr(db, "cards_catalog_last_fetched", 0)
+
+    def _validate_cards(candidate: Any) -> Tuple[bool, List[Dict[str, Any]]]:
+        if not isinstance(candidate, list):
+            return False, []
+        validated: List[Dict[str, Any]] = []
+        for item in candidate:
+            if not isinstance(item, dict):
+                continue
+            cid = item.get("id")
+            name = item.get("name")
+            ctype = item.get("type")
+            if not isinstance(cid, str) or not isinstance(name, str) or not isinstance(ctype, str):
+                continue
+            validated.append(item)
+        # Require at least a handful of valid entries to accept source
+        return (len(validated) >= 1), validated
     if source_url and (cards is None or now - int(last_fetched) > cache_ttl):
         try:
             with urlopen(source_url, timeout=5) as resp:
                 data = resp.read()
                 fetched = _json.loads(data)
-                if isinstance(fetched, list):
-                    cards = fetched
+                ok, validated = _validate_cards(fetched)
+                if ok:
+                    cards = validated
                     setattr(db, "cards_catalog", cards)
                     setattr(db, "cards_catalog_last_fetched", now)
         except (URLError, HTTPError, ValueError):
@@ -46,8 +63,9 @@ def _cards_store(request: Request) -> List[Dict[str, Any]]:
         try:
             with open(source_file, "r", encoding="utf-8") as fh:
                 fetched = _json.load(fh)
-                if isinstance(fetched, list):
-                    cards = fetched
+                ok, validated = _validate_cards(fetched)
+                if ok:
+                    cards = validated
                     setattr(db, "cards_catalog", cards)
                     setattr(db, "cards_catalog_last_fetched", now)
         except Exception:
@@ -122,19 +140,35 @@ async def search_cards(
             continue
         if search:
             s = search.lower()
-            if s not in str(c.get("name", "")).lower() and s not in str(c.get("description", "")).lower():
+            if (
+                s not in str(c.get("name", "")).lower()
+                and s not in str(c.get("description", "")).lower()
+            ):
                 continue
         results.append(c)
 
     start = max(0, (page - 1) * pageSize)
     end = start + pageSize
     page_items = results[start:end]
-    return JSONResponse({
+    resp = JSONResponse({
         "cards": page_items,
         "total": len(results),
         "page": page,
         "pageSize": pageSize,
     })
+    # Encourage edge/browser caching for brief period to reduce load
+    try:
+        max_age = int(os.environ.get("CARDS_HTTP_CACHE_SEC", "60"))
+    except ValueError:
+        max_age = 60
+    try:
+        swr = int(os.environ.get("CARDS_HTTP_SWR_SEC", "300"))
+    except ValueError:
+        swr = 300
+    resp.headers["Cache-Control"] = (
+        f"public, max-age={max_age}, stale-while-revalidate={swr}"
+    )
+    return resp
 
 
 @router.get("/cards/{card_id}")

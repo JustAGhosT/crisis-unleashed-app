@@ -1,17 +1,18 @@
-import { GameCard } from "@/components/cards/GameCard";
 import { AriaLiveRegion } from "@/components/deck-builder/deck/AriaLiveRegion";
 import { DeckRow } from "@/components/deck-builder/deck/DeckRow";
 import { DeckSummary } from "@/components/deck-builder/deck/DeckSummary";
 import { DropZone } from "@/components/deck-builder/deck/DropZone";
-import { ReorderableList } from "@/components/deck-builder/deck/ReorderableList";
-import { VirtualizedReorderableList } from "@/components/deck-builder/deck/VirtualizedReorderableList";
 import { useDeckAnnouncer } from "@/components/deck-builder/hooks/useDeckAnnouncer";
 import { useDeckDnD } from "@/components/deck-builder/hooks/useDeckDnD";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/useToast";
 import { DeckCard, Card as GameCardData } from "@/types/card";
 import { Grid, List, Save, Trash2 } from "lucide-react";
+import dynamic from "next/dynamic";
 import React from "react";
+const GameCard = dynamic(() => import("@/components/cards/GameCard").then(m => m.GameCard), { ssr: false });
+const ReorderableList = dynamic(() => import("@/components/deck-builder/deck/ReorderableList").then(m => m.ReorderableList), { ssr: false });
+const VirtualizedReorderableList = dynamic(() => import("@/components/deck-builder/deck/VirtualizedReorderableList").then(m => m.VirtualizedReorderableList), { ssr: false });
 
 interface DeckListProps {
   deckCards: DeckCard[];

@@ -4,12 +4,13 @@ Application Factory Module
 This module provides functionality to create and configure the FastAPI application.
 """
 
-import logging
 import asyncio
+import logging
+from typing import Any
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from typing import Any
 
 from backend.middleware.service_dependency import ServiceDependencyMiddleware
 
@@ -56,8 +57,15 @@ def create_application(
         CORSMiddleware,
         allow_origins=cors_origins,
         allow_credentials=allow_credentials,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allow_headers=[
+            "Authorization",
+            "Content-Type",
+            "X-Requested-With",
+            "X-CSRF-Token",
+        ],
+        expose_headers=getattr(settings, "cors_expose_headers", ["X-Request-Id"]),
+        max_age=600,
     )
 
     # Add service dependency middleware

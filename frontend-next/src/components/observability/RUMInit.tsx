@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
 import { initWebVitals } from "@/lib/rum/web-vitals";
+import { useEffect } from "react";
 
 export function RUMInit() {
   useEffect(() => {
@@ -12,6 +12,11 @@ export function RUMInit() {
     if (enabled && typeof window !== "undefined") {
       initWebVitals();
     }
+  }, []);
+
+  // Register service worker for caching (noop if unsupported)
+  useEffect(() => {
+    import("@/lib/sw/register-sw").then((m) => m.registerServiceWorker());
   }, []);
 
   return null;

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from typing import Dict, Set
+import time
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
@@ -15,15 +16,26 @@ class ConnectionManager:
         self.subscribers: Dict[str, Set[WebSocket]] = {}
         # reverse index: websocket -> set(deckId)
         self.ws_channels: Dict[WebSocket, Set[str]] = {}
+        # metrics
+        self.metrics = {
+            "connections": 0,
+            "messages_rx": 0,
+            "messages_tx": 0,
+            "errors": 0,
+            "channels": 0,
+            "started_at": int(time.time()),
+        }
 
     async def connect(self, websocket: WebSocket) -> None:
         await websocket.accept()
         self.active_connections.add(websocket)
         self.ws_channels.setdefault(websocket, set())
+        self.metrics["connections"] = len(self.active_connections)
 
     def disconnect(self, websocket: WebSocket) -> None:
         if websocket in self.active_connections:
             self.active_connections.remove(websocket)
+            self.metrics["connections"] = len(self.active_connections)
         # remove from all channels
         channels = self.ws_channels.pop(websocket, set())
         for ch in channels:
@@ -34,15 +46,18 @@ class ConnectionManager:
     def subscribe(self, websocket: WebSocket, channel: str) -> None:
         self.subscribers.setdefault(channel, set()).add(websocket)
         self.ws_channels.setdefault(websocket, set()).add(channel)
+        self.metrics["channels"] = len(self.subscribers)
 
     async def send_text(self, websocket: WebSocket, data: str) -> None:
         await websocket.send_text(data)
+        self.metrics["messages_tx"] += 1
 
     async def broadcast_channel(self, channel: str, data: dict) -> None:
         payload = json.dumps(data)
         for ws in list(self.subscribers.get(channel, set())):
             try:
                 await ws.send_text(payload)
+                self.metrics["messages_tx"] += 1
             except Exception:
                 # best-effort cleanup
                 self.disconnect(ws)
@@ -62,6 +77,7 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
     try:
         while True:
             message = await websocket.receive_text()
+            manager.metrics["messages_rx"] += 1
             try:
                 data = json.loads(message)
             except Exception:
@@ -147,7 +163,13 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
                 )
                 await manager.send_text(
                     websocket,
-                    json.dumps({"type": "ack", "event": msg_type, "ok": True}),
+                    json.dumps(
+                        {
+                            "type": "ack",
+                            "event": msg_type,
+                            "ok": True,
+                        }
+                    ),
                 )
                 continue
 
@@ -158,4 +180,9 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
             )
     except WebSocketDisconnect:
         manager.disconnect(websocket)
+    except Exception:
+        # track generic errors and ensure disconnect
+        manager.metrics["errors"] += 1
+        manager.disconnect(websocket)
+
 

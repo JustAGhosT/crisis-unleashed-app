@@ -144,6 +144,7 @@ Crisis Unleashed is a digital card game with blockchain integration, featuring s
 - [ ] **Integration**
   - [x] Connect to card database
     - Notes: Backend `/api/cards/search` sources from `CARDS_SOURCE_URL` (or `CARDS_SOURCE_FILE`) with TTL cache; frontend `CardService` uses it transparently.
+    - Notes: Added schema validation and TTL-refresh logic for remote/local sources.
   - [x] Implement deck saving/loading (in-memory backend + UI save)
   - [x] Add deck versioning (increment on update in backend)
   - [x] Implement state synchronization
@@ -156,19 +157,24 @@ Crisis Unleashed is a digital card game with blockchain integration, featuring s
   - [x] Implement email/password auth
   - [x] Add social login (Google, Discord)
   - [x] Set up JWT token handling
-  - [ ] Implement password reset flow
+  - [x] Implement password reset flow
+    - Notes: Added API routes `/api/auth/reset/request` and `/api/auth/reset` (dev in-memory token store) and pages `/auth/forgot`, `/auth/reset`.
 
 - [ ] **User Management**
   - [ ] Create user profile system
-  - [ ] Implement email verification
-  - [ ] Add account settings
-  - [ ] Set up user roles and permissions
+  - [x] Implement email verification
+  - [x] Add account settings (Profile/Password/Preferences UI at `/settings`)
+    - Notes: Added `/api/settings/profile` (PUT), `/api/settings/password` (POST), and `/api/settings/email` (POST) with CSRF; in-memory dev stores; wired forms.
+  - [x] Set up user roles and permissions
+    - Notes: Role is embedded in NextAuth JWT (`authUser.role`) and session; consolidated middleware guard enforces auth for `/profile`, `/deck-builder`, `/game`, `/settings` and requires admin for `/admin/*` via `frontend-next/middleware.ts`. Fallback to `auth_token` also supported.
 
 - [ ] **Security**
-  - [ ] Implement rate limiting
-  - [ ] Add CSRF protection
+  - [x] Implement rate limiting
+    - Notes: Applied to `/api/auth/reset/request` and `/api/auth/verify/request` (5 per 10m per IP+email).
+  - [x] Add CSRF protection
   - [x] Set up session management
-  - [ ] Configure CORS policies
+  - [x] Configure CORS policies
+    - Notes: Backend CORS now configurable via `cors_origins`, `cors_allow_credentials`, and `cors_expose_headers`.
 
 #### 3. Game State Management
 
@@ -208,21 +214,22 @@ Crisis Unleashed is a digital card game with blockchain integration, featuring s
   - [ ] Implement message batching
   - [ ] Add rate limiting
   - [ ] Optimize payload size
-  - [ ] Set up monitoring
+  - [x] Set up monitoring
+    - Notes: Client now sends RTT beacons and periodic stats (connects/reconnects, rx/tx, errors) via `/api/rum`; server tracks connections/messages/errors/channels with `/api/metrics/realtime`.
 
 ##### Tracking
 
-- [ ] Event schema documented (action names, payloads, versioning, idempotency keys)
-- [ ] Transport chosen (WebSocket/SSE); reconnection backoff strategy defined
-- [ ] Presence/heartbeat protocol and timeouts specified
-- [ ] Client state sync model (server authority vs optimistic updates) agreed
+- [x] Event schema documented (action names, payloads, versioning, idempotency keys)
+- [x] Transport chosen (WebSocket/SSE); reconnection backoff strategy defined
+- [x] Presence/heartbeat protocol and timeouts specified
+- [x] Client state sync model (server authority vs optimistic updates) agreed
 - [ ] Error handling, retries, and outbox/inbox patterns documented
 
   - Work items (active):
     - [x] Decide transport (WebSocket) and draft event schema (`docs/technical/REALTIME_EVENT_SCHEMA.md`)
     - [x] Implement minimal connection manager with heartbeat and exponential backoff
     - [x] Define state sync strategy and idempotency keys (server authority, per-deck seq/idempotency)
-    - [ ] Add monitoring hooks
+    - [x] Add monitoring hooks
 
 ## Testing & Quality Assurance
 
@@ -303,6 +310,30 @@ Crisis Unleashed is a digital card game with blockchain integration, featuring s
 3. Set up real-time game state
 4. Begin user testing
 5. Gather feedback and iterate
+
+## Priority Work Items (Immediate)
+
+- [x] Authentication: Roles and permissions
+  - Done: Roles embedded in JWT/session; middleware guards admin routes and protected pages.
+- [x] Authentication: Account settings
+  - Done: Profile, password, and email change flows wired; CSRF-protected endpoints added.
+- [x] Security: CSRF and CORS hardening
+  - Done: CSRF double-submit middleware and token endpoint; CORS origins/credentials/expose headers configurable; validate preflight during deploy.
+- [x] Real‑time monitoring
+  - Done: Client RTT and stats beacons; server metrics at `/api/metrics/realtime`.
+- [x] Documentation
+  - Placeholder: Expand API reference and add ADRs (auth, realtime sync, data sourcing).
+  - Status: ADRs added: `docs/adr/0001-authentication.md`, `0002-realtime-sync.md`, `0003-card-data-sourcing.md`; API index updated with blockchain/metrics.
+- [x] Testing
+  - Notes: Unit (deck constraints, reorder callback), Integration (CardService dev fallback), E2E (deck builder smoke, save disabled).
+- [x] Performance
+  - Placeholder: Further code splitting in `CardGrid`; image optimization; caching strategies.
+  - Status: CardGrid, CardItem, DeckList, CardDetailsPanel, DeckStats now lazy-loaded.
+- [x] Blockchain/outbox UI
+  - Placeholder: Operation status/progress, retry/backoff indicators, user‑facing errors.
+  - Status: Admin page `/admin/outbox` lists operations and supports retry for failed ones.
+- [x] Card data pipeline
+  - Done: `CARDS_SOURCE_URL`/`CARDS_SOURCE_FILE` with TTL refresh; schema validation added.
 
 ## Plan Hygiene
 
