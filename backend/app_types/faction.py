@@ -13,10 +13,9 @@ class EnergyMechanics:
     - energy_efficiency_multiplier: Multiplier applied to energy costs.
     - predictive_algorithms: When True, unlocks prediction-based bonuses.
     """
-
+    predictive_algorithms: bool
     max_energy_bonus: int = 0
     energy_efficiency_multiplier: float = 1.0
-    predictive_algorithms: bool
 
 
 @dataclass
@@ -89,10 +88,9 @@ class SyntheticDirectiveMechanics:
     - directive_flexibility: Flexibility of directive changes.
     - self_replication: When True, enables replication behavior.
     """
-
+    self_replication: bool
     assimilation_rate: float = 0.0
     directive_flexibility: float = 0.0
-    self_replication: bool
 
 
 @dataclass
