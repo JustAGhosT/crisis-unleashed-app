@@ -108,7 +108,7 @@ class BlockchainHandler:
                 raise ValueError(f"Unsupported operation type: {entry_type}")
         except Exception as e:
             logger.error(f"Blockchain operation failed for {entry_id}: {e}")
-            self.outbox_repo.increment_attempts(entry_id, str(e))
+            # Attempts are handled by _process_with_retry
             raise
 
     # New: retry wrapper with exponential backoff and jitter
