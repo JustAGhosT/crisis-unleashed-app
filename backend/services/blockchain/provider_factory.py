@@ -24,7 +24,9 @@ class BlockchainProviderFactory:
     }
 
     _instances: Dict[str, BaseBlockchainProvider] = {}
-    _pools: Dict[str, list[BaseBlockchainProvider]] = {}
+from typing import Any, Dict, Optional, List
+
+    _pools: Dict[str, List[BaseBlockchainProvider]] = {}
     _lock = threading.Lock()
 
     @classmethod
