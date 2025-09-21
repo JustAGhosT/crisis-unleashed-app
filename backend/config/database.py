@@ -48,15 +48,15 @@ class InMemoryCollection:
         return type('InsertManyResult', (), {'inserted_ids': inserted_ids})
 
     async def find(self, query=None, sort=None):
-        # Return a cursor-like object
-        return InMemoryCursor(self._data)
+        if not query:
+            return InMemoryCursor(self._data)
+        result = [doc for doc in self._data if all(doc.get(k) == v for k, v in query.items())]
+        return InMemoryCursor(result)
 
     async def find_one(self, query=None):
-        # Simple implementation that ignores the query
-        if not self._data:
-            return None
-        return self._data[0].copy()
-
+        cursor = await self.find(query)
+        docs = await cursor.to_list(1)
+        return docs[0] if docs else None
     async def find_one_and_update(self, filter, update, **kwargs):
         # Find matching document (simplistic, ignores most of the filter logic)
         for doc in self._data:
