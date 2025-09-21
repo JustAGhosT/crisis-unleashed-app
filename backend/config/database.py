@@ -60,7 +60,9 @@ class InMemoryCollection:
     async def find_one_and_update(self, filter, update, **kwargs):
         # Find matching document (simplistic, ignores most of the filter logic)
         for doc in self._data:
-            # Store the pre-update state by making a deep copy
+            # Match filter (exact-match semantics)
+            if not all(doc.get(k) == v for k, v in (filter or {}).items()):
+                continue
             pre_update_doc = doc.copy()
             
             # Apply updates to the stored document
@@ -70,6 +72,10 @@ class InMemoryCollection:
             if update.get('$inc'):
                 for k, v in update['$inc'].items():
                     doc[k] = doc.get(k, 0) + v
+            if not any(op in update for op in ('$set', '$inc')):
+                for k, v in update.items():
+                    if k != '_id':
+                        doc[k] = v
             
             # Return document based on return_document option
             if kwargs.get('return_document', 'before') == 'after':
