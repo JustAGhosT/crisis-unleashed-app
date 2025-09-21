@@ -1,17 +1,18 @@
-import React from "react";
-import { GameCard } from "@/components/cards/GameCard";
-import { Button } from "@/components/ui/button";
-import { Grid, List, Save, Trash2 } from "lucide-react";
-import { DeckCard, Card as GameCardData } from "@/types/card";
-import { DropZone } from "@/components/deck-builder/deck/DropZone";
+import { AriaLiveRegion } from "@/components/deck-builder/deck/AriaLiveRegion";
 import { DeckRow } from "@/components/deck-builder/deck/DeckRow";
 import { DeckSummary } from "@/components/deck-builder/deck/DeckSummary";
-import { AriaLiveRegion } from "@/components/deck-builder/deck/AriaLiveRegion";
-import { ReorderableList } from "@/components/deck-builder/deck/ReorderableList";
-import { VirtualizedReorderableList } from "@/components/deck-builder/deck/VirtualizedReorderableList";
-import { useDeckDnD } from "@/components/deck-builder/hooks/useDeckDnD";
+import { DropZone } from "@/components/deck-builder/deck/DropZone";
 import { useDeckAnnouncer } from "@/components/deck-builder/hooks/useDeckAnnouncer";
+import { useDeckDnD } from "@/components/deck-builder/hooks/useDeckDnD";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/useToast";
+import { DeckCard, Card as GameCardData } from "@/types/card";
+import { Grid, List, Save, Trash2 } from "lucide-react";
+import dynamic from "next/dynamic";
+import React from "react";
+const GameCard = dynamic(() => import("@/components/cards/GameCard").then(m => m.GameCard), { ssr: false });
+const ReorderableList = dynamic(() => import("@/components/deck-builder/deck/ReorderableList").then(m => m.ReorderableList), { ssr: false });
+const VirtualizedReorderableList = dynamic(() => import("@/components/deck-builder/deck/VirtualizedReorderableList").then(m => m.VirtualizedReorderableList), { ssr: false });
 
 interface DeckListProps {
   deckCards: DeckCard[];
@@ -28,6 +29,8 @@ interface DeckListProps {
   className?: string;
   /** Optional handler to reorder deck cards (list view only for now) */
   onReorderDeckCards?: (newOrder: DeckCard[]) => void;
+  /** Maximum cards allowed in the deck (used to block invalid drops) */
+  maxCards?: number;
 }
 
 /**
@@ -48,6 +51,7 @@ export const DeckList: React.FC<DeckListProps> = ({
   selectedCardId,
   className,
   onReorderDeckCards,
+  maxCards = 60,
 }) => {
   const { toast } = useToast();
   const announcer = useDeckAnnouncer();
@@ -80,15 +84,61 @@ export const DeckList: React.FC<DeckListProps> = ({
   }, [deckCards, cardMap, onReorderDeckCards]);
   // Virtualization threshold (outside of memo so it can be referenced below)
   const useVirtual = sortedDeckCards.length > 60;
+  // Build a quick lookup for counts and existing non-neutral faction
+  const quantityById = React.useMemo(() => {
+    const m = new Map<string, number>();
+    for (const dc of deckCards) m.set(dc.cardId, dc.quantity);
+    return m;
+  }, [deckCards]);
+
+  const nonNeutralFactions = React.useMemo(() => {
+    const set = new Set<string>();
+    for (const dc of deckCards) {
+      const card = cardMap.get(dc.cardId);
+      const f = card?.faction;
+      if (f && f.toLowerCase() !== "neutral") set.add(f);
+    }
+    return set;
+  }, [deckCards, cardMap]);
+
+  const handleInvalid = (message: string) =>
+    toast({ title: "Invalid drop", description: message, variant: "destructive" });
+
+  const guardAdd = (card: GameCardData): boolean => {
+    // Max deck size
+    const total = deckCards.reduce((s, dc) => s + dc.quantity, 0);
+    if (total >= maxCards) {
+      handleInvalid(`Deck cannot exceed ${maxCards} cards.`);
+      return false;
+    }
+    // Max copies per card (heroes capped at 1)
+    const currentQty = quantityById.get(card.id) ?? 0;
+    const maxAllowed = card.type === "hero" ? 1 : 3;
+    if (currentQty >= maxAllowed) {
+      handleInvalid(`You can only have ${maxAllowed} copies of ${card.name}.`);
+      return false;
+    }
+    // Faction constraint: allow up to two non-neutral factions
+    const f = card.faction;
+    if (f && f.toLowerCase() !== "neutral") {
+      const set = new Set(nonNeutralFactions);
+      if (!set.has(f)) set.add(f);
+      if (set.size > 2) {
+        handleInvalid("Deck can include at most 2 non-neutral factions.");
+        return false;
+      }
+    }
+    return true;
+  };
+
   const dnd = useDeckDnD({
     resolveById: (id) => cardMap.get(id),
-    onAddCard: (c) => onAddCard(c),
+    onAddCard: (c) => {
+      if (!guardAdd(c)) return;
+      onAddCard(c);
+    },
     onInvalidDrop: () =>
-      toast({
-        title: "Invalid drop",
-        description: "That item cannot be added here.",
-        variant: "destructive",
-      }),
+      handleInvalid("That item cannot be added here."),
     onAnnounceAdd: announcer.announceAdd,
   });
 

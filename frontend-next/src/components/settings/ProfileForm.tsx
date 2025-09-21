@@ -1,11 +1,11 @@
 "use client";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { getFactionOptions } from "@/data/factions";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 // Profile update schema
 const profileSchema = z.object({
@@ -68,10 +68,14 @@ export function ProfileForm({ user, onSuccess, onError }: ProfileFormProps) {
     },
   });
 
-  const onSubmit = async () => {
+  const onSubmit = async (data: ProfileFormData) => {
     try {
-      // In a real app, this would be an API call to update the profile
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const res = await fetch("/api/settings/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", "X-CSRF-Token": (document.cookie.match(/csrfToken=([^;]+)/)?.[1] ?? "") },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error("Failed to update profile");
       onSuccess();
     } catch {
       onError("Failed to update profile. Please try again.");

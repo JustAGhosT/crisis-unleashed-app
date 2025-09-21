@@ -1,59 +1,32 @@
-# Activate virtual environment (supports repo-root and backend-scoped venvs)
-$scriptRoot = Split-Path -Parent $PSCommandPath
-$repoRoot   = Resolve-Path (Join-Path $scriptRoot "..")
-$candidates = @(
-    (Join-Path $repoRoot ".venv\Scripts\Activate.ps1"),
-    (Join-Path $repoRoot ".venv\Scripts\activate.ps1"),
-    (Join-Path $scriptRoot ".venv\Scripts\Activate.ps1"),
-    (Join-Path $scriptRoot ".venv\Scripts\activate.ps1")
-)
-$activated = $false
-foreach ($path in $candidates) {
-    if (Test-Path -Path $path) { & $path; $activated = $true; break }
+# PowerShell script to start the backend server
+Write-Host "Starting Crisis Unleashed Backend..."
+Write-Host "========================================"
+
+# Set defaults only when not already provided by the caller/host
+if (-not $env:ENVIRONMENT) { $env:ENVIRONMENT = "development" }
+if (-not $env:USE_IN_MEMORY_DB) { $env:USE_IN_MEMORY_DB = "true" }
+if (-not $env:PORT) { $env:PORT = "8010" }
+
+# Determine which mode to use based on ENVIRONMENT variable
+$useDevelopmentMode = ($env:ENVIRONMENT -eq "development")
+
+if ($useDevelopmentMode) {
+    # Development mode - use the simplified server
+    Write-Host "Using DEVELOPMENT mode with simplified server"
+    Write-Host "--------------------------------------"
+    Write-Host "Starting server on port $env:PORT..."
+    # Changed from run.py to server.py since that's the actual server file
+    python -m server
+} else {
+    # Production mode - use the full server implementation
+    Write-Host "Using PRODUCTION mode with full server implementation"
+    Write-Host "--------------------------------------"
+    Write-Host "Starting server on port $env:PORT..."
+    
+    # Get number of CPU cores for worker count (half the cores, minimum 2)
+    $cpuCount = [Environment]::ProcessorCount
+    $workerCount = [Math]::Max(2, [Math]::Floor($cpuCount / 2))
+    
+    # Production uvicorn without reload flag and with appropriate worker count
+    python -m uvicorn server:app --host 0.0.0.0 --port $env:PORT --workers $workerCount
 }
-if (-not $activated) {
-    Write-Host "Warning: Could not find a virtualenv. Create one with: python -m venv .venv (at repo root)"
-}
-
-# Check if the problematic types directory still exists and remove it
-if (Test-Path -Path ".\types") {
-    Write-Host "Removing problematic 'types' directory..."
-    Remove-Item -Path ".\types" -Recurse -Force
-}
-
-# Set PYTHONPATH to include the current directory
-$env:PYTHONPATH = $PWD
-
-# Define the port to use
-$backendPort = 8010
-
-  # Check if the backend port is already in use and kill the process if needed
-  try {
-    $connections = Get-NetTCPConnection -LocalPort $backendPort -ErrorAction SilentlyContinue
-    $pids = @($connections | Select-Object -ExpandProperty OwningProcess | Sort-Object -Unique)
-    if ($pids.Count -gt 0) {
-        $procInfo = $pids | ForEach-Object { Get-Process -Id $_ -ErrorAction SilentlyContinue | Select-Object Id, ProcessName, Path }
-        Write-Host "Port $backendPort in use by:`n$($procInfo | Format-Table | Out-String)"
-        $uvicornPids = $procInfo | Where-Object { $_.ProcessName -match 'python' -or $_.ProcessName -match 'uvicorn' } | Select-Object -ExpandProperty Id
-        if ($uvicornPids.Count -gt 0) {
-            $confirm = Read-Host "Kill uvicorn/python processes on port $backendPort? (y/N)"
-            if ($confirm -match '^[Yy]$') {
-                Stop-Process -Id $uvicornPids -Force
-                Start-Sleep -Seconds 1
-                Write-Host "Terminated process(es): $($uvicornPids -join ', ')"
-            } else {
-                Write-Host "Aborting process termination; port $backendPort still in use. Exiting."
-                exit 1
-            }
-        } else {
-            Write-Host "Non-uvicorn process is using port $backendPort. Exiting to avoid startup failure."
-            exit 1
-        }
-    }
-  } catch {
-      Write-Host "Warning: Unable to check for processes using port $backendPort. If server fails to start, manually check for processes using this port."
-  }
-
-# Start the server with uvicorn
-Write-Host "Starting server on port $backendPort..."
-python -m uvicorn server:app --reload --host 0.0.0.0 --port $backendPort

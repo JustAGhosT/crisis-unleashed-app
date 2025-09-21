@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn, getFactionColorClass } from "@/lib/utils";
-import { Card as GameCardData, CardRarity } from "@/types/card";
+import { CardRarity, Card as GameCardData } from "@/types/card";
 import { Heart, Minus, Plus, Swords } from "lucide-react";
 import Image from "next/image";
 import React from "react";
@@ -38,6 +38,8 @@ export const GameCard: React.FC<GameCardProps> = ({
   draggable = false,
   showDetails = false,
 }) => {
+  const BLUR_DATA_URL =
+    "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
   const sizeClasses = {
     sm: "card-size-sm h-40",
     md: "card-size-md h-64",
@@ -151,6 +153,10 @@ export const GameCard: React.FC<GameCardProps> = ({
               alt={card.name}
               fill
               className="object-cover rounded"
+              loading="lazy"
+              sizes="(max-width: 640px) 45vw, (max-width: 1024px) 25vw, 20vw"
+              placeholder="blur"
+              blurDataURL={BLUR_DATA_URL}
             />
           ) : (
             <div

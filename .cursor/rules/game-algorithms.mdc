@@ -1,5 +1,5 @@
 ---
-description: Specification for core game algorithms including battlefield management, card deployment, turn sequencing, and combat resolution
+description: Specifications for game algorithms including battlefield management, card deployment, turn sequencing and combat resolution
 ---
 
 # === USER INSTRUCTIONS ===
@@ -15,72 +15,59 @@ alwaysApply: false
 
 # game-algorithms
 
-## Core Game Flow
+## Core Battle System
+**Importance: 95**
+- Hex-based battlefield with distinct zones (frontline, backline, neutral)
+- Zone of control (ZOC) mechanics affect unit movement and positioning
+- Custom movement costs based on unit type and terrain
+- Battlefield zone restrictions enforce positioning rules
+- Combat sequencing through initiative-based system
 
-1. **Turn Management System** (Score: 85)
-- Implements phase-based turns: Deploy/Action/End
-- Visual feedback for active player state
-- Resource management between turns
-- Configurable turn timer with animations
-- Turn history logging and turn skipping edge cases
-- File: `plans/board-game-interface.md`
+## Turn Management 
+**Importance: 90**
+- Phase-based turn structure:
+  - Draw Phase: Card draw mechanics and resource gain
+  - Energy Phase: Energy allocation and momentum generation
+  - Main Phase: Card deployment and ability activation
+  - Combat Phase: Initiative-based attack resolution
+  - End Phase: Cleanup and effect resolution
+- Resource systems track Energy and Momentum
+- Phase-specific action validation and restrictions
 
-2. **Combat Resolution Engine** (Score: 90)
-- Grid-based battlefield with unit placement
-- Movement with pathfinding
-- Initiative-based attack resolution 
-- Zone control mechanics
-- Line of sight/range indicators
-- Battlefield status effects
-- File: `plans/board-game-interface.md`
+## Card Deployment Logic
+**Importance: 85**
+- Zone-specific placement rules per card type
+- Energy cost validation against available resources
+- Placement validation based on battlefield control
+- Chain reaction system for simultaneous effects
+- Unit type placement restrictions (melee frontline only, etc)
 
-3. **Card System Logic** (Score: 88)
-- Drawing mechanics with mulligan system
-- Card targeting validation
-- Discard pile management
-- Hand size limits
-- Card counter tracking
-- File: `plans/board-game-interface.md`
+## Combat Resolution
+**Importance: 90**
+- Initiative-based combat sequence
+- Attack range validation per unit type
+- Line of sight calculations on hex grid
+- Simultaneous damage resolution system
+- Status effect application order
+- Counter-attack mechanics based on unit position
 
-4. **Crisis Event System** (Score: 80)
-- Random crisis event generation
-- Visual impact indicators
-- Event countdown timers
-- Crisis resolution mechanics
-- Reward distribution logic
-- File: `plans/board-game-interface.md`
+## Faction Mechanics 
+**Importance: 88**
+- Unique faction abilities modify base game rules:
+  - Energy Manipulation alters resource generation
+  - Stealth bypasses standard targeting rules
+  - Time Manipulation affects turn sequencing
+  - Growth adapts unit stats over time
+  - Sacrifice provides power at resource cost
+  - Mind Control temporarily claims enemy units
 
-5. **Faction Mechanics** (Score: 85)
-- Energy manipulation (Solaris)
-- Stealth mechanics (Umbral)
-- Mind control (Neuralis) 
-- Time manipulation (Aeonic)
-- Growth adaptation (Primordial)
-- Sacrifice mechanics (Infernal)
-- File: `backend/types/faction.py`
-
-6. **Synergy System** (Score: 75)
-- Card synergy detection
-- Animated connection visualization
-- Synergy activation feedback
-- Tutorial integration
-- File: `plans/board-game-interface.md`
-
-## Resource Management
-
-1. **Multi-Resource System** (Score: 80)
-- Energy for card costs
-- Momentum for hero abilities 
-- Resource gain/loss triggers
-- Faction-specific modifiers
-- File: `frontend/features/players/PlayerHUD.tsx`
-
-2. **Zone Control** (Score: 75)
-- Battlefield divided into control zones
-- Zone ownership tracking
-- Zone-based bonuses
-- Strategic positioning rewards
-- File: `frontend/features/battlefield/Battlefield.tsx`
+## Status Effect System
+**Importance: 82**
+- Effect stacking rules and limitations
+- Duration tracking across turn phases
+- Effect precedence and override rules
+- Conditional trigger system for effects
+- Buff/debuff interaction resolution
 
 $END$
 

@@ -10,71 +10,69 @@
 - Explain your OBSERVATIONS clearly, then provide REASONING to identify the exact issue. Add console logs when needed to gather more information.
 
 
-Crisis Unleashed implements a complex card game system with faction-based mechanics, blockchain integration, and multi-resource management. The core business logic is organized into several key systems:
+## Core Game Systems (Score: 95)
 
-### Core Game Systems (Score: 90)
-- Turn-based gameplay with distinct phases (Deploy/Action/End)
-- Multi-resource management (Energy, Momentum)
-- Card drawing and playing mechanics with validation
-- Combat resolution on a grid-based battlefield
-- Crisis event system affecting gameplay
+### Faction System
+- Seven unique factions with distinct mechanics:
+  - Energy Manipulation: Predictive algorithms, efficiency multipliers
+  - Stealth: Cloaking, information warfare
+  - Mind Control: Control range, resistance mechanics
+  - Time Manipulation: Turn rewinding, cost reduction
+  - Growth Adaptation: Staged growth, adaptation speed
+  - Sacrifice: Risk/reward multipliers, sacrifice options
+  - Synthetic Directive: Assimilation, self-replication
 
-**Key Files:**
-- `plans/board-game-interface.md`
-- `plans/overview.md`
-- `backend/types/faction.py`
+### Battle System
+- Hex-based battlefield with zone control mechanics
+- Unit positioning and movement rules
+- Zones of control (ZOC) implementation
+- Ranged combat and friendly fire rules
+- Frontline/backline/neutral zone management
 
-### Faction Mechanics (Score: 85)
-Seven unique factions with distinct mechanics:
-- Solaris: Energy manipulation
-- Umbral: Stealth mechanics  
-- Neuralis: Mind control
-- Aeonic: Time manipulation
-- Primordial: Growth/adaptation
-- Infernal: Sacrifice mechanics
-- Synthetic: Mechanical precision
+## Card Mechanics (Score: 90)
 
-**Key Files:**
-- `frontend/src/data/factions/index.ts`
-- `backend/types/faction.py`
+### Card Types
+- Heroes with leveling mechanics
+- Units (melee, ranged, siege, flying)
+- Actions (instant, ongoing, equipment)
+- Structures (building, trap, aura)
 
-### Blockchain Integration (Score: 85)
-- Transaction outbox pattern for NFT operations
-- Multi-chain support (Etherlink, Ethereum, Solana)
+### Deck Building Rules
+- Maximum 3 copies per card
+- 30-50 cards per deck
+- Maximum 2 factions per deck
+- Faction consistency validation
+- Energy curve balancing
+
+## Blockchain Integration (Score: 85)
+
+### Transaction Outbox Pattern
+- Domain-specific transaction states
 - NFT minting and transfer operations
-- Marketplace functionality
+- Blockchain-specific validation
+- Transaction retry logic
+- Manual review thresholds
 
-**Key Files:**
-- `backend/services/blockchain_service.py`
-- `backend/repository/transaction_outbox.py`
+### Multi-Chain Support
+- Chain-specific transaction handling
+- Cross-chain consistency
+- Network-specific validation rules
+- Unified provider interface
 
-### Deck Building System (Score: 80)
-- Faction-specific deck validation
-- Card synergy analysis
-- Deck statistics calculation
-- Advanced filtering system
+## Real-time Features (Score: 80)
 
-**Key Files:**
-- `frontend-next/src/services/deckService.ts`
-- `frontend-next/src/components/deck-builder/DeckBuilder.tsx`
+### Turn Management
+- Phase-based turn structure
+- Energy and momentum resources
+- Action economy system
+- State synchronization
+- Game history tracking
 
-### Service Health Management (Score: 75)
-- Service dependency tracking
-- Continuous health monitoring
-- Fail-fast initialization
-- Critical service status tracking
-
-**Key Files:**
-- `backend/services/health_manager.py`
-
-### Feature Flag System (Score: 70)
-- Progressive feature rollout
-- Feature status persistence
-- Middleware route control
-- Admin interface for flag management
-
-**Key Files:**
-- `frontend-next/src/lib/feature-flags/feature-flag-provider.tsx`
+### Combat Resolution
+- Initiative-based sequencing
+- Simultaneous damage dealing
+- Status effect application
+- Combat keyword processing
 
 $END$
 

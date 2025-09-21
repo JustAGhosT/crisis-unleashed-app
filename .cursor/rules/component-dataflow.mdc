@@ -1,5 +1,5 @@
 ---
-description: Documents dataflow patterns between core game components including state updates, event handling, and data synchronization
+description: Documents data flow between game components including state updates and event handling for the card game interface
 ---
 
 # === USER INSTRUCTIONS ===
@@ -26,53 +26,56 @@ $END$
 
 # component-dataflow
 
-The core game components maintain the following data flows:
+### Core Game Components Data Flow
+- **Battlefield -> TurnManager**: Sends unit placement/movement events, validation requests, and attack resolution data
+- **TurnManager -> Battlefield**: Applies validated plays/targets; issues placement/movement commands
+- **TurnManager -> PlayerHUD**: Publishes energy/momentum, phase transitions, and turn status
+- **CardHand -> TurnManager**: Submits play intents/targets; receives eligibility/resource gating and acks
+- **GameInterface -> Global State**: Orchestrates match-state broadcasts and timer events; does not bypass TurnManager for rule checks
 
-1. **Battlefield → TurnManager**
-- Sends unit position updates and combat events
-- Notifies when units enter/exit combat zones 
-- Reports battlefield state changes for turn validation
-- Files: `frontend/src/features/battlefield/Battlefield.tsx`, `frontend/src/features/battlefield/TurnManager.tsx`
+### State Update Patterns
+- **PlayerHUD Resource Updates**
+  - Energy costs deducted immediately on card play
+  - Momentum gained after successful attacks/actions
+  - Health changes trigger status effect animations
+  - Resource updates synchronized across both players
 
-2. **CardHand → GameInterface**
-- Emits card play events with targeting data
-- Updates hand state after card resolution
-- Tracks energy/momentum costs for played cards
-- Files: `frontend/src/features/cards/CardHand.tsx`, `frontend/src/components/game/GameInterface.tsx`
+- **Battlefield State Management**
+  - Hex grid positions tracked for unit movement
+  - Zone control status updated per turn
+  - Combat resolution triggers chain reactions
+  - Status effects applied to affected grid spaces
 
-3. **TurnManager → PlayerHUD**
-- Broadcasts turn phase changes
-- Updates resource pools at phase transitions
-- Sends ability activation notifications
-- Files: `frontend/src/features/battlefield/TurnManager.tsx`, `frontend/src/features/players/PlayerHUD.tsx`
+- **Card Hand Interactions**
+  - Draw/discard events update hand size
+  - Card preview data sent to GameInterface
+  - Placement validation checked against battlefield state
+  - Hover effects trigger opponent awareness flags
 
-4. **GameInterface → All Components**
-- Maintains global game state
-- Dispatches game events to relevant components
-- Coordinates cross-component interactions
-- Synchronizes UI updates across components
-- Files: `frontend/src/components/game/GameInterface.tsx`
+### Critical Game Events
+1. **Turn Phase Transitions**
+   - TurnManager broadcasts phase changes
+   - Components update valid action sets
+   - Resource pools refreshed/depleted
+   - Timer events synchronized
 
-5. **PlayerHUD → CardHand**
-- Provides resource availability for card validation
-- Signals when abilities are ready/disabled
-- Updates targeting options based on state
-- Files: `frontend/src/features/players/PlayerHUD.tsx`, `frontend/src/features/cards/CardHand.tsx`
+2. **Combat Resolution**
+   - Battlefield initiates attack sequences
+   - PlayerHUD updates health/status
+   - CardHand reveals reaction opportunities
+   - Animation queues managed by GameInterface
 
-Core data updates follow this flow:
-1. Component emits state change
-2. GameInterface validates and processes 
-3. TurnManager checks turn/phase rules
-4. State updates propagate to affected components
-5. UI synchronizes across all components
+3. **Resource Management**
+   - Energy costs validated before actions
+   - Momentum gained triggers ability unlocks
+   - Resource pools synchronized between components
+   - Overflow/deficit handling coordinated
 
-Critical state managed includes:
-- Unit positions and combat status
-- Card hand and deck states
-- Resource pools (Energy/Health/Momentum)
-- Turn phases and active player
-- Targeting and ability states
-- Combat resolution state
+### Component Communication Patterns
+- Direct updates for critical game state
+- Event-based triggers for animations/effects
+- Queued updates for complex sequences
+- Broadcast channels for global state changes
 
 $END$
 

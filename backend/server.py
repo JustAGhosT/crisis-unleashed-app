@@ -9,347 +9,209 @@ Crisis Unleashed Backend Server
 See SETUP.md for detailed instructions.
 """
 
-from fastapi import FastAPI, APIRouter, Query, HTTPException
-from fastapi.responses import JSONResponse
-from dotenv import load_dotenv
-from starlette.middleware.cors import CORSMiddleware
-from motor.motor_asyncio import AsyncIOMotorClient
-import os
 import logging
-from pathlib import Path
-from pydantic import BaseModel, Field
-from typing import List, Optional, Any, TYPE_CHECKING, cast
-import uuid
+import os
 import sys
-from datetime import datetime, timezone
-from bson.codec_options import CodecOptions
+from pathlib import Path
 
-"""Import routers and configuration with analyzer-friendly gating.
-Supports both package execution (uvicorn backend.server:app) and
-direct script execution (python backend/server.py).
-"""
+from dotenv import load_dotenv
+from fastapi import APIRouter
 
-if TYPE_CHECKING:
-    # Types for annotations only
-    from .services.blockchain_service import BlockchainService as BlockchainServiceType
-    from .workers.outbox_processor import OutboxProcessor as OutboxProcessorType
-    from .services.health_manager import ServiceHealthManager as ServiceHealthManagerType
-
-# Declare module handles once to avoid duplicate-definition warnings
-_api: Optional[Any] = None
-_config: Optional[Any] = None
-_services: Optional[Any] = None
-_health_manager: Optional[Any] = None
-_workers: Optional[Any] = None
-_svc_dep: Optional[Any] = None
-
-# Try package-style imports first; fall back to script-style
-try:
-    # Prefer relative imports when running as a package
-    from . import api as _api  # type: ignore
-    from . import config as _config  # type: ignore
-    from . import services as _services  # type: ignore
-    from .services import health_manager as _health_manager  # type: ignore
-    from . import workers as _workers  # type: ignore
-    from .middleware import service_dependency as _svc_dep  # type: ignore
-except Exception:  # pragma: no cover - fallback for direct script execution
-    import importlib
-    _api = importlib.import_module("api")
-    _config = importlib.import_module("config")
-    _services = importlib.import_module("services")
-    _health_manager = importlib.import_module("services.health_manager")
-    _workers = importlib.import_module("workers")
-    _svc_dep = importlib.import_module("middleware.service_dependency")
-
-# Ensure imports succeeded for static analyzers and at runtime
-if any(x is None for x in (_api, _config, _services, _health_manager, _workers, _svc_dep)):
-    raise ImportError("Failed to import one or more backend modules (api, config, services, health_manager, workers, middleware.service_dependency)")
-
-# Narrow types for the type checker
-assert _api is not None
-assert _config is not None
-assert _services is not None
-assert _health_manager is not None
-assert _workers is not None
-assert _svc_dep is not None
-
-# Bind required symbols exactly once to avoid duplicate-definition warnings
-blockchain_router: APIRouter = cast(APIRouter, _api.blockchain_router)
-get_settings = _config.get_settings
-BlockchainService = _services.BlockchainService
-ServiceHealthManager = _health_manager.ServiceHealthManager
-CriticalServiceException = _health_manager.CriticalServiceException
-OutboxProcessor = _workers.OutboxProcessor
-ServiceDependencyMiddleware = _svc_dep.ServiceDependencyMiddleware
-
-
-ROOT_DIR = Path(__file__).parent
-load_dotenv(ROOT_DIR / ".env")
-
-# Load settings
-settings = get_settings()
-
-# MongoDB connection (ensure timezone-aware datetimes)
-client = AsyncIOMotorClient(
-    settings.mongo_url,  # type: ignore
-    tz_aware=True,
-    tzinfo=timezone.utc,
-)
-db = client[settings.database_name].with_options(  # type: ignore
-    CodecOptions(tz_aware=True, tzinfo=timezone.utc)
-)
-
-# Global services and health manager
-if TYPE_CHECKING:
-    blockchain_service: Optional[BlockchainServiceType]
-    outbox_processor: Optional[OutboxProcessorType]
-    # Provide an explicit type for static analyzers
-    health_manager: ServiceHealthManagerType
-
-# Runtime initialization
-blockchain_service = None
-outbox_processor = None
-health_manager = ServiceHealthManager()
-
-# Create the main app without a prefix
-app = FastAPI(
-    title="Crisis Unleashed Backend",
-    description="Backend API for Crisis Unleashed card game with blockchain integration",
-    version="1.0.0",
-)
-
-# Create a router with the /api prefix
-api_router = APIRouter(prefix="/api")
-
-
-# Define Models
-class StatusCheck(BaseModel):
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
-
-
-class StatusCheckCreate(BaseModel):
-    client_name: str
-
-
-# Add your routes to the router instead of directly to app
-@api_router.get("/")
-async def root() -> dict[str, str]:
-    return {"message": "Hello World"}
-
-
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate) -> StatusCheck:
-    status_dict = input.dict()
-    status_obj = StatusCheck(**status_dict)
-    _ = await db.status_checks.insert_one(status_obj.dict())
-    return status_obj
-
-
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks(
-    limit: int = Query(100, ge=1, le=1000)
-) -> list[StatusCheck]:
-    # Fetch the most recent status checks, limited by the query parameter
-    status_checks = (
-        await db.status_checks.find().sort("timestamp", -1).limit(limit).to_list(limit)
-    )
-    return [StatusCheck(**status_check) for status_check in status_checks]
-
-
-# Include the routers in the main app
-app.include_router(api_router)
-app.include_router(blockchain_router, prefix="/api")
-
-# Add service dependency middleware
-app.add_middleware(ServiceDependencyMiddleware, health_manager=health_manager)
-
-# Add CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_credentials=True,
-    allow_origins=settings.cors_origins,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Configure logging
+# Configure logging early
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
+
+# Add the project root to the Python path to enable absolute imports
+ROOT_DIR = Path(__file__).parent
+REPO_ROOT = ROOT_DIR.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+# Load environment variables from repository root
+load_dotenv(REPO_ROOT / ".env")
+
+# Define custom exception for startup failures
+class StartupError(RuntimeError):
+    """Raised when a critical service fails during startup."""
+    pass
+
+# Import our modular server components (absolute imports rooted at 'backend')
+try:
+    from backend import api, config
+    from backend import services as services
+
+    # Import auth redirects
+    from backend.api.auth_redirects import auth_redirect_router
+    from backend.api.card_endpoints import router as card_router
+    from backend.api.deck_endpoints import router as deck_router
+    from backend.api.deck_share_endpoints import router as deck_share_router
+    from backend.api.realtime_ws import router as realtime_router
+    from backend.api.metrics_endpoints import router as metrics_router
+
+    # Import server modules correctly based on the actual structure
+    from backend.server_modules.app import create_application
+    from backend.server_modules.database import setup_database
+    from backend.server_modules.health import register_health_endpoints
+    from backend.server_modules.services import setup_services, start_services
+except ImportError as e:
+    logger.critical(f"Failed to import required modules: {e}")
+    logger.critical(
+        "Please ensure all dependencies are installed: pip install -r requirements.txt"
+    )
+    sys.exit(1)
+
+# Load settings
+settings = config.get_settings()
+
+# Create health manager
+health_manager = services.health_manager.ServiceHealthManager()
+
+# Set up database connection
+db = setup_database(settings)
+
+# Initialize services
+blockchain_service, outbox_processor = setup_services(
+    settings=settings,
+    db=db,
+    health_manager=health_manager
+)
+
+# Create the FastAPI application
+app = create_application(
+    settings=settings,
+    blockchain_router=api.blockchain_router,
+    health_manager=health_manager,
+    db=db
+)
+
+# Create a new API router for health endpoints
+api_router = APIRouter(prefix="/api")
+register_health_endpoints(api_router, health_manager, settings=settings)
+
+# Include the health router in the main app
+app.include_router(api_router)
+
+# Include the auth redirects router in the main app (no prefix)
+app.include_router(auth_redirect_router)
+
+# Include deck sharing endpoints
+app.include_router(deck_share_router)
+
+# Include realtime WebSocket endpoint
+app.include_router(realtime_router)
+
+# Include metrics endpoints
+app.include_router(metrics_router)
+
+
+# Include deck CRUD endpoints
+app.include_router(deck_router)
+
+# Include card endpoints
+app.include_router(card_router)
 
 
 @app.on_event("startup")
 async def startup_event() -> None:
-    """Initialize services on application startup with fail-fast behavior."""
-    global blockchain_service, outbox_processor
-
+    """Initialize services on application startup."""
     logger.info("Starting Crisis Unleashed Backend...")
 
     # Determine if we should fail fast based on environment
-    fail_fast = os.environ.get("ENVIRONMENT", "development") != "development"
-    
+    environment = os.environ.get("ENVIRONMENT", "development")
+    fail_fast = environment != "development"
+
     try:
-        # 1. Initialize blockchain service
-        logger.info("Initializing blockchain service...")
-        blockchain_config = settings.get_blockchain_config()
-        blockchain_service = BlockchainService(blockchain_config)
-        bs = blockchain_service
-        if bs is None:  # for type checkers; not expected at runtime
-            raise RuntimeError("BlockchainService failed to initialize")
-        
-        # Register blockchain service for health monitoring
-        health_manager.register_service(
-            name="blockchain_service",
-            service_instance=bs,
-            health_check_func=bs.health_check,
-            is_critical=True  # Blockchain service is critical
+        # Start all services
+        await start_services(
+            blockchain_service=blockchain_service,
+            outbox_processor=outbox_processor,
+            health_manager=health_manager,
+            fail_fast=fail_fast,
         )
-
-        # 2. Initialize outbox processor
-        logger.info("Initializing outbox processor...")
-        outbox_config = settings.get_outbox_config()
-        outbox_processor = OutboxProcessor(
-            db=db,
-            blockchain_service=bs,
-            processing_interval=outbox_config["processing_interval"],
-            max_entries_per_batch=outbox_config["max_batch_size"],
-        )
-        op = outbox_processor
-        if op is None:  # for type checkers; not expected at runtime
-            raise RuntimeError("OutboxProcessor failed to initialize")
-        
-        # Register outbox processor for health monitoring
-        health_manager.register_service(
-            name="outbox_processor", 
-            service_instance=op,
-            health_check_func=op.get_health_status,
-            is_critical=True,  # Outbox processor is critical for blockchain operations
-            dependencies=["blockchain_service"]  # Depends on blockchain service
-        )
-
-        # 3. Initialize all services with dependency management
-        logger.info("Initializing services with health manager...")
-        init_results = await health_manager.initialize_services(fail_fast=fail_fast)
-        
-        # 4. Start outbox processor background processing
-        await op.start()
-        logger.info("Outbox processor background processing started")
-        
-        # Log initialization summary
-        logger.info("=" * 60)
-        logger.info("SERVICE INITIALIZATION SUMMARY")
-        logger.info("=" * 60)
-        logger.info(f"✅ Successful: {', '.join(init_results['successful'])}")
-        if init_results['failed']:
-            logger.warning(f"❌ Failed: {', '.join(init_results['failed'])}")
-        if init_results['critical_failures']:
-            logger.error(f"💥 Critical failures: {', '.join(init_results['critical_failures'])}")
-        logger.info("=" * 60)
 
         logger.info("🚀 Crisis Unleashed Backend started successfully!")
 
-    except CriticalServiceException as e:
-        # Critical service failed - this should fail startup
+    except services.health_manager.CriticalServiceException as e:
+        # Critical service failed - this should fail startup in production
         logger.critical("=" * 60)
         logger.critical("💥 CRITICAL SERVICE INITIALIZATION FAILURE")
         logger.critical("=" * 60)
         logger.critical(f"Error: {e}")
-        logger.critical("Application cannot continue without critical services.")
-        logger.critical("Check your configuration and external service connectivity.")
+        logger.critical(
+            "Application cannot continue without critical services."
+        )
+        logger.critical(
+            "Check your configuration and external service connectivity."
+        )
         logger.critical("=" * 60)
-        
-        # Force exit the application
-        sys.exit(1)
-        
+
+        # Raise an exception instead of exiting the process
+        if fail_fast:
+            raise StartupError(f"Critical service initialization failed: {e}")
+        # In development mode, continue despite the error
+
     except Exception as e:
         # Unexpected initialization error
         logger.critical(f"💥 Unexpected error during service initialization: {e}")
-        
+
         if fail_fast:
             logger.critical("Failing fast due to unexpected initialization error")
-            sys.exit(1)
+            # Raise an exception instead of exiting the process
+            raise StartupError(
+                f"Unexpected error during service initialization: {e}"
+            )
         else:
             logger.warning("Continuing startup despite initialization error (development mode)")
 
 
 @app.on_event("shutdown")
 async def shutdown_event() -> None:
-    """Cleanup on application shutdown."""
-    global outbox_processor, health_manager
-
+    """Clean shutdown of services."""
     logger.info("Shutting down Crisis Unleashed Backend...")
 
     try:
         # Stop health monitoring
-        await health_manager.stop_health_monitoring()
-        logger.info("Health monitoring stopped")
+        if health_manager:
+            await health_manager.stop()
+            logger.info("Health monitoring stopped")
+    except Exception as e:
+        logger.error(f"Error stopping health manager: {e}")
 
+    try:
         # Stop outbox processor
         if outbox_processor:
             await outbox_processor.stop()
             logger.info("Outbox processor stopped")
+    except Exception as e:
+        logger.error(f"Error stopping outbox processor: {e}")
 
-        # Close database connection (AsyncIOMotorClient.close() is synchronous)
-        client.close()
-        logger.info("Database connection closed")
-
-        logger.info("🛑 Crisis Unleashed Backend shut down successfully!")
-
+    try:
+        # Close database connection only if it's a real database connection
+        if db and hasattr(db, 'close'):
+            # Check if it's not an in-memory database
+            is_in_memory = (
+                hasattr(db, 'outbox')
+                and hasattr(db.outbox, '__class__')
+                and 'InMemoryCollection' in db.outbox.__class__.__name__
+            )
+            if not is_in_memory:
+                await db.close()
+                logger.info("Database connection closed")
+            else:
+                logger.info("In-memory database detected, skipping close()")
+        elif db:
+            logger.info("Database object has no close() method, skipping")
     except Exception as e:
         logger.error(f"Error during shutdown: {e}")
 
 
-# Add health check endpoint
-@api_router.get("/health")
-async def health_check() -> JSONResponse:
-    """
-    Application health check endpoint.
-    
-    Returns detailed health status of all services.
-    """
-    try:
-        health_status = await health_manager.get_health_status()
-        
-        # Determine HTTP status code based on overall health
-        if health_status["overall_status"] == "healthy":
-            status_code = 200
-        elif health_status["overall_status"] == "degraded":
-            status_code = 200  # Still accepting requests
-        else:
-            status_code = 503  # Service unavailable
-        
-        return JSONResponse(
-            status_code=status_code,
-            content={
-                "status": health_status["overall_status"],
-                "timestamp": health_status["last_health_check"],
-                "services": health_status["services"],
-                "critical_issues": health_status["critical_issues"],
-                "version": "1.0.0"
-            }
-        )
-    
-    except Exception as e:
-        logger.error(f"Health check failed: {e}")
-        return JSONResponse(
-            status_code=500,
-            content={
-                "status": "error",
-                "error": "Health check failed",
-                "detail": str(e),
-                "timestamp": datetime.utcnow().isoformat()
-            }
-        )
-
-
-# Add service status endpoint  
-@api_router.get("/services/status")
-async def get_service_status() -> dict[str, Any]:
-    """Get detailed status of individual services."""
-    try:
-        return await health_manager.get_health_status()
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get service status: {e}")
+# Direct execution entry point
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.environ.get("PORT", 8010))
+    host = os.environ.get("HOST", "0.0.0.0")
+    logger.info(f"Starting server on {host}:{port}...")
+    uvicorn.run("server:app", host=host, port=port, reload=True)

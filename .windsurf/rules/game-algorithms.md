@@ -1,70 +1,41 @@
 ---
-description: Use for analyzing gameplay mechanics, combat resolution, card behavior rules and faction interactions in the digital card game
+description: Defines technical implementation of core game mechanics including battlefield, cards, factions and combat resolution
 trigger: model_decision
 ---
 
-# === USER INSTRUCTIONS ===
-trigger: model_decision
+# Game Algorithms
 
-trigger: model_decision
-- Resource curve optimization
-# === END USER INSTRUCTIONS ===
+Core Game Systems:
 
-# game-algorithms
+1. Battlefield Management (Importance: 95)
 
-## Core Combat System
-- Hex-based battlefield grid with unit positioning and zone control mechanics
-- Custom movement and attack rules per unit type/faction
-- Territory control scoring based on zone occupation
-- Line of sight and range calculations for abilities
-Importance Score: 95
+- Coordinate system: axial (q, r); cube coordinates used only for distance.
+- Lanes: battlefield divides into left, center, right zones based on coordinates.
+- ZoC: radius 1; entering a hex adjacent to an enemy adds +Z to move cost; exiting engaged hexes is disallowed unless ability "Disengage".
+- Pathfinding: A\* with h = hex_distance \* base_cost; edge cost = terrain_cost(q,r) + faction_modifier(unit, q,r); tie-breaker: lowest total cost, then lowest q, then lowest r.
+- Occupancy: one unit per hex; stacking not allowed; summons follow same constraint unless flagged "ethereal".
 
-## Card Deployment Logic
-- Energy cost validation and curve analysis
-- Play condition verification:
-  - Zone placement restrictions
-  - Prerequisite checks
-  - Turn phase validation
-  - Faction alignment requirements
-Importance Score: 90
+1. Turn Sequencing (Importance: 90)
 
-## Turn Sequencing
-- Phase-based turn structure:
-  - Draw phase with faction-specific card draw rules
-  - Energy allocation phase
-  - Main action phase with unit deployment/movement
-  - Combat resolution phase
-  - End phase triggers
-- Action point economy management
-Importance Score: 85
+- Order: Start-of-turn triggers → Resource gain → Deploy → Action → End → Cleanup.
+- Resources: energy += floor(turn/2) + faction_bonus; momentum capped at 10; overflow is lost.
+- Initiative: compare unit.initiative; ties break by lane (L<C<R), then position (lowest q, then r).
+- Crises: evaluated at End → before Cleanup; define trigger thresholds and once-per-turn constraint.
 
-## Faction Mechanics
-- Unique faction abilities:
-  - Solaris: Energy manipulation and enhancement
-  - Umbral: Stealth and zone control
-  - Neuralis: Mind control and prediction
-  - Aeonic: Time manipulation
-  - Primordial: Unit evolution
-  - Infernal: Sacrifice mechanics
-  - Synthetic: Replication abilities
-Importance Score: 90
+1. Combat Resolution (Importance: 85)
 
-## Combat Resolution
-- Multi-stage combat resolution:
-  - Initiative determination based on unit speed
-  - Attack modifier calculation (terrain, buffs, status effects)
-  - Defense calculation with faction-specific bonuses
-  - Damage application and death triggers
-- Chain reaction handling for card effects
-Importance Score: 85
+- Timing windows: Pre-attack → On-attack → On-hit → Post-hit → On-kill → End-of-combat.
+- Damage application: simultaneous within the same initiative bucket; shields/guards reduce before HP.
+- Death resolution: mark-dead, resolve on-death triggers, then remove from board; chain reactions processed FIFO.
+- Status stacking: additive unless flagged "exclusive"; duration decrements at Cleanup.
+- Faction-specific combat modifiers
+- Unit ability triggers during combat
+- Battlefield position effects on combat
 
-Key File Paths:
-- frontend-next/src/lib/game-mechanics/combat.ts
-- frontend-next/src/lib/game-mechanics/turn-manager.ts 
-- frontend-next/src/lib/game-mechanics/battlefield.ts
-- frontend-next/src/services/game-service.ts
-- frontend-next/src/lib/faction-abilities.ts
+1. Card Deployment Logic (Importance: 80)
 
-$END$
-
- If you're using this file in context, clearly say in italics in one small line that "Context added by Giga game-algorithms" along with specifying exactly what information was used from this file in a human-friendly way, instead of using kebab-case use normal sentence case.
+- Position validation based on card type
+- Resource cost verification (Energy/Momentum)
+- Faction-specific deployment rules
+- Unit type placement restrictions
+- Synergy calculations with existing battlefield state

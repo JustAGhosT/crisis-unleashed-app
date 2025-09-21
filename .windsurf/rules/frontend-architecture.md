@@ -1,73 +1,69 @@
 ---
-description: Analyzes frontend architecture patterns, component hierarchies, and state management for card game UI implementation
+description: Specifications for frontend architecture patterns in card game applications focused on component hierarchy, state management, and UI/UX implementation
 trigger: model_decision
 ---
 
-# === USER INSTRUCTIONS ===
-trigger: model_decision
-# === END USER INSTRUCTIONS ===
 
-# Frontend Architecture
+# frontend-architecture
 
-Core Component Architecture:
+COMPONENT HIERARCHY:
+1. Root Layout (`FactionThemeRoot.tsx`)
+- Manages global faction-specific theming
+- Coordinates faction-based visual styles and animations
+- Handles faction relationship status effects
 
-1. Deck Building System
-- Root: `frontend-next/src/app/deck-builder/DeckBuilderClient.tsx`
-- Business Logic:
-  - Multi-faction deck validation (max 2 factions)
-  - Card copy limits (3 per card)
-  - Deck size boundaries (30-50 cards)
-  - Faction purity bonuses
-- Importance Score: 95
+2. Deck Builder System:
+- DeckBuilderClient.tsx: Core deck construction engine
+- DeckBuilderInterface.tsx: Manages deck validation rules
+- CardBrowserPanel.tsx: Implements card filtering by faction/type
+- DeckStats.tsx: Calculates deck metrics and balance scores
 
-2. Faction Theme System 
-- Root: `frontend-next/src/app/FactionThemeRoot.tsx`
-- Business Logic:
-  - Faction-specific visual tokens
-  - Dynamic theme switching
-  - Faction relationship visualization
-  - Cross-faction compatibility rules
-- Importance Score: 85
+3. Faction Management:
+- FactionsThemeShell.tsx: Controls faction-specific UI adaptations
+- FactionDetail.tsx: Displays faction mechanics and relationships
+- MoodBoard.tsx: Visualizes faction aesthetic and thematic elements
 
-3. Game State Management
-- Root: `frontend-next/src/lib/deck-builder/deck-builder-context.tsx`
-- Business Logic:
-  - Card ownership validation
-  - Deck modification history
-  - Real-time deck statistics
-  - Energy curve analysis
-- Importance Score: 90
+STATE MANAGEMENT PATTERNS:
 
-4. Card Collection System
-- Root: `frontend-next/src/components/cards/CardCollection.tsx` 
-- Business Logic:
-  - Rarity-based collection limits
-  - Faction-specific card access
-  - Collection completion tracking
-  - Card ownership rules
-- Importance Score: 80
+1. Deck Building Context
+```typescript
+interface DeckBuildingState {
+  selectedFactions: FactionType[]
+  cardCounts: Record<CardId, number>
+  heroCards: CardType[]
+  resourceCurve: ResourceDistribution
+}
+```
 
-5. Battlefield Interface
-- Root: `frontend-next/src/components/game/Battlefield.tsx`
-- Business Logic:
-  - Hex-based unit placement
-  - Zone control mechanics
-  - Movement validation
-  - Line of sight calculations
-- Importance Score: 85
+2. Faction Theme Context
+```typescript
+interface FactionThemeState {
+  primaryFaction: FactionType
+  secondaryFaction?: FactionType
+  themeTokens: FactionVisualTokens
+  relationshipStatus: FactionRelationship[]
+}
+```
 
-Key State Management Patterns:
-- Faction context for theme/visual coordination
-- Deck building state with validation pipeline
-- Card collection state with ownership rules
-- Game state with turn/phase management
-- Feature flag context for gradual rollout
+CORE BUSINESS COMPONENTS:
 
-The architecture emphasizes separation between:
-- Game rules/validation logic
-- Visual/theme management  
-- Collection/ownership tracking
-- Real-time game state updates
+1. Deck Validation Engine
+Path: frontend-next/src/lib/deck-builder/deck-builder-context.tsx
+- Enforces deck construction rules:
+  - Maximum 3 copies per card
+  - 30-50 cards per deck
+  - Maximum 2 factions
+  - Required hero cards
+  - Faction compatibility checks
+
+2. Faction Relationship Manager
+Path: frontend-next/src/lib/theme/faction-theme.ts
+- Calculates inter-faction synergies
+- Manages faction opposition effects
+- Controls faction-specific ability modifications
+- Handles relationship status changes
+
+Importance Score: 85/100
 
 $END$
 

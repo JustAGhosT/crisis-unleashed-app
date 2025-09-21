@@ -1,4 +1,6 @@
 // Shared game types for frontend-next game UI
+import { StatusEffect } from '@/types/battlefield';
+
 export type PlayerId = 'player1' | 'enemy' | string;
 
 export type UnitType = 'normal' | 'ranged' | 'tank' | 'assassin' | string;
@@ -23,6 +25,18 @@ export interface BattlefieldUnit {
   friendlyFire?: boolean;
   // If true, moving away from adjacency to an enemy costs extra (simple ZOC rule).
   zoc?: boolean;
+  // Combat properties added for combat resolution system
+  shields?: number;
+  guards?: number;
+  statusEffects?: StatusEffect[]; // Using the proper type from battlefield.ts
+  isPendingDeath?: boolean;
+  zocCostModifier?: number;
+  // Additional properties needed by battlefield-pathfinding
+  position?: string;  // Position identifier in the battlefield grid
+  ethereal?: boolean; // Whether unit can stack with others (pass through)
+  faction?: string;   // Faction identifier for faction-specific modifiers
+  // Combat sequence property
+  initiative?: number; // Determines order of actions in combat
 }
 
 export type ZoneType = 'player' | 'enemy' | 'neutral';
@@ -35,6 +49,15 @@ export interface BattlefieldZone {
   zonePosition: ZonePosition;
   // Axial hex coordinates (pointy-top). Enables true hex adjacency and movement.
   axial?: { q: number; r: number };
+  // Optional convenience flags used by UI components for styling/logic.
+  // These mirror zoneType/zonePosition but are derived during grid construction.
+  isPlayerZone?: boolean;
+  isEnemyZone?: boolean;
+  isNeutralZone?: boolean;
+  isFrontline?: boolean;
+  isBackline?: boolean;
+  // Lane information for tactical positioning
+  lane?: "L" | "C" | "R";
 }
 
 export interface Card {

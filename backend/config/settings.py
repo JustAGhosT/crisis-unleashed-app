@@ -134,6 +134,12 @@ class Settings(BaseSettings):
         ],
         description="CORS allowed origins - restrictive by default for security",
     )
+    cors_allow_credentials: bool = Field(
+        default=True, description="Whether to allow credentials in CORS",
+    )
+    cors_expose_headers: List[str] = Field(
+        default=["X-Request-Id"], description="Headers to expose to the browser",
+    )
 
     # Rate Limiting
     rate_limit_requests: int = Field(

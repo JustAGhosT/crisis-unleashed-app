@@ -1,10 +1,10 @@
 "use client";
 
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 // Password change schema
 const passwordSchema = z
@@ -39,15 +39,25 @@ export function PasswordForm({ onSuccess, onError }: PasswordFormProps) {
     resolver: zodResolver(passwordSchema),
   });
 
-  const onSubmit = async () => {
+  const onSubmit = async (data: PasswordFormData) => {
     try {
-      // In a real app, this would be an API call to change the password
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const res = await fetch("/api/settings/password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-CSRF-Token": (document.cookie.match(/csrfToken=([^;]+)/)?.[1] ?? "") },
+        body: JSON.stringify({
+          currentPassword: data.currentPassword,
+          newPassword: data.newPassword,
+        }),
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j.error || "Failed to change password");
+      }
 
       reset();
       onSuccess();
-    } catch {
-      onError("Failed to change password. Please try again.");
+    } catch (e) {
+      onError(e instanceof Error ? e.message : "Failed to change password. Please try again.");
     }
   };
 

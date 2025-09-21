@@ -1,13 +1,15 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Card as CardType } from "@/types/card";
-import { CardItem } from "./CardItem";
-import { FactionId, FACTION_IDS } from "@/types/faction";
-import { Search, Filter } from "lucide-react";
+import { FACTION_IDS, FactionId } from "@/types/faction";
+import { Filter, Search } from "lucide-react";
+import dynamic from "next/dynamic";
+import { useMemo, useState } from "react";
+const CardItem = dynamic(() => import("./CardItem").then(m => m.CardItem), { ssr: false });
+const CardFiltersPanel = dynamic(() => import("./CardFiltersPanel"), { ssr: false });
 
 interface CardGridProps {
   cards: CardType[];
@@ -130,53 +132,15 @@ export function CardGrid({
       </div>
 
       {showFilters && (
-        <div className="bg-muted/50 p-4 rounded-lg space-y-4">
-          <div className="flex justify-between items-center">
-            <h3 className="font-medium">Filters</h3>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={clearFilters}
-              className="text-muted-foreground"
-            >
-              Clear all
-            </Button>
-          </div>
-
-          <div>
-            <h4 className="text-sm font-medium mb-2">Card Types</h4>
-            <div className="flex flex-wrap gap-2">
-              {types.map((type) => (
-                <Button
-                  key={type}
-                  variant={selectedTypes.includes(type) ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => toggleType(type)}
-                  className="text-xs"
-                >
-                  {type}
-                </Button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <h4 className="text-sm font-medium mb-2">Energy Cost</h4>
-            <div className="flex flex-wrap gap-2">
-              {costs.map((cost) => (
-                <Button
-                  key={cost}
-                  variant={selectedCosts.includes(cost) ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => toggleCost(cost)}
-                  className="text-xs w-10 h-10 flex items-center justify-center"
-                >
-                  {cost}
-                </Button>
-              ))}
-            </div>
-          </div>
-        </div>
+        <CardFiltersPanel
+          types={types}
+          costs={costs}
+          selectedTypes={selectedTypes}
+          selectedCosts={selectedCosts}
+          onToggleType={toggleType}
+          onToggleCost={toggleCost}
+          onClearFilters={clearFilters}
+        />
       )}
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">

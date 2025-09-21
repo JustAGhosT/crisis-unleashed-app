@@ -3,6 +3,9 @@ if (process.env.NEXT_DEBUG === 'true') {
   console.log('[frontend-next] Loading next.config.js');
 }
 const nextConfig = {
+  images: {
+    formats: ['image/avif', 'image/webp'],
+  },
   typescript: {
     // Enable strict mode for better type checking
     ignoreBuildErrors: false,

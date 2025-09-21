@@ -5,11 +5,11 @@ import logging
 from typing import Any, Dict, Optional
 import time
 
-from .base_provider import BaseBlockchainProvider
-from .web3_compat import (
+# Absolute imports rooted at 'backend'
+from backend.services.blockchain.base_provider import BaseBlockchainProvider
+from backend.services.blockchain.web3_compat import (
     WEB3_AVAILABLE,
     TransactionNotFound,
-    TimeExhausted,
     new_web3,
 )
 
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 class EtherlinkProvider(BaseBlockchainProvider):
     """Etherlink blockchain provider."""
-    
+
     def __init__(self, network_config: Dict[str, Any]):
         """Initialize Etherlink provider."""
         super().__init__(network_config)
@@ -26,20 +26,20 @@ class EtherlinkProvider(BaseBlockchainProvider):
         self.contract_address = network_config.get("nft_contract_address")
         self.web3: Optional[Any] = None
         self.contract: Optional[Any] = None
-        
+
         if not WEB3_AVAILABLE:
             logger.error("web3 library not available. Install with: pip install web3")
-    
+
     def connect(self) -> bool:
         """Connect to Etherlink network (synchronous)."""
         if not WEB3_AVAILABLE:
             logger.error("Cannot connect: web3 library not installed")
             return False
-            
+
         if not self.rpc_url:
             logger.error("RPC URL not configured for Etherlink")
             return False
-        
+
         try:
             # Create web3 via compatibility factory
             w3 = new_web3(self.rpc_url)
@@ -67,12 +67,12 @@ class EtherlinkProvider(BaseBlockchainProvider):
         except Exception as e:
             logger.error(f"Failed to connect to Etherlink: {e}")
             return False
-    
+
     def is_connected(self) -> bool:
         """Check if connected to Etherlink (synchronous)."""
         if not self.web3:
             return False
-        
+
         try:
             w3 = self.web3
             if w3 is None:
@@ -80,7 +80,7 @@ class EtherlinkProvider(BaseBlockchainProvider):
             return bool(w3.is_connected())
         except Exception:
             return False
-    
+
     def disconnect(self) -> None:
         """Disconnect from Etherlink network (synchronous)."""
         try:
@@ -98,7 +98,7 @@ class EtherlinkProvider(BaseBlockchainProvider):
                 logger.debug("Already disconnected from Etherlink network")
         except Exception as e:
             logger.error(f"Error disconnecting from Etherlink: {e}")
-    
+
     def mint_nft(self,
                       recipient: str,
                       card_id: str,
@@ -106,24 +106,21 @@ class EtherlinkProvider(BaseBlockchainProvider):
         """Mint NFT on Etherlink (simulation; returns tx hash string)."""
         if not self.is_connected():
             raise ConnectionError("Not connected to Etherlink network")
-        
-        if not self.contract:
-            raise ValueError("NFT contract not loaded")
-        
+
         # In a real implementation, you would:
         # 1. Build the transaction
         # 2. Sign it with a private key
         # 3. Send it to the network
         # For now, we'll simulate with a placeholder
-        
+
         # Simulate transaction hash
         import hashlib
         hash_input = f"{recipient}{card_id}{time.time()}"
         tx_hash = "0x" + hashlib.sha256(hash_input.encode()).hexdigest()
-        
+
         logger.info(f"Simulated NFT mint on Etherlink: {tx_hash}")
         return tx_hash
-    
+
     def transfer_nft(self,
                           from_address: str,
                           to_address: str,
@@ -131,15 +128,15 @@ class EtherlinkProvider(BaseBlockchainProvider):
         """Transfer NFT on Etherlink (simulation; returns tx hash string)."""
         if not self.is_connected():
             raise ConnectionError("Not connected to Etherlink network")
-        
+
         # Simulate transfer
         import hashlib
         hash_input = f"{from_address}{to_address}{token_id}{time.time()}"
         tx_hash = "0x" + hashlib.sha256(hash_input.encode()).hexdigest()
-        
+
         logger.info(f"Simulated NFT transfer on Etherlink: {tx_hash}")
         return tx_hash
-    
+
     def wait_for_confirmation(self,
                                    tx_hash: str,
                                    timeout: int = 120) -> Optional[Dict[str, Any]]:
@@ -187,7 +184,7 @@ class EtherlinkProvider(BaseBlockchainProvider):
 
         logger.warning(f"Transaction {tx_hash} not confirmed within {timeout} seconds")
         return None
-    
+
     def get_transaction_status(self, tx_hash: str) -> str:
         """Get transaction status (synchronous)."""
         if not self.is_connected():
@@ -203,7 +200,7 @@ class EtherlinkProvider(BaseBlockchainProvider):
                     return "pending"
                 # Try dict-like access first, then attributes
                 try:
-                    status_val = receipt.get("status")  # type: ignore[assignment]
+                    status_val = receipt.get("status")
                     block_number = receipt.get("blockNumber")
                 except Exception:
                     status_val = getattr(receipt, "status", None)
@@ -224,7 +221,7 @@ class EtherlinkProvider(BaseBlockchainProvider):
         except Exception as e:
             logger.error(f"Error getting transaction status for {tx_hash}: {e}")
             return "error"
-    
+
     def get_nft_owner(self, token_id: str) -> Optional[str]:
         """Get NFT owner (synchronous)."""
         if not self.is_connected() or not self.contract:
@@ -236,7 +233,7 @@ class EtherlinkProvider(BaseBlockchainProvider):
         except Exception as e:
             logger.error(f"Error getting NFT owner for token {token_id}: {e}")
             return None
-    
+
     @property
     def supported_operations(self) -> list[str]:
         """Etherlink supported operations."""
