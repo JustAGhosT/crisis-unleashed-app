@@ -23,6 +23,19 @@ class InMemoryDB:
         self._lock = threading.RLock()
         # Pre-create commonly used collections
         self._pre_create_collections()
+    
+    # Async context manager support for parity with async DB clients
+    async def __aenter__(self) -> "InMemoryDB":
+        return self
+
+    async def __aexit__(
+        self,
+        exc_type,
+        exc,
+        tb,
+    ) -> None:
+        # No real connections to close, keep for API compatibility
+        return None
         
     def _pre_create_collections(self) -> None:
         """Pre-create commonly used collections."""

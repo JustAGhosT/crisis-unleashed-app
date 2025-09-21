@@ -4,9 +4,8 @@ In-Memory Collection Implementation
 This module provides a collection implementation for the in-memory database.
 """
 
-import logging
 import asyncio
-from typing import Any, Dict, List, Optional, Union
+import logging
 
 # Import related classes
 from .cursor import InMemoryCursor
@@ -55,7 +54,7 @@ class InMemoryCollection:
             if '_id' not in doc_copy:
                 doc_copy['_id'] = self._id_counter
                 self._id_counter += 1
-            
+
             self.data.append(doc_copy)
         return {"inserted_id": doc_copy.get("_id")}
 
@@ -85,13 +84,17 @@ class InMemoryCollection:
                     # Handle $inc operator
                     if "$inc" in update:
                         for key, value in update["$inc"].items():
-                            self.data[i][key] = self.data[i].get(key, 0) + value
+                            current = self.data[i].get(key, 0)
+                            self.data[i][key] = current + value
                     # Handle direct update
                     elif not any(op in update for op in ["$set", "$inc"]):
                         for key, value in update.items():
                             if key != "_id":  # Don't update _id
                                 self.data[i][key] = value
-                    return {"modified_count": 1, "matched_count": 1}
+                    return {
+                        "modified_count": 1,
+                        "matched_count": 1,
+                    }
 
         return {"modified_count": 0, "matched_count": 0}
 
@@ -99,7 +102,7 @@ class InMemoryCollection:
         """Update many documents matching filter."""
         modified_count = 0
         matched_count = 0
-        
+
         async with self._lock:
             for i, doc in enumerate(self.data):
                 match = True
@@ -118,7 +121,8 @@ class InMemoryCollection:
                     # Handle $inc operator
                     elif "$inc" in update:
                         for key, value in update["$inc"].items():
-                            self.data[i][key] = self.data[i].get(key, 0) + value
+                            current = self.data[i].get(key, 0)
+                            self.data[i][key] = current + value
                         modified_count += 1
                     # Handle direct update
                     else:
@@ -127,7 +131,10 @@ class InMemoryCollection:
                                 self.data[i][key] = value
                         modified_count += 1
 
-        return {"modified_count": modified_count, "matched_count": matched_count}
+        return {
+            "modified_count": modified_count,
+            "matched_count": matched_count,
+        }
 
     async def delete_one(self, filter):
         """Delete one document matching filter."""
@@ -152,10 +159,13 @@ class InMemoryCollection:
             # Filter out documents that don't match
             self.data = [
                 doc for doc in self.data
-                if not all(key in doc and doc[key] == value for key, value in filter.items())
+                if not all(
+                    key in doc and doc[key] == value
+                    for key, value in filter.items()
+                )
             ]
             deleted_count = original_count - len(self.data)
-            
+
         return {"deleted_count": deleted_count}
 
     async def count_documents(self, query=None):
@@ -168,7 +178,7 @@ class InMemoryCollection:
         """Find one document and update it."""
         # Import ReturnDocument from pymongo for compatibility
         from pymongo import ReturnDocument
-        
+
         # Normalize return_document parameter
         return_document = kwargs.get("return_document", ReturnDocument.BEFORE)
         if isinstance(return_document, str):
@@ -176,7 +186,7 @@ class InMemoryCollection:
                 return_document = ReturnDocument.AFTER
             else:
                 return_document = ReturnDocument.BEFORE
-        
+
         async with self._lock:
             for i, doc in enumerate(self.data):
                 match = True
@@ -196,7 +206,8 @@ class InMemoryCollection:
                     # Handle $inc operator
                     elif "$inc" in update:
                         for key, value in update["$inc"].items():
-                            self.data[i][key] = self.data[i].get(key, 0) + value
+                            current = self.data[i].get(key, 0)
+                            self.data[i][key] = current + value
                     # Handle direct update
                     else:
                         for key, value in update.items():
