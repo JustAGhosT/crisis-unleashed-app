@@ -259,6 +259,13 @@ pnpm build                  # Build optimized frontend
 ### Environment Setup
 
 1. Configure environment variables for production
+   - Backend health monitoring
+     - `HEALTHCHECK_TIMEOUT_SEC` (default: 2)
+     - `HEALTHCHECK_CB_THRESHOLD` (default: 3)
+     - `HEALTHCHECK_CB_COOLDOWN_SEC` (default: 60)
+   - Cards API caching
+     - `CARDS_HTTP_CACHE_SEC` (default: 60)
+     - `CARDS_HTTP_SWR_SEC` (default: 300)
 2. Set up database connections
 3. Configure blockchain network settings
 4. Deploy using your preferred hosting platform

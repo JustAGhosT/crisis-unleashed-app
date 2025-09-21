@@ -7,6 +7,7 @@ and handle service dependencies properly.
 
 import asyncio
 import logging
+import os
 import time
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Set
@@ -50,6 +51,11 @@ class ServiceInfo:
         self.status = ServiceStatus.UNKNOWN
         self.last_error: Optional[str] = None
         self.last_checked_at: Optional[float] = None
+        # Circuit breaker fields
+        self.failure_count: int = 0
+        self.circuit_open_until: Optional[float] = None
+        # Optional per-service health check timeout (seconds)
+        self.health_check_timeout: Optional[float] = None
 
 
 class ServiceHealthManager:
@@ -65,6 +71,19 @@ class ServiceHealthManager:
         self._health_task: Optional[asyncio.Task] = None
         self._should_stop = asyncio.Event()
         self._check_interval = 30  # seconds
+        # Default health check timeout (seconds) and circuit breaker config
+        try:
+            self._check_timeout = float(os.environ.get("HEALTHCHECK_TIMEOUT_SEC", "2"))
+        except ValueError:
+            self._check_timeout = 2.0
+        try:
+            self._cb_threshold = int(os.environ.get("HEALTHCHECK_CB_THRESHOLD", "3"))
+        except ValueError:
+            self._cb_threshold = 3
+        try:
+            self._cb_cooldown = float(os.environ.get("HEALTHCHECK_CB_COOLDOWN_SEC", "60"))
+        except ValueError:
+            self._cb_cooldown = 60.0
 
     def register_service(
         self,
@@ -280,6 +299,18 @@ class ServiceHealthManager:
         Returns:
             Updated service status
         """
+        # Circuit breaker short-circuit
+        now = time.time()
+        if (
+            service_info.circuit_open_until is not None
+            and now < service_info.circuit_open_until
+        ):
+            service_info.status = ServiceStatus.UNHEALTHY
+            if not service_info.last_error:
+                service_info.last_error = "Circuit breaker open"
+            service_info.last_checked_at = now
+            return service_info.status
+
         if not service_info.health_check_func:
             # No health check function, assume healthy
             service_info.status = ServiceStatus.HEALTHY
@@ -289,33 +320,52 @@ class ServiceHealthManager:
             return service_info.status
 
         try:
+            # Determine timeout (per-service override or global default)
+            timeout = (
+                service_info.health_check_timeout
+                if service_info.health_check_timeout is not None
+                else self._check_timeout
+            )
+
             # Check if the function is a coroutine function and call appropriately
             if asyncio.iscoroutinefunction(service_info.health_check_func):
-                health_result = await service_info.health_check_func()
+                health_result = await asyncio.wait_for(
+                    service_info.health_check_func(), timeout=timeout
+                )
             else:
-                health_result = service_info.health_check_func()
+                # Run sync function in a thread and enforce timeout
+                health_result = await asyncio.wait_for(
+                    asyncio.to_thread(service_info.health_check_func), timeout=timeout
+                )
 
             # Update status based on health check result
             if health_result is True:
                 service_info.status = ServiceStatus.HEALTHY
                 service_info.last_error = None
+                service_info.failure_count = 0
+                service_info.circuit_open_until = None
             elif health_result is False:
                 service_info.status = ServiceStatus.UNHEALTHY
                 service_info.last_error = (
                     service_info.last_error
                     or "Reported unhealthy by health check"
                 )
+                service_info.failure_count += 1
             elif isinstance(health_result, dict) and "status" in health_result:
                 # Support for more detailed health checks (case-insensitive)
                 status_str = str(health_result["status"]).lower()
                 if status_str == "healthy":
                     service_info.status = ServiceStatus.HEALTHY
                     service_info.last_error = None
+                    service_info.failure_count = 0
+                    service_info.circuit_open_until = None
                 elif status_str == "degraded":
                     service_info.status = ServiceStatus.DEGRADED
                     # Only set last_error if provided
                     if "error" in health_result:
                         service_info.last_error = health_result["error"]
+                    # Degraded counts as a soft failure for breaker
+                    service_info.failure_count += 1
                 else:
                     service_info.status = ServiceStatus.UNHEALTHY
                     # Set error if provided, otherwise generic message
@@ -323,16 +373,43 @@ class ServiceHealthManager:
                         "error",
                         f"Service reported status '{status_str}'",
                     )
+                    service_info.failure_count += 1
             else:
                 service_info.status = ServiceStatus.UNHEALTHY
                 service_info.last_error = (
                     f"Unexpected health check result: {health_result}"
                 )
+                service_info.failure_count += 1
 
         except Exception as e:
-            logger.warning(f"Health check failed for {service_info.name}: {e}")
+            logger.warning(
+                f"Health check failed for {service_info.name}: {e}"
+            )
             service_info.status = ServiceStatus.UNHEALTHY
             service_info.last_error = str(e)
+            service_info.failure_count += 1
+
+        # Circuit breaker transition: open if threshold reached
+        if service_info.status != ServiceStatus.HEALTHY and (
+            service_info.failure_count >= self._cb_threshold
+        ):
+            service_info.circuit_open_until = time.time() + self._cb_cooldown
+            logger.error(
+                "Circuit breaker opened for %s (failures=%d)",
+                service_info.name,
+                service_info.failure_count,
+            )
+        elif (
+            service_info.circuit_open_until is not None
+            and now >= service_info.circuit_open_until
+            and service_info.status == ServiceStatus.HEALTHY
+        ):
+            # Log breaker closing on first healthy check after cooldown
+            logger.info(
+                "Circuit breaker closed for %s after recovery",
+                service_info.name,
+            )
+            service_info.circuit_open_until = None
 
         # Update the timestamp
         service_info.last_checked_at = time.time()
