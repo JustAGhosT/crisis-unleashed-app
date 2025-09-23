@@ -2,6 +2,7 @@
 
 import React from "react";
 import { type FactionKey } from "./faction-theme";
+import { setThemeCookie } from "./cookie-utils";
 
 export type FactionThemeContextValue = {
   factionKey: FactionKey;
@@ -14,7 +15,14 @@ const FactionThemeContext = React.createContext<FactionThemeContextValue | null>
 
 export function useFactionTheme(): FactionThemeContextValue {
   const ctx = React.useContext(FactionThemeContext);
-  if (!ctx) throw new Error("useFactionTheme must be used within FactionThemeProvider");
+  if (!ctx) {
+    console.error("useFactionTheme must be used within FactionThemeProvider - falling back to default");
+    // Fallback with default values instead of throwing
+    return {
+      factionKey: "solaris_nexus" as const,
+      setFactionKey: () => console.warn("setFactionKey called outside of FactionThemeProvider")
+    };
+  }
   return ctx;
 }
 
@@ -27,21 +35,18 @@ export function FactionThemeProvider({
 }) {
   const [factionKey, _setFactionKey] = React.useState<FactionKey>(initial);
 
-  const setFactionKey = React.useCallback((key: FactionKey) => {
-    _setFactionKey(key);
-    if (typeof document !== "undefined") {
-      // 90 days persistence
-      const maxAge = 60 * 60 * 24 * 90;
-      document.cookie = `theme:active=${key}; Path=/; Max-Age=${maxAge}`;
-    }
+  const setCookieValue = React.useCallback((key: FactionKey) => {
+    setThemeCookie(key);
   }, []);
 
+  const setFactionKey = React.useCallback((key: FactionKey) => {
+    _setFactionKey(key);
+    setCookieValue(key);
+  }, [setCookieValue]);
+
   React.useEffect(() => {
-    if (typeof document !== "undefined") {
-      const maxAge = 60 * 60 * 24 * 90;
-      document.cookie = `theme:active=${factionKey}; Path=/; Max-Age=${maxAge}`;
-    }
-  }, [factionKey]);
+    setCookieValue(factionKey);
+  }, [factionKey, setCookieValue]);
 
   return (
     <FactionThemeContext.Provider value={{ factionKey, setFactionKey }}>

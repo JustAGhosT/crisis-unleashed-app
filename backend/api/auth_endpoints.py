@@ -16,6 +16,11 @@ from datetime import datetime, timedelta
 
 # Import authentication services
 from .auth import AuthenticationService, SocialAuthService
+from .auth.auth_responses import (
+    AuthResponse, create_success_response, create_login_failure_response,
+    create_missing_credentials_response, create_logout_success_response,
+    AuthErrorHandler
+)
 
 logger = logging.getLogger(__name__)
 
@@ -56,12 +61,7 @@ class UserSession(BaseModel):
     expires_at: datetime
 
 
-class AuthResponse(BaseModel):
-    """Authentication response."""
-    success: bool
-    message: str
-    user: Optional[Dict[str, Any]] = None
-    token: Optional[str] = None
+# AuthResponse is now imported from auth_responses module
 
 
 
@@ -83,11 +83,7 @@ async def login(credentials: UserCredentials) -> AuthResponse:
         username = AuthenticationService.sanitize_user_input(credentials.username or credentials.email or "")
 
         if not username:
-            logger.warning("Login attempt without username or email")
-            return AuthResponse(
-                success=False,
-                message=ERROR_MESSAGES["USERNAME_OR_EMAIL_REQUIRED"]
-            )
+            return create_missing_credentials_response()
 
         # Validate credentials using the service
         user = await AuthenticationService.validate_credentials(username, credentials.password)
@@ -95,22 +91,12 @@ async def login(credentials: UserCredentials) -> AuthResponse:
         if user:
             # Create a secure token
             token = AuthenticationService.generate_secure_token()
-
-            return AuthResponse(
-                success=True,
-                message="Authentication successful",
-                user=user,
-                token=token
-            )
+            return create_success_response("Authentication successful", user, token)
         else:
-            logger.warning("Failed login attempt for supplied identifier")  # avoid PII
-            return AuthResponse(
-                success=False,
-                message="Invalid username or password"
-            )
+            return create_login_failure_response()
+
     except Exception as e:
-        logger.error(f"Error during login: {e}")
-        raise HTTPException(status_code=500, detail="Authentication service error")
+        raise AuthErrorHandler.handle_server_error(e)
 
 
 @auth_router.post("/social-login", response_model=AuthResponse)
@@ -306,7 +292,7 @@ async def credentials_callback(credentials: UserCredentials) -> JSONResponse:
         )
 
     # Validate credentials using the shared function
-    user = await validate_credentials(username, credentials.password)
+    user = await AuthenticationService.validate_credentials(username, credentials.password)
     if user:
         return JSONResponse(user)
     else:
