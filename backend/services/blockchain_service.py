@@ -415,24 +415,51 @@ class BlockchainService:
         """Return True if at least one provider is connected and available."""
         if not self._providers:
             return False
-        any_connected = False
+
         # Default to 2 seconds, allow override via env
         try:
             timeout_s = float(os.environ.get("BLOCKCHAIN_HEALTHCHECK_TIMEOUT", "2.0"))
         except ValueError:
             timeout_s = 2.0
-        for provider in self._providers.values():
+
+        # Use concurrent futures to check all providers with proper timeout handling
+        # but ensure we don't overwhelm external services
+        import concurrent.futures
+
+        def check_provider(provider):
             try:
-                connected = self._call_with_timeout(provider.is_connected, timeout_s)
-                any_connected = any_connected or bool(connected)
+                return self._call_with_timeout(provider.is_connected, timeout_s)
             except TimeoutError:
                 logger.warning(
                     "Provider health check timed out for %s", type(provider).__name__
                 )
+                return False
             except Exception:
                 # Treat exceptions as disconnected
-                continue
-        return any_connected
+                return False
+
+        # Check providers concurrently with overall timeout
+        with concurrent.futures.ThreadPoolExecutor(max_workers=min(len(self._providers), 3)) as executor:
+            try:
+                futures = {executor.submit(check_provider, provider): provider
+                          for provider in self._providers.values()}
+
+                # Wait for all to complete or overall timeout
+                completed_futures = concurrent.futures.as_completed(futures, timeout=timeout_s * 1.5)
+
+                for future in completed_futures:
+                    if future.result():
+                        # As soon as we find one healthy provider, we can return True
+                        return True
+
+            except concurrent.futures.TimeoutError:
+                logger.warning("Overall blockchain health check timed out")
+                return False
+            except Exception as e:
+                logger.error(f"Error during concurrent health check: {e}")
+                return False
+
+        return False
 
     def is_healthy(self) -> bool:
         """Simple boolean health indicator used by tests."""

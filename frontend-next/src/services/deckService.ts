@@ -187,22 +187,29 @@ export class DeckService {
 
     // Build cost curve
     const costCurve: { [cost: number]: number } = {};
+    let validCardCount = 0;
     for (const deckCard of deckCards) {
       const card = cardMap.get(deckCard.cardId);
       if (card) {
         costCurve[card.cost] = (costCurve[card.cost] || 0) + deckCard.quantity;
+        validCardCount += deckCard.quantity;
       }
     }
 
     let avgCost = 0;
-    if (totalCards >= this.MIN_DECK_SIZE) {
+    if (validCardCount >= this.MIN_DECK_SIZE) {
       avgCost = this.calculateAverageCost(cards, deckCards);
-      if (avgCost > BALANCE_THRESHOLDS.HIGH_AVERAGE_COST) {
-        warnings.push(VALIDATION_MESSAGES.HIGH_COST_WARNING);
+      // Only perform average cost validation if we have a valid average
+      if (avgCost > 0) {
+        if (avgCost > BALANCE_THRESHOLDS.HIGH_AVERAGE_COST) {
+          warnings.push(VALIDATION_MESSAGES.HIGH_COST_WARNING);
+        }
+        if (avgCost < BALANCE_THRESHOLDS.LOW_AVERAGE_COST) {
+          warnings.push(VALIDATION_MESSAGES.LOW_COST_WARNING);
+        }
       }
-      if (avgCost < BALANCE_THRESHOLDS.LOW_AVERAGE_COST) {
-        warnings.push(VALIDATION_MESSAGES.LOW_COST_WARNING);
-      }
+    } else if (validCardCount !== totalCards && validCardCount > 0) {
+      warnings.push("Some cards in the deck were not found in the card database");
     }
 
     // Derive type counts

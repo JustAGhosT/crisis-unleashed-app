@@ -20,7 +20,8 @@ def create_application(
     settings: Any,
     blockchain_router: Any,
     health_manager: Any,
-    db: Any
+    db: Any,
+    lifespan: Any = None
 ) -> FastAPI:
     """
     Create and configure the FastAPI application with all middleware and routers.
@@ -41,6 +42,7 @@ def create_application(
         version="1.0.0",
         docs_url="/api/docs" if not getattr(settings, "disable_docs", False) else None,
         redoc_url="/api/redoc" if not getattr(settings, "disable_docs", False) else None,
+        lifespan=lifespan
     )
 
     # Configure CORS with proper validation
