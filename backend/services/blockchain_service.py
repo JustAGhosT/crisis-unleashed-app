@@ -23,9 +23,17 @@ from typing import (
 try:
     # Absolute import rooted at 'backend'
     from backend.services.blockchain import BlockchainProviderFactory, BaseBlockchainProvider
+    from backend.config.blockchain_defaults import BlockchainConfigManager
+    from backend.utils.exception_handler import (
+        BlockchainServiceError, with_error_handling, with_async_error_handling, ErrorContext
+    )
 except ImportError:
     # Fallback to relative import (works when run from source tree)
     from .blockchain import BlockchainProviderFactory, BaseBlockchainProvider
+    from ..config.blockchain_defaults import BlockchainConfigManager
+    from ..utils.exception_handler import (
+        BlockchainServiceError, with_error_handling, with_async_error_handling, ErrorContext
+    )
 
 logger = logging.getLogger(__name__)
 
@@ -50,25 +58,35 @@ class BlockchainService:
         self._providers: Dict[str, BaseBlockchainProvider] = {}
         self._initialized = False
     
+    def _safe_env_int(self, env_var: str, default: int) -> int:
+        """
+        Safely convert environment variable to integer with error handling.
+
+        Args:
+            env_var: Environment variable name
+            default: Default value to use if conversion fails
+
+        Returns:
+            Integer value from environment or default
+        """
+        try:
+            value = os.environ.get(env_var, str(default))
+            return int(value)
+        except (ValueError, TypeError) as e:
+            logger.warning(f"Invalid value for environment variable {env_var}: {value}. Using default: {default}")
+            return default
+
     def _infer_provider_key(self, network_key: str) -> str:
         """
-        Infer the provider key from a network key.
-        
+        Infer the provider key from a network key using the config manager.
+
         Args:
             network_key: Full network key (e.g., "ethereum_mainnet")
-            
+
         Returns:
             Provider key (e.g., "ethereum")
         """
-        if "ethereum" in network_key:
-            return "ethereum"
-        elif "etherlink" in network_key:
-            return "etherlink"
-        elif "solana" in network_key:
-            return "solana"
-        else:
-            # If we can't infer, return the original key and let the factory handle any errors
-            return network_key
+        return BlockchainConfigManager.get_provider_type(network_key)
 
     def _run_coro_blocking(
         self, coro: Coroutine[Any, Any, T], timeout: Optional[float] = None
@@ -149,77 +167,8 @@ class BlockchainService:
         return result
 
     def _load_default_configs(self) -> Dict[str, Dict[str, Any]]:
-        """Load default configurations from environment variables."""
-        return {
-            "ethereum_mainnet": {
-                "name": "ethereum_mainnet",
-                "rpc_url": os.environ.get(
-                    "ETHEREUM_MAINNET_RPC_URL", "https://ethereum.publicnode.com"
-                ),
-                "nft_contract_address": os.environ.get(
-                    "ETHEREUM_MAINNET_NFT_CONTRACT_ADDRESS"
-                ),
-                "marketplace_contract_address": os.environ.get(
-                    "ETHEREUM_MAINNET_MARKETPLACE_CONTRACT_ADDRESS"
-                ),
-                "chain_id": 1,
-            },
-            "ethereum_testnet": {
-                "name": "ethereum_testnet",
-                "rpc_url": os.environ.get(
-                    "ETHEREUM_TESTNET_RPC_URL", "https://sepolia.drpc.org"
-                ),
-                "nft_contract_address": os.environ.get(
-                    "ETHEREUM_TESTNET_NFT_CONTRACT_ADDRESS"
-                ),
-                "marketplace_contract_address": os.environ.get(
-                    "ETHEREUM_TESTNET_MARKETPLACE_CONTRACT_ADDRESS"
-                ),
-                "chain_id": 11155111,
-            },
-            "etherlink_mainnet": {
-                "name": "etherlink_mainnet",
-                "rpc_url": os.environ.get(
-                    "ETHERLINK_MAINNET_RPC_URL", "https://node.mainnet.etherlink.com"
-                ),
-                "nft_contract_address": os.environ.get(
-                    "ETHERLINK_MAINNET_NFT_CONTRACT_ADDRESS"
-                ),
-                "marketplace_contract_address": os.environ.get(
-                    "ETHERLINK_MAINNET_MARKETPLACE_CONTRACT_ADDRESS"
-                ),
-                "chain_id": 1337,
-            },
-            "etherlink_testnet": {
-                "name": "etherlink_testnet",
-                "rpc_url": os.environ.get(
-                    "ETHERLINK_TESTNET_RPC_URL", "https://node.ghostnet.etherlink.com"
-                ),
-                "nft_contract_address": os.environ.get(
-                    "ETHERLINK_TESTNET_NFT_CONTRACT_ADDRESS"
-                ),
-                "marketplace_contract_address": os.environ.get(
-                    "ETHERLINK_TESTNET_MARKETPLACE_CONTRACT_ADDRESS"
-                ),
-                "chain_id": 128123,
-            },
-            "solana_mainnet": {
-                "name": "solana_mainnet",
-                "rpc_url": os.environ.get(
-                    "SOLANA_MAINNET_RPC_URL", "https://api.mainnet-beta.solana.com"
-                ),
-                "program_id": os.environ.get("SOLANA_MAINNET_PROGRAM_ID"),
-                "chain_id": int(os.environ.get("SOLANA_MAINNET_CHAIN_ID", "101")),
-            },
-            "solana_testnet": {
-                "name": "solana_testnet",
-                "rpc_url": os.environ.get(
-                    "SOLANA_TESTNET_RPC_URL", "https://api.devnet.solana.com"
-                ),
-                "program_id": os.environ.get("SOLANA_TESTNET_PROGRAM_ID"),
-                "chain_id": int(os.environ.get("SOLANA_TESTNET_CHAIN_ID", "103")),
-            },
-        }
+        """Load default configurations using the centralized config manager."""
+        return BlockchainConfigManager.get_all_network_configs()
 
     def initialize(self) -> Dict[str, bool]:
         """
@@ -249,8 +198,8 @@ class BlockchainService:
                 )
 
             except Exception as e:
-                logger.error(f"Failed to initialize {network_key}: {e}")
-                results[network_key] = False
+                with ErrorContext(f"initializing blockchain provider {network_key}", {"network": network_key}):
+                    results[network_key] = False
 
         self._initialized = True
         return results
@@ -278,6 +227,11 @@ class BlockchainService:
 
         return self._providers[blockchain]
 
+    @with_error_handling(
+        error_message="NFT minting operation failed",
+        error_code="NFT_MINT_FAILED",
+        reraise_as=BlockchainServiceError
+    )
     def mint_nft(
         self, blockchain: str, recipient: str, card_id: str, **metadata: Any
     ) -> str:
@@ -439,6 +393,9 @@ class BlockchainService:
                 return False
 
         # Check providers concurrently with overall timeout
+        if not self._providers:
+            return False
+
         with concurrent.futures.ThreadPoolExecutor(max_workers=min(len(self._providers), 3)) as executor:
             try:
                 futures = {executor.submit(check_provider, provider): provider

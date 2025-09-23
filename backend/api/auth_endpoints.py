@@ -14,16 +14,16 @@ from pydantic import BaseModel
 from typing import Dict, Any, Optional
 from datetime import datetime, timedelta
 
+# Import authentication services
+from .auth import AuthenticationService, SocialAuthService
+
 logger = logging.getLogger(__name__)
 
 # Create router
 auth_router = APIRouter(prefix="/auth", tags=["Authentication"])
 
-# Define supported providers at module level
-SUPPORTED_PROVIDERS = {
-    "google": {"id": "google", "name": "Google", "type": "oauth"},
-    "discord": {"id": "discord", "name": "Discord", "type": "oauth"}
-}
+# Import constants from service
+from .auth.auth_service import ERROR_MESSAGES, SUPPORTED_PROVIDERS
 
 
 # Models
@@ -34,7 +34,7 @@ class UserCredentials(BaseModel):
     password: str
 
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 class SocialLoginRequest(BaseModel):
     """Social login request data."""
@@ -64,30 +64,6 @@ class AuthResponse(BaseModel):
     token: Optional[str] = None
 
 
-async def validate_credentials(username: str, password: str) -> Optional[Dict[str, Any]]:
-    """
-    Validate user credentials and return user data if valid.
-    
-    Args:
-        username: Username or email
-        password: User password
-        
-    Returns:
-        User data dict if valid, None otherwise
-    """
-    # For development only
-    if os.getenv("ENVIRONMENT") == "development" and username == "test@example.com" and password == "password":
-        return {
-            "id": "user_123",
-            "name": "Test User",
-            "email": "test@example.com",
-            "image": None,
-            "username": "test",
-            "display_name": "Test User",
-            "avatar": None,
-            "role": "user"
-        }
-    return None
 
 
 # Routes
@@ -103,22 +79,22 @@ async def login(credentials: UserCredentials) -> AuthResponse:
         Authentication response with user info and token
     """
     try:
-        # Get email/username from credentials
-        username = credentials.username or credentials.email
+        # Get email/username from credentials and sanitize
+        username = AuthenticationService.sanitize_user_input(credentials.username or credentials.email or "")
 
         if not username:
             logger.warning("Login attempt without username or email")
             return AuthResponse(
                 success=False,
-                message="Username or email is required"
+                message=ERROR_MESSAGES["USERNAME_OR_EMAIL_REQUIRED"]
             )
 
-        # Validate credentials using the shared function
-        user = await validate_credentials(username, credentials.password)
-        
+        # Validate credentials using the service
+        user = await AuthenticationService.validate_credentials(username, credentials.password)
+
         if user:
-            # Create a secure, non-predictable token (in production, use JWT)
-            token = secrets.token_urlsafe(32)
+            # Create a secure token
+            token = AuthenticationService.generate_secure_token()
 
             return AuthResponse(
                 success=True,
@@ -166,9 +142,8 @@ async def social_login(request: SocialLoginRequest) -> AuthResponse:
             # Trim whitespace and convert to lowercase
             normalized_email = request.email.strip().lower()
             
-            # Basic email validation
-            email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-            if not re.match(email_pattern, normalized_email):
+            # Basic email validation using constant
+            if not re.match(AUTH_CONSTANTS["EMAIL_REGEX"], normalized_email):
                 logger.warning(f"Invalid email format provided during social login")
                 normalized_email = None
                 

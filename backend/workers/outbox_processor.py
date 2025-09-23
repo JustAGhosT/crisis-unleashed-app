@@ -60,11 +60,12 @@ class OutboxProcessor:
 
         self.is_running = False
 
-        if self._task:
+        if self._task and not self._task.done():
             self._task.cancel()
             try:
                 await self._task
             except asyncio.CancelledError:
+                logger.info("Outbox processor task cancelled successfully")
                 pass
 
         logger.info("Outbox processor stopped")
