@@ -230,3 +230,22 @@ class InMemoryCollection:
         else:
             index_name = f"{keys}_1"
         return index_name
+
+    async def __aenter__(self):
+        """
+        Enter the async context manager by acquiring the lock.
+
+        This allows for batch operations where the caller wants to perform
+        multiple database operations atomically without releasing the lock
+        between operations. Note that this creates a potential for deadlock
+        if the same methods are called within the context, so this context
+        manager is intended for use with direct data access patterns.
+        """
+        await self._lock.acquire()
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        """Exit the async context manager by releasing the lock."""
+        self._lock.release()
+        # Return False to propagate any exceptions
+        return False
