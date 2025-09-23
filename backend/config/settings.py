@@ -2,10 +2,11 @@
 Application settings and configuration management.
 """
 import os
+import logging
 import secrets
 from functools import lru_cache
-from typing import Any, Dict, List, Optional
-from pydantic import Field, field_validator
+from typing import Any, Dict, List, Optional, Union
+from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
@@ -149,7 +150,32 @@ class Settings(BaseSettings):
         default=60, description="Rate limit window in seconds"
     )
 
+    # Environment and deployment
+    environment: str = Field(
+        default="development", description="Runtime environment (development, staging, production)"
+    )
+
+    # Feature flags
+    enable_blockchain_integration: bool = Field(
+        default=True, description="Enable blockchain integration features"
+    )
+    enable_metrics_collection: bool = Field(
+        default=True, description="Enable application metrics collection"
+    )
+    enable_request_tracing: bool = Field(
+        default=False, description="Enable detailed request tracing"
+    )
+
     # --- Validators ---
+    @field_validator("environment")
+    @classmethod
+    def validate_environment(cls, v: str) -> str:
+        """Validate runtime environment."""
+        allowed_environments = ["development", "staging", "production"]
+        if v.lower() not in allowed_environments:
+            raise ValueError(f"Environment must be one of: {allowed_environments}")
+        return v.lower()
+
     @field_validator("log_level")
     @classmethod
     def validate_log_level(cls, v: str) -> str:
@@ -219,6 +245,58 @@ class Settings(BaseSettings):
         if v <= 0:
             raise ValueError("Chain ID must be a positive integer")
         return v
+
+    @model_validator(mode='after')
+    def validate_production_settings(self) -> 'Settings':
+        """Validate production-specific security requirements."""
+        if self.environment == "production":
+            # Ensure critical production settings
+            if self.debug:
+                raise ValueError("Debug mode must be disabled in production")
+
+            if "*" in self.cors_origins:
+                raise ValueError("Wildcard CORS origins not allowed in production")
+
+            if self.secret_key == secrets.token_hex(32):
+                logging.warning(
+                    "Using auto-generated secret key in production. "
+                    "Consider setting a fixed SECRET_KEY environment variable."
+                )
+
+            # Validate blockchain configuration completeness for production
+            if self.enable_blockchain_integration:
+                required_configs = [
+                    'ethereum_mainnet_rpc_url',
+                    'ethereum_mainnet_nft_contract',
+                    'etherlink_mainnet_rpc_url'
+                ]
+                missing_configs = [
+                    config for config in required_configs
+                    if getattr(self, config, None) is None
+                ]
+                if missing_configs:
+                    logging.warning(
+                        f"Production blockchain configs missing: {missing_configs}. "
+                        "Blockchain features may be limited."
+                    )
+
+        return self
+
+    def get_effective_config(self) -> Dict[str, Any]:
+        """Get effective configuration with environment-specific adjustments."""
+        config = self.dict()
+
+        # Environment-specific adjustments
+        if self.environment == "production":
+            config["debug"] = False
+            config["log_level"] = "INFO" if config["log_level"] == "DEBUG" else config["log_level"]
+
+        elif self.environment == "development":
+            # Development-friendly defaults
+            if not config.get("enable_request_tracing"):
+                config["enable_request_tracing"] = True
+
+        return config
 
     def get_blockchain_config(self) -> Dict[str, Dict[str, Any]]:
         """Get blockchain configuration dictionary using the centralized network config service."""

@@ -12,10 +12,11 @@ See SETUP.md for detailed instructions.
 import logging
 import os
 import sys
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from dotenv import load_dotenv
-from fastapi import APIRouter
+from fastapi import APIRouter, FastAPI
 
 # Configure logging early
 logging.basicConfig(
@@ -79,44 +80,10 @@ blockchain_service, outbox_processor = setup_services(
     health_manager=health_manager
 )
 
-# Create the FastAPI application
-app = create_application(
-    settings=settings,
-    blockchain_router=api.blockchain_router,
-    health_manager=health_manager,
-    db=db
-)
-
-# Create a new API router for health endpoints
-api_router = APIRouter(prefix="/api")
-register_health_endpoints(api_router, health_manager, settings=settings)
-
-# Include the health router in the main app
-app.include_router(api_router)
-
-# Include the auth redirects router in the main app (no prefix)
-app.include_router(auth_redirect_router)
-
-# Include deck sharing endpoints
-app.include_router(deck_share_router)
-
-# Include realtime WebSocket endpoint
-app.include_router(realtime_router)
-
-# Include metrics endpoints
-app.include_router(metrics_router)
-
-
-# Include deck CRUD endpoints
-app.include_router(deck_router)
-
-# Include card endpoints
-app.include_router(card_router)
-
-
-@app.on_event("startup")
-async def startup_event() -> None:
-    """Initialize services on application startup."""
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan context manager for startup and shutdown events."""
+    # Startup
     logger.info("Starting Crisis Unleashed Backend...")
 
     # Determine if we should fail fast based on environment
@@ -166,10 +133,9 @@ async def startup_event() -> None:
         else:
             logger.warning("Continuing startup despite initialization error (development mode)")
 
+    yield
 
-@app.on_event("shutdown")
-async def shutdown_event() -> None:
-    """Clean shutdown of services."""
+    # Shutdown
     logger.info("Shutting down Crisis Unleashed Backend...")
 
     try:
@@ -206,6 +172,43 @@ async def shutdown_event() -> None:
             logger.info("Database object has no close() method, skipping")
     except Exception as e:
         logger.error(f"Error during shutdown: {e}")
+
+# Create the FastAPI application
+app = create_application(
+    settings=settings,
+    blockchain_router=api.blockchain_router,
+    health_manager=health_manager,
+    db=db,
+    lifespan=lifespan
+)
+
+# Create a new API router for health endpoints
+api_router = APIRouter(prefix="/api")
+register_health_endpoints(api_router, health_manager, settings=settings)
+
+# Include the health router in the main app
+app.include_router(api_router)
+
+# Include the auth redirects router in the main app (no prefix)
+app.include_router(auth_redirect_router)
+
+# Include deck sharing endpoints
+app.include_router(deck_share_router)
+
+# Include realtime WebSocket endpoint
+app.include_router(realtime_router)
+
+# Include metrics endpoints
+app.include_router(metrics_router)
+
+
+# Include deck CRUD endpoints
+app.include_router(deck_router)
+
+# Include card endpoints
+app.include_router(card_router)
+
+
 
 
 # Direct execution entry point

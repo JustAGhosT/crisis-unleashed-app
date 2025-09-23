@@ -50,17 +50,92 @@ export interface CardValidationResult {
   isValid: boolean;
   errors: string[];
   warnings: string[];
+  performance?: {
+    validationTimeMs: number;
+    fromCache: boolean;
+  };
+}
+
+/**
+ * Validation cache to improve performance for frequently validated cards
+ */
+const validationCache = new Map<string, CardValidationResult>();
+const CACHE_MAX_SIZE = 1000;
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+interface CacheEntry {
+  result: CardValidationResult;
+  timestamp: number;
+}
+
+/**
+ * Clear expired entries from validation cache
+ */
+function clearExpiredCacheEntries(): void {
+  const now = Date.now();
+  const entries = Array.from(validationCache.entries());
+
+  for (const [key, entry] of entries) {
+    if (now - (entry as CacheEntry).timestamp > CACHE_TTL_MS) {
+      validationCache.delete(key);
+    }
+  }
+}
+
+/**
+ * Generate cache key for card validation
+ */
+function generateCardCacheKey(card: Record<string, unknown>): string {
+  // Create a deterministic hash-like string from critical card properties
+  const criticalProps = {
+    id: card.id,
+    name: card.name,
+    type: card.type,
+    faction: card.faction,
+    cost: card.cost,
+    rarity: card.rarity,
+    unitType: card.unitType,
+    actionType: card.actionType,
+    structureType: card.structureType
+  };
+
+  return JSON.stringify(criticalProps);
 }
 
 export function validateCard(card: unknown): CardValidationResult {
-  const errors: string[] = [];
-  const warnings: string[] = [];
+  const startTime = performance.now();
 
   if (!card || typeof card !== 'object') {
-    return { isValid: false, errors: ['Card must be an object'], warnings: [] };
+    return {
+      isValid: false,
+      errors: ['Card must be an object'],
+      warnings: [],
+      performance: {
+        validationTimeMs: performance.now() - startTime,
+        fromCache: false
+      }
+    };
   }
 
   const cardObj = card as Record<string, unknown>;
+
+  // Try to get from cache first
+  const cacheKey = generateCardCacheKey(cardObj);
+  const cacheEntry = validationCache.get(cacheKey) as CacheEntry | undefined;
+
+  if (cacheEntry && Date.now() - cacheEntry.timestamp < CACHE_TTL_MS) {
+    const result = {
+      ...cacheEntry.result,
+      performance: {
+        validationTimeMs: performance.now() - startTime,
+        fromCache: true
+      }
+    };
+    return result;
+  }
+
+  const errors: string[] = [];
+  const warnings: string[] = [];
 
   // Required field validations
   if (!cardObj.id || typeof cardObj.id !== 'string') {
@@ -110,11 +185,39 @@ export function validateCard(card: unknown): CardValidationResult {
     }
   }
 
-  return {
+  const result: CardValidationResult = {
     isValid: errors.length === 0,
     errors,
-    warnings
+    warnings,
+    performance: {
+      validationTimeMs: performance.now() - startTime,
+      fromCache: false
+    }
   };
+
+  // Cache the result if valid or if we have a card ID for tracking
+  if (cardObj.id && typeof cardObj.id === 'string') {
+    // Clean up cache if it's getting too large
+    if (validationCache.size >= CACHE_MAX_SIZE) {
+      clearExpiredCacheEntries();
+
+      // If still too large, remove oldest entries
+      if (validationCache.size >= CACHE_MAX_SIZE) {
+        const entries = Array.from(validationCache.entries());
+        entries.sort((a, b) => (a[1] as CacheEntry).timestamp - (b[1] as CacheEntry).timestamp);
+        const toRemove = entries.slice(0, Math.floor(CACHE_MAX_SIZE * 0.1));
+        toRemove.forEach(([key]) => validationCache.delete(key));
+      }
+    }
+
+    const cacheEntry: CacheEntry = {
+      result: { ...result, performance: undefined }, // Don't cache performance metrics
+      timestamp: Date.now()
+    };
+    validationCache.set(cacheKey, cacheEntry);
+  }
+
+  return result;
 }
 
 /**

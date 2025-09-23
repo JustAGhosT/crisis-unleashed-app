@@ -7,6 +7,8 @@ for all API endpoints in the Crisis Unleashed backend.
 
 import logging
 import traceback
+import uuid
+from datetime import datetime
 from typing import Dict, Any, Optional, Union
 from fastapi import Request, HTTPException, status
 from fastapi.responses import JSONResponse
@@ -17,6 +19,29 @@ import asyncio
 logger = logging.getLogger(__name__)
 
 
+def get_request_context(request: Request) -> Dict[str, Any]:
+    """Extract structured context from request for error reporting."""
+    context = {
+        "method": request.method,
+        "url": str(request.url),
+        "path": request.url.path,
+        "query_params": dict(request.query_params),
+        "user_agent": request.headers.get("user-agent"),
+        "client_ip": request.client.host if request.client else None,
+        "timestamp": datetime.utcnow().isoformat(),
+    }
+
+    # Get correlation ID from header or generate one
+    correlation_id = request.headers.get("x-correlation-id") or str(uuid.uuid4())
+    context["correlation_id"] = correlation_id
+
+    # Add user context if available
+    if hasattr(request.state, "user"):
+        context["user_id"] = getattr(request.state.user, "id", None)
+
+    return context
+
+
 class ErrorDetail:
     """Structured error detail for consistent API responses."""
 
@@ -25,22 +50,39 @@ class ErrorDetail:
         error_type: str,
         message: str,
         details: Optional[Dict[str, Any]] = None,
-        user_message: Optional[str] = None
+        user_message: Optional[str] = None,
+        correlation_id: Optional[str] = None,
+        context: Optional[Dict[str, Any]] = None
     ):
         self.error_type = error_type
         self.message = message
         self.details = details or {}
         self.user_message = user_message or message
+        self.correlation_id = correlation_id
+        self.context = context or {}
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for JSON response."""
-        return {
+        result = {
             "error_type": self.error_type,
             "message": self.message,
             "user_message": self.user_message,
             "details": self.details,
             "success": False
         }
+
+        if self.correlation_id:
+            result["correlation_id"] = self.correlation_id
+
+        # Only include context in development or if explicitly requested
+        if self.context.get("include_debug_info"):
+            result["debug_context"] = {
+                "timestamp": self.context.get("timestamp"),
+                "path": self.context.get("path"),
+                "method": self.context.get("method")
+            }
+
+        return result
 
 
 class APIErrorHandler:
@@ -74,7 +116,18 @@ class APIErrorHandler:
         request: Request
     ) -> JSONResponse:
         """Handle Pydantic validation errors."""
-        logger.warning(f"Validation error for {request.url}: {error}")
+        context = get_request_context(request)
+
+        logger.warning(
+            "Validation error",
+            extra={
+                "correlation_id": context["correlation_id"],
+                "path": context["path"],
+                "method": context["method"],
+                "error": str(error),
+                "user_id": context.get("user_id")
+            }
+        )
 
         # Extract meaningful error details
         error_details = []
@@ -89,7 +142,9 @@ class APIErrorHandler:
             error_type=cls.VALIDATION_ERROR,
             message="Request validation failed",
             user_message="Please check your input data and try again",
-            details={"validation_errors": error_details}
+            details={"validation_errors": error_details},
+            correlation_id=context["correlation_id"],
+            context=context
         )
 
         return cls.create_error_response(error_detail, status.HTTP_422_UNPROCESSABLE_ENTITY)
