@@ -6,21 +6,20 @@ import React, {
   useState,
   useCallback,
   ReactNode,
+  useRef,
+  useEffect,
 } from "react";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  ToastProps,
+  ToastOptions,
+  createToast,
+  validateToastOptions,
+} from "@/lib/toast-utils";
 
 // ==================== TYPES ====================
-
-export interface ToastProps {
-  id: string;
-  title?: string;
-  description: string;
-  variant?: "default" | "destructive" | "success";
-  duration?: number;
-}
-
-export type ToastOptions = Omit<ToastProps, "id">;
+// Types are now imported from toast-utils
 
 interface ToastContextType {
   toasts: ToastProps[];
@@ -119,33 +118,48 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [toasts, setToasts] = useState<ToastProps[]>([]);
+  const timeoutRefs = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
   // Define dismiss first to avoid the "used before declaration" error
   const dismiss = useCallback((id: string) => {
+    // Clear timeout if it exists
+    const timeoutId = timeoutRefs.current.get(id);
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      timeoutRefs.current.delete(id);
+    }
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
   }, []);
 
   const toast = useCallback(
     (options: ToastOptions) => {
-      const id = Math.random().toString(36).substring(2, 9);
-      const newToast: ToastProps = {
-        id,
-        ...options,
-        duration: options.duration ?? 5000,
-      };
+      if (!validateToastOptions(options)) {
+        console.error("Invalid toast options provided");
+        return "";
+      }
 
+      const newToast = createToast(options);
       setToasts((prev) => [...prev, newToast]);
 
       if (newToast.duration !== Infinity) {
-        setTimeout(() => {
-          dismiss(id);
+        const timeoutId = setTimeout(() => {
+          dismiss(newToast.id);
         }, newToast.duration);
+        timeoutRefs.current.set(newToast.id, timeoutId);
       }
 
-      return id;
+      return newToast.id;
     },
     [dismiss],
   ); // Include dismiss in the dependency array
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      timeoutRefs.current.forEach((timeoutId) => clearTimeout(timeoutId));
+      timeoutRefs.current.clear();
+    };
+  }, []);
 
   return (
     <ToastContext.Provider value={{ toasts, toast, dismiss }}>
