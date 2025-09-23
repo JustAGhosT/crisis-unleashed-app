@@ -7,90 +7,113 @@ from typing import List, Optional
 
 @dataclass
 class EnergyMechanics:
-    """Mechanics related to energy generation and efficiency.
+    """Mechanics for energy manipulation faction abilities.
 
-    - max_energy_bonus: Additional maximum energy capacity.
-    - energy_efficiency_multiplier: Multiplier applied to energy costs.
-    - predictive_algorithms: When True, unlocks prediction-based bonuses.
+    Manages energy generation efficiency, capacity bonuses, and predictive algorithm capabilities.
+    This faction specializes in optimizing energy usage and predicting energy needs.
+
+    Args:
+        predictive_algorithms: Enables prediction-based energy optimization and bonuses
+        max_energy_bonus: Additional maximum energy capacity beyond base amount
+        energy_efficiency_multiplier: Cost reduction multiplier for energy expenditure
     """
     predictive_algorithms: bool
-    max_energy_bonus: int = 0
-    energy_efficiency_multiplier: float = 1.0
+    max_energy_bonus: int
+    energy_efficiency_multiplier: float
 
 
 @dataclass
 class StealthMechanics:
-    """Mechanics for stealth and information warfare.
+    """Mechanics for stealth operations and information warfare capabilities.
 
-    - cloak_level: Strength of cloaking effects.
-    - info_warfare_tools: Toolkit names available to the faction.
-    - detection_evasion_bonus: Flat bonus to evasion checks.
+    Manages cloaking systems, reconnaissance tools, and detection avoidance.
+    This faction specializes in covert operations and intelligence gathering.
+
+    Args:
+        cloak_level: Intensity of cloaking effects (0-10 scale)
+        info_warfare_tools: Available information warfare toolkit capabilities
+        detection_evasion_bonus: Passive bonus to avoid enemy detection systems
     """
-
-    cloak_level: int = 0
-    info_warfare_tools: List[str] = field(default_factory=list)
-    detection_evasion_bonus: float = 0.0
+    cloak_level: int
+    info_warfare_tools: List[str]
+    detection_evasion_bonus: float
 
 
 @dataclass
 class MindControlMechanics:
-    """Mechanics for mind control influence and resistance.
+    """Mechanics for neural manipulation and psychological influence.
 
-    - control_range: Maximum range for control effects.
-    - resist_chance: Base chance targets resist control.
+    Manages telepathic control systems, influence range, and target resistance mechanics.
+    This faction specializes in direct mental manipulation and crowd control.
+
+    Args:
+        control_range: Maximum effective range for mind control abilities (in battlefield units)
+        resist_chance: Base probability that targets successfully resist control attempts (0.0-1.0)
     """
-
-    control_range: int = 0
-    resist_chance: float = 0.0
+    control_range: int
+    resist_chance: float
 
 
 @dataclass
 class TimeManipulationMechanics:
-    """Mechanics for time-based manipulation.
+    """Mechanics for temporal distortion and chronological control.
 
-    - rewind_turns: Number of turns that can be rewound.
-    - cost_reduction: Reduction applied to time-shifted costs.
+    Manages time rewind capabilities, temporal cost modifications, and chronological advantages.
+    This faction specializes in manipulating the flow of time during combat.
+
+    Args:
+        rewind_turns: Maximum number of turns that can be reversed or undone
+        cost_reduction: Percentage reduction applied to costs when using time manipulation (0.0-1.0)
     """
-
-    rewind_turns: int = 0
-    cost_reduction: float = 0.0
+    rewind_turns: int
+    cost_reduction: float
 
 
 @dataclass
 class GrowthMechanics:
-    """Mechanics for growth and adaptation.
+    """Mechanics for evolutionary adaptation and organic development.
 
-    - max_growth_stages: Maximum growth steps.
-    - adaptation_speed: Speed multiplier for adaptations.
+    Manages biological evolution stages, adaptation rates, and organic growth systems.
+    This faction specializes in evolutionary responses and adaptive development.
+
+    Args:
+        max_growth_stages: Maximum evolutionary stages units can progress through
+        adaptation_speed: Multiplier affecting how quickly adaptation occurs in response to threats
     """
-
-    max_growth_stages: int = 1
-    adaptation_speed: float = 1.0
+    max_growth_stages: int
+    adaptation_speed: float
 
 
 @dataclass
 class SacrificeMechanics:
-    """Mechanics for risk/reward sacrifice systems.
+    """Mechanics for high-risk sacrifice and reward amplification systems.
 
-    - risk_reward_multiplier: Scales rewards for sacrifices.
-    - sacrifice_options: Allowed sacrifice actions.
+    Manages resource sacrifice mechanics, risk assessment, and reward multipliers.
+    This faction specializes in trading immediate losses for amplified future gains.
+
+    Args:
+        risk_reward_multiplier: Multiplier applied to rewards when making sacrifices (typically > 1.0)
+        sacrifice_options: Available types of sacrificial actions (e.g., ['units', 'energy', 'territory'])
     """
-
-    risk_reward_multiplier: float = 1.0
-    sacrifice_options: List[str] = field(default_factory=list)
+    risk_reward_multiplier: float
+    sacrifice_options: List[str]
 
 
 @dataclass
 class SyntheticDirectiveMechanics:
-    """Mechanics for synthetic directives and assimilation.
+    """Mechanics for artificial intelligence directives and mechanical assimilation.
 
-    - assimilation_rate: Rate synthetic units absorb others.
-    - directive_flexibility: Flexibility of directive changes.
-    - self_replication: When True, enables replication behavior.
+    Manages AI-driven assimilation processes, directive adaptability, and self-replication systems.
+    This faction specializes in mechanical optimization and autonomous unit reproduction.
+
+    Args:
+        self_replication: Enables autonomous unit duplication and mechanical reproduction
+        assimilation_rate: Speed at which synthetic units convert or absorb other units (0.0-1.0)
+        directive_flexibility: Adaptability of AI directives to changing battlefield conditions (0.0-1.0)
     """
     self_replication: bool
-    assimilation_rate: float = 0.0
-    directive_flexibility: float = 0.0
+    assimilation_rate: float
+    directive_flexibility: float
 
 
 @dataclass
