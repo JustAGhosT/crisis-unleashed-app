@@ -27,6 +27,7 @@ try:
     from backend.utils.exception_handler import (
         BlockchainServiceError, with_error_handling, with_async_error_handling, ErrorContext
     )
+    from backend.utils.env_config import EnvConfigHelper
 except ImportError:
     # Fallback to relative import (works when run from source tree)
     from .blockchain import BlockchainProviderFactory, BaseBlockchainProvider
@@ -34,6 +35,7 @@ except ImportError:
     from ..utils.exception_handler import (
         BlockchainServiceError, with_error_handling, with_async_error_handling, ErrorContext
     )
+    from ..utils.env_config import EnvConfigHelper
 
 logger = logging.getLogger(__name__)
 
@@ -62,6 +64,8 @@ class BlockchainService:
         """
         Safely convert environment variable to integer with error handling.
 
+        This method is deprecated. Use EnvConfigHelper.safe_get_int instead.
+
         Args:
             env_var: Environment variable name
             default: Default value to use if conversion fails
@@ -69,12 +73,7 @@ class BlockchainService:
         Returns:
             Integer value from environment or default
         """
-        try:
-            value = os.environ.get(env_var, str(default))
-            return int(value)
-        except (ValueError, TypeError) as e:
-            logger.warning(f"Invalid value for environment variable {env_var}: {value}. Using default: {default}")
-            return default
+        return EnvConfigHelper.safe_get_int(env_var, default)
 
     def _infer_provider_key(self, network_key: str) -> str:
         """
@@ -370,11 +369,8 @@ class BlockchainService:
         if not self._providers:
             return False
 
-        # Default to 2 seconds, allow override via env
-        try:
-            timeout_s = float(os.environ.get("BLOCKCHAIN_HEALTHCHECK_TIMEOUT", "2.0"))
-        except ValueError:
-            timeout_s = 2.0
+        # Use the consistent environment configuration helper
+        timeout_s = EnvConfigHelper.safe_get_float("BLOCKCHAIN_HEALTHCHECK_TIMEOUT", 2.0)
 
         # Use concurrent futures to check all providers with proper timeout handling
         # but ensure we don't overwhelm external services

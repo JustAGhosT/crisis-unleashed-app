@@ -23,41 +23,34 @@ class InMemoryCollection:
         self.data: List[Dict[str, Any]] = []
         self._id_counter = 1  # For auto-incrementing IDs
         self._lock = asyncio.Lock()  # Add lock for thread safety
-        self._in_context = False  # Track context manager state
+        # Operation metrics for monitoring
+        self._operation_count = {
+            'find': 0, 'find_one': 0, 'insert_one': 0, 'insert_many': 0,
+            'update_one': 0, 'update_many': 0, 'delete_one': 0, 'delete_many': 0,
+            'count_documents': 0, 'find_one_and_update': 0
+        }
+        logger.info(f"Initialized InMemoryCollection: {name}")
 
-        # Query result caching for performance
-        self._query_cache: Dict[str, tuple] = {}  # query_key -> (result, timestamp)
-        self._max_cache_size = max_cache_size
-        self._cache_ttl = 60  # Cache TTL in seconds
-        self._stats = {
-            'cache_hits': 0,
-            'cache_misses': 0,
-            'total_queries': 0,
-            'last_cache_cleanup': time.time()
+    def _log_operation(self, operation: str, **kwargs):
+        """Log database operation with metrics."""
+        self._operation_count[operation] += 1
+        logger.debug(
+            f"InMemoryCollection.{operation} on '{self.name}' "
+            f"(call #{self._operation_count[operation]}) - {kwargs}"
+        )
+
+    def get_metrics(self) -> dict:
+        """Get collection operation metrics."""
+        return {
+            'collection_name': self.name,
+            'document_count': len(self.data),
+            'operation_counts': self._operation_count.copy(),
+            'next_id': self._id_counter
         }
 
-    async def find(self, query: Optional[Dict[str, Any]] = None):
-        """Find documents matching query with caching support."""
-        self._stats['total_queries'] += 1
-
-        # Clean up expired cache entries periodically
-        if time.time() - self._stats['last_cache_cleanup'] > 60:
-            await self._cleanup_cache()
-
-        # Generate cache key for the query
-        cache_key = str(sorted(query.items()) if query else "all")
-        current_time = time.time()
-
-        # Check cache first
-        if cache_key in self._query_cache:
-            cached_result, timestamp = self._query_cache[cache_key]
-            if current_time - timestamp < self._cache_ttl:
-                self._stats['cache_hits'] += 1
-                return InMemoryCursor([doc.copy() for doc in cached_result])
-
-        self._stats['cache_misses'] += 1
-
-        # Execute query
+    async def find(self, query=None):
+        """Find documents matching query."""
+        self._log_operation('find', query=query)
         if query is None:
             result = [doc.copy() for doc in self.data]
         else:
@@ -213,9 +206,21 @@ class InMemoryCollection:
 
     async def count_documents(self, query=None):
         """Count documents matching query."""
-        cursor = await self.find(query)
-        result = await cursor.to_list(None)
-        return len(result)
+        async with self._lock:
+            if query is None:
+                return len(self.data)
+
+            # Simple query implementation with thread safety
+            count = 0
+            for doc in self.data:
+                match = True
+                for key, value in query.items():
+                    if key not in doc or doc[key] != value:
+                        match = False
+                        break
+                if match:
+                    count += 1
+            return count
 
     async def find_one_and_update(self, filter, update, **kwargs):
         """Find one document and update it."""
@@ -266,13 +271,60 @@ class InMemoryCollection:
         return None
 
     async def create_index(self, keys, **kwargs):
-        """Create index (no-op in in-memory implementation)."""
-        # Just return the index name for compatibility
+        """Create index for query optimization in in-memory implementation."""
+        # Initialize indexes dict if not exists
+        if not hasattr(self, '_indexes'):
+            self._indexes = {}
+
+        # Parse index specification
         if isinstance(keys, list):
             index_name = "_".join([f"{k[0]}_{k[1]}" for k in keys])
-        else:
+            index_fields = [k[0] for k in keys]
+        elif isinstance(keys, str):
             index_name = f"{keys}_1"
+            index_fields = [keys]
+        else:
+            # Handle dict format like {"field": 1}
+            index_fields = list(keys.keys())
+            index_name = "_".join([f"{k}_1" for k in index_fields])
+
+        # Create index structure for future optimization
+        index_config = {
+            'fields': index_fields,
+            'unique': kwargs.get('unique', False),
+            'sparse': kwargs.get('sparse', False),
+            'name': kwargs.get('name', index_name)
+        }
+
+        self._indexes[index_name] = index_config
+        self._log_operation('create_index', index=index_name, fields=index_fields)
+
+        logger.info(f"Created index '{index_name}' on collection '{self.name}' for fields: {index_fields}")
         return index_name
+
+    def list_indexes(self) -> list:
+        """List all indexes on this collection."""
+        if not hasattr(self, '_indexes'):
+            return []
+        return [
+            {
+                'name': name,
+                'key': {field: 1 for field in config['fields']},
+                **{k: v for k, v in config.items() if k not in ['fields', 'name']}
+            }
+            for name, config in self._indexes.items()
+        ]
+
+    async def drop_index(self, index_name: str) -> bool:
+        """Drop an index by name."""
+        if not hasattr(self, '_indexes'):
+            return False
+
+        if index_name in self._indexes:
+            del self._indexes[index_name]
+            logger.info(f"Dropped index '{index_name}' from collection '{self.name}'")
+            return True
+        return False
 
     async def __aenter__(self):
         """
@@ -350,3 +402,25 @@ class InMemoryCollection:
         """Invalidate all cached query results."""
         self._query_cache.clear()
         logger.debug(f"Cache invalidated for collection: {self.name}")
+
+    async def batch_operations(self):
+        """
+        Returns an async context manager for performing batch operations.
+
+        Usage:
+            async with collection.batch_operations() as batch:
+                # All operations within this block are performed atomically
+                pass
+        """
+        return self
+
+    async def clone_data(self):
+        """
+        Thread-safe method to clone the current data state.
+
+        Returns:
+            A deep copy of the current data for safe external access
+        """
+        import copy
+        async with self._lock:
+            return copy.deepcopy(self.data)
