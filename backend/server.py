@@ -34,10 +34,7 @@ if str(REPO_ROOT) not in sys.path:
 # Load environment variables from repository root
 load_dotenv(REPO_ROOT / ".env")
 
-# Define custom exception for startup failures
-class StartupError(RuntimeError):
-    """Raised when a critical service fails during startup."""
-    pass
+# StartupError is now imported from lifecycle module
 
 # Import our modular server components (absolute imports rooted at 'backend')
 try:
@@ -56,7 +53,8 @@ try:
     from backend.server_modules.app import create_application
     from backend.server_modules.database import setup_database
     from backend.server_modules.health import register_health_endpoints
-    from backend.server_modules.services import setup_services, start_services
+    from backend.server_modules.services import setup_services
+    from backend.server_modules.lifecycle import create_lifespan_handler
 except ImportError as e:
     logger.critical(f"Failed to import required modules: {e}")
     logger.critical(
@@ -80,98 +78,13 @@ blockchain_service, outbox_processor = setup_services(
     health_manager=health_manager
 )
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """Lifespan context manager for startup and shutdown events."""
-    # Startup
-    logger.info("Starting Crisis Unleashed Backend...")
-
-    # Determine if we should fail fast based on environment
-    environment = os.environ.get("ENVIRONMENT", "development")
-    fail_fast = environment != "development"
-
-    try:
-        # Start all services
-        await start_services(
-            blockchain_service=blockchain_service,
-            outbox_processor=outbox_processor,
-            health_manager=health_manager,
-            fail_fast=fail_fast,
-        )
-
-        logger.info("🚀 Crisis Unleashed Backend started successfully!")
-
-    except services.health_manager.CriticalServiceException as e:
-        # Critical service failed - this should fail startup in production
-        logger.critical("=" * 60)
-        logger.critical("💥 CRITICAL SERVICE INITIALIZATION FAILURE")
-        logger.critical("=" * 60)
-        logger.critical(f"Error: {e}")
-        logger.critical(
-            "Application cannot continue without critical services."
-        )
-        logger.critical(
-            "Check your configuration and external service connectivity."
-        )
-        logger.critical("=" * 60)
-
-        # Raise an exception instead of exiting the process
-        if fail_fast:
-            raise StartupError(f"Critical service initialization failed: {e}")
-        # In development mode, continue despite the error
-
-    except Exception as e:
-        # Unexpected initialization error
-        logger.critical(f"💥 Unexpected error during service initialization: {e}")
-
-        if fail_fast:
-            logger.critical("Failing fast due to unexpected initialization error")
-            # Raise an exception instead of exiting the process
-            raise StartupError(
-                f"Unexpected error during service initialization: {e}"
-            )
-        else:
-            logger.warning("Continuing startup despite initialization error (development mode)")
-
-    yield
-
-    # Shutdown
-    logger.info("Shutting down Crisis Unleashed Backend...")
-
-    try:
-        # Stop health monitoring
-        if health_manager:
-            await health_manager.stop()
-            logger.info("Health monitoring stopped")
-    except Exception as e:
-        logger.error(f"Error stopping health manager: {e}")
-
-    try:
-        # Stop outbox processor
-        if outbox_processor:
-            await outbox_processor.stop()
-            logger.info("Outbox processor stopped")
-    except Exception as e:
-        logger.error(f"Error stopping outbox processor: {e}")
-
-    try:
-        # Close database connection only if it's a real database connection
-        if db and hasattr(db, 'close'):
-            # Check if it's not an in-memory database
-            is_in_memory = (
-                hasattr(db, 'outbox')
-                and hasattr(db.outbox, '__class__')
-                and 'InMemoryCollection' in db.outbox.__class__.__name__
-            )
-            if not is_in_memory:
-                await db.close()
-                logger.info("Database connection closed")
-            else:
-                logger.info("In-memory database detected, skipping close()")
-        elif db:
-            logger.info("Database object has no close() method, skipping")
-    except Exception as e:
-        logger.error(f"Error during shutdown: {e}")
+# Create lifespan handler using the new lifecycle manager
+lifespan = create_lifespan_handler(
+    health_manager=health_manager,
+    blockchain_service=blockchain_service,
+    outbox_processor=outbox_processor,
+    db=db
+)
 
 # Create the FastAPI application
 app = create_application(

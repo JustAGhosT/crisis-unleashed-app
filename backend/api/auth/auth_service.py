@@ -63,7 +63,51 @@ class AuthenticationService:
         # Remove null bytes and control characters
         sanitized = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]', '', sanitized)
 
-        return sanitized
+        # Remove common SQL injection patterns
+        sql_patterns = [r'union\s+select', r'drop\s+table', r'delete\s+from',
+                       r'insert\s+into', r'update\s+set', r'exec\s*\(']
+        for pattern in sql_patterns:
+            sanitized = re.sub(pattern, '', sanitized, flags=re.IGNORECASE)
+
+        # Remove script tags and javascript
+        sanitized = re.sub(r'<script[^>]*>.*?</script>', '', sanitized, flags=re.IGNORECASE | re.DOTALL)
+        sanitized = re.sub(r'javascript:', '', sanitized, flags=re.IGNORECASE)
+
+        # Remove excessive whitespace
+        sanitized = re.sub(r'\s+', ' ', sanitized)
+
+        return sanitized.strip()
+
+    @staticmethod
+    def validate_password_strength(password: str) -> tuple[bool, str]:
+        """
+        Validate password strength requirements.
+
+        Args:
+            password: Password to validate
+
+        Returns:
+            Tuple of (is_valid, error_message)
+        """
+        if len(password) < 8:
+            return False, "Password must be at least 8 characters long"
+
+        if len(password) > 128:
+            return False, "Password cannot exceed 128 characters"
+
+        # Check for at least one uppercase, lowercase, digit, and special character
+        checks = [
+            (r'[a-z]', "Password must contain at least one lowercase letter"),
+            (r'[A-Z]', "Password must contain at least one uppercase letter"),
+            (r'\d', "Password must contain at least one digit"),
+            (r'[!@#$%^&*(),.?":{}|<>]', "Password must contain at least one special character")
+        ]
+
+        for pattern, message in checks:
+            if not re.search(pattern, password):
+                return False, message
+
+        return True, "Password meets strength requirements"
 
     @staticmethod
     def validate_email(email: str) -> bool:
