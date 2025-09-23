@@ -1,20 +1,184 @@
 """
-Comprehensive Error Handling Middleware
+Enhanced Error Handling Middleware
 
-Provides centralized error handling, logging, and user-friendly error responses
-for all API endpoints in the Crisis Unleashed backend.
+Provides centralized error handling, structured error responses, logging,
+and comprehensive error tracking for all API endpoints.
 """
 
 import logging
 import traceback
 import uuid
 from datetime import datetime
-from typing import Dict, Any, Optional, Union
+from typing import Dict, Any, Optional, Union, List
+from enum import Enum
+from dataclasses import dataclass, asdict
+
 from fastapi import Request, HTTPException, status
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from pydantic import ValidationError
 import asyncio
+
+# Import metrics tracking if available
+try:
+    from ..api.metrics_endpoints import record_error
+    METRICS_AVAILABLE = True
+except ImportError:
+    METRICS_AVAILABLE = False
+
+logger = logging.getLogger(__name__)
+
+class ErrorCategory(str, Enum):
+    """Error category enumeration for better error classification."""
+    VALIDATION = "validation"
+    AUTHENTICATION = "authentication"
+    AUTHORIZATION = "authorization"
+    BUSINESS_LOGIC = "business_logic"
+    EXTERNAL_SERVICE = "external_service"
+    DATABASE = "database"
+    NETWORK = "network"
+    SYSTEM = "system"
+    UNKNOWN = "unknown"
+
+class ErrorSeverity(str, Enum):
+    """Error severity levels."""
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+
+@dataclass
+class StructuredError:
+    """Structured error representation for consistent API responses."""
+    error_id: str
+    timestamp: str
+    category: ErrorCategory
+    severity: ErrorSeverity
+    message: str
+    details: Optional[Dict[str, Any]] = None
+    suggestions: Optional[List[str]] = None
+    documentation_url: Optional[str] = None
+
+    def to_response_dict(self, include_debug: bool = False) -> Dict[str, Any]:
+        """Convert to dictionary suitable for API response."""
+        response = {
+            "error": {
+                "id": self.error_id,
+                "timestamp": self.timestamp,
+                "category": self.category.value,
+                "severity": self.severity.value,
+                "message": self.message,
+            }
+        }
+
+        if self.details and (include_debug or self.severity in [ErrorSeverity.LOW, ErrorSeverity.MEDIUM]):
+            response["error"]["details"] = self.details
+
+        if self.suggestions:
+            response["error"]["suggestions"] = self.suggestions
+
+        if self.documentation_url:
+            response["error"]["documentation_url"] = self.documentation_url
+
+        return response
+
+class ErrorRegistry:
+    """Registry for known error types and their handling strategies."""
+
+    ERROR_MAPPINGS = {
+        # HTTP Exceptions
+        status.HTTP_400_BAD_REQUEST: {
+            "category": ErrorCategory.VALIDATION,
+            "severity": ErrorSeverity.LOW,
+            "suggestions": ["Check your request parameters and try again"]
+        },
+        status.HTTP_401_UNAUTHORIZED: {
+            "category": ErrorCategory.AUTHENTICATION,
+            "severity": ErrorSeverity.MEDIUM,
+            "suggestions": ["Please log in to access this resource", "Check if your authentication token is valid"]
+        },
+        status.HTTP_403_FORBIDDEN: {
+            "category": ErrorCategory.AUTHORIZATION,
+            "severity": ErrorSeverity.MEDIUM,
+            "suggestions": ["You don't have permission to access this resource"]
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "category": ErrorCategory.BUSINESS_LOGIC,
+            "severity": ErrorSeverity.LOW,
+            "suggestions": ["Check if the requested resource exists"]
+        },
+        status.HTTP_422_UNPROCESSABLE_ENTITY: {
+            "category": ErrorCategory.VALIDATION,
+            "severity": ErrorSeverity.LOW,
+            "suggestions": ["Check your input data format and try again"]
+        },
+        status.HTTP_429_TOO_MANY_REQUESTS: {
+            "category": ErrorCategory.SYSTEM,
+            "severity": ErrorSeverity.MEDIUM,
+            "suggestions": ["Please wait before making another request"]
+        },
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {
+            "category": ErrorCategory.SYSTEM,
+            "severity": ErrorSeverity.HIGH,
+            "suggestions": ["This is a server error. Please try again later or contact support"]
+        },
+        status.HTTP_502_BAD_GATEWAY: {
+            "category": ErrorCategory.EXTERNAL_SERVICE,
+            "severity": ErrorSeverity.HIGH,
+            "suggestions": ["External service temporarily unavailable. Please try again later"]
+        },
+        status.HTTP_503_SERVICE_UNAVAILABLE: {
+            "category": ErrorCategory.SYSTEM,
+            "severity": ErrorSeverity.HIGH,
+            "suggestions": ["Service temporarily unavailable. Please try again later"]
+        }
+    }
+
+    EXCEPTION_MAPPINGS = {
+        "ValidationError": {
+            "category": ErrorCategory.VALIDATION,
+            "severity": ErrorSeverity.LOW,
+            "status_code": status.HTTP_422_UNPROCESSABLE_ENTITY
+        },
+        "RequestValidationError": {
+            "category": ErrorCategory.VALIDATION,
+            "severity": ErrorSeverity.LOW,
+            "status_code": status.HTTP_422_UNPROCESSABLE_ENTITY
+        },
+        "ConnectionError": {
+            "category": ErrorCategory.NETWORK,
+            "severity": ErrorSeverity.MEDIUM,
+            "status_code": status.HTTP_502_BAD_GATEWAY
+        },
+        "TimeoutError": {
+            "category": ErrorCategory.NETWORK,
+            "severity": ErrorSeverity.MEDIUM,
+            "status_code": status.HTTP_504_GATEWAY_TIMEOUT
+        },
+        "DatabaseError": {
+            "category": ErrorCategory.DATABASE,
+            "severity": ErrorSeverity.HIGH,
+            "status_code": status.HTTP_500_INTERNAL_SERVER_ERROR
+        }
+    }
+
+    @classmethod
+    def get_error_info(cls, status_code: int) -> Dict[str, Any]:
+        """Get error information for HTTP status code."""
+        return cls.ERROR_MAPPINGS.get(status_code, {
+            "category": ErrorCategory.UNKNOWN,
+            "severity": ErrorSeverity.MEDIUM,
+            "suggestions": ["An unexpected error occurred"]
+        })
+
+    @classmethod
+    def get_exception_info(cls, exception_name: str) -> Dict[str, Any]:
+        """Get error information for exception type."""
+        return cls.EXCEPTION_MAPPINGS.get(exception_name, {
+            "category": ErrorCategory.UNKNOWN,
+            "severity": ErrorSeverity.MEDIUM,
+            "status_code": status.HTTP_500_INTERNAL_SERVER_ERROR
+        })
 
 logger = logging.getLogger(__name__)
 
@@ -63,6 +227,134 @@ class ErrorDetail:
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for JSON response."""
+        return {
+            "error_type": self.error_type,
+            "message": self.message,
+            "user_message": self.user_message,
+            "details": self.details,
+            "correlation_id": self.correlation_id,
+            "context": self.context
+        }
+
+def create_structured_error(
+    exception: Exception,
+    request: Request,
+    status_code: int = status.HTTP_500_INTERNAL_SERVER_ERROR
+) -> StructuredError:
+    """Create structured error from exception and request context."""
+    error_id = str(uuid.uuid4())
+    timestamp = datetime.utcnow().isoformat()
+
+    # Get error classification
+    exception_name = type(exception).__name__
+    exception_info = ErrorRegistry.get_exception_info(exception_name)
+    status_info = ErrorRegistry.get_error_info(status_code)
+
+    # Use more specific info from exception mapping if available
+    category = exception_info.get("category", status_info.get("category", ErrorCategory.UNKNOWN))
+    severity = exception_info.get("severity", status_info.get("severity", ErrorSeverity.MEDIUM))
+    suggestions = status_info.get("suggestions", ["An unexpected error occurred"])
+
+    # Build details from request context
+    details = get_request_context(request)
+
+    # Add exception details for debugging (only in development)
+    if hasattr(request.app.state, 'config') and getattr(request.app.state.config, 'debug', False):
+        details["exception_type"] = exception_name
+        details["exception_args"] = str(exception.args) if exception.args else None
+        details["traceback"] = traceback.format_exc()
+
+    return StructuredError(
+        error_id=error_id,
+        timestamp=timestamp,
+        category=category,
+        severity=severity,
+        message=str(exception),
+        details=details,
+        suggestions=suggestions
+    )
+
+def create_error_response(
+    structured_error: StructuredError,
+    status_code: int,
+    include_debug: bool = False
+) -> JSONResponse:
+    """Create JSON error response from structured error."""
+    # Record error in metrics if available
+    if METRICS_AVAILABLE:
+        try:
+            record_error()
+        except Exception:
+            pass  # Don't let metrics recording break error handling
+
+    response_data = structured_error.to_response_dict(include_debug=include_debug)
+    response_data["success"] = False
+
+    return JSONResponse(
+        status_code=status_code,
+        content=response_data,
+        headers={
+            "X-Error-ID": structured_error.error_id,
+            "Content-Type": "application/json"
+        }
+    )
+
+async def handle_http_exception(request: Request, exc: HTTPException) -> JSONResponse:
+    """Enhanced HTTP exception handler with structured responses."""
+    logger.warning(f"HTTP Exception {exc.status_code}: {exc.detail}")
+
+    structured_error = create_structured_error(exc, request, exc.status_code)
+    include_debug = getattr(request.app.state, 'config', {}).get('debug', False)
+
+    return create_error_response(structured_error, exc.status_code, include_debug)
+
+async def handle_validation_error(request: Request, exc: RequestValidationError) -> JSONResponse:
+    """Enhanced validation error handler with detailed field errors."""
+    logger.warning(f"Validation Error: {exc.errors()}")
+
+    # Format validation errors in a user-friendly way
+    field_errors = {}
+    for error in exc.errors():
+        field_path = ".".join(str(part) for part in error["loc"][1:])  # Skip 'body' prefix
+        field_errors[field_path] = {
+            "message": error["msg"],
+            "type": error["type"],
+            "input": error.get("input")
+        }
+
+    structured_error = create_structured_error(exc, request, status.HTTP_422_UNPROCESSABLE_ENTITY)
+    structured_error.details["field_errors"] = field_errors
+    structured_error.message = f"Validation failed for {len(field_errors)} field(s)"
+
+    include_debug = getattr(request.app.state, 'config', {}).get('debug', False)
+
+    return create_error_response(structured_error, status.HTTP_422_UNPROCESSABLE_ENTITY, include_debug)
+
+async def handle_general_exception(request: Request, exc: Exception) -> JSONResponse:
+    """Enhanced general exception handler with structured logging and responses."""
+    # Log the full exception with context
+    context = get_request_context(request)
+    logger.error(
+        f"Unhandled exception {type(exc).__name__}: {exc}",
+        extra={"context": context, "exception": exc},
+        exc_info=True
+    )
+
+    structured_error = create_structured_error(exc, request, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    # In production, sanitize the error message
+    if not getattr(request.app.state, 'config', {}).get('debug', False):
+        structured_error.message = "An internal server error occurred"
+        # Remove sensitive details
+        if structured_error.details:
+            structured_error.details = {
+                key: value for key, value in structured_error.details.items()
+                if key in ["correlation_id", "timestamp", "method", "path"]
+            }
+
+    include_debug = getattr(request.app.state, 'config', {}).get('debug', False)
+
+    return create_error_response(structured_error, status.HTTP_500_INTERNAL_SERVER_ERROR, include_debug)
         result = {
             "error_type": self.error_type,
             "message": self.message,
