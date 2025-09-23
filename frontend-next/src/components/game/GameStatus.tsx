@@ -38,7 +38,13 @@ export default function GameStatus({
 
   if (isLoading)
     return <div className={`animate-pulse ${className}`}>Loading...</div>;
-  if (error) return <div className={className}>System Online</div>;
+  if (error) {
+    return (
+      <div className={`text-red-500 ${className}`}>
+        Error: Unable to fetch game status
+      </div>
+    );
+  }
   if (!gameStatus)
     return <div className={className}>No game status found.</div>;
 

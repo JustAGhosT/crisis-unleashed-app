@@ -32,8 +32,16 @@ def setup_services(
     # Initialize blockchain service
     try:
         logger.info("Setting up blockchain service...")
+
+        # Safely get blockchain config with fallback
+        blockchain_config = None
+        if hasattr(settings, 'get_blockchain_config'):
+            blockchain_config = settings.get_blockchain_config()
+        else:
+            logger.warning("Settings object missing get_blockchain_config method, using default config")
+
         blockchain_service = BlockchainService(
-            network_configs=settings.get_blockchain_config()
+            network_configs=blockchain_config
         )
 
         # Register blockchain service with health manager

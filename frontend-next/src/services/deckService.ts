@@ -12,6 +12,13 @@ import {
     UnitType,
 } from "@/types/card";
 import { apiClient } from "./api";
+import {
+  DECK_CONSTRAINTS,
+  BALANCE_THRESHOLDS,
+  GAME_MECHANICS,
+  VALIDATION_MESSAGES,
+  DEFAULTS,
+} from "@/constants/deck";
 
 // Helper function to check if we're in production server environment
 const isProductionServer = (): boolean => {
@@ -22,16 +29,20 @@ const isProductionServer = (): boolean => {
 
 // DeckService handles all deck-related operations. Single Responsibility Principle is maintained.
 export class DeckService {
-  // Deck composition constraints
-  private static readonly MAX_COPIES_PER_CARD = 3;
-  private static readonly MIN_DECK_SIZE = 30;
-  private static readonly MAX_DECK_SIZE = 50;
-  private static readonly MAX_FACTIONS = 2;
+  // Use imported constants instead of hardcoded values
+  private static readonly MAX_COPIES_PER_CARD = DECK_CONSTRAINTS.MAX_COPIES_PER_CARD;
+  private static readonly MIN_DECK_SIZE = DECK_CONSTRAINTS.MIN_DECK_SIZE;
+  private static readonly MAX_DECK_SIZE = DECK_CONSTRAINTS.MAX_DECK_SIZE;
+  private static readonly MAX_FACTIONS = DECK_CONSTRAINTS.MAX_FACTIONS;
 
   /**
    * Get decks for a user
    */
   static async getUserDecks(userId: string): Promise<Deck[]> {
+    if (!userId || typeof userId !== 'string' || userId.trim().length === 0) {
+      throw new Error(VALIDATION_MESSAGES.INVALID_USER_ID);
+    }
+
     try {
       const response = await apiClient.get(`/users/${userId}/decks`);
       return response.data;
@@ -66,6 +77,17 @@ export class DeckService {
   static async createDeck(
     deckData: Omit<Deck, "id" | "createdAt" | "updatedAt">,
   ): Promise<Deck> {
+    // Validate required fields
+    if (!deckData.name || typeof deckData.name !== 'string' || deckData.name.trim().length === 0) {
+      throw new Error(VALIDATION_MESSAGES.EMPTY_DECK_NAME);
+    }
+    if (!deckData.userId || typeof deckData.userId !== 'string' || deckData.userId.trim().length === 0) {
+      throw new Error(VALIDATION_MESSAGES.EMPTY_USER_ID);
+    }
+    if (!deckData.faction || typeof deckData.faction !== 'string') {
+      throw new Error(VALIDATION_MESSAGES.MISSING_FACTION);
+    }
+
     try {
       const response = await apiClient.post("/decks", deckData);
       return response.data;
@@ -137,8 +159,8 @@ export class DeckService {
           `${card.name}: Maximum ${this.MAX_COPIES_PER_CARD} copies per deck`,
         );
       }
-      if (deckCard.quantity < 1) {
-        errors.push(`${card.name}: Must have at least 1 copy`);
+      if (deckCard.quantity < DECK_CONSTRAINTS.MIN_CARD_QUANTITY) {
+        errors.push(`${card.name}: ${VALIDATION_MESSAGES.TOO_FEW_COPIES}`);
       }
     }
 
@@ -175,13 +197,11 @@ export class DeckService {
     let avgCost = 0;
     if (totalCards >= this.MIN_DECK_SIZE) {
       avgCost = this.calculateAverageCost(cards, deckCards);
-      if (avgCost > 4.5) {
-        warnings.push("High average cost - consider adding cheaper cards");
+      if (avgCost > BALANCE_THRESHOLDS.HIGH_AVERAGE_COST) {
+        warnings.push(VALIDATION_MESSAGES.HIGH_COST_WARNING);
       }
-      if (avgCost < 2.5) {
-        warnings.push(
-          "Low average cost - consider adding more expensive cards",
-        );
+      if (avgCost < BALANCE_THRESHOLDS.LOW_AVERAGE_COST) {
+        warnings.push(VALIDATION_MESSAGES.LOW_COST_WARNING);
       }
     }
 
