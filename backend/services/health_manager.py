@@ -12,6 +12,15 @@ import time
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Set
 
+try:
+    from backend.utils.env_config import EnvConfigHelper
+except ImportError:
+    # Fallback for direct execution
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+    from utils.env_config import EnvConfigHelper
+
 logger = logging.getLogger(__name__)
 
 
@@ -60,6 +69,10 @@ class ServiceInfo:
         self.cached_health_result: Optional[bool] = None
         self.cache_expires_at: Optional[float] = None
         self.min_check_interval: float = 5.0  # Minimum seconds between health checks
+        # Performance tracking fields
+        self.total_checks: int = 0
+        self.successful_checks: int = 0
+        self.average_check_duration: float = 0.0
 
 
 class ServiceHealthManager:
@@ -75,19 +88,16 @@ class ServiceHealthManager:
         self._health_task: Optional[asyncio.Task] = None
         self._should_stop = asyncio.Event()
         self._check_interval = 30  # seconds
-        # Default health check timeout (seconds) and circuit breaker config
-        try:
-            self._check_timeout = float(os.environ.get("HEALTHCHECK_TIMEOUT_SEC", "2"))
-        except ValueError:
-            self._check_timeout = 2.0
-        try:
-            self._cb_threshold = int(os.environ.get("HEALTHCHECK_CB_THRESHOLD", "3"))
-        except ValueError:
-            self._cb_threshold = 3
-        try:
-            self._cb_cooldown = float(os.environ.get("HEALTHCHECK_CB_COOLDOWN_SEC", "60"))
-        except ValueError:
-            self._cb_cooldown = 60.0
+        # Load health check configuration using the helper
+        health_config = EnvConfigHelper.get_config_section("HEALTHCHECK_", {
+            "timeout": ("TIMEOUT_SEC", 2.0),
+            "cb_threshold": ("CB_THRESHOLD", 3),
+            "cb_cooldown": ("CB_COOLDOWN_SEC", 60.0)
+        })
+
+        self._check_timeout = health_config["timeout"]
+        self._cb_threshold = health_config["cb_threshold"]
+        self._cb_cooldown = health_config["cb_cooldown"]
 
     def register_service(
         self,
@@ -166,11 +176,29 @@ class ServiceHealthManager:
         """
         result = {}
         for name, info in self.services.items():
+            # Calculate success rate
+            success_rate = (
+                (info.successful_checks / info.total_checks * 100)
+                if info.total_checks > 0 else 0.0
+            )
+
             result[name] = {
                 "status": info.status.value,
                 "is_critical": info.is_critical,
                 "last_error": info.last_error,
                 "dependencies": info.dependencies,
+                "last_checked_at": info.last_checked_at,
+                "performance_metrics": {
+                    "total_checks": info.total_checks,
+                    "successful_checks": info.successful_checks,
+                    "success_rate_percent": round(success_rate, 2),
+                    "average_check_duration_ms": round(info.average_check_duration * 1000, 2),
+                    "failure_count": info.failure_count,
+                },
+                "circuit_breaker": {
+                    "is_open": info.circuit_open_until is not None and time.time() < info.circuit_open_until,
+                    "opens_until": info.circuit_open_until,
+                },
             }
         return result
 
@@ -308,11 +336,14 @@ class ServiceHealthManager:
         # Rate limiting - don't check too frequently
         if (service_info.last_checked_at is not None and
             now - service_info.last_checked_at < service_info.min_check_interval):
-            # Use cached result if available
+            # Use cached result if available and not expired
             if (service_info.cached_health_result is not None and
                 service_info.cache_expires_at is not None and
                 now < service_info.cache_expires_at):
+                # Return cached status without changing it
                 return service_info.status
+            # If cache expired but still within rate limit, return last known status
+            return service_info.status
 
         # Circuit breaker short-circuit
         if (
@@ -425,8 +456,27 @@ class ServiceHealthManager:
             )
             service_info.circuit_open_until = None
 
+        # Update performance tracking
+        check_end_time = time.time()
+        check_duration = check_end_time - now
+        service_info.total_checks += 1
+        if service_info.status == ServiceStatus.HEALTHY:
+            service_info.successful_checks += 1
+
+        # Update average check duration using exponential moving average
+        if service_info.average_check_duration == 0:
+            service_info.average_check_duration = check_duration
+        else:
+            service_info.average_check_duration = (
+                0.8 * service_info.average_check_duration + 0.2 * check_duration
+            )
+
+        # Update cache
+        service_info.cached_health_result = service_info.status == ServiceStatus.HEALTHY
+        service_info.cache_expires_at = check_end_time + service_info.min_check_interval
+
         # Update the timestamp
-        service_info.last_checked_at = time.time()
+        service_info.last_checked_at = check_end_time
         return service_info.status
 
     async def _check_all_services(self) -> Dict[str, ServiceStatus]:
