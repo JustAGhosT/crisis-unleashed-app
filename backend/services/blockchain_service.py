@@ -292,16 +292,27 @@ class BlockchainService:
 
         Returns:
             Transaction hash string
+
+        Raises:
+            ValueError: If blockchain is not supported or parameters are invalid
+            RuntimeError: If the minting operation fails
         """
-        provider = self.get_provider(blockchain)
+        try:
+            provider = self.get_provider(blockchain)
 
-        # Convert rarity to numeric if provided
-        if "rarity" in metadata and metadata["rarity"] in RARITY_MAPPING:
-            metadata["rarity_value"] = RARITY_MAPPING[metadata["rarity"]]
+            # Convert rarity to numeric if provided
+            if "rarity" in metadata and metadata["rarity"] in RARITY_MAPPING:
+                metadata["rarity_value"] = RARITY_MAPPING[metadata["rarity"]]
 
-        return self._maybe_await(
-            provider.mint_nft(recipient=recipient, card_id=card_id, metadata=metadata)
-        )
+            return self._maybe_await(
+                provider.mint_nft(recipient=recipient, card_id=card_id, metadata=metadata)
+            )
+        except ValueError as e:
+            logger.error(f"Invalid parameters for minting NFT on {blockchain}: {e}")
+            raise
+        except Exception as e:
+            logger.error(f"Failed to mint NFT on {blockchain}: {e}")
+            raise RuntimeError(f"NFT minting failed on {blockchain}: {str(e)}") from e
 
     def transfer_nft(
         self, blockchain: str, from_address: str, to_address: str, token_id: str
@@ -317,13 +328,24 @@ class BlockchainService:
 
         Returns:
             Transaction hash string
+
+        Raises:
+            ValueError: If blockchain is not supported or parameters are invalid
+            RuntimeError: If the transfer operation fails
         """
-        provider = self.get_provider(blockchain)
-        return self._maybe_await(
-            provider.transfer_nft(
-                from_address=from_address, to_address=to_address, token_id=token_id
+        try:
+            provider = self.get_provider(blockchain)
+            return self._maybe_await(
+                provider.transfer_nft(
+                    from_address=from_address, to_address=to_address, token_id=token_id
+                )
             )
-        )
+        except ValueError as e:
+            logger.error(f"Invalid parameters for transferring NFT on {blockchain}: {e}")
+            raise
+        except Exception as e:
+            logger.error(f"Failed to transfer NFT on {blockchain}: {e}")
+            raise RuntimeError(f"NFT transfer failed on {blockchain}: {str(e)}") from e
 
     def wait_for_confirmation(
         self, blockchain: str, tx_hash: str, timeout: int = 120

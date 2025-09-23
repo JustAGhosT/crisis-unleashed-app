@@ -56,6 +56,10 @@ class ServiceInfo:
         self.circuit_open_until: Optional[float] = None
         # Optional per-service health check timeout (seconds)
         self.health_check_timeout: Optional[float] = None
+        # Cache fields for performance optimization
+        self.cached_health_result: Optional[bool] = None
+        self.cache_expires_at: Optional[float] = None
+        self.min_check_interval: float = 5.0  # Minimum seconds between health checks
 
 
 class ServiceHealthManager:
@@ -299,8 +303,18 @@ class ServiceHealthManager:
         Returns:
             Updated service status
         """
-        # Circuit breaker short-circuit
         now = time.time()
+
+        # Rate limiting - don't check too frequently
+        if (service_info.last_checked_at is not None and
+            now - service_info.last_checked_at < service_info.min_check_interval):
+            # Use cached result if available
+            if (service_info.cached_health_result is not None and
+                service_info.cache_expires_at is not None and
+                now < service_info.cache_expires_at):
+                return service_info.status
+
+        # Circuit breaker short-circuit
         if (
             service_info.circuit_open_until is not None
             and now < service_info.circuit_open_until

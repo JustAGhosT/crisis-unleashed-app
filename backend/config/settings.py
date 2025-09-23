@@ -221,50 +221,9 @@ class Settings(BaseSettings):
         return v
 
     def get_blockchain_config(self) -> Dict[str, Dict[str, Any]]:
-        """Get blockchain configuration dictionary."""
-        config = {
-            "ethereum_mainnet": {
-                "name": "ethereum_mainnet",
-                "rpc_url": self.ethereum_mainnet_rpc_url,
-                "nft_contract_address": self.ethereum_mainnet_nft_contract,
-                "marketplace_contract_address": self.ethereum_mainnet_marketplace_contract,
-                "chain_id": self.ethereum_mainnet_chain_id,
-            },
-            "ethereum_testnet": {
-                "name": "ethereum_testnet",
-                "rpc_url": self.ethereum_testnet_rpc_url,
-                "nft_contract_address": self.ethereum_testnet_nft_contract,
-                "marketplace_contract_address": self.ethereum_testnet_marketplace_contract,
-                "chain_id": self.ethereum_testnet_chain_id,
-            },
-            "etherlink_mainnet": {
-                "name": "etherlink_mainnet",
-                "rpc_url": self.etherlink_mainnet_rpc_url,
-                "nft_contract_address": self.etherlink_mainnet_nft_contract,
-                "marketplace_contract_address": self.etherlink_mainnet_marketplace_contract,
-                "chain_id": self.etherlink_mainnet_chain_id,
-            },
-            "etherlink_testnet": {
-                "name": "etherlink_testnet",
-                "rpc_url": self.etherlink_testnet_rpc_url,
-                "nft_contract_address": self.etherlink_testnet_nft_contract,
-                "marketplace_contract_address": self.etherlink_testnet_marketplace_contract,
-                "chain_id": self.etherlink_testnet_chain_id,
-            },
-            "solana_mainnet": {
-                "name": "solana_mainnet",
-                "rpc_url": self.solana_mainnet_rpc_url,
-                "program_id": self.solana_mainnet_program_id,
-                "chain_id": self.solana_mainnet_chain_id,
-            },
-            "solana_testnet": {
-                "name": "solana_testnet",
-                "rpc_url": self.solana_testnet_rpc_url,
-                "program_id": self.solana_testnet_program_id,
-                "chain_id": self.solana_testnet_chain_id,
-            },
-        }
-        return config
+        """Get blockchain configuration dictionary using the centralized network config service."""
+        from .network_config import NetworkConfigService
+        return NetworkConfigService.get_all_network_configs()
 
     def get_outbox_config(self) -> Dict[str, Any]:
         """Get outbox processing configuration."""
