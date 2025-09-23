@@ -30,6 +30,7 @@ numpy>=1.26.0
 python-multipart>=0.0.9
 jq>=1.6.0
 typer>=0.9.0
+psutil>=5.9.0
 web3>=6.15.0,<8.0.0
 # types-web3 has no wheels for Python >=3.11 as of now; gate by python version
 types-web3>=6.0.0,<7.0.0; python_version < "3.11"

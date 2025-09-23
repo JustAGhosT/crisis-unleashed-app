@@ -6,6 +6,8 @@ This module provides a collection implementation for the in-memory database.
 
 import asyncio
 import logging
+import time
+from typing import Dict, Any, Optional, List
 
 # Import related classes
 from .cursor import InMemoryCursor
@@ -16,28 +18,61 @@ logger = logging.getLogger(__name__)
 class InMemoryCollection:
     """In-memory collection implementation for testing."""
 
-    def __init__(self, name):
+    def __init__(self, name: str, max_cache_size: int = 1000):
         self.name = name
-        self.data = []
+        self.data: List[Dict[str, Any]] = []
         self._id_counter = 1  # For auto-incrementing IDs
         self._lock = asyncio.Lock()  # Add lock for thread safety
+        self._in_context = False  # Track context manager state
 
-    async def find(self, query=None):
-        """Find documents matching query."""
+        # Query result caching for performance
+        self._query_cache: Dict[str, tuple] = {}  # query_key -> (result, timestamp)
+        self._max_cache_size = max_cache_size
+        self._cache_ttl = 60  # Cache TTL in seconds
+        self._stats = {
+            'cache_hits': 0,
+            'cache_misses': 0,
+            'total_queries': 0,
+            'last_cache_cleanup': time.time()
+        }
+
+    async def find(self, query: Optional[Dict[str, Any]] = None):
+        """Find documents matching query with caching support."""
+        self._stats['total_queries'] += 1
+
+        # Clean up expired cache entries periodically
+        if time.time() - self._stats['last_cache_cleanup'] > 60:
+            await self._cleanup_cache()
+
+        # Generate cache key for the query
+        cache_key = str(sorted(query.items()) if query else "all")
+        current_time = time.time()
+
+        # Check cache first
+        if cache_key in self._query_cache:
+            cached_result, timestamp = self._query_cache[cache_key]
+            if current_time - timestamp < self._cache_ttl:
+                self._stats['cache_hits'] += 1
+                return InMemoryCursor([doc.copy() for doc in cached_result])
+
+        self._stats['cache_misses'] += 1
+
+        # Execute query
         if query is None:
-            return InMemoryCursor(self.data)
+            result = [doc.copy() for doc in self.data]
+        else:
+            result = []
+            for doc in self.data:
+                match = True
+                for key, value in query.items():
+                    if key not in doc or doc[key] != value:
+                        match = False
+                        break
+                if match:
+                    result.append(doc.copy())
 
-        # Simple query implementation
-        result = []
-        for doc in self.data:
-            match = True
-            for key, value in query.items():
-                if key not in doc or doc[key] != value:
-                    match = False
-                    break
-            if match:
-                result.append(doc)
-
+        # Cache the result
+        await self._cache_result(cache_key, result, current_time)
         return InMemoryCursor(result)
 
     async def find_one(self, query=None):
@@ -56,6 +91,9 @@ class InMemoryCollection:
                 self._id_counter += 1
 
             self.data.append(doc_copy)
+
+        # Invalidate cache after data modification
+        await self.invalidate_cache()
         return {"inserted_id": doc_copy.get("_id")}
 
     async def insert_many(self, documents):
@@ -91,6 +129,8 @@ class InMemoryCollection:
                         for key, value in update.items():
                             if key != "_id":  # Don't update _id
                                 self.data[i][key] = value
+                    # Invalidate cache after data modification
+                    await self.invalidate_cache()
                     return {
                         "modified_count": 1,
                         "matched_count": 1,
@@ -113,22 +153,25 @@ class InMemoryCollection:
 
                 if match:
                     matched_count += 1
+                    updated = False
                     # Handle $set operator
                     if "$set" in update:
                         for key, value in update["$set"].items():
                             self.data[i][key] = value
-                        modified_count += 1
+                        updated = True
                     # Handle $inc operator
-                    elif "$inc" in update:
+                    if "$inc" in update:
                         for key, value in update["$inc"].items():
                             current = self.data[i].get(key, 0)
                             self.data[i][key] = current + value
-                        modified_count += 1
-                    # Handle direct update
-                    else:
+                        updated = True
+                    # Handle direct update only if no operators used
+                    if not updated:
                         for key, value in update.items():
                             if key != "_id":  # Don't update _id
                                 self.data[i][key] = value
+                        updated = True
+                    if updated:
                         modified_count += 1
 
         return {
@@ -204,12 +247,12 @@ class InMemoryCollection:
                         for key, value in update["$set"].items():
                             self.data[i][key] = value
                     # Handle $inc operator
-                    elif "$inc" in update:
+                    if "$inc" in update:
                         for key, value in update["$inc"].items():
                             current = self.data[i].get(key, 0)
                             self.data[i][key] = current + value
-                    # Handle direct update
-                    else:
+                    # Handle direct update only if no operators used
+                    if not any(op in update for op in ["$set", "$inc"]):
                         for key, value in update.items():
                             if key != "_id":  # Don't update _id
                                 self.data[i][key] = value
@@ -237,15 +280,73 @@ class InMemoryCollection:
 
         This allows for batch operations where the caller wants to perform
         multiple database operations atomically without releasing the lock
-        between operations. Note that this creates a potential for deadlock
-        if the same methods are called within the context, so this context
-        manager is intended for use with direct data access patterns.
+        between operations. Uses a reentrant approach to prevent deadlocks
+        when collection methods are called within the context.
         """
         await self._lock.acquire()
+        # Mark that we're in a context to avoid re-acquiring the lock
+        self._in_context = True
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         """Exit the async context manager by releasing the lock."""
+        self._in_context = False
         self._lock.release()
         # Return False to propagate any exceptions
         return False
+
+    async def _acquire_lock_if_needed(self):
+        """Acquire lock only if not already in context manager."""
+        if not getattr(self, '_in_context', False):
+            await self._lock.acquire()
+            return True
+        return False
+
+    def _release_lock_if_acquired(self, was_acquired):
+        """Release lock only if we acquired it."""
+        if was_acquired:
+            self._lock.release()
+
+    async def _cache_result(self, cache_key: str, result: List[Dict[str, Any]], timestamp: float):
+        """Cache query result with size management."""
+        # Remove oldest entries if cache is full
+        if len(self._query_cache) >= self._max_cache_size:
+            # Remove oldest 20% of entries
+            sorted_items = sorted(self._query_cache.items(), key=lambda x: x[1][1])
+            remove_count = len(sorted_items) // 5
+            for key, _ in sorted_items[:remove_count]:
+                del self._query_cache[key]
+
+        self._query_cache[cache_key] = (result, timestamp)
+
+    async def _cleanup_cache(self):
+        """Remove expired cache entries."""
+        current_time = time.time()
+        expired_keys = [
+            key for key, (_, timestamp) in self._query_cache.items()
+            if current_time - timestamp > self._cache_ttl
+        ]
+        for key in expired_keys:
+            del self._query_cache[key]
+
+        self._stats['last_cache_cleanup'] = current_time
+        logger.debug(f"Cache cleanup: removed {len(expired_keys)} expired entries")
+
+    def get_cache_stats(self) -> Dict[str, Any]:
+        """Get cache performance statistics."""
+        total_requests = self._stats['cache_hits'] + self._stats['cache_misses']
+        hit_rate = self._stats['cache_hits'] / total_requests if total_requests > 0 else 0
+
+        return {
+            'cache_hits': self._stats['cache_hits'],
+            'cache_misses': self._stats['cache_misses'],
+            'hit_rate': hit_rate,
+            'total_queries': self._stats['total_queries'],
+            'cached_entries': len(self._query_cache),
+            'cache_size_limit': self._max_cache_size
+        }
+
+    async def invalidate_cache(self):
+        """Invalidate all cached query results."""
+        self._query_cache.clear()
+        logger.debug(f"Cache invalidated for collection: {self.name}")

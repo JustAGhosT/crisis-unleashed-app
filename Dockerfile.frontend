@@ -1,0 +1,83 @@
+# Multi-stage Docker build for Crisis Unleashed Frontend
+FROM node:20-alpine as base
+
+# Install dumb-init for proper signal handling
+RUN apk add --no-cache dumb-init
+
+# Create app directory and user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nextjs -u 1001
+
+WORKDIR /app
+
+# Install dependencies stage
+FROM base as dependencies
+
+# Copy package files
+COPY frontend-next/package.json frontend-next/pnpm-lock.yaml ./
+
+# Install pnpm
+RUN npm install -g pnpm@latest
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile --prod=false
+
+# Build stage
+FROM dependencies as builder
+
+# Copy source code
+COPY frontend-next/ ./
+COPY tailwind.config.js ./
+
+# Set build environment
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Build the application
+RUN pnpm build
+
+# Remove dev dependencies
+RUN pnpm prune --prod
+
+# Production stage
+FROM base as production
+
+# Copy built application
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+
+# Set production environment
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+
+USER nextjs
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1
+
+EXPOSE 3000
+
+# Start the application
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "server.js"]
+
+# Development stage
+FROM dependencies as development
+
+# Copy source code
+COPY frontend-next/ ./
+COPY tailwind.config.js ./
+
+# Set development environment
+ENV NODE_ENV=development
+ENV NEXT_TELEMETRY_DISABLED=1
+
+USER nextjs
+
+EXPOSE 3000
+
+# Start in development mode
+CMD ["pnpm", "dev"]

@@ -1,0 +1,185 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7.0
+    container_name: crisis-unleashed-db
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-password123}
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE:-crisis_unleashed}
+    ports:
+      - "${MONGO_PORT:-27017}:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - crisis-unleashed-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: crisis-unleashed-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - crisis-unleashed-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+
+  # Backend API
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+      target: ${BUILD_TARGET:-development}
+    container_name: crisis-unleashed-backend
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-8010}:8010"
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - DATABASE_URL=mongodb://admin:password123@mongodb:27017/crisis_unleashed?authSource=admin
+      - REDIS_URL=redis://redis:6379
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000,http://frontend:3000}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENABLE_TELEMETRY=${ENABLE_TELEMETRY:-true}
+      - BLOCKCHAIN_HEALTHCHECK_TIMEOUT=${BLOCKCHAIN_HEALTHCHECK_TIMEOUT:-5.0}
+    volumes:
+      - ./backend:/app:ro
+      - backend_logs:/app/logs
+    networks:
+      - crisis-unleashed-network
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8010/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Frontend Application
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      target: ${BUILD_TARGET:-development}
+    container_name: crisis-unleashed-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - NEXT_PUBLIC_API_URL=http://localhost:8010
+      - NEXT_PUBLIC_WS_URL=ws://localhost:8010
+      - NEXT_TELEMETRY_DISABLED=1
+    volumes:
+      - ./frontend-next:/app:ro
+      - frontend_node_modules:/app/node_modules
+    networks:
+      - crisis-unleashed-network
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Development Tools (only in development)
+  mongo-express:
+    image: mongo-express:1.0
+    container_name: crisis-unleashed-mongo-express
+    restart: unless-stopped
+    profiles:
+      - development
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: password123
+      ME_CONFIG_MONGODB_URL: mongodb://admin:password123@mongodb:27017/
+      ME_CONFIG_BASICAUTH: false
+    networks:
+      - crisis-unleashed-network
+    depends_on:
+      mongodb:
+        condition: service_healthy
+
+  # Redis Commander (development only)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: crisis-unleashed-redis-commander
+    restart: unless-stopped
+    profiles:
+      - development
+    ports:
+      - "8082:8081"
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    networks:
+      - crisis-unleashed-network
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  # Nginx Reverse Proxy (production)
+  nginx:
+    image: nginx:alpine
+    container_name: crisis-unleashed-nginx
+    restart: unless-stopped
+    profiles:
+      - production
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - nginx_logs:/var/log/nginx
+    networks:
+      - crisis-unleashed-network
+    depends_on:
+      - frontend
+      - backend
+
+volumes:
+  mongodb_data:
+    driver: local
+  redis_data:
+    driver: local
+  backend_logs:
+    driver: local
+  frontend_node_modules:
+    driver: local
+  nginx_logs:
+    driver: local
+
+networks:
+  crisis-unleashed-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

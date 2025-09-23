@@ -1,0 +1,78 @@
+# Multi-stage Docker build for Crisis Unleashed Backend
+FROM python:3.11-slim as base
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    gcc \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create app user and directory
+RUN groupadd -r appuser && useradd --no-log-init -r -g appuser appuser
+WORKDIR /app
+
+# Install Python dependencies
+FROM base as dependencies
+
+COPY backend/requirements.txt /app/requirements.txt
+RUN pip install --no-deps -r requirements.txt
+
+# Development stage
+FROM dependencies as development
+
+# Copy application code
+COPY backend/ /app/
+COPY .env.example /app/.env
+
+# Change ownership to appuser
+RUN chown -R appuser:appuser /app
+
+# Switch to non-root user
+USER appuser
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8010/api/health || exit 1
+
+# Expose port
+EXPOSE 8010
+
+# Start application
+CMD ["python", "-m", "uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8010", "--reload"]
+
+# Production stage
+FROM dependencies as production
+
+# Install only production dependencies
+RUN pip install --no-deps gunicorn[gevent]
+
+# Copy application code
+COPY backend/ /app/
+
+# Remove development files
+RUN find /app -name "*.pyc" -delete && \
+    find /app -name "__pycache__" -type d -exec rm -rf {} + && \
+    find /app -name "*.pyo" -delete
+
+# Create logs directory
+RUN mkdir -p /app/logs && chown -R appuser:appuser /app
+
+# Switch to non-root user
+USER appuser
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8010/api/health || exit 1
+
+# Expose port
+EXPOSE 8010
+
+# Start with gunicorn for production
+CMD ["gunicorn", "server:app", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8010", "--access-logfile", "/app/logs/access.log", "--error-logfile", "/app/logs/error.log", "--log-level", "info"]

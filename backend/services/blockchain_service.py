@@ -388,7 +388,12 @@ class BlockchainService:
                     "Provider health check timed out for %s", type(provider).__name__
                 )
                 return False
-            except Exception:
+            except Exception as e:
+                # Log the exception details for debugging
+                logger.warning(
+                    "Provider health check failed for %s: %s",
+                    type(provider).__name__, str(e)
+                )
                 # Treat exceptions as disconnected
                 return False
 
