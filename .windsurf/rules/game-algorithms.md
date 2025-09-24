@@ -15,14 +15,14 @@ Core Game Systems:
 - Pathfinding: A\* with h = hex_distance \* base_cost; edge cost = terrain_cost(q,r) + faction_modifier(unit, q,r); tie-breaker: lowest total cost, then lowest q, then lowest r.
 - Occupancy: one unit per hex; stacking not allowed; summons follow same constraint unless flagged "ethereal".
 
-1. Turn Sequencing (Importance: 90)
+2. Turn Sequencing (Importance: 90)
 
 - Order: Start-of-turn triggers → Resource gain → Deploy → Action → End → Cleanup.
 - Resources: energy += floor(turn/2) + faction_bonus; momentum capped at 10; overflow is lost.
 - Initiative: compare unit.initiative; ties break by lane (L<C<R), then position (lowest q, then r).
 - Crises: evaluated at End → before Cleanup; define trigger thresholds and once-per-turn constraint.
 
-1. Combat Resolution (Importance: 85)
+3. Combat Resolution (Importance: 85)
 
 - Timing windows: Pre-attack → On-attack → On-hit → Post-hit → On-kill → End-of-combat.
 - Damage application: simultaneous within the same initiative bucket; shields/guards reduce before HP.
@@ -32,7 +32,7 @@ Core Game Systems:
 - Unit ability triggers during combat
 - Battlefield position effects on combat
 
-1. Card Deployment Logic (Importance: 80)
+4. Card Deployment Logic (Importance: 80)
 
 - Position validation based on card type
 - Resource cost verification (Energy/Momentum)

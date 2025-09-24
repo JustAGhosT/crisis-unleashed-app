@@ -33,7 +33,7 @@ const customJestConfig = {
   testPathIgnorePatterns: [
     "<rootDir>/node_modules/", 
     "<rootDir>/.next/",
-    "<rootDir>/tests/e2e/"  // Exclude Playwright E2E tests
+    "<rootDir>/tests/e2e/" // Added this line to exclude Playwright E2E tests
   ],
   // Prevent Jest Haste map from scanning Next standalone output which contains a duplicate package.json
   modulePathIgnorePatterns: [

@@ -98,6 +98,6 @@ describe("HomePage Component", () => {
 
     render(<HomePage />);
 
-    expect(screen.getByText("System Online")).toBeInTheDocument();
+    expect(screen.getByText("Error: Unable to fetch game status")).toBeInTheDocument();
   });
 });

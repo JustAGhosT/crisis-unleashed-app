@@ -1,5 +1,6 @@
 import { render } from "@testing-library/react";
 import { DeckList } from "../DeckList";
+import { ToastProvider } from "@/hooks/useToast";
 
 const make = (id: string, type: string, faction: string) => ({ id, name: id, type, faction, cost: 1 });
 
@@ -17,15 +18,17 @@ describe("DeckList faction limit", () => {
     const onAddCard = jest.fn();
 
     render(
-      <DeckList
-        deckCards={deckCards as any}
-        cards={cards as any}
-        onAddCard={onAddCard}
-        onRemoveCard={() => {}}
-        onSaveDeck={() => {}}
-        onClearDeck={() => {}}
-        maxCards={60}
-      />,
+      <ToastProvider>
+        <DeckList
+          deckCards={deckCards as any}
+          cards={cards as any}
+          onAddCard={onAddCard}
+          onRemoveCard={() => {}}
+          onSaveDeck={() => {}}
+          onClearDeck={() => {}}
+          maxCards={60}
+        />
+      </ToastProvider>,
     );
 
     expect(onAddCard).not.toHaveBeenCalled();

@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { DeckList } from "../DeckList";
+import { ToastProvider } from "@/hooks/useToast";
 
 const makeCard = (id: string, overrides: Partial<any> = {}) => ({
   id,
@@ -21,15 +22,17 @@ describe("DeckList guardAdd", () => {
     const onRemoveCard = jest.fn();
 
     render(
-      <DeckList
-        deckCards={deckCards as any}
-        cards={cards as any}
-        onAddCard={onAddCard}
-        onRemoveCard={onRemoveCard}
-        onSaveDeck={() => {}}
-        onClearDeck={() => {}}
-        maxCards={60}
-      />,
+      <ToastProvider>
+        <DeckList
+          deckCards={deckCards as any}
+          cards={cards as any}
+          onAddCard={onAddCard}
+          onRemoveCard={onRemoveCard}
+          onSaveDeck={() => {}}
+          onClearDeck={() => {}}
+          maxCards={60}
+        />
+      </ToastProvider>,
     );
 
     // Try to add c1 again via keyboard add on a rendered row (simulate accessible add via button)

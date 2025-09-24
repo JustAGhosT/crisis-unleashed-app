@@ -1,5 +1,6 @@
 import { render } from "@testing-library/react";
 import { DeckList } from "../DeckList";
+import { ToastProvider } from "@/hooks/useToast";
 
 const makeCard = (id: string, overrides: Partial<any> = {}) => ({
   id,
@@ -19,15 +20,17 @@ describe("DeckList hero cap", () => {
 
     // Render and attempt to add via onAddCard callback directly
     render(
-      <DeckList
-        deckCards={deckCards as any}
-        cards={cards as any}
-        onAddCard={onAddCard}
-        onRemoveCard={() => {}}
-        onSaveDeck={() => {}}
-        onClearDeck={() => {}}
-        maxCards={60}
-      />,
+      <ToastProvider>
+        <DeckList
+          deckCards={deckCards as any}
+          cards={cards as any}
+          onAddCard={onAddCard}
+          onRemoveCard={() => {}}
+          onSaveDeck={() => {}}
+          onClearDeck={() => {}}
+          maxCards={60}
+        />
+      </ToastProvider>,
     );
 
     // The DeckList guard is applied when onAddCard is invoked from DnD or row controls.
